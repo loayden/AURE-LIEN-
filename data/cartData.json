@@ -20,5 +20,13 @@
     "quantity": 1,
     "size": "M",
     "color": "brown"
+  },
+  {
+    "_id": "p-jc-002",
+    "userId": "06828991-a489-4796-b699-20a475ce6556",
+    "productId": "p-jc-002",
+    "quantity": 1,
+    "size": null,
+    "color": null
   }
 ]

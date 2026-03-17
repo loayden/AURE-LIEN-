@@ -24,5 +24,31 @@
       "shippingMethod": "within_cairo"
     },
     "updatedAt": "2026-03-13T14:54:01.659Z"
+  },
+  "user-1773080606535-cku5otg": {
+    "items": [
+      {
+        "_id": "p-jc-002",
+        "productId": "p-jc-002",
+        "name": "Vintage Knit Cardigan",
+        "price": 1249,
+        "quantity": 1,
+        "image": "/uploads/korean_bijam_peig2.jpg"
+      }
+    ],
+    "form": {
+      "email": "",
+      "newsletter": false,
+      "country": "Egypt",
+      "firstName": "",
+      "lastName": "",
+      "address": "",
+      "apartment": "",
+      "city": "",
+      "postalCode": "",
+      "phone": "",
+      "shippingMethod": "within_egypt"
+    },
+    "updatedAt": "2026-03-17T22:16:19.685Z"
   }
 }
