@@ -1,3 +1,0 @@
-module.exports=[21517,(e,r,t)=>{r.exports=e.x("http",()=>require("http"))},27699,(e,r,t)=>{r.exports=e.x("events",()=>require("events"))},4446,(e,r,t)=>{r.exports=e.x("net",()=>require("net"))},6461,(e,r,t)=>{r.exports=e.x("zlib",()=>require("zlib"))},55004,(e,r,t)=>{r.exports=e.x("tls",()=>require("tls"))},92509,(e,r,t)=>{r.exports=e.x("url",()=>require("url"))}];
-
-//# sourceMappingURL=%5Bexternals%5D__7288287c._.js.map
