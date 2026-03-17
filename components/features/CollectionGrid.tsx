@@ -1,0 +1,37 @@
+"use client";
+
+import { motion } from "framer-motion";
+import ImageOverlayCard from "@/components/ui/ImageOverlayCard";
+import SectionHeader from "@/components/ui/SectionHeader";
+import type { CategoryCard } from "@/lib/types";
+
+interface CollectionGridProps {
+  title?: string;
+  subtitle?: string;
+  items: CategoryCard[];
+  cols?: 3 | 4;
+}
+
+export default function CollectionGrid({
+  title,
+  subtitle,
+  items,
+  cols = 4,
+}: CollectionGridProps) {
+  return (
+    <section className="py-24 px-6 sm:px-12 max-w-7xl mx-auto">
+      {title && <SectionHeader title={title} subtitle={subtitle} />}
+      <div className={`grid grid-cols-1 sm:grid-cols-2 gap-8 ${cols === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4"} ${title ? "mt-16" : ""}`}>
+        {items.map((item, index) => (
+          <ImageOverlayCard
+            key={item.link}
+            title={item.title}
+            image={item.image}
+            link={item.link}
+            index={index}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}

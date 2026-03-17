@@ -1,0 +1,38 @@
+[
+  {
+    "_id": "p-1773117564347-xdyugpm",
+    "name": "Women's Teddy Jacket",
+    "category": "shirts",
+    "price": 800,
+    "description": "Cream White Faux Fur, Cropped Length, High Neck, Winter Casual Outerwear",
+    "images": [
+      "teddy-jacket-cream.jpg"
+    ],
+    "size": [
+      "S",
+      "M",
+      "L"
+    ],
+    "colors": [
+      "white"
+    ]
+  },
+  {
+    "_id": "p-1773118479272-gmavinw",
+    "name": "Women's Teddy Jacket",
+    "category": "jackets-coats",
+    "price": 799,
+    "description": "Women's Teddy Jacket, Cream White Faux Fur, Cropped Length, High Neck, Winter Casual Outerwear",
+    "images": [
+      "teddy-jacket-cream.jpg"
+    ],
+    "size": [
+      "S",
+      "M",
+      "L"
+    ],
+    "colors": [
+      "white"
+    ]
+  }
+]

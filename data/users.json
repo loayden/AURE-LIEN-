@@ -1,0 +1,66 @@
+[
+  {
+    "name": "ll",
+    "email": "lll@gmail.com",
+    "password": "$2b$12$WckUHrAy.7Ga84kVY6Vi1O6uB2Ak/DWucoU7rK.O6YNqA0ZmvEM.K",
+    "role": "customer",
+    "id": "user-1772955323225-p4m65fp",
+    "createdAt": "2026-03-08T07:35:23.225Z"
+  },
+  {
+    "name": "kkkkk",
+    "email": "kkkk@gmail.com",
+    "password": "$2b$12$WH1GU5./HCH8iUbb.yMN8urHa2PcOP8VouA3omFpup1tZP.QNeYx2",
+    "role": "customer",
+    "id": "user-1772955368249-rpbrdtv",
+    "createdAt": "2026-03-08T07:36:08.249Z"
+  },
+  {
+    "name": "loayeldin",
+    "email": "loayeldin@gmail.com",
+    "password": "$2b$12$dRYMUduKfIDn0fAIDcsbGOPX8nenVekijlT87pzcneTEaTYlZ3t0u",
+    "role": "customer",
+    "id": "user-1772955411006-qjb9yd2",
+    "createdAt": "2026-03-08T07:36:51.006Z"
+  },
+  {
+    "name": "shereen",
+    "email": "shereeenmagdyy81@gmail.com",
+    "password": "$2b$12$9Vh0GVamuJI8Kh6w4ntfz.EYsGtcaj4KB1QTEAApVBh1SO9hRwl3S",
+    "role": "customer",
+    "id": "user-1773075339187-4m7z02g",
+    "createdAt": "2026-03-09T16:55:39.187Z"
+  },
+  {
+    "name": "shereen",
+    "email": "shereenmagdyy81@gmail.com",
+    "password": "$2b$12$5mML5YW2vlh4xZ2VRtz30.0CQ0FHm0L9YzHVPkpbEoJdTB74vKCUO",
+    "role": "customer",
+    "id": "user-1773075421794-hlco34k",
+    "createdAt": "2026-03-09T16:57:01.794Z"
+  },
+  {
+    "name": "Admin",
+    "email": "loayeldin77@gmail.com",
+    "password": "$2b$12$ujwhg2D89CBUeOmFejAKiuKc6e3lnQhRwGJkhi9F2B2kQL4EQKaP6",
+    "role": "admin",
+    "id": "user-1773080606535-cku5otg",
+    "createdAt": "2026-03-09T18:23:26.535Z"
+  },
+  {
+    "name": "ll",
+    "email": "loayeldinmo@gmail.com",
+    "password": "$2b$12$Q42v2Zp/PIVkjD6.BlBaMO.XJ3rDpVz5HP1EL2MqyhCVkrbJhSfO.",
+    "role": "customer",
+    "id": "user-1773081671132-kpjg5uk",
+    "createdAt": "2026-03-09T18:41:11.132Z"
+  },
+  {
+    "name": "lolo",
+    "email": "lolo@gmail.com",
+    "password": "$2b$12$nUz.hsG1HV.D8FxTPfl7suxX9jq7ebs.L3.ixlXt./LEsqiAGRj3i",
+    "role": "customer",
+    "id": "user-1773181264377-2uq9yup",
+    "createdAt": "2026-03-10T22:21:04.377Z"
+  }
+]

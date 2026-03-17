@@ -1,0 +1,500 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   AURÉLIEN — iOS 26 LIQUID GLASS DESIGN SYSTEM
+   ============================================ */
+
+:root {
+  /* ── Core palette ── */
+  --black:          #080808;
+  --surface:        #060606;
+  --gold:           #C6A962;
+  --gold-dim:       rgba(198,169,98,0.55);
+  --gold-glow:      rgba(198,169,98,0.12);
+  --ivory:          #F2EFE8;
+  --silver:         rgba(255,255,255,0.45);
+
+  /* ── Glass layers ── */
+  --glass-fill:     linear-gradient(135deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.025) 100%);
+  --glass-fill-md:  linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%);
+  --glass-border:   rgba(255,255,255,0.10);
+  --glass-border-sm:rgba(255,255,255,0.07);
+  --glass-blur:     blur(24px) saturate(160%);
+  --glass-blur-sm:  blur(16px) saturate(150%);
+  --glass-shadow:   0 20px 56px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.14);
+  --glass-shadow-sm:0 8px 28px rgba(0,0,0,0.3),  inset 0 1px 0 rgba(255,255,255,0.10);
+
+  /* ── Gold glass ── */
+  --gold-glass-fill: linear-gradient(135deg, rgba(198,169,98,0.16) 0%, rgba(198,169,98,0.05) 100%);
+  --gold-glass-border: rgba(198,169,98,0.26);
+  --gold-glass-shadow: 0 8px 32px rgba(198,169,98,0.10), inset 0 1px 0 rgba(255,255,255,0.14);
+
+  /* ── Typography ── */
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-sans:  'Jost', 'Helvetica Neue', sans-serif;
+
+  /* ── Spacing ── */
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+  --space-48: 12rem;
+  --space-64: 16rem;
+}
+
+/* ============================================
+   RESET & BASE
+   ============================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  cursor: none;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--black);
+  color: var(--ivory);
+  font-family: var(--font-sans);
+  font-weight: 300;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+}
+
+::selection {
+  background-color: var(--gold);
+  color: var(--black);
+}
+
+/* ============================================
+   GLASS UTILITIES
+   ============================================ */
+
+/* Base glass card */
+.glass {
+  background: var(--glass-fill);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* Smaller glass surface (inputs, pills, rows) */
+.glass-sm {
+  background: var(--glass-fill-md);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  border: 1px solid var(--glass-border-sm);
+  box-shadow: var(--glass-shadow-sm);
+}
+
+/* Gold-tinted glass card */
+.gold-glass {
+  background: var(--gold-glass-fill);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid var(--gold-glass-border);
+  box-shadow: var(--gold-glass-shadow);
+}
+
+/* Dark glass panel (dropdowns, modals) */
+.dark-glass {
+  background: linear-gradient(160deg, rgba(18,18,20,0.94) 0%, rgba(10,10,12,0.97) 100%);
+  backdrop-filter: blur(32px) saturate(180%);
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.09);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.10);
+}
+
+/* Specular top-edge highlight — add as pseudo or child div */
+.glass-specular::before {
+  content: '';
+  position: absolute;
+  inset-inline: 1.25rem;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.20), transparent);
+  pointer-events: none;
+}
+
+/* ============================================
+   INPUTS
+   ============================================ */
+
+.glass-input {
+  width: 100%;
+  background: var(--glass-fill-md);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  border: 1px solid var(--glass-border-sm);
+  border-radius: 14px;
+  padding: 14px 18px;
+  color: rgba(255,255,255,0.80);
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  font-family: var(--font-sans);
+  font-weight: 300;
+  outline: none;
+  transition: border-color 0.35s ease, box-shadow 0.35s ease;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+.glass-input::placeholder {
+  color: rgba(255,255,255,0.18);
+}
+
+.glass-input:focus {
+  border-color: rgba(198,169,98,0.50);
+  box-shadow: 0 0 0 3px rgba(198,169,98,0.09), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.glass-input.match {
+  border-color: rgba(80,200,120,0.40);
+  box-shadow: 0 0 0 3px rgba(80,200,120,0.07);
+}
+
+.glass-input.mismatch {
+  border-color: rgba(255,80,80,0.40);
+  box-shadow: 0 0 0 3px rgba(255,80,80,0.07);
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+
+/* Gold pill CTA — primary action */
+.btn-gold {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.875rem 2rem;
+  border-radius: 9999px;
+  background: var(--gold-glass-fill);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--gold-glass-border);
+  box-shadow: 0 0 28px rgba(198,169,98,0.12), inset 0 1px 0 rgba(255,255,255,0.14);
+  color: var(--gold);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  cursor: none;
+  transition: transform 0.35s cubic-bezier(0.22,1,0.36,1),
+              box-shadow 0.35s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-gold::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%);
+  pointer-events: none;
+}
+
+.btn-gold:hover {
+  transform: scale(1.015);
+  box-shadow: 0 0 36px rgba(198,169,98,0.18), inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
+.btn-gold:active {
+  transform: scale(0.985);
+}
+
+.btn-gold:disabled {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* Ghost pill — secondary action */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1.75rem;
+  border-radius: 9999px;
+  background: var(--glass-fill-md);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  border: 1px solid var(--glass-border);
+  color: rgba(255,255,255,0.55);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  cursor: none;
+  transition: color 0.3s, border-color 0.3s, transform 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+
+.btn-ghost:hover {
+  color: rgba(255,255,255,0.85);
+  border-color: rgba(255,255,255,0.18);
+  transform: scale(1.01);
+}
+
+.btn-ghost:active {
+  transform: scale(0.98);
+}
+
+/* ============================================
+   TYPOGRAPHY UTILITIES
+   ============================================ */
+
+.text-gold { color: var(--gold); }
+.text-silver { color: var(--silver); }
+.text-champagne { color: #F7E7CE; }
+
+/* Eyebrow label — always ghost uppercase Jost */
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.20);
+}
+
+/* Display serif title */
+.title-display {
+  font-family: var(--font-serif);
+  font-weight: 300;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: #fff;
+}
+
+/* Gold italic accent word — wrap target word in <em class="gold-italic"> */
+.gold-italic {
+  font-style: italic;
+  color: var(--gold);
+}
+
+/* ============================================
+   DIVIDERS
+   ============================================ */
+
+.divider-gold {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(198,169,98,0.5), transparent);
+}
+
+.divider-gold-center {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(198,169,98,0.35), transparent);
+}
+
+.divider-subtle {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+}
+
+/* ============================================
+   AMBIENT ORBS — place fixed behind content
+   ============================================ */
+
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(90px);
+}
+
+.orb-gold {
+  background: radial-gradient(circle, rgba(198,169,98,0.08) 0%, transparent 65%);
+  animation: orbDrift1 26s ease-in-out infinite;
+}
+
+.orb-violet {
+  background: radial-gradient(circle, rgba(150,140,220,0.06) 0%, transparent 65%);
+  animation: orbDrift2 32s ease-in-out infinite;
+}
+
+.orb-rose {
+  background: radial-gradient(circle, rgba(200,80,120,0.05) 0%, transparent 65%);
+  animation: orbDrift2 31s ease-in-out infinite;
+}
+
+@keyframes orbDrift1 {
+  0%,100% { transform: translate(0,0); }
+  50%      { transform: translate(-28px, 22px); }
+}
+
+@keyframes orbDrift2 {
+  0%,100% { transform: translate(0,0); }
+  50%      { transform: translate(32px,-18px); }
+}
+
+/* ============================================
+   CUSTOM LUXURY CURSOR
+   ============================================ */
+
+.luxury-cursor {
+  position: fixed;
+  width: 14px;
+  height: 14px;
+  border: 1px solid rgba(198,169,98,0.7);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.18s cubic-bezier(0.22,1,0.36,1),
+              border-color 0.3s ease,
+              width 0.3s cubic-bezier(0.22,1,0.36,1),
+              height 0.3s cubic-bezier(0.22,1,0.36,1);
+  mix-blend-mode: difference;
+}
+
+.luxury-cursor.hover-active {
+  width: 36px;
+  height: 36px;
+  border-color: rgba(198,169,98,0.4);
+  background: rgba(198,169,98,0.06);
+}
+
+/* ============================================
+   GRAIN TEXTURE OVERLAY
+   ============================================ */
+
+.grain-overlay {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  opacity: 0.018;
+  background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+  z-index: 9000;
+  mix-blend-mode: overlay;
+}
+
+/* ============================================
+   CARD HOVER PATTERN — shared across grids
+   ============================================ */
+
+.card-hover {
+  transition: transform 0.5s cubic-bezier(0.22,1,0.36,1),
+              box-shadow 0.5s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 32px 72px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.16);
+}
+
+.card-hover:hover .card-img {
+  transform: scale(1.05);
+}
+
+.card-img {
+  transition: transform 0.8s cubic-bezier(0.22,1,0.36,1);
+}
+
+/* Reveal bar — gold bottom accent that expands on hover */
+.card-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 1px;
+  width: 0;
+  background: linear-gradient(90deg, rgba(198,169,98,0.7), transparent);
+  transition: width 0.5s cubic-bezier(0.22,1,0.36,1);
+}
+
+.card-hover:hover .card-bar {
+  width: 100%;
+}
+
+/* Reveal CTA — slides in from right on hover */
+.card-cta {
+  opacity: 0;
+  transform: translateX(8px);
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.22,1,0.36,1);
+}
+
+.card-hover:hover .card-cta {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ============================================
+   SHIMMER ANIMATION — used on CTAs & loading
+   ============================================ */
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,0.06) 40%,
+    rgba(255,255,255,0.10) 50%,
+    rgba(255,255,255,0.06) 60%,
+    transparent 100%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 2.4s linear infinite;
+}
+
+/* ============================================
+   SCROLL LOCK
+   ============================================ */
+
+body.scroll-locked {
+  overflow: hidden;
+}
+
+/* ============================================
+   ACTIVE / TAP FEEDBACK
+   ============================================ */
+
+button:active,
+.btn-tap:active {
+  transform: scale(0.97);
+  transition: transform 0.08s ease-out;
+}
+
+/* ============================================
+   SCROLLBAR
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(198,169,98,0.25);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(198,169,98,0.45);
+}

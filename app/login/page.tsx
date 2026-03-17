@@ -1,0 +1,258 @@
+"use client";
+
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertCircle, ArrowRight, Eye, EyeOff } from "lucide-react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+
+function Orbs() {
+  return (
+    <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
+      <div style={{
+        position: "absolute", width: 650, height: 650, top: "-15%", right: "-10%",
+        background: "radial-gradient(circle, rgba(198,169,98,0.08) 0%, transparent 65%)",
+        filter: "blur(90px)", animation: "lgOA 22s ease-in-out infinite",
+      }} />
+      <div style={{
+        position: "absolute", width: 500, height: 500, bottom: "-10%", left: "-8%",
+        background: "radial-gradient(circle, rgba(150,140,220,0.06) 0%, transparent 65%)",
+        filter: "blur(80px)", animation: "lgOB 28s ease-in-out infinite",
+      }} />
+      <style>{`
+        @keyframes lgOA { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,25px)} }
+        @keyframes lgOB { 0%,100%{transform:translate(0,0)} 50%{transform:translate(35px,-20px)} }
+      `}</style>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect") || "/account";
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Login failed");
+      router.push(redirect);
+      router.refresh();
+    } catch (err: any) {
+      setError(err.message || "Invalid email or password");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap');
+        body { background: #080808; }
+        ::selection { background: #C6A962; color: #080808; }
+
+        .glass-input {
+          width: 100%;
+          background: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border: 1px solid rgba(255,255,255,0.09);
+          border-radius: 14px;
+          padding: 14px 18px;
+          color: rgba(255,255,255,0.80);
+          font-size: 0.85rem;
+          letter-spacing: 0.05em;
+          font-family: 'Jost', sans-serif;
+          font-weight: 300;
+          outline: none;
+          transition: border-color 0.35s, box-shadow 0.35s;
+        }
+        .glass-input::placeholder { color: rgba(255,255,255,0.18); }
+        .glass-input:focus {
+          border-color: rgba(198,169,98,0.5);
+          box-shadow: 0 0 0 3px rgba(198,169,98,0.08);
+        }
+      `}</style>
+
+      <main
+        className="relative min-h-screen bg-[#080808] flex items-center justify-center px-6 py-24"
+        style={{ fontFamily: "'Jost', sans-serif" }}
+      >
+        <Orbs />
+
+        {/* Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 28, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+          className="relative w-full max-w-md overflow-hidden rounded-3xl"
+          style={{
+            background: "linear-gradient(160deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.025) 60%, transparent 100%)",
+            backdropFilter: "blur(32px) saturate(160%)",
+            WebkitBackdropFilter: "blur(32px) saturate(160%)",
+            border: "1px solid rgba(255,255,255,0.10)",
+            boxShadow: "0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.18)",
+          }}
+        >
+          {/* Specular top line */}
+          <div className="absolute inset-x-6 top-0 h-px pointer-events-none"
+               style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)" }} />
+
+          <div className="px-8 pt-10 pb-10">
+
+            {/* Brand */}
+            <div className="text-center mb-8">
+              <h1
+                className="font-light text-white leading-none mb-2"
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: "2.2rem",
+                  letterSpacing: "0.12em",
+                }}
+              >
+                AURÉLIEN
+              </h1>
+              <div className="mx-auto mt-3 mb-4 w-8 h-px"
+                   style={{ background: "linear-gradient(90deg, transparent, rgba(198,169,98,0.7), transparent)" }} />
+              <p className="text-white/25 text-[9px] tracking-[0.45em] uppercase">Sign In</p>
+            </div>
+
+            {/* Error banner */}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8, height: 0 }}
+                  animate={{ opacity: 1, y: 0, height: "auto" }}
+                  exit={{ opacity: 0, y: -8, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="mb-5 flex items-center gap-3 px-4 py-3 rounded-2xl overflow-hidden"
+                  style={{
+                    background: "rgba(255,60,60,0.07)",
+                    border: "1px solid rgba(255,80,80,0.18)",
+                    backdropFilter: "blur(12px)",
+                  }}
+                >
+                  <AlertCircle strokeWidth={1.3} className="w-3.5 h-3.5 text-red-400/70 shrink-0" />
+                  <p className="text-red-400/70 text-[10px] tracking-[0.2em] font-light">{error}</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+
+              {/* Email */}
+              <div className="flex flex-col gap-2">
+                <label className="text-white/25 text-[9px] tracking-[0.4em] uppercase">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  autoComplete="email"
+                  required
+                  className="glass-input"
+                />
+              </div>
+
+              {/* Password */}
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-white/25 text-[9px] tracking-[0.4em] uppercase">Password</label>
+                  <Link
+                    href="/forgot-password"
+                    className="text-white/20 text-[9px] tracking-[0.2em] uppercase hover:text-[#C6A962] transition-colors duration-300"
+                  >
+                    Forgot?
+                  </Link>
+                </div>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    autoComplete="current-password"
+                    required
+                    className="glass-input"
+                    style={{ paddingRight: 48 }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/55 transition-colors duration-300"
+                  >
+                    {showPassword
+                      ? <EyeOff strokeWidth={1.3} className="w-4 h-4" />
+                      : <Eye strokeWidth={1.3} className="w-4 h-4" />
+                    }
+                  </button>
+                </div>
+              </div>
+
+              {/* Submit */}
+              <motion.button
+                type="submit"
+                disabled={loading}
+                whileHover={{ scale: 1.015 }}
+                whileTap={{ scale: 0.985 }}
+                className="relative mt-2 w-full overflow-hidden rounded-full py-4 flex items-center justify-center gap-3 disabled:opacity-50 transition-all duration-500"
+                style={{
+                  background: "linear-gradient(135deg, rgba(198,169,98,0.22), rgba(178,149,78,0.10))",
+                  border: "1px solid rgba(198,169,98,0.35)",
+                  backdropFilter: "blur(16px)",
+                  boxShadow: "0 0 28px rgba(198,169,98,0.12), inset 0 1px 0 rgba(255,255,255,0.14)",
+                }}
+              >
+                {/* Shimmer */}
+                <div className="absolute inset-0 pointer-events-none"
+                     style={{ background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%)" }} />
+                <span className="relative z-10 text-[#C6A962] text-[10px] tracking-[0.32em] uppercase font-light">
+                  {loading ? "Signing In…" : "Sign In"}
+                </span>
+                {!loading && (
+                  <ArrowRight strokeWidth={1.3} className="relative z-10 w-3.5 h-3.5 text-[#C6A962]" />
+                )}
+              </motion.button>
+            </form>
+
+            {/* Divider */}
+            <div className="flex items-center gap-4 my-7">
+              <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
+              <span className="text-white/15 text-[9px] tracking-[0.3em] uppercase">or</span>
+              <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
+            </div>
+
+            {/* Sign up link */}
+            <p className="text-center text-white/25 text-[10px] tracking-[0.2em]">
+              No account?{" "}
+              <Link
+                href="/signup"
+                className="text-[#C6A962] hover:text-white/80 transition-colors duration-300"
+                style={{ letterSpacing: "0.2em" }}
+              >
+                Create one
+              </Link>
+            </p>
+          </div>
+        </motion.div>
+
+      </main>
+    </>
+  );
+}
