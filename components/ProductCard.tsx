@@ -34,6 +34,7 @@ interface ProductCardProps {
   product: ExtendedProduct;
   className?: string;
   onWishlistUpdate?: (productId: string) => void;
+  showRemoveFromWishlist?: boolean;
 }
 
 const AUTO_MS = 3000;
@@ -76,6 +77,7 @@ export default function ProductCard({
   product,
   className = "",
   onWishlistUpdate,
+  showRemoveFromWishlist,
 }: ProductCardProps) {
   const router = useRouter();
   const cardRef = useRef<HTMLDivElement>(null);
