@@ -1,113 +1,48 @@
-import { promises as fs } from "fs";
-import path from "path";
+import { NextRequest, NextResponse } from "next/server";
+import { getAuthFromRequest } from "@/lib/auth";
+import { getWishlistByUserMongo } from "@/lib/wishlistMongo";
+import productsData from "@/lib/productsData";
 
-// Use the same data directory as your order storage
-const DATA_DIR = path.join(process.cwd(), ".data");
-const DRAFTS_FILE = path.join(DATA_DIR, "drafts.json");
-
-/**
- * Ensure the data directory exists
- */
-async function ensureDataDir() {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
-    await fs.mkdir(DATA_DIR, { recursive: true });
-  } catch (error) {
-    console.error("Failed to create data directory:", error);
-    throw error;
-  }
-}
+    const auth = await getAuthFromRequest(req);
 
-/**
- * Read all checkout drafts from file
- */
-export async function getDraftsJson(): Promise<Record<string, any>> {
-  try {
-    await ensureDataDir();
-    const data = await fs.readFile(DRAFTS_FILE, "utf-8");
-    return JSON.parse(data);
-  } catch (error) {
-    // File doesn't exist yet or is invalid - return empty
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-      console.log("Drafts file doesn't exist yet, returning empty object");
-      return {};
+    // Not logged in - return empty wishlist with 200
+    if (!auth || !auth.userId) {
+      return NextResponse.json(
+        { items: [], message: "Not authenticated" },
+        { status: 200 }
+      );
     }
-    console.error("Error reading drafts file:", error);
-    return {};
-  }
-}
 
-/**
- * Write all checkout drafts to file
- */
-export async function setDraftsJson(drafts: Record<string, any>): Promise<void> {
-  try {
-    await ensureDataDir();
-    const jsonString = JSON.stringify(drafts, null, 2);
-    await fs.writeFile(DRAFTS_FILE, jsonString, "utf-8");
-    console.log("✅ Drafts saved successfully");
-  } catch (error) {
-    console.error("Failed to write drafts file:", error);
-    throw error;
-  }
-}
+    try {
+      const entries = await getWishlistByUserMongo(auth.userId);
+      
+      const items = entries.map((e) => {
+        if (e.productData && e.productData._id) {
+          const { _id, ...rest } = e.productData;
+          return { _id, ...rest };
+        }
+        const p = productsData.find((x) => String(x._id) === String(e.productId));
+        return p || { _id: e.productId };
+      });
 
-/**
- * Get a specific user's draft
- */
-export async function getUserDraft(userId: string): Promise<any | null> {
-  try {
-    const drafts = await getDraftsJson();
-    return drafts[userId] || null;
+      return NextResponse.json({ items }, { status: 200 });
+    } catch (mongoError) {
+      console.error("❌ Wishlist MongoDB error for user", auth.userId, ":", mongoError instanceof Error ? mongoError.message : String(mongoError));
+      
+      // Return empty list instead of 500
+      return NextResponse.json(
+        { items: [], error: "Failed to fetch wishlist" },
+        { status: 200 }
+      );
+    }
   } catch (error) {
-    console.error(`Error fetching draft for user ${userId}:`, error);
-    return null;
-  }
-}
-
-/**
- * Save a specific user's draft
- */
-export async function saveUserDraft(
-  userId: string,
-  draft: { items: any[]; form: Record<string, unknown> }
-): Promise<void> {
-  try {
-    const drafts = await getDraftsJson();
-    drafts[userId] = {
-      ...draft,
-      updatedAt: new Date().toISOString(),
-    };
-    await setDraftsJson(drafts);
-  } catch (error) {
-    console.error(`Error saving draft for user ${userId}:`, error);
-    throw error;
-  }
-}
-
-/**
- * Delete a specific user's draft
- */
-export async function deleteUserDraft(userId: string): Promise<void> {
-  try {
-    const drafts = await getDraftsJson();
-    delete drafts[userId];
-    await setDraftsJson(drafts);
-    console.log(`✅ Draft deleted for user ${userId}`);
-  } catch (error) {
-    console.error(`Error deleting draft for user ${userId}:`, error);
-    throw error;
-  }
-}
-
-/**
- * Clear all drafts (be careful with this!)
- */
-export async function clearAllDrafts(): Promise<void> {
-  try {
-    await setDraftsJson({});
-    console.log("✅ All drafts cleared");
-  } catch (error) {
-    console.error("Error clearing all drafts:", error);
-    throw error;
+    console.error("❌ Wishlist list error:", error instanceof Error ? error.message : String(error));
+    // Return empty list on error instead of 500 for better UX
+    return NextResponse.json(
+      { items: [], error: "Failed to fetch wishlist" },
+      { status: 200 }
+    );
   }
 }
