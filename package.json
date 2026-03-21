@@ -10,7 +10,7 @@
     "seed:admin": "npx ts-node -P tsconfig.scripts.json -r tsconfig-paths/register scripts/seed-admin.ts"
   },
   "dependencies": {
-    "@vercel/blob": "^0.26.0",
+    "@vercel/blob": "^2.3.1",
     "bcrypt": "^6.0.0",
     "framer-motion": "^12.34.3",
     "jose": "^5.10.0",

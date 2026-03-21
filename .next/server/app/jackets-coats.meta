@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/jackets-coats/layout,_N_T_/jackets-coats/page,_N_T_/jackets-coats"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/jackets-coats/__PAGE__",
+    "/jackets-coats",
+    "/_index",
+    "/_head"
+  ]
+}

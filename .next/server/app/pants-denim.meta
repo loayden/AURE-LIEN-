@@ -1,0 +1,15 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/pants-denim/layout,_N_T_/pants-denim/page,_N_T_/pants-denim"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/pants-denim/__PAGE__",
+    "/pants-denim",
+    "/_index",
+    "/_head"
+  ]
+}

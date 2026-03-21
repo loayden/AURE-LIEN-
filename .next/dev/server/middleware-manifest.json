@@ -1,0 +1,46 @@
+{
+  "version": 3,
+  "middleware": {
+    "/": {
+      "files": [
+        "server/edge/chunks/0x~o_13o.l4z._.js",
+        "server/edge/chunks/[root-of-the-server]__05gu0ay._.js",
+        "server/edge/chunks/0z4w_next_dist_esm_build_templates_edge-wrapper_0rxbb~j.js"
+      ],
+      "name": "middleware",
+      "page": "/",
+      "entrypoint": "server/edge/chunks/0z4w_next_dist_esm_build_templates_edge-wrapper_0rxbb~j.js",
+      "matchers": [
+        {
+          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/account(?:\\/((?:[^\\/#\\?]+?)(?:\\/(?:[^\\/#\\?]+?))*))?(\\\\.json)?[\\/#\\?]?$",
+          "originalSource": "/account/:path*"
+        },
+        {
+          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/wishlist(?:\\/((?:[^\\/#\\?]+?)(?:\\/(?:[^\\/#\\?]+?))*))?(\\\\.json)?[\\/#\\?]?$",
+          "originalSource": "/wishlist/:path*"
+        },
+        {
+          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/orders(?:\\/((?:[^\\/#\\?]+?)(?:\\/(?:[^\\/#\\?]+?))*))?(\\\\.json)?[\\/#\\?]?$",
+          "originalSource": "/orders/:path*"
+        },
+        {
+          "regexp": "^(?:\\/(_next\\/data\\/[^/]{1,}))?\\/admin(?:\\/((?:[^\\/#\\?]+?)(?:\\/(?:[^\\/#\\?]+?))*))?(\\\\.json)?[\\/#\\?]?$",
+          "originalSource": "/admin/:path*"
+        }
+      ],
+      "wasm": [],
+      "assets": [],
+      "env": {
+        "__NEXT_BUILD_ID": "development",
+        "NEXT_SERVER_ACTIONS_ENCRYPTION_KEY": "hdmXZtLcc6s+sJ6u3YUktdYrNrbQRf6MRE/+hjoPlVM=",
+        "__NEXT_PREVIEW_MODE_ID": "a89ef3273d8dd01850f75716dac27978",
+        "__NEXT_PREVIEW_MODE_ENCRYPTION_KEY": "4f10f1185eeeef0b4aaaed273544bcff91394bbd3f868dbf110291dbbdbdbbe0",
+        "__NEXT_PREVIEW_MODE_SIGNING_KEY": "e92dc7aeb2eac69570a789b46da8d6c2bef9d075c5a4bc152319b6f73991192e"
+      }
+    }
+  },
+  "sortedMiddleware": [
+    "/"
+  ],
+  "functions": {}
+}
