@@ -1,234 +1,187 @@
 import { NextRequest, NextResponse } from "next/server";
-import productsData from "@/lib/productsData";
-import { randomUUID } from "crypto";
-import { attachUserCookie, getOrCreateUserId } from "@/lib/userSession";
+import { getOrCreateUserId } from "@/lib/userSession";
 import { getAuthFromRequest } from "@/lib/auth";
-import { sendEmailAsync } from "@/lib/email/sender";
-import { getOrderConfirmationEmailHtml } from "@/lib/email/templates/order-confirmation";
-import { getOrdersJson, getOrdersDataJson, setOrdersJson, setOrdersDataJson } from "@/lib/orderStorage";
+import { attachUserCookie } from "@/lib/userSession";
+import { Redis } from "@upstash/redis";
 
-interface FormData {
-  name?: string;
-  email: string;
-  phone: string;
-  address?: string;
-  firstName?: string;
-  lastName?: string;
-  country?: string;
-  apartment?: string;
-  city?: string;
-  postalCode?: string;
-  newsletter?: boolean;
-  shippingMethod?: string;
-  shippingCost?: number;
-}
+const redis = Redis.fromEnv();
 
-interface OrderProduct {
+type Order = {
   _id: string;
-  quantity: number;
-  size?: string | null;
-  color?: string | null;
-}
-
-interface OrdersJsonOrder {
-  id?: string;
-  customer: FormData;
-  products: OrderProduct[];
+  userId: string;
+  items: Array<any>;
   total: number;
-  status: string;
+  customerInfo: Record<string, unknown>;
   createdAt: string;
-  userId?: string;
+  status?: string;
+};
+
+async function resolveUserId(req: NextRequest): Promise<{ userId: string; isNew: boolean }> {
+  const auth = await getAuthFromRequest(req);
+  if (auth?.userId) return { userId: auth.userId, isNew: false };
+  return getOrCreateUserId(req);
 }
 
-export async function POST(req: NextRequest) {
+async function getOrdersFromRedis(): Promise<Order[]> {
   try {
+    const ordersJson = await redis.get("orders");
+    if (!ordersJson) return [];
+    return JSON.parse(ordersJson as string);
+  } catch (error) {
+    console.warn("⚠️ Failed to read orders from Redis:", error);
+    return [];
+  }
+}
+
+async function saveOrdersToRedis(orders: Order[]): Promise<void> {
+  try {
+    await redis.set("orders", JSON.stringify(orders));
+    console.log("✅ Orders saved to Redis");
+  } catch (error) {
+    console.error("❌ Failed to save orders to Redis:", error);
+    throw error;
+  }
+}
+
+export async function POST(req: NextRequest): Promise<NextResponse> {
+  try {
+    const { userId, isNew } = await resolveUserId(req);
+
     let body;
     try {
       body = await req.json();
     } catch (parseError) {
-      console.error("❌ Failed to parse JSON in saveorder:", parseError);
+      console.error("❌ Invalid JSON in saveorder POST:", parseError);
       return NextResponse.json(
-        { error: "Invalid JSON body" },
+        { error: "Invalid request body" },
         { status: 400 }
       );
     }
 
-    const { customer, products, total, status, createdAt } = body;
+    const { items = [], total = 0, customerInfo = {} } = body;
 
-    const name = customer?.name ?? (customer?.firstName || customer?.lastName ? `${customer.firstName || ""} ${customer.lastName || ""}`.trim() : "");
-    const address = customer?.address ?? [customer?.address, customer?.apartment, customer?.city, customer?.postalCode, customer?.country].filter(Boolean).join(", ");
-
-    // Validation
-    if (
-      !customer ||
-      !customer.email ||
-      !customer.phone ||
-      !Array.isArray(products) ||
-      products.length === 0 ||
-      typeof total !== "number" ||
-      !status ||
-      !createdAt
-    ) {
-      console.warn("❌ Invalid order data in saveorder:", { customer, products, total, status, createdAt });
+    // ✅ Step 1: Validate input
+    if (!Array.isArray(items) || items.length === 0) {
+      console.warn("⚠️ No items in order");
       return NextResponse.json(
-        { error: "Invalid order data - missing required fields" },
+        { error: "Order must contain at least one item" },
         { status: 400 }
       );
     }
 
-    if (!name && (!customer.firstName || !customer.lastName)) {
+    if (typeof total !== "number" || total <= 0) {
+      console.warn("⚠️ Invalid order total:", total);
       return NextResponse.json(
-        { error: "First name and last name are required" },
+        { error: "Order total must be a positive number" },
         { status: 400 }
       );
     }
 
-    if (!address && (!customer.address || !customer.city)) {
-      return NextResponse.json(
-        { error: "Address and city are required" },
-        { status: 400 }
-      );
-    }
-
-    const normalizedCustomer = {
-      email: customer.email,
-      firstName: customer.firstName ?? "",
-      lastName: customer.lastName ?? "",
-      name: name || `${customer.firstName || ""} ${customer.lastName || ""}`.trim(),
-      phone: customer.phone,
-      address: address || `${customer.address || ""}, ${customer.city || ""}${customer.postalCode ? " " + customer.postalCode : ""}, ${customer.country || ""}`.trim(),
-      apartment: customer.apartment ?? "",
-      city: customer.city ?? "",
-      postalCode: customer.postalCode ?? "",
-      country: customer.country ?? "",
-      newsletter: Boolean(customer.newsletter),
-      shippingMethod: customer.shippingMethod ?? "",
-      shippingCost: customer.shippingCost ?? null,
-    };
-
-    // 1) Get or create userId
-    const auth = await getAuthFromRequest(req);
-    const { userId, isNew } = auth?.userId
-      ? { userId: auth.userId, isNew: false }
-      : getOrCreateUserId(req);
-
-    // 2) Read existing orders
-    let ordersJson: any[];
+    // ✅ Step 2: Read existing orders from Redis
+    let orders: Order[] = [];
     try {
-      ordersJson = await getOrdersJson();
-    } catch (readOrdersError) {
-      console.error("❌ Failed to read orders:", readOrdersError instanceof Error ? readOrdersError.message : String(readOrdersError));
+      orders = await getOrdersFromRedis();
+      console.log(`✅ Read ${orders.length} existing orders from Redis`);
+    } catch (readError) {
+      console.error("❌ Failed to read orders from Redis:", readError instanceof Error ? readError.message : String(readError));
       return NextResponse.json(
-        { error: "Failed to read existing orders" },
+        { error: "Failed to read orders database" },
         { status: 500 }
       );
     }
 
-    const ordersJsonOrder: OrdersJsonOrder = {
-      id: body.id || randomUUID(),
-      customer: normalizedCustomer,
-      products,
-      total,
-      status,
-      createdAt,
+    // ✅ Step 3: Create new order
+    const newOrder: Order = {
+      _id: `order-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       userId,
+      items,
+      total,
+      customerInfo,
+      createdAt: new Date().toISOString(),
+      status: "pending",
     };
 
-    // 3) Save to orders
+    orders.push(newOrder);
+    console.log(`✅ Created new order ${newOrder._id}`);
+
+    // ✅ Step 4: Write updated orders back to Redis
     try {
-      ordersJson.push(ordersJsonOrder);
-      await setOrdersJson(ordersJson);
-      console.log("✅ Order saved to ordersJson:", ordersJsonOrder.id);
-    } catch (saveOrdersError) {
-      console.error("❌ Failed to save to ordersJson:", saveOrdersError instanceof Error ? saveOrdersError.message : String(saveOrdersError));
+      await saveOrdersToRedis(orders);
+      console.log(`✅ Order ${newOrder._id} saved successfully`);
+    } catch (writeError) {
+      console.error("❌ Failed to save to orders Redis:", writeError instanceof Error ? writeError.message : String(writeError));
       return NextResponse.json(
-        { error: "Failed to save order" },
+        { error: "Failed to save order to database" },
         { status: 500 }
       );
     }
 
-    // 4) Save to ordersData (detailed format)
-    let ordersData: any[];
+    // ✅ Step 5: Send email (non-blocking)
     try {
-      ordersData = await getOrdersDataJson();
-    } catch (readOrdersDataError) {
-      console.error("❌ Failed to read ordersData:", readOrdersDataError instanceof Error ? readOrdersDataError.message : String(readOrdersDataError));
-      return NextResponse.json(
-        { error: "Failed to read order analytics data" },
-        { status: 500 }
-      );
-    }
-
-    try {
-      const productsDetailed = (products as OrderProduct[]).map((p) => {
-        const found = productsData.find((x) => String(x._id) === String(p._id));
-        return {
-          name: found?.name || "Product",
-          price: Number(found?.price ?? 0),
-          quantity: Number(p.quantity ?? 1),
-          size: p.size ?? null,
-          color: p.color ?? null,
-        };
-      });
-
-      const ordersDataOrder = {
-        id: ordersJsonOrder.id,
-        status: status || "Completed",
-        products: productsDetailed,
-        totalPrice: total,
-        user: normalizedCustomer,
-        userId: ordersJsonOrder.userId,
-        createdAt,
-      };
-
-      ordersData.push(ordersDataOrder);
-      await setOrdersDataJson(ordersData);
-      console.log("✅ Order saved to ordersData:", ordersJsonOrder.id);
-    } catch (saveOrdersDataError) {
-      console.error("❌ Failed to save to ordersData:", saveOrdersDataError instanceof Error ? saveOrdersDataError.message : String(saveOrdersDataError));
-      // Non-critical - log but don't fail
-    }
-
-    // 5) Send confirmation email (non-blocking)
-    try {
-      sendEmailAsync({
-        to: customer.email,
-        subject: `Order Confirmation #${ordersJsonOrder.id} — Maison Aurelia`,
-        html: getOrderConfirmationEmailHtml({
-          orderId: String(ordersJsonOrder.id),
-          customerName: normalizedCustomer.name,
-          customerEmail: customer.email,
-          products: (products as OrderProduct[]).map((p) => {
-            const found = productsData.find((x) => String(x._id) === String(p._id));
-            return {
-              name: found?.name || "Product",
-              price: Number(found?.price ?? 0),
-              quantity: Number(p.quantity ?? 1),
-              size: p.size ?? null,
-              color: p.color ?? null,
-            };
-          }),
-          totalPrice: total,
-          shippingAddress: normalizedCustomer.address,
+      // Non-blocking email send - don't wait for it
+      fetch(`${req.nextUrl.origin}/api/email/send-order-confirmation`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId: newOrder._id,
+          email: customerInfo.email,
+          items,
+          total,
         }),
-      });
-      console.log("✅ Confirmation email queued for:", customer.email);
+      }).catch((err) => console.warn("⚠️ Email send failed (non-blocking):", err));
+
+      console.log(`✅ Email send initiated for order ${newOrder._id}`);
     } catch (emailError) {
-      console.error("⚠️ Failed to queue confirmation email:", emailError instanceof Error ? emailError.message : String(emailError));
-      // Non-critical - don't fail the entire request
+      console.warn("⚠️ Email scheduling failed:", emailError);
+      // Don't return error - email is non-critical
     }
 
+    // ✅ Return success
     const res = NextResponse.json(
-      { message: "Order saved", id: ordersJsonOrder.id },
-      { status: 200 }
+      {
+        success: true,
+        orderId: newOrder._id,
+        message: "Order saved successfully",
+      },
+      { status: 201 }
     );
+
     if (isNew) attachUserCookie(res, userId);
     return res;
   } catch (error) {
-    console.error("❌ Unexpected error in saveorder:", error instanceof Error ? error.message : String(error), error instanceof Error ? error.stack : "");
+    console.error("❌ Saveorder POST error:", error instanceof Error ? error.message : String(error));
     return NextResponse.json(
-      { error: "Failed to save order - unexpected error" },
+      { error: "Failed to save order" },
       { status: 500 }
+    );
+  }
+}
+
+export async function GET(req: NextRequest): Promise<NextResponse> {
+  try {
+    const { userId } = await resolveUserId(req);
+
+    let orders: Order[] = [];
+    try {
+      orders = await getOrdersFromRedis();
+    } catch (readError) {
+      console.error("❌ Failed to read orders from Redis:", readError);
+      return NextResponse.json(
+        { orders: [], error: "Failed to fetch orders" },
+        { status: 200 }
+      );
+    }
+
+    // Filter orders for this user
+    const userOrders = orders.filter((o) => o.userId === userId);
+    console.log(`✅ Retrieved ${userOrders.length} orders for user ${userId}`);
+
+    return NextResponse.json({ orders: userOrders }, { status: 200 });
+  } catch (error) {
+    console.error("❌ Saveorder GET error:", error instanceof Error ? error.message : String(error));
+    return NextResponse.json(
+      { orders: [], error: "Failed to fetch orders" },
+      { status: 200 }
     );
   }
 }

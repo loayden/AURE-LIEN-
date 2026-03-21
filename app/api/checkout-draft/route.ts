@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getOrCreateUserId } from "@/lib/userSession";
 import { getAuthFromRequest } from "@/lib/auth";
-import { getDraftsJson, setDraftsJson } from "@/lib/draftStorage";
+import { getDraftsJson, setDraftsJson } from "@/lib/redisStorage";
 import { attachUserCookie } from "@/lib/userSession";
 
 type DraftRecord = {
@@ -27,7 +27,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     try {
       drafts = await getDraftsJson();
     } catch (storageError) {
-      console.warn("Failed to read drafts:", storageError);
+      console.warn("⚠️ Failed to read drafts from Redis:", storageError);
       drafts = {};
     }
     
@@ -77,7 +77,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     try {
       drafts = await getDraftsJson();
     } catch (storageError) {
-      console.warn("Failed to read existing drafts:", storageError);
+      console.warn("⚠️ Failed to read existing drafts from Redis:", storageError);
       drafts = {};
     }
 
@@ -90,7 +90,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     try {
       await setDraftsJson(drafts);
     } catch (writeError) {
-      console.error("❌ Failed to write drafts to storage:", writeError instanceof Error ? writeError.message : String(writeError));
+      console.error("❌ Failed to write drafts to Redis:", writeError instanceof Error ? writeError.message : String(writeError));
       return NextResponse.json(
         { error: "Failed to save draft to storage" },
         { status: 500 }
@@ -118,7 +118,7 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
     try {
       drafts = await getDraftsJson();
     } catch (storageError) {
-      console.warn("Failed to read drafts for deletion:", storageError);
+      console.warn("⚠️ Failed to read drafts for deletion from Redis:", storageError);
       const res = NextResponse.json({ success: true }, { status: 200 });
       if (isNew) attachUserCookie(res, userId);
       return res;
@@ -129,7 +129,7 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
     try {
       await setDraftsJson(drafts);
     } catch (writeError) {
-      console.error("❌ Failed to delete draft:", writeError instanceof Error ? writeError.message : String(writeError));
+      console.error("❌ Failed to delete draft from Redis:", writeError instanceof Error ? writeError.message : String(writeError));
       return NextResponse.json(
         { error: "Failed to delete draft" },
         { status: 500 }
