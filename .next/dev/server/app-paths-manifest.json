@@ -1,18 +1,1 @@
-{
-  "/account/page": "app/account/page.js",
-  "/admin/page": "app/admin/page.js",
-  "/api/admin/analytics/route": "app/api/admin/analytics/route.js",
-  "/api/admin/export-orders/route": "app/api/admin/export-orders/route.js",
-  "/api/cart/route": "app/api/cart/route.js",
-  "/api/checkout-draft/route": "app/api/checkout-draft/route.js",
-  "/api/orders/route": "app/api/orders/route.js",
-  "/api/saveorder/route": "app/api/saveorder/route.js",
-  "/api/users/me/route": "app/api/users/me/route.js",
-  "/api/wishlist/list/route": "app/api/wishlist/list/route.js",
-  "/cart/page": "app/cart/page.js",
-  "/checkout/page": "app/checkout/page.js",
-  "/collection/page": "app/collection/page.js",
-  "/orders/page": "app/orders/page.js",
-  "/page": "app/page.js",
-  "/shop/page": "app/shop/page.js"
-}
+{}

@@ -670,38 +670,55 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$
 ;
 ;
 async function GET(req) {
-    const auth = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$lib$2f$auth$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["getAuthFromRequest"])(req);
-    if (!auth) {
+    try {
+        const auth = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$lib$2f$auth$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["getAuthFromRequest"])(req);
+        // Not logged in - return empty wishlist with 200
+        if (!auth || !auth.userId) {
+            return __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                items: [],
+                message: "Not authenticated"
+            }, {
+                status: 200
+            });
+        }
+        try {
+            const entries = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$lib$2f$wishlistMongo$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["getWishlistByUserMongo"])(auth.userId);
+            const items = entries.map((e)=>{
+                if (e.productData && e.productData._id) {
+                    const { _id, ...rest } = e.productData;
+                    return {
+                        _id,
+                        ...rest
+                    };
+                }
+                const p = __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$lib$2f$productsData$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find((x)=>String(x._id) === String(e.productId));
+                return p || {
+                    _id: e.productId
+                };
+            });
+            return __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                items
+            }, {
+                status: 200
+            });
+        } catch (mongoError) {
+            console.error("❌ Wishlist MongoDB error for user", auth.userId, ":", mongoError instanceof Error ? mongoError.message : String(mongoError));
+            // Return empty list instead of 500
+            return __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                items: [],
+                error: "Failed to fetch wishlist"
+            }, {
+                status: 200
+            });
+        }
+    } catch (error) {
+        console.error("❌ Wishlist list error:", error instanceof Error ? error.message : String(error));
+        // Return empty list on error instead of 500 for better UX
         return __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            items: []
+            items: [],
+            error: "Failed to fetch wishlist"
         }, {
             status: 200
-        });
-    }
-    try {
-        const entries = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$lib$2f$wishlistMongo$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["getWishlistByUserMongo"])(auth.userId);
-        const items = entries.map((e)=>{
-            if (e.productData && e.productData._id) {
-                const { _id, ...rest } = e.productData;
-                return {
-                    _id,
-                    ...rest
-                };
-            }
-            const p = __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$lib$2f$productsData$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["default"].find((x)=>String(x._id) === String(e.productId));
-            return p || {
-                _id: e.productId
-            };
-        });
-        return __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            items
-        });
-    } catch (e) {
-        console.error("Wishlist list error:", e);
-        return __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-            items: []
-        }, {
-            status: 500
         });
     }
 }
