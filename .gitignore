@@ -1,0 +1,8 @@
+# Node modules
+node_modules/
+
+# Next.js build
+.next/
+
+# Uploads / large files
+public/uploads/
