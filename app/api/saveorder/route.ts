@@ -6,14 +6,34 @@ import { Redis } from "@upstash/redis";
 
 const redis = Redis.fromEnv();
 
+type OrderItem = {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  size?: string;
+  color?: string;
+  image?: string;
+};
+
+type CustomerInfo = {
+  email: string;
+  name: string;
+  address: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  phone?: string;
+};
+
 type Order = {
   _id: string;
   userId: string;
-  items: Array<any>;
+  items: OrderItem[];
   total: number;
-  customerInfo: Record<string, unknown>;
+  customerInfo: CustomerInfo;
   createdAt: string;
-  status?: string;
+  status: string;
 };
 
 async function resolveUserId(req: NextRequest): Promise<{ userId: string; isNew: boolean }> {
@@ -53,31 +73,98 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     } catch (parseError) {
       console.error("❌ Invalid JSON in saveorder POST:", parseError);
       return NextResponse.json(
-        { error: "Invalid request body" },
+        { error: "Invalid request body - must be valid JSON" },
         { status: 400 }
       );
     }
 
     const { items = [], total = 0, customerInfo = {} } = body;
 
-    // ✅ Step 1: Validate input
-    if (!Array.isArray(items) || items.length === 0) {
-      console.warn("⚠️ No items in order");
+    console.log("📥 Received order data:", {
+      itemsCount: items.length,
+      total,
+      customerEmail: customerInfo.email,
+    });
+
+    // ✅ VALIDATION: Check items array
+    if (!Array.isArray(items)) {
+      console.error("❌ Items is not an array:", typeof items);
+      return NextResponse.json(
+        { error: "Items must be an array" },
+        { status: 400 }
+      );
+    }
+
+    if (items.length === 0) {
+      console.warn("❌ Order contains no items");
       return NextResponse.json(
         { error: "Order must contain at least one item" },
         { status: 400 }
       );
     }
 
-    if (typeof total !== "number" || total <= 0) {
-      console.warn("⚠️ Invalid order total:", total);
+    // ✅ VALIDATION: Check customer info
+    if (!customerInfo.email || !customerInfo.name || !customerInfo.address) {
+      console.error("❌ Missing required customer information:", {
+        hasEmail: !!customerInfo.email,
+        hasName: !!customerInfo.name,
+        hasAddress: !!customerInfo.address,
+      });
       return NextResponse.json(
-        { error: "Order total must be a positive number" },
+        { error: "Missing required customer information" },
         { status: 400 }
       );
     }
 
-    // ✅ Step 2: Read existing orders from Redis
+    // ✅ VALIDATION: Validate each item
+    for (const item of items) {
+      if (!item.productId || !item.name || !item.price || !item.quantity) {
+        console.error("❌ Invalid item structure:", item);
+        return NextResponse.json(
+          { error: "Each item must have productId, name, price, and quantity" },
+          { status: 400 }
+        );
+      }
+
+      if (item.quantity < 1) {
+        console.error("❌ Invalid quantity:", item.quantity);
+        return NextResponse.json(
+          { error: "Item quantity must be at least 1" },
+          { status: 400 }
+        );
+      }
+
+      if (item.price < 0) {
+        console.error("❌ Invalid price:", item.price);
+        return NextResponse.json(
+          { error: "Item price cannot be negative" },
+          { status: 400 }
+        );
+      }
+    }
+
+    // ✅ VALIDATION: Validate total
+    if (typeof total !== "number" || total < 0) {
+      console.error("❌ Invalid total:", total);
+      return NextResponse.json(
+        { error: "Total must be a positive number" },
+        { status: 400 }
+      );
+    }
+
+    // ✅ CALCULATE TOTAL SERVER-SIDE (don't trust frontend)
+    const calculatedTotal = items.reduce((sum: number, item: OrderItem) => {
+      return sum + item.price * item.quantity;
+    }, 0);
+
+    console.log(`✅ Total validation: frontend=${total.toFixed(2)}, server=${calculatedTotal.toFixed(2)}`);
+
+    // Allow small rounding differences (cents)
+    if (Math.abs(calculatedTotal - total) > 0.01) {
+      console.warn(`⚠️ Total mismatch - using server-calculated total`);
+    }
+
+    // ✅ Step 1: Read existing orders from Redis
     let orders: Order[] = [];
     try {
       orders = await getOrdersFromRedis();
@@ -90,35 +177,51 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // ✅ Step 3: Create new order
+    // ✅ Step 2: Create new order
     const newOrder: Order = {
       _id: `order-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       userId,
-      items,
-      total,
-      customerInfo,
+      items: items.map((item: OrderItem) => ({
+        productId: item.productId,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        size: item.size || "One Size",
+        color: item.color || "Default",
+        image: item.image || "",
+      })),
+      total: calculatedTotal, // Use server-calculated total
+      customerInfo: {
+        email: customerInfo.email,
+        name: customerInfo.name,
+        address: customerInfo.address,
+        city: customerInfo.city || "",
+        state: customerInfo.state || "",
+        zipCode: customerInfo.zipCode || "",
+        phone: customerInfo.phone || "",
+      },
       createdAt: new Date().toISOString(),
       status: "pending",
     };
 
-    orders.push(newOrder);
-    console.log(`✅ Created new order ${newOrder._id}`);
+    console.log(`✅ Created new order ${newOrder._id} with ${items.length} items`);
 
-    // ✅ Step 4: Write updated orders back to Redis
+    orders.push(newOrder);
+
+    // ✅ Step 3: Write updated orders back to Redis
     try {
       await saveOrdersToRedis(orders);
-      console.log(`✅ Order ${newOrder._id} saved successfully`);
+      console.log(`✅ Order ${newOrder._id} saved successfully to Redis`);
     } catch (writeError) {
-      console.error("❌ Failed to save to orders Redis:", writeError instanceof Error ? writeError.message : String(writeError));
+      console.error("❌ Failed to save order to Redis:", writeError instanceof Error ? writeError.message : String(writeError));
       return NextResponse.json(
         { error: "Failed to save order to database" },
         { status: 500 }
       );
     }
 
-    // ✅ Step 5: Send email (non-blocking)
+    // ✅ Step 4: Send confirmation email (non-blocking)
     try {
-      // Non-blocking email send - don't wait for it
       fetch(`${req.nextUrl.origin}/api/email/send-order-confirmation`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -126,7 +229,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
           orderId: newOrder._id,
           email: customerInfo.email,
           items,
-          total,
+          total: calculatedTotal,
         }),
       }).catch((err) => console.warn("⚠️ Email send failed (non-blocking):", err));
 
@@ -141,7 +244,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       {
         success: true,
         orderId: newOrder._id,
-        message: "Order saved successfully",
+        message: "Order placed successfully",
+        total: calculatedTotal,
+        itemsCount: items.length,
       },
       { status: 201 }
     );
@@ -151,7 +256,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   } catch (error) {
     console.error("❌ Saveorder POST error:", error instanceof Error ? error.message : String(error));
     return NextResponse.json(
-      { error: "Failed to save order" },
+      { error: "Failed to place order. Please try again." },
       { status: 500 }
     );
   }

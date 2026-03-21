@@ -129,6 +129,10 @@ export default function CheckoutPage() {
     (async () => {
       setLoading(true);
       try {
+        // Try to get userId from localStorage
+        const userId = typeof window !== "undefined" ? localStorage.getItem('userId') : null;
+        
+        // Try draft first
         const draftRes = await fetch("/api/checkout-draft");
         const draftData = await draftRes.json();
         const draft = draftData.draft;
@@ -145,8 +149,11 @@ export default function CheckoutPage() {
           })));
           setFromCart(true);
           if (draft.form) setForm((prev) => ({ ...prev, ...draft.form }));
-          setLoading(false); return;
+          setLoading(false); 
+          return;
         }
+
+        // Try sessionStorage checkoutItems
         const checkoutJson = typeof window !== "undefined" ? sessionStorage.getItem("checkoutItems") : null;
         if (checkoutJson) {
           const items = JSON.parse(checkoutJson);
@@ -162,6 +169,8 @@ export default function CheckoutPage() {
           }));
           if (merged.length > 0) { setCart(merged); setLoading(false); return; }
         }
+
+        // Try sessionStorage selectedOrder
         const selectedJson = typeof window !== "undefined" ? sessionStorage.getItem("selectedOrder") : null;
         if (selectedJson) {
           const sel = JSON.parse(selectedJson);
@@ -177,15 +186,45 @@ export default function CheckoutPage() {
               size: i.size ?? null,
               color: i.color ?? null,
             }));
-          if (items.length > 0) { setCart(items); if (sel.customer) setForm((f) => ({ ...f, email: sel.customer.email||"", firstName: sel.customer.firstName||"", lastName: sel.customer.lastName||"", address: sel.customer.address||"", city: sel.customer.city||"", phone: sel.customer.phone||"" })); setLoading(false); return; }
+          if (items.length > 0) { 
+            setCart(items); 
+            if (sel.customer) setForm((f) => ({ 
+              ...f, 
+              email: sel.customer.email||"", 
+              firstName: sel.customer.firstName||"", 
+              lastName: sel.customer.lastName||"", 
+              address: sel.customer.address||"", 
+              city: sel.customer.city||"", 
+              phone: sel.customer.phone||"" 
+            })); 
+            setLoading(false); 
+            return; 
+          }
         }
+
+        // ✅ Finally try /api/cart with userId
         setFromCart(true);
-        const res = await fetch("/api/cart");
+        if (!userId) {
+          setError("Please log in to continue.");
+          setCart([]);
+          setLoading(false);
+          return;
+        }
+
+        const res = await fetch(`/api/cart?userId=${userId}`);
         const cartData = await res.json();
         const items = cartData.items||[];
-        if (!Array.isArray(items)||items.length===0) { setError("Your cart is empty."); setCart([]); setLoading(false); return; }
+        
+        if (!Array.isArray(items)||items.length===0) { 
+          setError("Your cart is empty."); 
+          setCart([]); 
+          setLoading(false); 
+          return; 
+        }
+
+        // ✅ MAP ITEMS TO FULL PRODUCT DETAILS (IMPORTANT!)
         setCart(items.map((i: any) => {
-          const p = productsData.find((p: Product) => p._id===i.productId);
+          const p = productsData.find((p: Product) => String(p._id) === String(i.productId));
           return {
             _id: i.productId,
             productId: i.productId,
@@ -197,7 +236,10 @@ export default function CheckoutPage() {
             color: i.color ?? null,
           };
         }));
-      } catch { setError("Failed to load checkout data."); }
+      } catch (err) { 
+        console.error("Failed to load checkout:", err);
+        setError("Failed to load checkout data."); 
+      }
       finally { setLoading(false); }
     })();
   }, []);
@@ -225,7 +267,7 @@ export default function CheckoutPage() {
       }
       await fetch("/api/checkout-draft", { method: "DELETE" });
     } catch {
-      // swallow cancel errors – this is a best-effort cleanup
+      // swallow cancel errors
     } finally {
       router.push("/cart");
     }
@@ -233,58 +275,114 @@ export default function CheckoutPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(""); setSuccess(""); setSubmitting(true);
-    if (!cart.length) { setError("No products to order."); setSubmitting(false); return; }
-    const required: [keyof FormData, string][] = [["email","email"],["firstName","first name"],["lastName","last name"],["address","address"],["city","city"],["phone","phone"]];
-    for (const [k, label] of required) { if (!form[k]) { setError(`Please enter your ${label}.`); setSubmitting(false); return; } }
-    // preserve variants (size/color) in order payload
-    const products = cart
-      .map((item) => {
-        const id = item.productId || item._id;
-        if (!id || (item.quantity ?? 0) <= 0) return null;
-        return {
-          _id: id,
-          quantity: item.quantity,
-          size: item.size ?? null,
-          color: item.color ?? null,
-        };
-      })
-      .filter(Boolean);
+    setError(""); 
+    setSuccess(""); 
+    setSubmitting(true);
 
-    if (!products.length) { setError("No valid items."); setSubmitting(false); return; }
+    // ✅ Validate cart
+    if (!cart.length) { 
+      setError("No products to order."); 
+      setSubmitting(false); 
+      return; 
+    }
+
+    // ✅ Validate form fields
+    const required: [keyof FormData, string][] = [
+      ["email","email"],
+      ["firstName","first name"],
+      ["lastName","last name"],
+      ["address","address"],
+      ["city","city"],
+      ["phone","phone"]
+    ];
+    for (const [k, label] of required) { 
+      if (!form[k]) { 
+        setError(`Please enter your ${label}.`); 
+        setSubmitting(false); 
+        return; 
+      } 
+    }
+
+    // ✅ BUILD ITEMS ARRAY WITH FULL DETAILS (NOT JUST _id!)
+    const items = cart
+      .filter(item => item.productId && (item.quantity ?? 0) > 0)
+      .map((item) => ({
+        productId: item.productId || item._id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        size: item.size || "One Size",
+        color: item.color || "Default",
+        image: item.image || "/images/placeholder.svg",
+      }));
+
+    if (!items.length) { 
+      setError("No valid items in cart."); 
+      setSubmitting(false); 
+      return; 
+    }
+
+    console.log("📤 Sending order payload:", {
+      items,
+      total,
+      customerInfo: {
+        email: form.email,
+        name: `${form.firstName} ${form.lastName}`,
+        address: form.address,
+        city: form.city,
+        phone: form.phone,
+      }
+    });
+
     try {
       const res = await fetch("/api/saveorder", {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          customer: {
-            email:form.email,
-            firstName:form.firstName,
-            lastName:form.lastName,
-            address:form.address,
-            apartment:form.apartment||undefined,
-            city:form.city,
-            postalCode:form.postalCode||undefined,
-            country:form.country,
-            phone:form.phone,
-            newsletter:form.newsletter,
-            shippingMethod:form.shippingMethod,
-            shippingCost,
-          },
-          products,
+          items, // ✅ Full item objects with name, price, quantity, etc.
           total,
-          status:"Completed",
-          createdAt: new Date().toISOString(),
+          customerInfo: {
+            email: form.email,
+            name: `${form.firstName} ${form.lastName}`,
+            address: form.address,
+            apartment: form.apartment || undefined,
+            city: form.city,
+            postalCode: form.postalCode || undefined,
+            country: form.country,
+            phone: form.phone,
+            newsletter: form.newsletter,
+          },
         }),
       });
-      if (!res.ok) { const d = await res.json().catch(()=>({})); throw new Error(d?.error||"Failed to place order"); }
-      setSuccess("Order placed successfully."); setCart([]);
-      if (typeof window !== "undefined") { sessionStorage.removeItem("checkoutItems"); sessionStorage.removeItem("selectedOrder"); }
-      await fetch("/api/checkout-draft", { method:"DELETE" });
-      if (fromCart) await fetch("/api/cart", { method:"DELETE", headers:{"Content-Type":"application/json"}, body: JSON.stringify({}) });
+
+      const data = await res.json();
+      console.log("📥 Server response:", data);
+
+      if (!res.ok) { 
+        throw new Error(data?.error || "Failed to place order"); 
+      }
+
+      setSuccess("Order placed successfully."); 
+      setCart([]);
+      
+      // ✅ Clear cart data
+      if (typeof window !== "undefined") { 
+        sessionStorage.removeItem("checkoutItems"); 
+        sessionStorage.removeItem("selectedOrder"); 
+      }
+      await fetch("/api/checkout-draft", { method: "DELETE" });
+      
+      if (fromCart) await fetch("/api/cart", { method: "DELETE" });
+
+      // Redirect to orders page
       setTimeout(() => router.push("/orders"), 1800);
-    } catch (err: any) { setError(err.message||"Failed to place order."); }
-    finally { setSubmitting(false); }
+    } catch (err: any) { 
+      console.error("❌ Order error:", err);
+      setError(err.message || "Failed to place order."); 
+    }
+    finally { 
+      setSubmitting(false); 
+    }
   }
 
   /* ── Loading ── */
