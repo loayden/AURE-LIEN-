@@ -1,15 +1,26 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    unoptimized: true, // Disable Next.js image optimization
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-        pathname: "/**",
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3000',
+      },
+      {
+        protocol: 'https',
+        hostname: 'aurelien-eta.vercel.app',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.vercel.app',
       },
     ],
   },
-  reactStrictMode: true,
+  typescript: {
+    ignoreBuildErrors: false,
+  },
 };
 
 module.exports = nextConfig;
