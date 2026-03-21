@@ -1,5 +1,8 @@
-node_modules
+# Node.js dependencies
 node_modules/
+
+# Next.js build output & cache
 .next/
-public/uploads/
+
+# Uploaded media
 public/uploads/
