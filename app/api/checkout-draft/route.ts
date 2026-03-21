@@ -1,97 +1,113 @@
-import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
-import { getOrCreateUserId } from "@/lib/userSession";
-import { getAuthFromRequest } from "@/lib/auth";
-import { paths } from "@/lib/dataPaths";
-import { attachUserCookie } from "@/lib/userSession";
 
-type DraftRecord = {
-  items: Array<{ _id: string; productId?: string; name: string; price: number; quantity: number; image?: string }>;
-  form: Record<string, unknown>;
-  updatedAt: string;
-};
+// Use the same data directory as your order storage
+const DATA_DIR = path.join(process.cwd(), ".data");
+const DRAFTS_FILE = path.join(DATA_DIR, "drafts.json");
 
-type DraftsFile = Record<string, DraftRecord>;
-
+/**
+ * Ensure the data directory exists
+ */
 async function ensureDataDir() {
-  const dir = path.dirname(paths.checkoutDrafts);
-  await fs.mkdir(dir, { recursive: true });
+  try {
+    await fs.mkdir(DATA_DIR, { recursive: true });
+  } catch (error) {
+    console.error("Failed to create data directory:", error);
+    throw error;
+  }
 }
 
-async function readDrafts(): Promise<DraftsFile> {
+/**
+ * Read all checkout drafts from file
+ */
+export async function getDraftsJson(): Promise<Record<string, any>> {
   try {
     await ensureDataDir();
-    const data = await fs.readFile(paths.checkoutDrafts, "utf-8");
+    const data = await fs.readFile(DRAFTS_FILE, "utf-8");
     return JSON.parse(data);
-  } catch {
+  } catch (error) {
+    // File doesn't exist yet or is invalid - return empty
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      console.log("Drafts file doesn't exist yet, returning empty object");
+      return {};
+    }
+    console.error("Error reading drafts file:", error);
     return {};
   }
 }
 
-async function writeDrafts(drafts: DraftsFile) {
-  await ensureDataDir();
-  await fs.writeFile(paths.checkoutDrafts, JSON.stringify(drafts, null, 2));
-}
-
-async function resolveUserId(req: NextRequest): Promise<{ userId: string; isNew: boolean }> {
-  const auth = await getAuthFromRequest(req);
-  if (auth?.userId) return { userId: auth.userId, isNew: false };
-  return getOrCreateUserId(req);
-}
-
-/** GET: fetch checkout draft for current user */
-export async function GET(req: NextRequest) {
+/**
+ * Write all checkout drafts to file
+ */
+export async function setDraftsJson(drafts: Record<string, any>): Promise<void> {
   try {
-    const { userId, isNew } = await resolveUserId(req);
-    const drafts = await readDrafts();
-    const draft = drafts[userId] || null;
-    const res = NextResponse.json({ draft }, { status: 200 });
-    if (isNew) attachUserCookie(res, userId);
-    return res;
-  } catch (e) {
-    console.error("Checkout draft GET error:", e);
-    return NextResponse.json({ draft: null }, { status: 500 });
+    await ensureDataDir();
+    const jsonString = JSON.stringify(drafts, null, 2);
+    await fs.writeFile(DRAFTS_FILE, jsonString, "utf-8");
+    console.log("✅ Drafts saved successfully");
+  } catch (error) {
+    console.error("Failed to write drafts file:", error);
+    throw error;
   }
 }
 
-/** POST: save checkout draft for current user */
-export async function POST(req: NextRequest) {
+/**
+ * Get a specific user's draft
+ */
+export async function getUserDraft(userId: string): Promise<any | null> {
   try {
-    const { userId, isNew } = await resolveUserId(req);
-    const body = await req.json();
-    const { items = [], form = {} } = body;
+    const drafts = await getDraftsJson();
+    return drafts[userId] || null;
+  } catch (error) {
+    console.error(`Error fetching draft for user ${userId}:`, error);
+    return null;
+  }
+}
 
-    const drafts = await readDrafts();
+/**
+ * Save a specific user's draft
+ */
+export async function saveUserDraft(
+  userId: string,
+  draft: { items: any[]; form: Record<string, unknown> }
+): Promise<void> {
+  try {
+    const drafts = await getDraftsJson();
     drafts[userId] = {
-      items: Array.isArray(items) ? items : [],
-      form: form && typeof form === "object" ? form : {},
+      ...draft,
       updatedAt: new Date().toISOString(),
     };
-    await writeDrafts(drafts);
-
-    const res = NextResponse.json({ success: true }, { status: 200 });
-    if (isNew) attachUserCookie(res, userId);
-    return res;
-  } catch (e) {
-    console.error("Checkout draft POST error:", e);
-    return NextResponse.json({ error: "Failed to save draft" }, { status: 500 });
+    await setDraftsJson(drafts);
+  } catch (error) {
+    console.error(`Error saving draft for user ${userId}:`, error);
+    throw error;
   }
 }
 
-/** DELETE: clear checkout draft for current user */
-export async function DELETE(req: NextRequest) {
+/**
+ * Delete a specific user's draft
+ */
+export async function deleteUserDraft(userId: string): Promise<void> {
   try {
-    const { userId, isNew } = await resolveUserId(req);
-    const drafts = await readDrafts();
+    const drafts = await getDraftsJson();
     delete drafts[userId];
-    await writeDrafts(drafts);
+    await setDraftsJson(drafts);
+    console.log(`✅ Draft deleted for user ${userId}`);
+  } catch (error) {
+    console.error(`Error deleting draft for user ${userId}:`, error);
+    throw error;
+  }
+}
 
-    const res = NextResponse.json({ success: true }, { status: 200 });
-    if (isNew) attachUserCookie(res, userId);
-    return res;
-  } catch (e) {
-    console.error("Checkout draft DELETE error:", e);
-    return NextResponse.json({ error: "Failed to clear draft" }, { status: 500 });
+/**
+ * Clear all drafts (be careful with this!)
+ */
+export async function clearAllDrafts(): Promise<void> {
+  try {
+    await setDraftsJson({});
+    console.log("✅ All drafts cleared");
+  } catch (error) {
+    console.error("Error clearing all drafts:", error);
+    throw error;
   }
 }
