@@ -5,3 +5,5 @@
 public/uploads/*.mp4 filter=lfs diff=lfs merge=lfs -text
 public/uploads/*.jpg filter=lfs diff=lfs merge=lfs -text
 public/uploads/*.png filter=lfs diff=lfs merge=lfs -text
+node_modules/**/*.node filter=lfs diff=lfs merge=lfs -text
+.next/dev/cache/**/*.sst filter=lfs diff=lfs merge=lfs -text
