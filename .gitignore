@@ -1,8 +1,1 @@
-# Node.js dependencies
-node_modules/
-
-# Next.js build output
-.next/
-
-# Uploaded media / large files
-public/uploads/
+node_modules
