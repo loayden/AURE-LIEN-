@@ -11,6 +11,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   MouseEvent as ReactMouseEvent,
+  KeyboardEvent as ReactKeyboardEvent,
   TouchEvent as ReactTouchEvent,
   useCallback, useEffect, useRef, useState,
 } from "react";
@@ -38,6 +39,7 @@ interface ProductCardProps {
 }
 
 const AUTO_MS = 3000;
+const DRAG_SUPPRESS_MS = 220;
 
 const badgeStyles = {
   new: { bg: "rgba(102, 153, 255, 0.85)", text: "#fff", label: "New" },
@@ -93,6 +95,9 @@ export default function ProductCard({
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [showSizeSelector, setShowSizeSelector] = useState(false);
   const [showColorSelector, setShowColorSelector] = useState(false);
+  const productHref = product._id
+    ? `/product/${encodeURIComponent(String(product._id))}`
+    : null;
 
 
   const images: string[] = (product.images || [])
@@ -118,6 +123,27 @@ export default function ProductCard({
   const isLowStock = (product.stock ?? 10) < 5;
   const outOfStock = (product.stock ?? 1) === 0;
 
+  const isInteractiveTarget = useCallback((target: EventTarget | null) => {
+    if (!(target instanceof Element)) return false;
+
+    return Boolean(
+      target.closest("button, a, input, select, textarea, [role='button'], [data-card-action='true']")
+    );
+  }, []);
+
+  const openProductPage = useCallback(() => {
+    if (!productHref) return;
+    router.push(productHref);
+  }, [productHref, router]);
+
+  function onCardKeyDown(e: ReactKeyboardEvent<HTMLDivElement>) {
+    if (dragging || isInteractiveTarget(e.target)) return;
+    if (e.key !== "Enter" && e.key !== " ") return;
+
+    e.preventDefault();
+    openProductPage();
+  }
+
   /* ── Auto-advance ── */
   const goTo = useCallback((idx: number, dir?: number) => {
     const next = (idx + count) % count;
@@ -135,12 +161,29 @@ export default function ProductCard({
   const tx = useRef(0), ty = useRef(0), sg = useRef<boolean | null>(null);
   function onTouchStart(e: ReactTouchEvent) { tx.current = e.touches[0].clientX; ty.current = e.touches[0].clientY; sg.current = null; setPaused(true); }
   function onTouchMove(e: ReactTouchEvent) { const dx = e.touches[0].clientX - tx.current, dy = e.touches[0].clientY - ty.current; if (sg.current === null) sg.current = Math.abs(dy) > Math.abs(dx); if (!sg.current) e.preventDefault(); }
-  function onTouchEnd(e: ReactTouchEvent) { if (sg.current) { setPaused(false); return; } const dx = e.changedTouches[0].clientX - tx.current; if (Math.abs(dx) > 36) goTo(current + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1); setTimeout(() => setPaused(false), 4000); }
+  function onTouchEnd(e: ReactTouchEvent) {
+    if (sg.current) { setPaused(false); return; }
+    const dx = e.changedTouches[0].clientX - tx.current;
+    if (Math.abs(dx) > 36) {
+      goTo(current + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+    } else if (!isInteractiveTarget(e.target)) {
+      openProductPage();
+    }
+    setTimeout(() => setPaused(false), 4000);
+  }
 
   /* ── Mouse drag ── */
   const dx0 = useRef(0);
   function onMouseDown(e: ReactMouseEvent) { dx0.current = e.clientX; setDragging(false); setPaused(true); }
-  function onMouseUp(e: ReactMouseEvent) { const d = e.clientX - dx0.current; if (Math.abs(d) > 36) { goTo(current + (d < 0 ? 1 : -1), d < 0 ? 1 : -1); setDragging(true); } setTimeout(() => { setDragging(false); setPaused(false); }, 4000); }
+  function onMouseUp(e: ReactMouseEvent) {
+    const d = e.clientX - dx0.current;
+    if (Math.abs(d) > 36) {
+      goTo(current + (d < 0 ? 1 : -1), d < 0 ? 1 : -1);
+      setDragging(true);
+      setTimeout(() => setDragging(false), DRAG_SUPPRESS_MS);
+    }
+    setTimeout(() => setPaused(false), 4000);
+  }
 
   /* ── Tilt ── */
   const mx = useMotionValue(0), my = useMotionValue(0);
@@ -194,9 +237,15 @@ export default function ProductCard({
       initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-      onClick={() => { if (!dragging) router.push(`/product/${product._id}`); }}
+      onClick={(e) => {
+        if (dragging || isInteractiveTarget(e.target)) return;
+        openProductPage();
+      }}
+      onKeyDown={onCardKeyDown}
       onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}
+      role={productHref ? "link" : undefined}
+      tabIndex={productHref ? 0 : -1}
       style={{
         rotateX: rX, rotateY: rY,
         transformStyle: "preserve-3d",
