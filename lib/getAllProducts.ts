@@ -4,8 +4,6 @@
  * - JSON-backed admin products
  * - Mongo-backed admin products when DB is configured
  */
-import fs from "fs";
-import path from "path";
 import connectDB from "./connectDB";
 import ProductModel from "@/models/Product";
 import productsData from "./productsData";
@@ -13,8 +11,6 @@ import { readProductsJson } from "./productsJson";
 import type { Product } from "./types";
 
 const PLACEHOLDER_IMAGE = "/images/placeholder.svg";
-const PUBLIC_UPLOADS_DIR = path.join(process.cwd(), "public", "uploads");
-const PUBLIC_IMAGES_DIR = path.join(process.cwd(), "public", "images");
 
 let cache: Product[] | null = null;
 
@@ -41,15 +37,16 @@ function normalizeImagePath(image: unknown): string {
     return trimmed;
   }
 
-  if (fs.existsSync(path.join(PUBLIC_UPLOADS_DIR, trimmed))) {
-    return `/uploads/${trimmed}`;
-  }
+  const normalized = trimmed.replace(/^\.?\//, "");
 
-  if (fs.existsSync(path.join(PUBLIC_IMAGES_DIR, trimmed))) {
-    return `/images/${trimmed}`;
+  if (!normalized) return PLACEHOLDER_IMAGE;
+  if (normalized.startsWith("uploads/") || normalized.startsWith("images/")) {
+    return `/${normalized}`;
   }
+  if (normalized === "placeholder.svg") return "/images/placeholder.svg";
 
-  return PLACEHOLDER_IMAGE;
+  // Admin-uploaded media is stored under public/uploads.
+  return `/uploads/${normalized}`;
 }
 
 function normalizeProduct(raw: any): Product {
