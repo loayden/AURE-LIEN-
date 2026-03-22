@@ -7,12 +7,6 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 
-/**
- * STEP 1: Organize products by category
- * 
- * This function takes your imported `products` array and organizes it
- * into categories based on the product's category field.
- */
 const organizeProductsByCategory = (allProducts: Product[]) => {
   const organized: Record<string, Product[]> = {
     "Jackets & Coats": [],
@@ -30,14 +24,9 @@ const organizeProductsByCategory = (allProducts: Product[]) => {
     "Belts": [],
   };
 
-  /**
-   * STEP 2: Loop through each product from your import
-   * and place it in the correct category
-   */
   allProducts.forEach((product) => {
     const category = product.category || "";
     
-    // Match product categories to our display categories
     if (category.toLowerCase().includes("jacket") || category.toLowerCase().includes("coat")) {
       organized["Jackets & Coats"].push(product);
     } else if (category.toLowerCase().includes("suit")) {
@@ -97,12 +86,6 @@ const SECTIONS = [
   },
 ];
 
-/**
- * STEP 3: SubcategorySection Component
- * 
- * This component receives a category name and the products in that category
- * It then displays each product using your ProductCard component
- */
 function SubcategorySection({ 
   title, 
   productsInCategory 
@@ -116,12 +99,12 @@ function SubcategorySection({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
-      className="mb-16"
+      className="mb-12 sm:mb-16"
     >
       {/* Subcategory header with product count */}
-      <div className="mb-6 flex items-center gap-4">
+      <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
         <h3
-          className="text-2xl font-light text-slate-50"
+          className="text-xl sm:text-2xl font-light text-slate-50"
           style={{
             fontFamily: "'Cormorant Garamond', serif",
             letterSpacing: "0.08em",
@@ -129,16 +112,15 @@ function SubcategorySection({
         >
           {title}
         </h3>
-        <div className="flex-1 h-px bg-gradient-to-r from-slate-700/50 to-transparent" />
+        <div className="hidden sm:flex flex-1 h-px bg-gradient-to-r from-slate-700/50 to-transparent" />
         <span className="text-xs text-slate-400 uppercase tracking-widest">
           {productsInCategory.length} items
         </span>
       </div>
 
-      {/* STEP 4: Display products or empty state */}
+      {/* MOBILE: Grid optimized for small screens */}
       {productsInCategory.length > 0 ? (
-        // ✅ PRODUCTS FOUND: Show grid of ProductCards
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
           {productsInCategory.map((product, idx) => (
             <motion.div
               key={product._id}
@@ -147,22 +129,19 @@ function SubcategorySection({
               viewport={{ once: true }}
               transition={{ delay: idx * 0.05, duration: 0.5 }}
             >
-              {/* YOUR PRODUCTCARD COMPONENT - Used here! */}
               <ProductCard product={product} />
             </motion.div>
           ))}
         </div>
       ) : (
-        // ❌ NO PRODUCTS: Show empty state
-        // This happens when no products match this category from your imports
         <motion.div
           initial={false}
           animate={{ opacity: 1 }}
-          className="py-12 text-center text-slate-400"
+          className="py-8 sm:py-12 text-center text-slate-400"
         >
-          <p>No products in this category yet</p>
-          <p className="text-sm text-slate-500 mt-2">
-            Products will appear here once they are added to your collection.
+          <p className="text-sm">No products in this category yet</p>
+          <p className="text-xs text-slate-500 mt-2">
+            Products will appear here once added.
           </p>
         </motion.div>
       )}
@@ -170,15 +149,14 @@ function SubcategorySection({
   );
 }
 
-// ── FLOATING ORBS ──
 function FloatingOrbs() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       <div
         className="absolute rounded-full"
         style={{
-          width: 700,
-          height: 700,
+          width: 400,
+          height: 400,
           top: "-20%",
           right: "-15%",
           background: "radial-gradient(circle, rgba(198,169,98,0.08) 0%, transparent 70%)",
@@ -189,8 +167,8 @@ function FloatingOrbs() {
       <div
         className="absolute rounded-full"
         style={{
-          width: 500,
-          height: 500,
+          width: 300,
+          height: 300,
           bottom: "5%",
           left: "-10%",
           background: "radial-gradient(circle, rgba(160,160,210,0.07) 0%, transparent 70%)",
@@ -206,11 +184,10 @@ function FloatingOrbs() {
   );
 }
 
-// ── GLASS NAV ──
 function GlassNav({ active, onChange }: { active: string; onChange: (id: string) => void }) {
   return (
     <div
-      className="flex items-center gap-1 p-1.5 rounded-full"
+      className="flex flex-wrap items-center justify-center gap-1 p-1.5 rounded-full max-w-full overflow-x-auto"
       style={{
         background: "linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.04) 100%)",
         backdropFilter: "blur(20px) saturate(160%)",
@@ -225,7 +202,7 @@ function GlassNav({ active, onChange }: { active: string; onChange: (id: string)
             onChange(s.id);
             document.getElementById(s.id)?.scrollIntoView({ behavior: "smooth", block: "start" });
           }}
-          className="relative px-5 py-2 rounded-full text-[10px] tracking-[0.25em] uppercase font-light transition-all duration-400"
+          className="relative px-3 sm:px-5 py-2 rounded-full text-[9px] sm:text-[10px] tracking-[0.25em] uppercase font-light transition-all duration-400 whitespace-nowrap flex-shrink-0"
           style={{
             color: active === s.id ? "#080808" : "rgba(255,255,255,0.5)",
             background:
@@ -254,17 +231,11 @@ export default function CollectionPage() {
   const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "25%"]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
-  /**
-   * STEP 0: Memoize the organization of products
-   * This only runs when the `products` import changes
-   * Prevents unnecessary re-organization on every render
-   */
   const PRODUCTS_ORGANIZED = useMemo(
     () => organizeProductsByCategory(products),
     [products]
   );
 
-  // DEBUG: Log what products were found (can remove later)
   console.log("✅ Products imported:", products.length, "items");
   console.log("📦 Products organized by category:", PRODUCTS_ORGANIZED);
 
@@ -279,10 +250,14 @@ export default function CollectionPage() {
           backdrop-filter: blur(20px) saturate(180%);
           border: 1px solid rgba(255,255,255,0.14);
           transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+          min-height: 44px;
         }
         .glass-pill:hover {
           background: linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.09) 100%);
           box-shadow: 0 12px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.28), 0 0 20px rgba(198,169,98,0.12);
+        }
+        .glass-pill:active {
+          transform: scale(0.98);
         }
         @keyframes heroIn {
           from { opacity: 0; transform: translateY(28px); }
@@ -297,6 +272,13 @@ export default function CollectionPage() {
           backdrop-filter: blur(28px) saturate(180%);
           border-bottom: 1px solid rgba(255,255,255,0.07);
         }
+        
+        /* Mobile optimization */
+        @media (max-width: 640px) {
+          .sticky-nav {
+            padding: 0.75rem 0.5rem;
+          }
+        }
       `}</style>
 
       <motion.main
@@ -306,10 +288,10 @@ export default function CollectionPage() {
         className="relative bg-[#080808] text-white min-h-screen"
         style={{ fontFamily: "'Jost', sans-serif" }}
       >
-        {/* ── HERO ── */}
+        {/* ── HERO (Mobile optimized) ── */}
         <section
           ref={heroRef}
-          className="relative h-[85vh] w-full overflow-hidden flex items-end justify-center pb-20"
+          className="relative h-[60vh] sm:h-[75vh] md:h-[85vh] w-full overflow-hidden flex items-end justify-center pb-10 sm:pb-20"
         >
           <motion.div style={{ y: heroY }} className="absolute inset-0 scale-110">
             <video
@@ -330,23 +312,23 @@ export default function CollectionPage() {
             }}
           />
           <div
-            className="absolute inset-x-0 bottom-0 h-60"
+            className="absolute inset-x-0 bottom-0 h-40 sm:h-60"
             style={{ background: "linear-gradient(to top, #080808, transparent)" }}
           />
           <div
-            className="absolute inset-x-0 top-0 h-24"
+            className="absolute inset-x-0 top-0 h-16 sm:h-24"
             style={{ background: "linear-gradient(to bottom, rgba(8,8,8,0.6), transparent)" }}
           />
 
-          <motion.div style={{ opacity: heroOpacity }} className="relative z-10 text-center px-6 max-w-3xl mx-auto">
-            <p className="hero-line-1 text-white/30 text-[10px] tracking-[0.45em] uppercase font-light mb-5">
+          <motion.div style={{ opacity: heroOpacity }} className="relative z-10 text-center px-4 sm:px-6 max-w-3xl mx-auto">
+            <p className="hero-line-1 text-white/30 text-[8px] sm:text-[10px] tracking-[0.45em] uppercase font-light mb-3 sm:mb-5">
               2025 Season
             </p>
             <h1
-              className="hero-line-2 font-light text-white mb-5 leading-none"
+              className="hero-line-2 font-light text-white mb-3 sm:mb-5 leading-none"
               style={{
                 fontFamily: "'Cormorant Garamond', serif",
-                fontSize: "clamp(3.5rem, 9vw, 7.5rem)",
+                fontSize: "clamp(2rem, 7vw, 7.5rem)",
                 letterSpacing: "0.04em",
                 textShadow: "0 4px 40px rgba(0,0,0,0.5)",
               }}
@@ -354,15 +336,15 @@ export default function CollectionPage() {
               The <em style={{ color: "#C6A962", fontStyle: "italic" }}>Collection</em>
             </h1>
             <p
-              className="hero-line-3 text-white/45 font-light tracking-widest max-w-md mx-auto"
-              style={{ fontSize: "0.85rem", letterSpacing: "0.14em" }}
+              className="hero-line-3 text-white/45 font-light tracking-widest max-w-md mx-auto text-xs sm:text-sm"
+              style={{ letterSpacing: "0.14em" }}
             >
               Crafted in silence. Designed for presence.
             </p>
-            <div className="hero-line-4 mt-8 flex items-center justify-center gap-4">
+            <div className="hero-line-4 mt-6 sm:mt-8 flex items-center justify-center">
               <Link
                 href="/shop"
-                className="glass-pill inline-flex items-center gap-3 px-8 py-3.5 rounded-full text-white text-[11px] font-light tracking-[0.25em] uppercase"
+                className="glass-pill inline-flex items-center gap-2 sm:gap-3 px-6 sm:px-8 py-3 sm:py-3.5 rounded-full text-white text-[10px] sm:text-[11px] font-light tracking-[0.25em] uppercase"
               >
                 Shop All
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -379,13 +361,13 @@ export default function CollectionPage() {
           </motion.div>
         </section>
 
-        {/* ── STICKY NAV ── */}
-        <div className="sticky top-0 z-40 sticky-nav py-4 px-6 flex justify-center">
+        {/* ── STICKY NAV (Mobile optimized) ── */}
+        <div className="sticky top-0 z-40 sticky-nav py-4 px-4 sm:px-6 flex justify-center overflow-x-auto">
           <GlassNav active={activeSection} onChange={setActiveSection} />
         </div>
 
         {/* ── MAIN SECTIONS ── */}
-        <div className="relative px-6 max-w-7xl mx-auto py-20">
+        <div className="relative px-4 sm:px-6 max-w-7xl mx-auto py-12 sm:py-20">
           {SECTIONS.map((section, sectionIdx) => (
             <motion.section
               key={section.id}
@@ -394,7 +376,7 @@ export default function CollectionPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="mb-24 scroll-mt-32"
+              className="mb-16 sm:mb-24 scroll-mt-32"
             >
               {/* Section header */}
               <motion.div
@@ -402,10 +384,10 @@ export default function CollectionPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1, duration: 0.5 }}
-                className="mb-12 border-b border-slate-700/50 pb-8"
+                className="mb-8 sm:mb-12 border-b border-slate-700/50 pb-6 sm:pb-8"
               >
                 <p
-                  className="text-white/25 text-[10px] tracking-[0.4em] uppercase font-light mb-3"
+                  className="text-white/25 text-[9px] sm:text-[10px] tracking-[0.4em] uppercase font-light mb-2 sm:mb-3"
                   style={{ fontFamily: "'Jost', sans-serif" }}
                 >
                   Collection
@@ -414,7 +396,7 @@ export default function CollectionPage() {
                   className="text-white font-light leading-none"
                   style={{
                     fontFamily: "'Cormorant Garamond', serif",
-                    fontSize: "clamp(2rem, 4vw, 3.2rem)",
+                    fontSize: "clamp(1.5rem, 5vw, 3.2rem)",
                     letterSpacing: "0.06em",
                     color: "#C6A962",
                   }}
@@ -424,7 +406,7 @@ export default function CollectionPage() {
               </motion.div>
 
               {/* Subcategories with products */}
-              <div className="space-y-20">
+              <div className="space-y-16 sm:space-y-20">
                 {section.items.map((categoryName) => {
                   const productsInCategory = PRODUCTS_ORGANIZED[categoryName] || [];
                   return (
@@ -440,7 +422,7 @@ export default function CollectionPage() {
               {/* Section divider */}
               {sectionIdx < SECTIONS.length - 1 && (
                 <div
-                  className="mt-24 h-px"
+                  className="mt-16 sm:mt-24 h-px"
                   style={{
                     background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)",
                   }}
@@ -452,7 +434,7 @@ export default function CollectionPage() {
 
         {/* ── FOOTER CTA ── */}
         <section
-          className="relative py-24 px-6 flex flex-col items-center justify-center text-center overflow-hidden mt-8"
+          className="relative py-16 sm:py-24 px-4 sm:px-6 flex flex-col items-center justify-center text-center overflow-hidden mt-8"
           style={{ background: "#060606" }}
         >
           <div
@@ -473,16 +455,16 @@ export default function CollectionPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.9 }}
-            className="relative z-10"
+            className="relative z-10 px-2 sm:px-0"
           >
-            <p className="text-white/25 text-[10px] tracking-[0.45em] uppercase font-light mb-5">
+            <p className="text-white/25 text-[8px] sm:text-[10px] tracking-[0.45em] uppercase font-light mb-4 sm:mb-5">
               Curated for You
             </p>
             <h2
-              className="font-light text-white mb-8 leading-tight"
+              className="font-light text-white mb-6 sm:mb-8 leading-tight"
               style={{
                 fontFamily: "'Cormorant Garamond', serif",
-                fontSize: "clamp(2rem, 5vw, 3.8rem)",
+                fontSize: "clamp(1.5rem, 6vw, 3.8rem)",
                 letterSpacing: "0.05em",
               }}
             >
@@ -492,7 +474,7 @@ export default function CollectionPage() {
             </h2>
             <Link
               href="/shop"
-              className="glass-pill inline-flex items-center gap-3 px-10 py-4 rounded-full text-white text-[11px] font-light tracking-[0.3em] uppercase"
+              className="glass-pill inline-flex items-center gap-2 sm:gap-3 px-8 sm:px-10 py-3 sm:py-4 rounded-full text-white text-[10px] sm:text-[11px] font-light tracking-[0.3em] uppercase"
             >
               Shop the Full Edit
             </Link>
