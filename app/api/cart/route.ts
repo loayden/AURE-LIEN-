@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
-import products from '@/lib/productsData';
+import { getAllProducts, getProductById } from "@/lib/getAllProducts";
 import { attachUserCookie, getOrCreateUserId } from "@/lib/userSession";
 import { paths } from "@/lib/dataPaths";
 
@@ -42,15 +42,20 @@ function saveCart(cart: CartItem[]) {
 export async function GET(req: NextRequest) {
   const { userId, isNew } = getOrCreateUserId(req);
   const cart = readCart();
+  const products = await getAllProducts();
+  const productMap = new Map(products.map((product) => [String(product._id), product]));
 
   let items = cart.filter(item => item.userId === userId);
-  // Ensure all items have _id and basic product data
+  // Enrich response so cart/checkout can render products added from JSON/Mongo too.
   items = items.map(item => {
-    const product = products.find((p: { _id: string }) => p._id === item.productId);
+    const product = productMap.get(String(item.productId));
     return {
       ...item,
-      _id: item._id || product?._id || '',
-      // keep any existing name/price/image if we later extend CartItem
+      _id: item._id || product?._id || item.productId,
+      name: product?.name ?? "Unknown Product",
+      price: product?.price ?? 0,
+      image: product?.images?.[0] ?? "/images/placeholder.svg",
+      category: product?.category ?? "",
     };
   });
 
@@ -83,6 +88,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid cart data' }, { status: 400 });
   }
 
+  const product = await getProductById(productId);
+  if (!product) {
+    return NextResponse.json({ error: "Product not found" }, { status: 404 });
+  }
+
   // Treat same product + same size + same color as the same line item
   const index = cart.findIndex(
     item =>
@@ -95,13 +105,20 @@ export async function POST(req: NextRequest) {
   if (index !== -1) {
     cart[index].quantity += quantity;
     saveCart(cart);
-    const res = NextResponse.json({ item: cart[index] }, { status: 200 });
+    const res = NextResponse.json({
+      item: {
+        ...cart[index],
+        _id: product._id,
+        name: product.name,
+        price: product.price,
+        image: product.images?.[0] ?? "/images/placeholder.svg",
+      },
+    }, { status: 200 });
     if (isNew) attachUserCookie(res, userId);
     return res;
   } else {
-    const product = products.find((p: { _id: string }) => p._id === productId);
     const newItem: CartItem = {
-      _id: product?._id || '',
+      _id: product._id,
       userId,
       productId,
       quantity,
@@ -110,7 +127,14 @@ export async function POST(req: NextRequest) {
     };
     cart.push(newItem);
     saveCart(cart);
-    const res = NextResponse.json({ item: newItem }, { status: 201 });
+    const res = NextResponse.json({
+      item: {
+        ...newItem,
+        name: product.name,
+        price: product.price,
+        image: product.images?.[0] ?? "/images/placeholder.svg",
+      },
+    }, { status: 201 });
     if (isNew) attachUserCookie(res, userId);
     return res;
   }

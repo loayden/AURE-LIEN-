@@ -372,17 +372,83 @@ function SpecificationsTab() {
 
 export default function PremiumProductPage() {
   const params = useParams();
-  const id = params?.id as string;
-  const product = products.find((p) => String(p._id) === id) || null;
-  const p = product as (Product & { media360?: string[]; videoUrl?: string }) | null;
+  const idParam = params?.id;
+  const id = Array.isArray(idParam) ? idParam[0] : String(idParam ?? "");
+  const initialProduct =
+    (products.find((entry) => String(entry._id) === id) as
+      | (Product & { media360?: string[]; videoUrl?: string })
+      | undefined) ?? null;
 
-  const allMedia = p ? [...(p.images || []), ...(p.media360 || [])] : [];
+  const [product, setProduct] = useState<(Product & { media360?: string[]; videoUrl?: string }) | null>(initialProduct);
+  const [loadingProduct, setLoadingProduct] = useState(!initialProduct);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
   const [loading, setLoading] = useState(false);
   const [wishlisted, setWishlisted] = useState(false);
   const [activeTab, setActiveTab] = useState<"specs" | "details">("specs");
+  const p = product;
+  const allMedia = p ? [...(p.images || []), ...(p.media360 || [])] : [];
+
+  useEffect(() => {
+    if (!id) {
+      setProduct(null);
+      setLoadingProduct(false);
+      return;
+    }
+
+    const fallbackProduct =
+      (products.find((entry) => String(entry._id) === id) as
+        | (Product & { media360?: string[]; videoUrl?: string })
+        | undefined) ?? null;
+
+    setProduct(fallbackProduct);
+    setLoadingProduct(!fallbackProduct);
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await fetch(`/api/products/${encodeURIComponent(id)}`, {
+          cache: "no-store",
+        });
+
+        if (!res.ok) {
+          if (!cancelled && !fallbackProduct) {
+            setProduct(null);
+          }
+          return;
+        }
+
+        const data = await res.json();
+        if (!cancelled) {
+          setProduct(data);
+        }
+      } catch {
+        if (!cancelled && !fallbackProduct) {
+          setProduct(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingProduct(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  if (loadingProduct) {
+    return (
+      <div className="min-h-screen bg-[#080808] flex items-center justify-center">
+        <p className="text-white/50 font-light tracking-widest" style={{ fontFamily: "'Jost', sans-serif" }}>
+          Loading product...
+        </p>
+      </div>
+    );
+  }
 
   if (!product || !p) {
     return (

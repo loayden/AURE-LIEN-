@@ -1,8 +1,5 @@
-import connectDB from "@/lib/connectDB";
-import Product from "@/models/Product";
-import fs from "fs";
+import { getAllProducts } from "@/lib/getAllProducts";
 import { NextResponse } from "next/server";
-import path from "path";
 
 export const categoryMap: Record<string, string> = {
   "jackets-coats": "Jackets & Coats",
@@ -43,12 +40,11 @@ function buildFlexibleCategoryRegex(input: string): RegExp {
 
 export async function GET(req: Request) {
   try {
-    await connectDB();
-
     const url = new URL(req.url);
     const category = url.searchParams.get("category");
+    const allProducts = await getAllProducts();
 
-    let productsList;
+    let productsList = allProducts;
     if (category) {
       const decoded = decodeURIComponent(category).trim();
       const normalizedKey = decoded.toLowerCase();
@@ -59,33 +55,17 @@ export async function GET(req: Request) {
         buildFlexibleCategoryRegex(mappedCategory),
       ];
 
-      productsList = await Product.find({ $or: regexes.map((re) => ({ category: { $regex: re } })) })
-        .limit(50)
-        .sort({ createdAt: -1 })
-        .lean();
-    } else {
-      productsList = await Product.find({}).limit(50).sort({ createdAt: -1 }).lean();
+      productsList = allProducts.filter((product) =>
+        regexes.some((regex) => regex.test(String(product.category ?? "")))
+      );
     }
 
-    const publicImagesDir = path.join(process.cwd(), "public", "images");
-    const placeholderPath = "/images/placeholder.svg";
-
-    const updatedProducts = productsList.map(product => {
-      if (Array.isArray(product.images)) {
-        product.images = product.images.map((imagePath: string) => {
-          const imageFileName = path.basename(imagePath);
-          const fullImagePath = path.join(publicImagesDir, imageFileName);
-          if (fs.existsSync(fullImagePath)) {
-            return imagePath;
-          } else {
-            return placeholderPath;
-          }
-        });
-      }
-      return product;
+    return NextResponse.json(productsList.slice(0, 50), {
+      status: 200,
+      headers: {
+        "Cache-Control": "no-store, max-age=0",
+      },
     });
-
-    return NextResponse.json(updatedProducts || [], { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });

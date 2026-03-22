@@ -1,22 +1,128 @@
 /**
- * Server-only: returns productsData + products from data/products.json
+ * Server-only merged product catalog:
+ * - built-in storefront products
+ * - JSON-backed admin products
+ * - Mongo-backed admin products when DB is configured
  */
+import fs from "fs";
+import path from "path";
+import connectDB from "./connectDB";
+import ProductModel from "@/models/Product";
 import productsData from "./productsData";
 import { readProductsJson } from "./productsJson";
+import type { Product } from "./types";
 
-let cache: Awaited<ReturnType<typeof loadAllProducts>> | null = null;
+const PLACEHOLDER_IMAGE = "/images/placeholder.svg";
+const PUBLIC_UPLOADS_DIR = path.join(process.cwd(), "public", "uploads");
+const PUBLIC_IMAGES_DIR = path.join(process.cwd(), "public", "images");
 
-async function loadAllProducts() {
-  const fromJson = await readProductsJson();
-  const ids = new Set(productsData.map((p) => p._id));
-  const extra = fromJson.filter((p) => !ids.has(p._id));
-  return [...productsData, ...extra];
+let cache: Product[] | null = null;
+
+function hasMongoConfig(): boolean {
+  const uri = process.env.MONGO_URI?.trim() || process.env.MONGODB_URI?.trim();
+  return Boolean(
+    uri &&
+      (uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://"))
+  );
 }
 
-export async function getAllProducts() {
+function normalizeImagePath(image: unknown): string {
+  if (typeof image !== "string") return PLACEHOLDER_IMAGE;
+
+  const trimmed = image.trim();
+  if (!trimmed) return PLACEHOLDER_IMAGE;
+
+  if (
+    trimmed.startsWith("/") ||
+    trimmed.startsWith("http://") ||
+    trimmed.startsWith("https://") ||
+    trimmed.startsWith("data:")
+  ) {
+    return trimmed;
+  }
+
+  if (fs.existsSync(path.join(PUBLIC_UPLOADS_DIR, trimmed))) {
+    return `/uploads/${trimmed}`;
+  }
+
+  if (fs.existsSync(path.join(PUBLIC_IMAGES_DIR, trimmed))) {
+    return `/images/${trimmed}`;
+  }
+
+  return PLACEHOLDER_IMAGE;
+}
+
+function normalizeProduct(raw: any): Product {
+  const images = Array.isArray(raw?.images)
+    ? raw.images.map(normalizeImagePath).filter(Boolean)
+    : [];
+
+  return {
+    _id: String(raw?._id ?? ""),
+    name: String(raw?.name ?? "").trim(),
+    category: String(raw?.category ?? "").trim(),
+    price: Number(raw?.price ?? 0),
+    images: images.length > 0 ? images : [PLACEHOLDER_IMAGE],
+    size: Array.isArray(raw?.size)
+      ? raw.size.map((value: unknown) => String(value))
+      : [],
+    colors: Array.isArray(raw?.colors)
+      ? raw.colors.map((value: unknown) => String(value))
+      : [],
+    description: raw?.description ? String(raw.description) : undefined,
+    material: raw?.material ? String(raw.material) : undefined,
+    stock: typeof raw?.stock === "number" ? raw.stock : undefined,
+    media360: Array.isArray(raw?.media360)
+      ? raw.media360.map((value: unknown) => normalizeImagePath(value))
+      : undefined,
+    videoUrl: raw?.videoUrl ? String(raw.videoUrl) : undefined,
+  };
+}
+
+function mergeProducts(lists: Product[][]): Product[] {
+  const byId = new Map<string, Product>();
+
+  for (const list of lists) {
+    for (const product of list.map(normalizeProduct)) {
+      if (!product._id) continue;
+      byId.set(product._id, product);
+    }
+  }
+
+  return Array.from(byId.values());
+}
+
+async function readMongoProducts(): Promise<Product[]> {
+  if (!hasMongoConfig()) return [];
+
+  try {
+    await connectDB();
+    const products = await ProductModel.find({}).sort({ createdAt: -1 }).lean();
+    return products.map(normalizeProduct);
+  } catch (error) {
+    console.error("Failed to read products from MongoDB:", error);
+    return [];
+  }
+}
+
+async function loadAllProducts(): Promise<Product[]> {
+  const builtInProducts = productsData.map(normalizeProduct);
+  const fromJson = (await readProductsJson()).map(normalizeProduct);
+  const fromMongo = await readMongoProducts();
+
+  return mergeProducts([builtInProducts, fromJson, fromMongo]);
+}
+
+export async function getAllProducts(): Promise<Product[]> {
   if (cache) return cache;
   cache = await loadAllProducts();
   return cache;
+}
+
+export async function getProductById(id: string): Promise<Product | null> {
+  if (!id) return null;
+  const products = await getAllProducts();
+  return products.find((product) => String(product._id) === String(id)) ?? null;
 }
 
 export function clearProductsCache() {
