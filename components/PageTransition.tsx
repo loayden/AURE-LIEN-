@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import Cursor from "./Cursor";
 
 const pageVariants = {
-  initial: { opacity: 0, scale: 0.985, filter: "blur(4px)" },
   animate: { opacity: 1, scale: 1,     filter: "blur(0px)" },
   exit:    { opacity: 0, scale: 0.985, filter: "blur(4px)" },
 };
@@ -24,10 +23,10 @@ export default function PageTransition({
 
   return (
     <>
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={pathname}
-          initial="initial"
+          initial={false}
           animate="animate"
           exit="exit"
           variants={pageVariants}
