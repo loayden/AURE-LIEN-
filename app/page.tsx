@@ -46,7 +46,7 @@ export default function Home() {
         {/* ══════════════════════════════════════
             HERO
         ══════════════════════════════════════ */}
-        <section ref={heroRef} className="relative h-screen w-full overflow-hidden flex items-center justify-center">
+        <section ref={heroRef} className="relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center">
 
           <motion.div style={{ y: heroY }} className="absolute inset-0 scale-110">
             <video
@@ -65,11 +65,11 @@ export default function Home() {
                style={{ background:"linear-gradient(to bottom, rgba(8,8,8,0.55), transparent)" }} />
 
           <motion.div style={{ opacity: heroOpacity }}
-                      className="relative z-10 flex flex-col items-center text-center px-6">
+                      className="relative z-10 flex flex-col items-center text-center px-5 sm:px-6">
             <motion.span
               initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }}
               transition={{ duration:0.9, delay:0.3 }}
-              className="inline-block mb-8 px-5 py-2 rounded-full text-white/35 text-[9px] tracking-[0.45em] uppercase font-light"
+              className="inline-block mb-6 sm:mb-8 px-4 sm:px-5 py-2 rounded-full text-white/35 text-[9px] tracking-[0.38em] uppercase font-light"
               style={{
                 background:"linear-gradient(135deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03))",
                 backdropFilter:"blur(20px)", border:"1px solid rgba(255,255,255,0.09)",
@@ -85,7 +85,7 @@ export default function Home() {
               className="font-light text-white leading-none mb-6"
               style={{
                 fontFamily:"'Cormorant Garamond', serif",
-                fontSize:"clamp(3.5rem, 9vw, 8rem)",
+                fontSize:"clamp(2.9rem, 14vw, 8rem)",
                 letterSpacing:"0.04em",
                 textShadow:"0 4px 48px rgba(0,0,0,0.35)",
               }}
@@ -97,8 +97,8 @@ export default function Home() {
             <motion.p
               initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
               transition={{ duration:0.9, delay:0.7 }}
-              className="text-white/35 font-light mb-10 max-w-xs leading-relaxed"
-              style={{ fontSize:"0.85rem", letterSpacing:"0.12em" }}
+              className="text-white/35 font-light mb-8 sm:mb-10 max-w-sm leading-relaxed"
+              style={{ fontSize:"0.92rem", letterSpacing:"0.08em" }}
             >
               Refined menswear for those who speak through presence.
             </motion.p>
@@ -106,10 +106,10 @@ export default function Home() {
             <motion.div
               initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }}
               transition={{ duration:0.9, delay:0.9 }}
-              className="flex items-center gap-4"
+              className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto max-w-xs sm:max-w-none"
             >
               <Link href="/collection"
-                className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full text-white text-[10px] font-light tracking-[0.28em] uppercase transition-all duration-500 hover:scale-[1.02]"
+                className="inline-flex items-center justify-center gap-2.5 w-full sm:w-auto px-7 sm:px-8 py-3.5 rounded-full text-white text-[10px] font-light tracking-[0.24em] uppercase transition-all duration-500 hover:scale-[1.02]"
                 style={{
                   background:"linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.06))",
                   backdropFilter:"blur(20px) saturate(180%)", border:"1px solid rgba(255,255,255,0.18)",
@@ -119,13 +119,13 @@ export default function Home() {
                 <ArrowRight strokeWidth={1.2} className="w-3.5 h-3.5" />
               </Link>
               <Link href="shop"
-                className="px-6 py-3.5 rounded-full text-white/40 text-[10px] font-light tracking-[0.28em] uppercase border border-white/10 hover:border-white/22 hover:text-white/65 transition-all duration-400">
+                className="w-full sm:w-auto text-center px-6 py-3.5 rounded-full text-white/40 text-[10px] font-light tracking-[0.24em] uppercase border border-white/10 hover:border-white/22 hover:text-white/65 transition-all duration-400">
                 SHOP
               </Link>
             </motion.div>
           </motion.div>
 
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-25 z-10">
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-2 opacity-25 z-10">
             <span className="text-white text-[8px] tracking-[0.4em] uppercase">Scroll</span>
             <div className="w-px h-9 bg-gradient-to-b from-white/60 to-transparent" />
           </div>
@@ -134,7 +134,7 @@ export default function Home() {
         {/* ══════════════════════════════════════
             PHILOSOPHY
         ══════════════════════════════════════ */}
-        <section ref={stmtRef} className="relative py-36 overflow-hidden"
+        <section ref={stmtRef} className="relative py-24 sm:py-36 overflow-hidden"
                  style={{ background:"linear-gradient(180deg, #080808 0%, #0d0d0d 100%)" }}>
           <div className="pointer-events-none absolute inset-0 overflow-hidden">
             <div style={{ position:"absolute", width:600, height:600, top:"-10%", left:"-8%",
@@ -166,12 +166,12 @@ export default function Home() {
             </motion.h2>
           </motion.div>
 
-          <div className="relative z-10 mt-20 flex items-center justify-center gap-3 sm:gap-6 flex-wrap px-6">
+          <div className="relative z-10 mt-14 sm:mt-20 flex items-center justify-center gap-3 sm:gap-6 flex-wrap px-5 sm:px-6">
             {[{ value:"2025", label:"Established" },{ value:"20+", label:"shop" },{ value:"100%", label:"Sustainable" }].map((s, i) => (
               <motion.div key={i}
                 initial={{ opacity:0, y:16 }} whileInView={{ opacity:1, y:0 }}
                 viewport={{ once:true }} transition={{ delay: i * 0.1, duration:0.75 }}
-                className="px-7 py-4 rounded-2xl text-center"
+                className="px-6 sm:px-7 py-4 rounded-2xl text-center"
                 style={{
                   background:"linear-gradient(135deg, rgba(198,169,98,0.10), rgba(198,169,98,0.03))",
                   backdropFilter:"blur(18px)", border:"1px solid rgba(198,169,98,0.16)",
@@ -190,7 +190,7 @@ export default function Home() {
         {/* ══════════════════════════════════════
             COLLECTION GRID
         ══════════════════════════════════════ */}
-        <section className="py-28 px-6 sm:px-12 bg-[#080808]">
+        <section className="py-20 sm:py-28 px-5 sm:px-12 bg-[#080808]">
           <motion.div initial={{ opacity:0, y:16 }} whileInView={{ opacity:1, y:0 }}
             viewport={{ once:true }} transition={{ duration:0.8 }} className="text-center mb-14">
             <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase mb-4">Categories</p>
@@ -202,13 +202,13 @@ export default function Home() {
                  style={{ background:"linear-gradient(90deg, transparent, rgba(198,169,98,0.55), transparent)" }} />
           </motion.div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-7xl mx-auto">
             {COLLECTION_HIGHLIGHTS.map((item, i) => (
               <motion.div key={i}
                 initial={{ opacity:0, y:36 }} whileInView={{ opacity:1, y:0 }}
                 viewport={{ once:true }} transition={{ delay: i * 0.09, duration:0.85, ease:[0.22,1,0.36,1] }}>
                 <Link href={item.link} className="group block relative overflow-hidden"
-                  style={{ borderRadius:24, boxShadow:"0 20px 50px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06)" }}>
+                  style={{ borderRadius:20, boxShadow:"0 20px 50px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06)" }}>
                   <div className="relative aspect-[3/4] overflow-hidden">
                     <Image src={item.image} alt={item.title} fill
                       className="object-cover transition-transform duration-[1.6s] ease-out group-hover:scale-105"
@@ -217,12 +217,12 @@ export default function Home() {
                   </div>
                   <div className="absolute inset-x-4 top-0 h-px pointer-events-none"
                        style={{ background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent)" }} />
-                  <div className="absolute bottom-3 left-3 right-3 px-4 py-3 rounded-xl"
+                  <div className="absolute bottom-3 left-3 right-3 px-3.5 sm:px-4 py-3 rounded-xl"
                        style={{
                          background:"linear-gradient(135deg, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.03) 100%)",
                          backdropFilter:"blur(16px)", border:"1px solid rgba(255,255,255,0.10)",
                        }}>
-                    <p className="text-white/80 text-sm font-light tracking-[0.12em]"
+                    <p className="text-white/80 text-[0.95rem] sm:text-sm font-light tracking-[0.08em]"
                        style={{ fontFamily:"'Cormorant Garamond', serif" }}>
                       {item.title}
                     </p>

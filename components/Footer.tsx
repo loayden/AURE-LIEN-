@@ -41,7 +41,7 @@ export default function LuxuryFooter() {
       `}</style>
 
       <footer
-        className="relative mt-32 overflow-hidden"
+        className="relative mt-20 sm:mt-32 overflow-hidden"
         style={{
           background: "#060606",
           fontFamily: "'Jost', sans-serif",
@@ -62,14 +62,14 @@ export default function LuxuryFooter() {
         </div>
 
         {/* ── UPPER GRID ── */}
-        <div className="relative z-10 max-w-7xl mx-auto px-8 py-24 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12">
+        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 py-16 sm:py-24 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 sm:gap-12">
 
           {/* Brand */}
           <div className="flex flex-col gap-5 md:col-span-1">
             <Link href="/" className="group inline-block">
               <h2
                 className="font-light text-white tracking-[0.18em] leading-none group-hover:text-[#C6A962] transition-colors duration-500"
-                style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"1.9rem" }}
+                style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.65rem, 8vw, 1.9rem)" }}
               >
                 AURÉLIEN
               </h2>
@@ -81,7 +81,7 @@ export default function LuxuryFooter() {
             </p>
 
             {/* Social icons */}
-            <div className="flex items-center gap-4 pt-2">
+            <div className="flex items-center gap-3 sm:gap-4 pt-2">
               {SOCIALS.map(({ Icon, href }, i) => (
                 <motion.a
                   key={i}
@@ -90,7 +90,7 @@ export default function LuxuryFooter() {
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.12, y: -1 }}
                   whileTap={{ scale: 0.92 }}
-                  className="p-2.5 rounded-xl transition-all duration-400"
+                  className="p-3 sm:p-2.5 rounded-xl transition-all duration-400"
                   style={{
                     background: "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))",
                     border: "1px solid rgba(255,255,255,0.08)",
@@ -169,7 +169,7 @@ export default function LuxuryFooter() {
               </motion.div>
             ) : (
               <div
-                className="flex items-center overflow-hidden rounded-xl"
+                className="flex flex-col sm:flex-row items-stretch overflow-hidden rounded-xl"
                 style={{
                   background: "linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)",
                   backdropFilter: "blur(16px)",
@@ -190,8 +190,7 @@ export default function LuxuryFooter() {
                   onClick={handleJoin}
                   whileHover={{ scale:1.05 }}
                   whileTap={{ scale:0.95 }}
-                  className="px-4 py-3 flex items-center gap-1.5 transition-all duration-300"
-                  style={{ borderLeft:"1px solid rgba(255,255,255,0.07)" }}
+                  className="px-4 py-3 flex items-center justify-center gap-1.5 transition-all duration-300 border-t border-white/10 sm:border-t-0 sm:border-l"
                 >
                   <span className="text-[9px] tracking-[0.3em] uppercase font-light text-white/30 hover:text-[#C6A962] transition-colors">
                     Join
@@ -209,12 +208,12 @@ export default function LuxuryFooter() {
         </div>
 
         {/* ── DIVIDER ── */}
-        <div className="relative z-10 max-w-7xl mx-auto px-8">
+        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8">
           <div className="h-px" style={{ background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)" }} />
         </div>
 
         {/* ── BOTTOM BAR ── */}
-        <div className="relative z-10 max-w-7xl mx-auto px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 py-8 sm:py-10 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
 
           {/* Presented by */}
           <motion.a
@@ -238,7 +237,7 @@ export default function LuxuryFooter() {
           </p>
 
           {/* Legal links */}
-          <div className="flex items-center gap-5">
+          <div className="flex items-center justify-center flex-wrap gap-4 sm:gap-5">
             {["Privacy", "Terms", "Cookies"].map((l) => (
               <Link key={l} href="#"
                 className="text-white/20 text-[9px] tracking-[0.25em] uppercase hover:text-white/50 transition-colors duration-300">

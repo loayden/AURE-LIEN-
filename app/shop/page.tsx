@@ -207,13 +207,13 @@ export default function EnhancedShopPage() {
         <Orbs />
 
         {/* ── HERO HEADER ── */}
-        <section ref={heroRef} className="relative pt-32 pb-24 px-6 overflow-hidden">
+        <section ref={heroRef} className="relative pt-28 sm:pt-32 pb-16 sm:pb-24 px-5 sm:px-6 overflow-hidden">
           <div className="absolute inset-0 pointer-events-none"
                style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(198,169,98,0.06) 0%, transparent 60%)" }} />
 
           <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 text-center max-w-3xl mx-auto">
-            <div className="sh1 mb-7 flex justify-center">
-              <span className="glass inline-flex items-center gap-2 px-5 py-2 rounded-full text-[9px] text-white/45 tracking-[0.4em] uppercase font-light">
+            <div className="sh1 mb-6 sm:mb-7 flex justify-center">
+              <span className="glass inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full text-[9px] text-white/45 tracking-[0.34em] uppercase font-light">
                 <Sparkles size={12} />
                 {products.length} Curated Pieces
               </span>
@@ -223,7 +223,7 @@ export default function EnhancedShopPage() {
               className="sh2 font-light text-white leading-none mb-5"
               style={{
                 fontFamily: "'Cormorant Garamond', serif",
-                fontSize: "clamp(3rem, 8vw, 7rem)",
+                fontSize: "clamp(2.7rem, 13vw, 7rem)",
                 letterSpacing: "0.04em",
               }}
             >
@@ -232,14 +232,14 @@ export default function EnhancedShopPage() {
             </h1>
 
             <p className="sh3 text-white/35 font-light max-w-md mx-auto leading-relaxed"
-               style={{ fontSize: "0.85rem", letterSpacing: "0.12em" }}>
+               style={{ fontSize: "0.92rem", letterSpacing: "0.08em" }}>
               Every piece crafted with meticulous care — timeless elegance, refined for the modern connoisseur.
             </p>
           </motion.div>
         </section>
 
         {/* ── TOOLBAR ── */}
-        <div className="relative z-10 max-w-7xl mx-auto px-6 mb-10">
+        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 mb-10">
           {/* Search bar */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -248,7 +248,7 @@ export default function EnhancedShopPage() {
             transition={{ duration: 0.6 }}
             className="mb-6"
           >
-            <div className="glass-md flex items-center gap-3 px-5 py-3.5 rounded-2xl">
+            <div className="glass-md flex items-center gap-3 px-4 sm:px-5 py-3.5 rounded-2xl">
               <Search size={16} className="text-white/40" />
               <input
                 type="text"
