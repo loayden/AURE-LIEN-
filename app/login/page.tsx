@@ -30,7 +30,7 @@ function Orbs() {
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") || "/account";
+  const redirect = searchParams.get("redirect");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -50,7 +50,7 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Login failed");
-      router.push(redirect);
+      router.push(redirect || (data?.user?.role === "admin" ? "/admin" : "/account"));
       router.refresh();
     } catch (err: any) {
       setError(err.message || "Invalid email or password");
