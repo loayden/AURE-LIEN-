@@ -45,6 +45,11 @@ function parseStoredJson<T>(value: unknown, fallback: T): T {
   return value as T;
 }
 
+function isWrongTypeError(error: unknown): boolean {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.includes("WRONGTYPE");
+}
+
 function recordFromArray<T>(values: unknown[]): Record<string, T> {
   const entries = values
     .map((value) => {
@@ -91,42 +96,23 @@ function normalizeLegacyRecord<T>(value: unknown): Record<string, T> {
   return {};
 }
 
-async function getRedisKeyType(key: string): Promise<string> {
-  const redis = getRedis();
-  if (!redis) {
-    return "none";
-  }
-
-  try {
-    return await redis.type(key);
-  } catch {
-    return "none";
-  }
-}
-
 async function readRedisKeyAsRecord<T>(key: string): Promise<Record<string, T>> {
   const redis = getRedis();
   if (!redis) {
     return {};
   }
 
-  const keyType = await getRedisKeyType(key);
-
-  if (keyType === "none") {
-    return {};
-  }
-
-  if (keyType === "hash") {
+  try {
     const values = await redis.hgetall<Record<string, unknown>>(key);
     return recordFromObject<T>(values ?? {});
-  }
+  } catch (error) {
+    if (!isWrongTypeError(error)) {
+      throw error;
+    }
 
-  if (keyType === "string") {
     const stored = await redis.get<unknown>(key);
     return normalizeLegacyRecord<T>(stored);
   }
-
-  return {};
 }
 
 async function readRedisFieldFromKey<T>(key: string, field: string): Promise<T | null> {
@@ -135,23 +121,17 @@ async function readRedisFieldFromKey<T>(key: string, field: string): Promise<T |
     return null;
   }
 
-  const keyType = await getRedisKeyType(key);
-
-  if (keyType === "none") {
-    return null;
-  }
-
-  if (keyType === "hash") {
+  try {
     const value = await redis.hget(key, field);
     return parseStoredJson<T | null>(value, null);
-  }
+  } catch (error) {
+    if (!isWrongTypeError(error)) {
+      throw error;
+    }
 
-  if (keyType === "string") {
     const record = normalizeLegacyRecord<T>(await redis.get<unknown>(key));
     return record[field] ?? null;
   }
-
-  return null;
 }
 
 async function writeRedisHash<T>(key: string, values: Record<string, T>): Promise<void> {
@@ -237,7 +217,15 @@ export async function saveUserDraft(
       ...draft,
       updatedAt: new Date().toISOString(),
     };
-    await redis.hset(DRAFTS_KEY, { [userId]: JSON.stringify(draftWithTimestamp) });
+    try {
+      await redis.hset(DRAFTS_KEY, { [userId]: JSON.stringify(draftWithTimestamp) });
+    } catch (error) {
+      if (!isWrongTypeError(error)) {
+        throw error;
+      }
+      await redis.del(DRAFTS_KEY);
+      await redis.hset(DRAFTS_KEY, { [userId]: JSON.stringify(draftWithTimestamp) });
+    }
     console.log(`✅ Draft saved for user ${userId}`);
   } catch (error) {
     console.error(
@@ -252,14 +240,15 @@ export async function deleteUserDraft(userId: string): Promise<void> {
   try {
     const redis = getRedis();
     if (!redis) return;
-    const keyType = await getRedisKeyType(DRAFTS_KEY);
-    if (keyType === "hash") {
+    try {
       await redis.hdel(DRAFTS_KEY, userId);
       return;
+    } catch (error) {
+      if (!isWrongTypeError(error)) {
+        throw error;
+      }
     }
-    if (keyType !== "none") {
-      await redis.del(DRAFTS_KEY);
-    }
+    await redis.del(DRAFTS_KEY);
   } catch (error) {
     console.error(
       `❌ Error deleting draft for user ${userId}:`,
@@ -298,26 +287,30 @@ export async function saveRedisCart(userId: string, items: any[]): Promise<void>
     throw new Error("Redis storage is not configured");
   }
 
-  const keyType = await getRedisKeyType(CARTS_KEY);
-  if (keyType !== "none" && keyType !== "hash") {
+  try {
+    await redis.hset(CARTS_KEY, { [userId]: JSON.stringify(items) });
+  } catch (error) {
+    if (!isWrongTypeError(error)) {
+      throw error;
+    }
     await redis.del(CARTS_KEY);
+    await redis.hset(CARTS_KEY, { [userId]: JSON.stringify(items) });
   }
-
-  await redis.hset(CARTS_KEY, { [userId]: JSON.stringify(items) });
 }
 
 export async function deleteRedisCart(userId: string): Promise<void> {
   const redis = getRedis();
   if (!redis) return;
 
-  const keyType = await getRedisKeyType(CARTS_KEY);
-  if (keyType === "hash") {
+  try {
     await redis.hdel(CARTS_KEY, userId);
     return;
+  } catch (error) {
+    if (!isWrongTypeError(error)) {
+      throw error;
+    }
   }
-  if (keyType !== "none") {
-    await redis.del(CARTS_KEY);
-  }
+  await redis.del(CARTS_KEY);
 }
 
 export async function getRedisOrders(): Promise<any[] | null> {
@@ -351,24 +344,28 @@ export async function appendRedisOrder(order: any): Promise<void> {
     throw new Error("Order is missing an id");
   }
 
-  const keyType = await getRedisKeyType(ORDERS_KEY);
-  if (keyType !== "none" && keyType !== "hash") {
+  try {
+    await redis.hset(ORDERS_KEY, { [orderId]: JSON.stringify(order) });
+  } catch (error) {
+    if (!isWrongTypeError(error)) {
+      throw error;
+    }
     await redis.del(ORDERS_KEY);
+    await redis.hset(ORDERS_KEY, { [orderId]: JSON.stringify(order) });
   }
-
-  await redis.hset(ORDERS_KEY, { [orderId]: JSON.stringify(order) });
 }
 
 export async function removeRedisOrder(orderId: string): Promise<void> {
   const redis = getRedis();
   if (!redis) return;
 
-  const keyType = await getRedisKeyType(ORDERS_KEY);
-  if (keyType === "hash") {
+  try {
     await redis.hdel(ORDERS_KEY, orderId);
     return;
+  } catch (error) {
+    if (!isWrongTypeError(error)) {
+      throw error;
+    }
   }
-  if (keyType !== "none") {
-    await redis.del(ORDERS_KEY);
-  }
+  await redis.del(ORDERS_KEY);
 }
