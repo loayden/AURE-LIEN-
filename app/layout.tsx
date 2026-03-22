@@ -1,3 +1,4 @@
+import ClientLayout from '@/components/ClientLayout'
 import AIChatStylist from '@/components/AIChatStylist'
 import Footer from '@/components/Footer'
 import Navbar from '@/components/Navbar'
@@ -33,10 +34,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
       <body>
-        <Navbar />
-        <PageTransition>{children}</PageTransition>
-        <AIChatStylist />
-        <Footer />
+        <ClientLayout>
+          <Navbar />
+          <PageTransition>{children}</PageTransition>
+          <AIChatStylist />
+          <Footer />
+        </ClientLayout>
       </body>
     </html>
   )

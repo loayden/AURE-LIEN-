@@ -129,9 +129,6 @@ export default function CheckoutPage() {
     (async () => {
       setLoading(true);
       try {
-        // Try to get userId from localStorage
-        const userId = typeof window !== "undefined" ? localStorage.getItem('userId') : null;
-        
         // Try draft first
         const draftRes = await fetch("/api/checkout-draft");
         const draftData = await draftRes.json();
@@ -202,16 +199,13 @@ export default function CheckoutPage() {
           }
         }
 
-        // ✅ Finally try /api/cart with userId
+        // Finally try the cart API, which resolves anonymous users from the server cookie.
         setFromCart(true);
-        if (!userId) {
-          setError("Please log in to continue.");
-          setCart([]);
-          setLoading(false);
-          return;
+        const res = await fetch("/api/cart", { cache: "no-store" });
+        if (!res.ok) {
+          throw new Error(`Cart request failed with status ${res.status}`);
         }
 
-        const res = await fetch(`/api/cart?userId=${userId}`);
         const cartData = await res.json();
         const items = cartData.items||[];
         

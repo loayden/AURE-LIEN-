@@ -16,9 +16,9 @@ const COLLECTION_HIGHLIGHTS = [
 ];
 
 const LOOKBOOK_CHAPTERS = [
-  { image: "/uploads/Look1.jpg", chapter: "I",   subtitle: "Autumn" },
-  { image: "/uploads/Look2.jpg", chapter: "II",  subtitle: "Structure" },
-  { image: "/uploads/Look3.jpg", chapter: "III", subtitle: "Evening" },
+  { image: "/uploads/look1.jpg", chapter: "I",   subtitle: "Autumn" },
+  { image: "/uploads/look2.jpg", chapter: "II",  subtitle: "Structure" },
+  { image: "/uploads/look3.jpg", chapter: "III", subtitle: "Evening" },
 ];
 
 export default function Home() {

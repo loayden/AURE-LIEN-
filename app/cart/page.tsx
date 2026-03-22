@@ -38,7 +38,7 @@ export default function CartPage() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("/api/cart");
+        const res = await fetch("/api/cart", { cache: "no-store" });
         const cartItems = await res.json();
         if (!cartItems.items || !Array.isArray(cartItems.items)) { setItems([]); return; }
         const sanitized = cartItems.items.map((item: any) => {

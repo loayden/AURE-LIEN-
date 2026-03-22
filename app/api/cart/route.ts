@@ -15,20 +15,22 @@ type CartItem = {
   color?: string | null;
 };
 
-let cart: CartItem[] = [];
+function readCart(): CartItem[] {
+  try {
+    if (!fs.existsSync(dataFilePath)) {
+      return [];
+    }
 
-// Load cart data from file if exists
-try {
-  if (fs.existsSync(dataFilePath)) {
     const fileData = fs.readFileSync(dataFilePath, 'utf-8');
-    cart = JSON.parse(fileData);
+    const parsed = JSON.parse(fileData);
+
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
   }
-} catch {
-  cart = [];
 }
 
-// Helper to save cart to file
-function saveCart() {
+function saveCart(cart: CartItem[]) {
   try {
     fs.writeFileSync(dataFilePath, JSON.stringify(cart, null, 2), 'utf-8');
   } catch {
@@ -39,6 +41,7 @@ function saveCart() {
 // GET: fetch cart items
 export async function GET(req: NextRequest) {
   const { userId, isNew } = getOrCreateUserId(req);
+  const cart = readCart();
 
   let items = cart.filter(item => item.userId === userId);
   // Ensure all items have _id and basic product data
@@ -51,7 +54,15 @@ export async function GET(req: NextRequest) {
     };
   });
 
-  const res = NextResponse.json({ items }, { status: 200 });
+  const res = NextResponse.json(
+    { items },
+    {
+      status: 200,
+      headers: {
+        "Cache-Control": "no-store, max-age=0",
+      },
+    }
+  );
   if (isNew) attachUserCookie(res, userId);
   return res;
 }
@@ -60,6 +71,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const { userId, isNew } = getOrCreateUserId(req);
+  const cart = readCart();
   const { productId, quantity, size, color } = body as {
     productId?: string;
     quantity?: number;
@@ -82,7 +94,7 @@ export async function POST(req: NextRequest) {
 
   if (index !== -1) {
     cart[index].quantity += quantity;
-    saveCart();
+    saveCart(cart);
     const res = NextResponse.json({ item: cart[index] }, { status: 200 });
     if (isNew) attachUserCookie(res, userId);
     return res;
@@ -97,7 +109,7 @@ export async function POST(req: NextRequest) {
       color: color || null,
     };
     cart.push(newItem);
-    saveCart();
+    saveCart(cart);
     const res = NextResponse.json({ item: newItem }, { status: 201 });
     if (isNew) attachUserCookie(res, userId);
     return res;
@@ -108,6 +120,7 @@ export async function POST(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   const body = await req.json();
   const { userId, isNew } = getOrCreateUserId(req);
+  const cart = readCart();
   const { productId, quantity, size, color } = body as {
     productId?: string;
     quantity?: number;
@@ -129,7 +142,7 @@ export async function PUT(req: NextRequest) {
   if (index === -1) return NextResponse.json({ error: 'Item not found' }, { status: 404 });
 
   cart[index].quantity = quantity;
-  saveCart();
+  saveCart(cart);
   const res = NextResponse.json({ item: cart[index] }, { status: 200 });
   if (isNew) attachUserCookie(res, userId);
   return res;
@@ -138,6 +151,7 @@ export async function PUT(req: NextRequest) {
 // DELETE: remove item(s)
 export async function DELETE(req: NextRequest) {
   const { userId, isNew } = getOrCreateUserId(req);
+  let cart = readCart();
   const body = await req.json().catch(() => ({}));
   const { productId, size, color } = (body ?? {}) as {
     productId?: string;
@@ -161,7 +175,7 @@ export async function DELETE(req: NextRequest) {
     cart = cart.filter(item => item.userId !== userId);
   }
 
-  saveCart();
+  saveCart(cart);
   const res = NextResponse.json({ success: true }, { status: 200 });
   if (isNew) attachUserCookie(res, userId);
   return res;
