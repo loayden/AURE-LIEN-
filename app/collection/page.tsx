@@ -112,7 +112,7 @@ function SubcategorySection({
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={false}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
@@ -142,7 +142,7 @@ function SubcategorySection({
           {productsInCategory.map((product, idx) => (
             <motion.div
               key={product._id}
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              initial={false}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.05, duration: 0.5 }}
@@ -156,7 +156,7 @@ function SubcategorySection({
         // ❌ NO PRODUCTS: Show empty state
         // This happens when no products match this category from your imports
         <motion.div
-          initial={{ opacity: 0 }}
+          initial={false}
           animate={{ opacity: 1 }}
           className="py-12 text-center text-slate-400"
         >
@@ -300,7 +300,7 @@ export default function CollectionPage() {
       `}</style>
 
       <motion.main
-        initial={{ opacity: 0 }}
+        initial={false}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.9 }}
         className="relative bg-[#080808] text-white min-h-screen"
@@ -390,7 +390,7 @@ export default function CollectionPage() {
             <motion.section
               key={section.id}
               id={section.id}
-              initial={{ opacity: 0, y: 30 }}
+              initial={false}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
@@ -398,7 +398,7 @@ export default function CollectionPage() {
             >
               {/* Section header */}
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={false}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1, duration: 0.5 }}
@@ -469,7 +469,7 @@ export default function CollectionPage() {
           />
 
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={false}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.9 }}

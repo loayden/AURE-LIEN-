@@ -85,7 +85,7 @@ export default function FootwearPage() {
       `}</style>
 
       <motion.main
-        initial={{ opacity: 0 }}
+        initial={false}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.9 }}
         className="relative bg-[#080808] text-white min-h-screen"
@@ -143,7 +143,7 @@ export default function FootwearPage() {
         {/* ── INTRO ── */}
         <section className="relative z-10 py-20 px-6 max-w-2xl mx-auto text-center">
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={false}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.9 }}
@@ -178,7 +178,7 @@ export default function FootwearPage() {
             ].map((s, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 14 }}
+                initial={false}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1, duration: 0.7 }}
@@ -217,7 +217,7 @@ export default function FootwearPage() {
             {[ITEMS[0]].map((item, i) => (
               <motion.div
                 key={item.link}
-                initial={{ opacity: 0, y: 40 }}
+                initial={false}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0, duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
@@ -266,7 +266,7 @@ export default function FootwearPage() {
               {ITEMS.slice(1).map((item, i) => (
                 <motion.div
                   key={item.link}
-                  initial={{ opacity: 0, y: 40 }}
+                  initial={false}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: (i + 1) * 0.12, duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
@@ -323,7 +323,7 @@ export default function FootwearPage() {
 
           <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-12 items-center">
             <motion.div
-              initial={{ opacity: 0, x: -28 }}
+              initial={false}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.9 }}
@@ -349,7 +349,7 @@ export default function FootwearPage() {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, x: 28 }}
+              initial={false}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.9 }}
@@ -358,7 +358,7 @@ export default function FootwearPage() {
               {MATERIALS.map((m, i) => (
                 <motion.div
                   key={i}
-                  initial={{ opacity: 0, y: 14 }}
+                  initial={false}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1, duration: 0.7 }}

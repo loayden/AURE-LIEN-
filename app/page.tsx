@@ -150,13 +150,13 @@ export default function Home() {
           </div>
 
           <motion.div style={{ y: stmtY }} className="relative z-10 text-center px-6">
-            <motion.p initial={{ opacity:0 }} whileInView={{ opacity:1 }} viewport={{ once:true }}
+            <motion.p initial={false} whileInView={{ opacity:1 }} viewport={{ once:true }}
               transition={{ duration:0.8 }}
               className="text-white/18 text-[9px] tracking-[0.5em] uppercase mb-8">
               Philosophy
             </motion.p>
             <motion.h2
-              initial={{ opacity:0, y:20 }} whileInView={{ opacity:1, y:0 }}
+              initial={false} whileInView={{ opacity:1, y:0 }}
               viewport={{ once:true }} transition={{ duration:1, ease:[0.22,1,0.36,1] }}
               className="font-light text-white leading-tight"
               style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(2.2rem, 5.5vw, 5rem)", letterSpacing:"0.05em" }}
@@ -169,7 +169,7 @@ export default function Home() {
           <div className="relative z-10 mt-14 sm:mt-20 flex items-center justify-center gap-3 sm:gap-6 flex-wrap px-5 sm:px-6">
             {[{ value:"2025", label:"Established" },{ value:"20+", label:"shop" },{ value:"100%", label:"Sustainable" }].map((s, i) => (
               <motion.div key={i}
-                initial={{ opacity:0, y:16 }} whileInView={{ opacity:1, y:0 }}
+                initial={false} whileInView={{ opacity:1, y:0 }}
                 viewport={{ once:true }} transition={{ delay: i * 0.1, duration:0.75 }}
                 className="px-6 sm:px-7 py-4 rounded-2xl text-center"
                 style={{
@@ -191,7 +191,7 @@ export default function Home() {
             COLLECTION GRID
         ══════════════════════════════════════ */}
         <section className="py-20 sm:py-28 px-5 sm:px-12 bg-[#080808]">
-          <motion.div initial={{ opacity:0, y:16 }} whileInView={{ opacity:1, y:0 }}
+          <motion.div initial={false} whileInView={{ opacity:1, y:0 }}
             viewport={{ once:true }} transition={{ duration:0.8 }} className="text-center mb-14">
             <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase mb-4">Categories</p>
             <h2 className="font-light text-white"
@@ -205,7 +205,7 @@ export default function Home() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-7xl mx-auto">
             {COLLECTION_HIGHLIGHTS.map((item, i) => (
               <motion.div key={i}
-                initial={{ opacity:0, y:36 }} whileInView={{ opacity:1, y:0 }}
+                initial={false} whileInView={{ opacity:1, y:0 }}
                 viewport={{ once:true }} transition={{ delay: i * 0.09, duration:0.85, ease:[0.22,1,0.36,1] }}>
                 <Link href={item.link} className="group block relative overflow-hidden"
                   style={{ borderRadius:20, boxShadow:"0 20px 50px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06)" }}>
@@ -240,7 +240,7 @@ export default function Home() {
         ══════════════════════════════════════ */}
         <section className="py-28 px-6 sm:px-12"
                  style={{ background:"linear-gradient(180deg, #0a0a0a 0%, #080808 100%)" }}>
-          <motion.div initial={{ opacity:0, y:16 }} whileInView={{ opacity:1, y:0 }}
+          <motion.div initial={false} whileInView={{ opacity:1, y:0 }}
             viewport={{ once:true }} transition={{ duration:0.8 }} className="text-center mb-14">
             <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase mb-4">Lookbook</p>
             <h2 className="font-light text-white"
@@ -254,7 +254,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-6xl mx-auto">
             {LOOKBOOK_CHAPTERS.map((ch, i) => (
               <motion.div key={i}
-                initial={{ opacity:0, y:50 }} whileInView={{ opacity:1, y:0 }}
+                initial={false} whileInView={{ opacity:1, y:0 }}
                 viewport={{ once:true }} transition={{ delay: i * 0.12, duration:0.9, ease:[0.22,1,0.36,1] }}
                 className="group relative cursor-pointer overflow-hidden"
                 style={{ borderRadius:28, boxShadow:"0 28px 72px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.07)" }}>
@@ -294,7 +294,7 @@ export default function Home() {
         ══════════════════════════════════════ */}
         <section className="py-28 px-6 sm:px-12 bg-[#080808]">
           <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-14 md:gap-20 items-center">
-            <motion.div initial={{ opacity:0, x:-30 }} whileInView={{ opacity:1, x:0 }}
+            <motion.div initial={false} whileInView={{ opacity:1, x:0 }}
               viewport={{ once:true }} transition={{ duration:0.9, ease:[0.22,1,0.36,1] }}>
               <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase mb-6">Our Story</p>
               <h2 className="font-light text-white leading-tight mb-5"
@@ -313,7 +313,7 @@ export default function Home() {
               </Link>
             </motion.div>
 
-            <motion.div initial={{ opacity:0, x:30 }} whileInView={{ opacity:1, x:0 }}
+            <motion.div initial={false} whileInView={{ opacity:1, x:0 }}
               viewport={{ once:true }} transition={{ duration:0.9, delay:0.1, ease:[0.22,1,0.36,1] }}
               className="relative">
               <div className="relative aspect-[4/5] overflow-hidden"
@@ -342,7 +342,7 @@ export default function Home() {
         <section className="py-28 px-6 sm:px-12"
                  style={{ background:"linear-gradient(180deg, #0a0a0a 0%, #080808 100%)" }}>
           <div className="max-w-7xl mx-auto">
-            <motion.div initial={{ opacity:0, y:16 }} whileInView={{ opacity:1, y:0 }}
+            <motion.div initial={false} whileInView={{ opacity:1, y:0 }}
               viewport={{ once:true }} transition={{ duration:0.8 }} className="text-center mb-14">
               <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase mb-4">Selection</p>
               <h2 className="font-light text-white"
@@ -356,7 +356,7 @@ export default function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               {featuredProducts.map((product, i) => (
                 <motion.div key={product._id}
-                  initial={{ opacity:0, y:28 }} whileInView={{ opacity:1, y:0 }}
+                  initial={false} whileInView={{ opacity:1, y:0 }}
                   viewport={{ once:true }} transition={{ delay: i * 0.08, duration:0.8 }}>
                   <ProductCard product={product} />
                 </motion.div>
@@ -386,7 +386,7 @@ export default function Home() {
                style={{ background:"radial-gradient(ellipse at 50% 100%, rgba(198,169,98,0.06) 0%, transparent 60%)" }} />
           <div className="absolute inset-x-0 top-0 h-px"
                style={{ background:"linear-gradient(90deg, transparent, rgba(198,169,98,0.22), transparent)" }} />
-          <motion.div initial={{ opacity:0, y:24 }} whileInView={{ opacity:1, y:0 }}
+          <motion.div initial={false} whileInView={{ opacity:1, y:0 }}
             viewport={{ once:true }} transition={{ duration:0.9, ease:[0.22,1,0.36,1] }}
             className="relative z-10">
             <p className="text-white/18 text-[9px] tracking-[0.5em] uppercase mb-5">Ready?</p>

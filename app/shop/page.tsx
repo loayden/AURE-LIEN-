@@ -198,7 +198,7 @@ export default function EnhancedShopPage() {
       `}</style>
 
       <motion.main
-        initial={{ opacity: 0 }}
+        initial={false}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.9 }}
         className="relative bg-[#080808] text-white min-h-screen"
@@ -242,7 +242,7 @@ export default function EnhancedShopPage() {
         <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 mb-10">
           {/* Search bar */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
@@ -348,7 +348,7 @@ export default function EnhancedShopPage() {
 
               {sortOpen && (
                 <motion.div
-                  initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                  initial={false}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
@@ -370,7 +370,7 @@ export default function EnhancedShopPage() {
 
           {/* Price range filter pills */}
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={false}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.15, duration: 0.6 }}
@@ -426,7 +426,7 @@ export default function EnhancedShopPage() {
             {sortedProducts.length > 0 ? (
               <motion.div
                 key={viewMode}
-                initial={{ opacity: 0 }}
+                initial={false}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
@@ -437,7 +437,7 @@ export default function EnhancedShopPage() {
                 {sortedProducts.map((product, i) => (
                   <motion.div
                     key={product._id}
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={false}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: (i % (viewMode === "grid" ? 4 : 1)) * 0.07, duration: 0.75 }}
@@ -487,7 +487,7 @@ export default function EnhancedShopPage() {
               </motion.div>
             ) : (
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={false}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 className="py-32 text-center"

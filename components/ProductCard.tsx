@@ -191,7 +191,7 @@ export default function ProductCard({
     <motion.div
       ref={cardRef}
       layout
-      initial={{ opacity: 0, y: 20 }}
+      initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
       onClick={() => { if (!dragging) router.push(`/product/${product._id}`); }}

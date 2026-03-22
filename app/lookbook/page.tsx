@@ -49,7 +49,7 @@ function LookbookSection({ section, index }: { section: Section; index: number }
   return (
     <motion.section
       ref={ref}
-      initial={{ opacity:0, y:50 }}
+      initial={false}
       whileInView={{ opacity:1, y:0 }}
       viewport={{ once:true, margin:"-80px" }}
       transition={{ duration:0.9, ease:[0.22,1,0.36,1] }}
@@ -152,7 +152,7 @@ function LookbookSection({ section, index }: { section: Section; index: number }
       {/* Text column */}
       <div className={isReversed ? "md:col-start-1 md:row-start-1" : ""}>
         <motion.div
-          initial={{ opacity:0, x: isReversed ? -30 : 30 }}
+          initial={false}
           whileInView={{ opacity:1, x:0 }}
           viewport={{ once:true }}
           transition={{ duration:0.9, delay:0.15, ease:[0.22,1,0.36,1] }}
@@ -303,7 +303,7 @@ export default function LookbookPage() {
         {/* ── CHAPTER INDEX ── */}
         <section className="relative z-10 py-16 px-6">
           <motion.div
-            initial={{ opacity:0, y:20 }}
+            initial={false}
             whileInView={{ opacity:1, y:0 }}
             viewport={{ once:true }}
             transition={{ duration:0.8 }}
@@ -349,7 +349,7 @@ export default function LookbookPage() {
           <div className="absolute inset-x-0 top-0 h-px"
                style={{ background:"linear-gradient(90deg, transparent, rgba(198,169,98,0.2), transparent)" }} />
           <motion.div
-            initial={{ opacity:0, y:20 }}
+            initial={false}
             whileInView={{ opacity:1, y:0 }}
             viewport={{ once:true }}
             transition={{ duration:0.9 }}
