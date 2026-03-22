@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getOrCreateUserId } from "@/lib/userSession";
 import { getAuthFromRequest } from "@/lib/auth";
 import { attachUserCookie } from "@/lib/userSession";
-import { Redis } from "@upstash/redis";
-
-const redis = Redis.fromEnv();
+import { appendOrder, getOrdersJson } from "@/lib/orderStorage";
 
 type OrderItem = {
   productId: string;
@@ -20,18 +18,35 @@ type CustomerInfo = {
   email: string;
   name: string;
   address: string;
+  apartment?: string;
   city?: string;
-  state?: string;
-  zipCode?: string;
+  postalCode?: string;
+  country?: string;
   phone?: string;
+  newsletter?: boolean;
+  shippingMethod?: string;
+  shippingCost?: number;
+  firstName?: string;
+  lastName?: string;
 };
 
 type Order = {
   _id: string;
+  id: string;
   userId: string;
   items: OrderItem[];
+  products: Array<{
+    _id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    image?: string;
+    size?: string;
+    color?: string;
+  }>;
   total: number;
-  customerInfo: CustomerInfo;
+  totalPrice: number;
+  customer: CustomerInfo;
   createdAt: string;
   status: string;
 };
@@ -40,27 +55,6 @@ async function resolveUserId(req: NextRequest): Promise<{ userId: string; isNew:
   const auth = await getAuthFromRequest(req);
   if (auth?.userId) return { userId: auth.userId, isNew: false };
   return getOrCreateUserId(req);
-}
-
-async function getOrdersFromRedis(): Promise<Order[]> {
-  try {
-    const ordersJson = await redis.get("orders");
-    if (!ordersJson) return [];
-    return JSON.parse(ordersJson as string);
-  } catch (error) {
-    console.warn("⚠️ Failed to read orders from Redis:", error);
-    return [];
-  }
-}
-
-async function saveOrdersToRedis(orders: Order[]): Promise<void> {
-  try {
-    await redis.set("orders", JSON.stringify(orders));
-    console.log("✅ Orders saved to Redis");
-  } catch (error) {
-    console.error("❌ Failed to save orders to Redis:", error);
-    throw error;
-  }
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
@@ -104,10 +98,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     // ✅ VALIDATION: Check customer info
-    if (!customerInfo.email || !customerInfo.name || !customerInfo.address) {
+    const hasCustomerName =
+      Boolean(customerInfo.name) ||
+      Boolean(customerInfo.firstName) ||
+      Boolean(customerInfo.lastName);
+
+    if (!customerInfo.email || !hasCustomerName || !customerInfo.address) {
       console.error("❌ Missing required customer information:", {
         hasEmail: !!customerInfo.email,
-        hasName: !!customerInfo.name,
+        hasName: hasCustomerName,
         hasAddress: !!customerInfo.address,
       });
       return NextResponse.json(
@@ -152,10 +151,29 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
+    const normalizedCustomer: CustomerInfo = {
+      email: String(customerInfo.email ?? "").trim(),
+      firstName: String(customerInfo.firstName ?? "").trim(),
+      lastName: String(customerInfo.lastName ?? "").trim(),
+      name:
+        String(customerInfo.name ?? "").trim() ||
+        [customerInfo.firstName, customerInfo.lastName].filter(Boolean).join(" ").trim(),
+      address: String(customerInfo.address ?? "").trim(),
+      apartment: String(customerInfo.apartment ?? "").trim(),
+      city: String(customerInfo.city ?? "").trim(),
+      postalCode: String(customerInfo.postalCode ?? customerInfo.zipCode ?? "").trim(),
+      country: String(customerInfo.country ?? "").trim(),
+      phone: String(customerInfo.phone ?? "").trim(),
+      newsletter: Boolean(customerInfo.newsletter),
+      shippingMethod: String(customerInfo.shippingMethod ?? "").trim(),
+      shippingCost: Number(customerInfo.shippingCost ?? 0),
+    };
+
     // ✅ CALCULATE TOTAL SERVER-SIDE (don't trust frontend)
-    const calculatedTotal = items.reduce((sum: number, item: OrderItem) => {
+    const itemsTotal = items.reduce((sum: number, item: OrderItem) => {
       return sum + item.price * item.quantity;
     }, 0);
+    const calculatedTotal = itemsTotal + normalizedCustomer.shippingCost;
 
     console.log(`✅ Total validation: frontend=${total.toFixed(2)}, server=${calculatedTotal.toFixed(2)}`);
 
@@ -164,25 +182,24 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       console.warn(`⚠️ Total mismatch - using server-calculated total`);
     }
 
-    // ✅ Step 1: Read existing orders from Redis
-    let orders: Order[] = [];
-    try {
-      orders = await getOrdersFromRedis();
-      console.log(`✅ Read ${orders.length} existing orders from Redis`);
-    } catch (readError) {
-      console.error("❌ Failed to read orders from Redis:", readError instanceof Error ? readError.message : String(readError));
-      return NextResponse.json(
-        { error: "Failed to read orders database" },
-        { status: 500 }
-      );
-    }
+    // ✅ Step 1: Create new order payload
+    const orderId = `order-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+    const products = items.map((item: OrderItem) => ({
+      _id: item.productId,
+      name: item.name,
+      price: item.price,
+      quantity: item.quantity,
+      size: item.size || "One Size",
+      color: item.color || "Default",
+      image: item.image || "",
+    }));
 
-    // ✅ Step 2: Create new order
     const newOrder: Order = {
-      _id: `order-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      _id: orderId,
+      id: orderId,
       userId,
-      items: items.map((item: OrderItem) => ({
-        productId: item.productId,
+      items: products.map((item) => ({
+        productId: item._id,
         name: item.name,
         price: item.price,
         quantity: item.quantity,
@@ -190,53 +207,26 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         color: item.color || "Default",
         image: item.image || "",
       })),
+      products,
       total: calculatedTotal, // Use server-calculated total
-      customerInfo: {
-        email: customerInfo.email,
-        name: customerInfo.name,
-        address: customerInfo.address,
-        city: customerInfo.city || "",
-        state: customerInfo.state || "",
-        zipCode: customerInfo.zipCode || "",
-        phone: customerInfo.phone || "",
-      },
+      totalPrice: calculatedTotal,
+      customer: normalizedCustomer,
       createdAt: new Date().toISOString(),
       status: "pending",
     };
 
     console.log(`✅ Created new order ${newOrder._id} with ${items.length} items`);
 
-    orders.push(newOrder);
-
-    // ✅ Step 3: Write updated orders back to Redis
+    // ✅ Step 2: Persist the order in the shared store
     try {
-      await saveOrdersToRedis(orders);
-      console.log(`✅ Order ${newOrder._id} saved successfully to Redis`);
+      await appendOrder(newOrder);
+      console.log(`✅ Order ${newOrder._id} saved successfully to shared storage`);
     } catch (writeError) {
-      console.error("❌ Failed to save order to Redis:", writeError instanceof Error ? writeError.message : String(writeError));
+      console.error("❌ Failed to save order to shared storage:", writeError instanceof Error ? writeError.message : String(writeError));
       return NextResponse.json(
         { error: "Failed to save order to database" },
         { status: 500 }
       );
-    }
-
-    // ✅ Step 4: Send confirmation email (non-blocking)
-    try {
-      fetch(`${req.nextUrl.origin}/api/email/send-order-confirmation`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          orderId: newOrder._id,
-          email: customerInfo.email,
-          items,
-          total: calculatedTotal,
-        }),
-      }).catch((err) => console.warn("⚠️ Email send failed (non-blocking):", err));
-
-      console.log(`✅ Email send initiated for order ${newOrder._id}`);
-    } catch (emailError) {
-      console.warn("⚠️ Email scheduling failed:", emailError);
-      // Don't return error - email is non-critical
     }
 
     // ✅ Return success
@@ -268,9 +258,9 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     let orders: Order[] = [];
     try {
-      orders = await getOrdersFromRedis();
+      orders = (await getOrdersJson()) as Order[];
     } catch (readError) {
-      console.error("❌ Failed to read orders from Redis:", readError);
+      console.error("❌ Failed to read orders from storage:", readError);
       return NextResponse.json(
         { orders: [], error: "Failed to fetch orders" },
         { status: 200 }

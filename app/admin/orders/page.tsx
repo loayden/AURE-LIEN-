@@ -65,7 +65,7 @@ export default function AdminOrdersPage() {
   };
 
   useEffect(() => {
-    fetch("/api/admin/orders")
+    fetch("/api/admin/orders", { cache: "no-store" })
       .then((r) => r.json())
       .then((d) => {
         if (d.orders) setOrders(d.orders);

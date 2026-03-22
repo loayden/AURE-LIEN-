@@ -3,6 +3,10 @@ import { getAuthFromRequest } from "@/lib/auth";
 import { getOrdersJson } from "@/lib/orderStorage";
 import productsData from "@/lib/productsData";
 
+const NO_STORE_HEADERS = {
+  "Cache-Control": "no-store, max-age=0",
+};
+
 function enrichItems(raw: any[]) {
   return (raw || []).map((p: any) => {
     const product = productsData.find((x) => String(x._id) === String(p._id || p.productId));
@@ -67,7 +71,7 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    return NextResponse.json({ orders });
+    return NextResponse.json({ orders }, { headers: NO_STORE_HEADERS });
   } catch (e) {
     console.error("Admin orders API error:", e);
     return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 });

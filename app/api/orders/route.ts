@@ -3,7 +3,11 @@ import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { attachUserCookie, getOrCreateUserId } from "@/lib/userSession";
 import { getAuthFromRequest } from "@/lib/auth";
-import { getOrdersJson, setOrdersJson } from "@/lib/orderStorage";
+import { appendOrder, getOrdersJson, removeOrderById, setOrdersJson } from "@/lib/orderStorage";
+
+const NO_STORE_HEADERS = {
+  "Cache-Control": "no-store, max-age=0",
+};
 
 async function resolveUserId(req: NextRequest): Promise<{ userId: string; isNew: boolean }> {
   const auth = await getAuthFromRequest(req);
@@ -67,13 +71,19 @@ export async function GET(req: NextRequest) {
 
   if (orderId) {
     const foundOrder = normalizedOrders.find(o => o._id === orderId && o.userId === userId);
-    const res = NextResponse.json({ orders: foundOrder ? [foundOrder] : [] }, { status: 200 });
+    const res = NextResponse.json(
+      { orders: foundOrder ? [foundOrder] : [] },
+      { status: 200, headers: NO_STORE_HEADERS }
+    );
     if (isNew) attachUserCookie(res, userId);
     return res;
   }
 
   const userOrders = normalizedOrders.filter(o => o.userId === userId);
-  const res = NextResponse.json({ orders: userOrders }, { status: 200 });
+  const res = NextResponse.json(
+    { orders: userOrders },
+    { status: 200, headers: NO_STORE_HEADERS }
+  );
   if (isNew) attachUserCookie(res, userId);
   return res;
 }
@@ -85,17 +95,10 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: "orderId required" }, { status: 400 });
   }
   const { userId, isNew } = await resolveUserId(req);
-  const orders = await getOrdersJson();
-  const before = orders.length;
-  const filtered = orders.filter((o: any) => {
-    const normalized = normalizeOrder(o);
-    if (normalized._id !== orderId) return true;
-    return normalized.userId !== userId;
-  });
-  if (filtered.length === before) {
+  const removed = await removeOrderById(orderId, userId);
+  if (!removed) {
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
   }
-  await setOrdersJson(filtered);
   const res = NextResponse.json({ success: true }, { status: 200 });
   if (isNew) attachUserCookie(res, userId);
   return res;
@@ -139,8 +142,7 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
     };
 
-    orders.push(newOrder);
-    await setOrdersJson(orders);
+    await appendOrder(newOrder);
 
     const res = NextResponse.json({ orders: [newOrder] }, { status: 201 });
     if (isNew) attachUserCookie(res, userId);

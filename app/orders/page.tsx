@@ -254,7 +254,7 @@ export default function OrdersPage() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("/api/orders");
+        const res = await fetch("/api/orders", { cache: "no-store" });
         const data = await res.json();
         setOrders(data.orders || []);
       } catch { setOrders([]); }

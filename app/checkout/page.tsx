@@ -337,6 +337,8 @@ export default function CheckoutPage() {
           total,
           customerInfo: {
             email: form.email,
+            firstName: form.firstName,
+            lastName: form.lastName,
             name: `${form.firstName} ${form.lastName}`,
             address: form.address,
             apartment: form.apartment || undefined,
@@ -345,6 +347,8 @@ export default function CheckoutPage() {
             country: form.country,
             phone: form.phone,
             newsletter: form.newsletter,
+            shippingMethod: form.shippingMethod,
+            shippingCost,
           },
         }),
       });
