@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export default function Hero() {
   return (
-    <section className="relative h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative mobile-safe-hero flex items-center justify-center overflow-hidden">
 
       {/* Background Image */}
       <motion.div
@@ -31,17 +31,17 @@ export default function Hero() {
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.8, ease: "easeInOut" }}
-        className="relative text-center max-w-4xl"
+        className="relative max-w-4xl px-5 text-center sm:px-6"
       >
-        <h1 className="text-5xl md:text-6xl mb-10 leading-tight font-light tracking-[0.18em] text-[#F2EFE8]">
+        <h1 className="mb-8 text-4xl font-light leading-tight tracking-[0.16em] text-[#F2EFE8] sm:mb-10 sm:text-5xl md:text-6xl">
           Enduring by Design.
         </h1>
 
-        <p className="text-[#F2EFE8]/70 text-base mb-14 tracking-[0.08em]">
+        <p className="mb-10 text-base tracking-[0.08em] text-[#F2EFE8]/70 sm:mb-14">
           Founded in restraint. Refined without display.
         </p>
 
-        <button className="px-14 py-4 border border-[#F2EFE8]/60 text-[#F2EFE8] 
+        <button className="border border-[#F2EFE8]/60 px-8 py-3.5 text-[#F2EFE8] sm:px-14 sm:py-4 
           hover:bg-[#F2EFE8] hover:text-[#111111] transition-all duration-700
           tracking-[0.35em] uppercase text-xs">
           EXPLORE COLLECTION

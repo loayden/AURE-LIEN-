@@ -3,7 +3,7 @@ import ProductCard from "./ProductCard";
 
 export default function ProductGrid() {
   return (
-    <section className="max-w-7xl mx-auto px-6 pb-40 grid md:grid-cols-4 gap-20">
+    <section className="mx-auto grid max-w-7xl grid-cols-1 gap-5 px-4 pb-24 sm:grid-cols-2 sm:gap-6 sm:px-6 lg:grid-cols-4 lg:gap-8 lg:px-8 lg:pb-40">
       {products.map((product) => (
         <ProductCard
           key={product._id}

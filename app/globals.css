@@ -312,6 +312,61 @@ textarea,
   color: var(--gold);
 }
 
+.luxury-container {
+  width: min(100%, 80rem);
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 4vw, 2.5rem);
+}
+
+.section-padding {
+  padding-block: clamp(4rem, 9vw, 7rem);
+  padding-inline: clamp(1rem, 4vw, 2.5rem);
+}
+
+.luxury-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.35rem, 8.5vw, 4.75rem);
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  line-height: 0.92;
+}
+
+.catalog-shell {
+  width: min(100%, 82rem);
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 4vw, 2.75rem);
+  padding-top: clamp(7rem, 14vw, 8.5rem);
+  padding-bottom: clamp(4rem, 9vw, 6rem);
+}
+
+.catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: clamp(1.25rem, 3vw, 2rem);
+}
+
+.mobile-safe-hero {
+  min-height: 100svh;
+}
+
+@supports (min-height: 100dvh) {
+  .mobile-safe-hero {
+    min-height: 100dvh;
+  }
+}
+
+@media (min-width: 640px) {
+  .catalog-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .catalog-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 /* ============================================
    DIVIDERS
    ============================================ */
@@ -560,5 +615,9 @@ button:active,
 
   .eyebrow {
     letter-spacing: 0.34em;
+  }
+
+  .luxury-title {
+    letter-spacing: 0.06em;
   }
 }

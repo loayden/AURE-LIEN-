@@ -286,7 +286,7 @@ export default function ProductCard({
                 src={images[current]}
                 alt={`${product.name} — ${current + 1}`}
                 fill
-                sizes="(max-width:640px) 46vw, (max-width:1024px) 33vw, 25vw"
+                sizes="(max-width:640px) 92vw, (max-width:1024px) 46vw, 25vw"
                 className="object-cover"
                 draggable={false}
                 priority={current === 0}
@@ -377,8 +377,8 @@ export default function ProductCard({
           onClick={toggleWishlist}
           className="absolute bottom-2.5 right-2.5 sm:bottom-4 sm:right-4 z-30 flex items-center justify-center rounded-full"
           style={{
-            width: 42,
-            height: 42,
+            width: 44,
+            height: 44,
             background: inWishlist ? "rgba(180,40,40,0.75)" : "rgba(0,0,0,0.42)",
             backdropFilter: "blur(20px)",
             border: inWishlist ? "1px solid rgba(255,80,80,0.35)" : "1px solid rgba(255,255,255,0.10)",
@@ -613,7 +613,7 @@ export default function ProductCard({
             whileTap={{ scale: 0.82 }}
             className="flex items-center justify-center rounded-full transition-all duration-500 disabled:opacity-35"
             style={{
-              width: 42, height: 42,
+              width: 44, height: 44,
               background: added
                 ? "linear-gradient(135deg, rgba(198,169,98,0.28), rgba(198,169,98,0.10))"
                 : "rgba(255,255,255,0.07)",

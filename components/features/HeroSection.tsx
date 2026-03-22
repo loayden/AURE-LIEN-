@@ -20,7 +20,7 @@ export default function HeroSection({
   ctaHref = "/collection",
 }: HeroSectionProps) {
   return (
-    <section className="relative h-screen flex items-center justify-center text-center overflow-hidden">
+    <section className="relative mobile-safe-hero flex items-center justify-center overflow-hidden text-center">
       <motion.div
         initial={{ scale: 1 }}
         animate={{ scale: 1.05 }}
@@ -42,13 +42,13 @@ export default function HeroSection({
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 px-6"
+        className="relative z-10 px-5 sm:px-6"
       >
         <h1 className="text-display-xl font-serif font-light text-ivory tracking-luxury-wide leading-tight">
           {title}
         </h1>
         {subtitle && (
-          <p className="mt-6 text-lg sm:text-xl text-ivory/90 font-light tracking-wide max-w-xl mx-auto">
+          <p className="mx-auto mt-5 max-w-xl text-base font-light tracking-wide text-ivory/90 sm:mt-6 sm:text-xl">
             {subtitle}
           </p>
         )}

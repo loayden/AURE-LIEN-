@@ -62,7 +62,7 @@ export default function LuxuryFooter() {
         </div>
 
         {/* ── UPPER GRID ── */}
-        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 py-16 sm:py-24 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 sm:gap-12">
+        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-14 sm:grid-cols-2 sm:gap-12 sm:px-8 sm:py-24 xl:grid-cols-4 xl:gap-14">
 
           {/* Brand */}
           <div className="flex flex-col gap-5 md:col-span-1">
@@ -76,7 +76,7 @@ export default function LuxuryFooter() {
             </Link>
             <div className="w-10 h-px"
                  style={{ background:"linear-gradient(90deg, rgba(198,169,98,0.7), transparent)" }} />
-            <p className="text-white/30 font-light leading-relaxed text-sm tracking-wide max-w-[220px]">
+            <p className="max-w-none text-sm font-light leading-relaxed tracking-wide text-white/30 sm:max-w-[220px]">
               Crafted in silence. Designed with discipline. A study in structure, presence, and restraint.
             </p>
 
@@ -213,7 +213,7 @@ export default function LuxuryFooter() {
         </div>
 
         {/* ── BOTTOM BAR ── */}
-        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8 py-8 sm:py-10 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6">
+        <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row sm:gap-6 sm:px-8 sm:py-10">
 
           {/* Presented by */}
           <motion.a

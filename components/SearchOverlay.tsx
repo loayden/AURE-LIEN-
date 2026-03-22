@@ -79,11 +79,11 @@ export default function SearchOverlay({
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="relative flex-shrink-0 max-w-3xl mx-auto w-full px-6 pt-24 pb-6"
+            className="relative mx-auto w-full max-w-3xl flex-shrink-0 px-4 pt-20 pb-5 sm:px-6 sm:pt-24 sm:pb-6"
           >
             {/* Input row */}
             <div
-              className="relative flex items-center gap-4 px-5 py-4 rounded-2xl overflow-hidden"
+              className="relative flex items-center gap-3 overflow-hidden rounded-2xl px-4 py-3.5 sm:gap-4 sm:px-5 sm:py-4"
               style={{
                 background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.025) 100%)",
                 backdropFilter: "blur(20px)",
@@ -97,7 +97,7 @@ export default function SearchOverlay({
 
               <Search
                 strokeWidth={1.3}
-                className="w-5 h-5 flex-shrink-0 transition-colors duration-300"
+                className="h-4.5 w-4.5 flex-shrink-0 transition-colors duration-300 sm:h-5 sm:w-5"
                 style={{ color: q ? "#C6A962" : "rgba(255,255,255,0.25)" }}
               />
 
@@ -110,7 +110,7 @@ export default function SearchOverlay({
                 className="flex-1 bg-transparent outline-none text-white/80 placeholder:text-white/20 font-light"
                 style={{
                   fontFamily: "'Cormorant Garamond', serif",
-                  fontSize: "1.35rem",
+                  fontSize: "clamp(1.05rem, 5vw, 1.35rem)",
                   letterSpacing: "0.04em",
                 }}
               />
@@ -141,7 +141,7 @@ export default function SearchOverlay({
           </motion.div>
 
           {/* ── RESULTS ── */}
-          <div className="flex-1 overflow-y-auto max-w-3xl mx-auto w-full px-6 pb-24">
+          <div className="mx-auto flex-1 w-full max-w-3xl overflow-y-auto px-4 pb-20 sm:px-6 sm:pb-24">
 
             {/* Loading shimmer */}
             <AnimatePresence>
@@ -172,7 +172,7 @@ export default function SearchOverlay({
                   <motion.div
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col items-center py-20 gap-4"
+                    className="flex flex-col items-center gap-4 py-16 sm:py-20"
                   >
                     <p className="text-white/20 text-[9px] tracking-[0.4em] uppercase"
                        style={{ fontFamily: "'Jost', sans-serif" }}>

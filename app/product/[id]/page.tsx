@@ -86,7 +86,10 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
 
   const handleScroll = (direction: "left" | "right") => {
     if (!scrollContainerRef.current) return;
-    const scrollAmount = 400;
+    const scrollAmount =
+      typeof window !== "undefined" && window.innerWidth < 640
+        ? Math.max(window.innerWidth - 80, 260)
+        : 400;
     scrollContainerRef.current.scrollBy({
       left: direction === "left" ? -scrollAmount : scrollAmount,
       behavior: "smooth",
@@ -182,7 +185,7 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
               onMouseLeave={() => setHoveredIndex(null)}
               onClick={() => setSelectedIndex(i)}
               className="snap-center flex-shrink-0 cursor-pointer group"
-              style={{ width: "400px", height: "500px" }}
+              style={{ width: "min(82vw, 400px)", aspectRatio: "4 / 5" }}
             >
               <motion.div
                 animate={{ scale: hoveredIndex === i ? 1.02 : 1 }}
@@ -198,11 +201,11 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
                 {/* Image */}
                 <Image
                   src={image}
-                  alt={`${productName} - View ${i + 1}`}
-                  fill
-                  className="object-cover"
-                  sizes="400px"
-                />
+                alt={`${productName} - View ${i + 1}`}
+                fill
+                className="object-cover"
+                sizes="(max-width:640px) 82vw, 400px"
+              />
 
                 {/* Overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
@@ -239,13 +242,13 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
 
         {/* Fade overlay left */}
         <div
-          className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-black to-transparent z-10"
+          className="pointer-events-none absolute left-0 top-0 bottom-0 z-10 w-8 bg-gradient-to-r from-black to-transparent sm:w-12"
           style={{ opacity: canScrollLeft ? 1 : 0 }}
         />
 
         {/* Fade overlay right */}
         <div
-          className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-black to-transparent z-10"
+          className="pointer-events-none absolute right-0 top-0 bottom-0 z-10 w-8 bg-gradient-to-l from-black to-transparent sm:w-12"
           style={{ opacity: canScrollRight ? 1 : 0 }}
         />
       </div>
@@ -263,8 +266,12 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
             key={i}
             onClick={() => {
               setSelectedIndex(i);
+              const slideWidth =
+                typeof window !== "undefined" && window.innerWidth < 640
+                  ? window.innerWidth * 0.82
+                  : 400;
               scrollContainerRef.current?.scrollBy({
-                left: (i - selectedIndex) * 400,
+                left: (i - selectedIndex) * slideWidth,
                 behavior: "smooth",
               });
             }}
@@ -604,7 +611,7 @@ export default function PremiumProductPage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative z-10 px-6 lg:px-16 pt-8 pb-4 flex items-center gap-2 text-white/25 text-[9px] tracking-[0.3em] uppercase"
+          className="relative z-10 flex flex-wrap items-center gap-2 px-4 pt-8 pb-4 text-[9px] uppercase tracking-[0.3em] text-white/25 sm:px-6 lg:px-16"
         >
           <span>Shop</span>
           <ChevronRight className="w-3 h-3" />
@@ -614,13 +621,13 @@ export default function PremiumProductPage() {
         </motion.div>
 
         {/* Horizontal Scroll Gallery - NOW AT TOP */}
-        <div className="relative z-10 px-6 lg:px-16 py-20 max-w-7xl mx-auto">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
           <HorizontalScrollGallery images={allMedia} productName={product.name} />
         </div>
 
         {/* Hero Section - Product Title & CTA */}
-        <div className="relative z-10 px-6 lg:px-16 py-16 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 gap-16 items-start">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-16 lg:px-16">
+          <div className="grid grid-cols-1 items-start gap-10 sm:gap-16">
             {/* Product info */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -901,7 +908,7 @@ export default function PremiumProductPage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="relative z-10 px-6 lg:px-16 py-20 max-w-7xl mx-auto"
+          className="relative z-10 mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-16"
         >
           <div className="mb-12">
             <p className="text-white/25 text-[9px] tracking-[0.4em] uppercase mb-3">Craftsmanship</p>
@@ -1005,7 +1012,7 @@ export default function PremiumProductPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="relative z-10 px-6 lg:px-16 py-20 max-w-7xl mx-auto"
+            className="relative z-10 mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-16"
           >
             <div className="mb-12">
               <p className="text-white/25 text-[9px] tracking-[0.4em] uppercase mb-3">Curated Collection</p>

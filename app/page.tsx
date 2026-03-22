@@ -190,7 +190,7 @@ export default function Home() {
         {/* ══════════════════════════════════════
             COLLECTION GRID
         ══════════════════════════════════════ */}
-        <section className="py-20 sm:py-28 px-5 sm:px-12 bg-[#080808]">
+        <section className="bg-[#080808] px-4 py-16 sm:px-12 sm:py-28">
           <motion.div initial={false} whileInView={{ opacity:1, y:0 }}
             viewport={{ once:true }} transition={{ duration:0.8 }} className="text-center mb-14">
             <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase mb-4">Categories</p>
@@ -202,7 +202,7 @@ export default function Home() {
                  style={{ background:"linear-gradient(90deg, transparent, rgba(198,169,98,0.55), transparent)" }} />
           </motion.div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-7xl mx-auto">
+          <div className="mx-auto grid max-w-7xl grid-cols-1 gap-4 min-[520px]:grid-cols-2 lg:grid-cols-4">
             {COLLECTION_HIGHLIGHTS.map((item, i) => (
               <motion.div key={i}
                 initial={false} whileInView={{ opacity:1, y:0 }}
@@ -238,7 +238,7 @@ export default function Home() {
         {/* ══════════════════════════════════════
             LOOKBOOK
         ══════════════════════════════════════ */}
-        <section className="py-28 px-6 sm:px-12"
+        <section className="px-4 py-20 sm:px-12 sm:py-28"
                  style={{ background:"linear-gradient(180deg, #0a0a0a 0%, #080808 100%)" }}>
           <motion.div initial={false} whileInView={{ opacity:1, y:0 }}
             viewport={{ once:true }} transition={{ duration:0.8 }} className="text-center mb-14">
@@ -292,8 +292,8 @@ export default function Home() {
         {/* ══════════════════════════════════════
             BRAND STORY
         ══════════════════════════════════════ */}
-        <section className="py-28 px-6 sm:px-12 bg-[#080808]">
-          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-14 md:gap-20 items-center">
+        <section className="bg-[#080808] px-4 py-20 sm:px-12 sm:py-28">
+          <div className="mx-auto grid max-w-6xl items-center gap-10 sm:gap-14 md:grid-cols-2 md:gap-20">
             <motion.div initial={false} whileInView={{ opacity:1, x:0 }}
               viewport={{ once:true }} transition={{ duration:0.9, ease:[0.22,1,0.36,1] }}>
               <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase mb-6">Our Story</p>
@@ -323,7 +323,7 @@ export default function Home() {
                 <div className="absolute inset-0"
                      style={{ background:"linear-gradient(to top, rgba(8,8,8,0.35), transparent)" }} />
               </div>
-              <div className="absolute -bottom-5 -left-5 px-5 py-4 rounded-2xl"
+              <div className="absolute bottom-4 left-4 rounded-2xl px-5 py-4 sm:-bottom-5 sm:-left-5"
                    style={{
                      background:"linear-gradient(135deg, rgba(198,169,98,0.14), rgba(198,169,98,0.04))",
                      backdropFilter:"blur(20px)", border:"1px solid rgba(198,169,98,0.22)",
@@ -339,7 +339,7 @@ export default function Home() {
         {/* ══════════════════════════════════════
             FEATURED PRODUCTS
         ══════════════════════════════════════ */}
-        <section className="py-28 px-6 sm:px-12"
+        <section className="px-4 py-20 sm:px-12 sm:py-28"
                  style={{ background:"linear-gradient(180deg, #0a0a0a 0%, #080808 100%)" }}>
           <div className="max-w-7xl mx-auto">
             <motion.div initial={false} whileInView={{ opacity:1, y:0 }}
@@ -380,7 +380,7 @@ export default function Home() {
         {/* ══════════════════════════════════════
             FOOTER CTA
         ══════════════════════════════════════ */}
-        <section className="relative py-28 px-6 flex flex-col items-center justify-center text-center overflow-hidden"
+        <section className="relative flex flex-col items-center justify-center overflow-hidden px-4 py-20 text-center sm:px-6 sm:py-28"
                  style={{ background:"#060606" }}>
           <div className="absolute inset-0 pointer-events-none"
                style={{ background:"radial-gradient(ellipse at 50% 100%, rgba(198,169,98,0.06) 0%, transparent 60%)" }} />
@@ -395,7 +395,7 @@ export default function Home() {
               Begin Your <em style={{ color:"#C6A962" }}>Collection.</em>
             </h2>
             <Link href="/shop"
-              className="inline-flex items-center gap-3 px-10 py-4 rounded-full text-[#C6A962] text-[10px] font-light tracking-[0.3em] uppercase transition-all duration-500 hover:scale-[1.02]"
+              className="inline-flex items-center gap-3 rounded-full px-8 py-3.5 text-[10px] font-light uppercase tracking-[0.3em] text-[#C6A962] transition-all duration-500 hover:scale-[1.02] sm:px-10 sm:py-4"
               style={{
                 background:"linear-gradient(135deg, rgba(198,169,98,0.18), rgba(198,169,98,0.06))",
                 backdropFilter:"blur(16px)", border:"1px solid rgba(198,169,98,0.28)",

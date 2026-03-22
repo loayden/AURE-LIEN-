@@ -113,7 +113,7 @@ export default function AboutPage() {
         {/* ══════════════════════════════════════
             HERO
         ══════════════════════════════════════ */}
-        <section ref={heroRef} className="relative h-screen flex items-center justify-center overflow-hidden">
+        <section ref={heroRef} className="relative mobile-safe-hero flex items-center justify-center overflow-hidden">
           {/* BG gradient only — no image needed for About */}
           <div className="absolute inset-0"
                style={{ background:"radial-gradient(ellipse at 50% 60%, rgba(198,169,98,0.07) 0%, transparent 60%)" }} />
@@ -178,7 +178,7 @@ export default function AboutPage() {
           </motion.div>
 
           {/* Scroll cue */}
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-25">
+          <div className="absolute bottom-10 left-1/2 hidden -translate-x-1/2 flex-col items-center gap-2 opacity-25 sm:flex">
             <span className="text-white text-[9px] tracking-[0.4em] uppercase">Scroll</span>
             <div className="w-px h-10 bg-gradient-to-b from-white/60 to-transparent" />
           </div>

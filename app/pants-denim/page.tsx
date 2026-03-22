@@ -94,7 +94,7 @@ export default function PantsPage() {
         <Orbs />
 
         {/* ── HERO ── */}
-        <section ref={heroRef} className="relative h-screen w-full overflow-hidden flex items-center justify-center text-center">
+        <section ref={heroRef} className="relative mobile-safe-hero w-full overflow-hidden flex items-center justify-center text-center">
           <motion.div style={{ y: heroY }} className="absolute inset-0 scale-110">
             <video
               src="/uploads/pants-hero.mp4"
@@ -134,7 +134,7 @@ export default function PantsPage() {
             </p>
           </motion.div>
 
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-30 z-10">
+          <div className="absolute bottom-10 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 opacity-30 sm:flex">
             <span className="text-white text-[9px] tracking-[0.35em] uppercase">Scroll</span>
             <div className="w-px h-8 bg-gradient-to-b from-white/60 to-transparent" />
           </div>

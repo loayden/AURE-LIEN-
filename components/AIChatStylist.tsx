@@ -67,12 +67,12 @@ export default function AIChatStylist() {
       <motion.button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="fixed bottom-8 right-8 z-50 w-14 h-14 rounded-full bg-brass text-black flex items-center justify-center shadow-lg hover:shadow-brass-glow transition-shadow"
+        className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-brass text-black shadow-lg transition-shadow hover:shadow-brass-glow sm:h-14 sm:w-14"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         aria-label="Open stylist chat"
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="h-5 w-5 sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 2 13.574 2 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
         </svg>
       </motion.button>
@@ -83,9 +83,9 @@ export default function AIChatStylist() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-24 right-8 z-50 w-[380px] max-w-[calc(100vw-4rem)] max-h-[70vh] flex flex-col rounded-2xl border border-brass/30 bg-black/95 backdrop-blur-xl shadow-2xl overflow-hidden"
+            className="fixed inset-x-3 bottom-20 z-50 flex max-h-[78vh] flex-col overflow-hidden rounded-[1.35rem] border border-brass/30 bg-black/95 shadow-2xl backdrop-blur-xl sm:inset-x-auto sm:bottom-24 sm:right-8 sm:w-[380px] sm:max-w-[calc(100vw-4rem)] sm:rounded-2xl"
           >
-            <div className="p-4 border-b border-brass/20 flex justify-between items-center">
+            <div className="flex items-center justify-between border-b border-brass/20 p-3.5 sm:p-4">
               <span className="font-serif tracking-wide text-ivory">Stylist</span>
               <button
                 type="button"
@@ -95,14 +95,14 @@ export default function AIChatStylist() {
                 ×
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[200px]">
+            <div className="min-h-[160px] flex-1 space-y-4 overflow-y-auto p-3.5 sm:min-h-[200px] sm:p-4">
               {messages.map((m, i) => (
                 <div
                   key={i}
                   className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-[85%] rounded-lg px-4 py-2 ${
+                    className={`max-w-[92%] rounded-lg px-3.5 py-2.5 sm:max-w-[85%] sm:px-4 sm:py-2 ${
                       m.role === "user"
                         ? "bg-brass/20 text-ivory"
                         : "bg-charcoal text-ivory border border-brass/10"
@@ -118,14 +118,14 @@ export default function AIChatStylist() {
                             <Link
                               key={p._id}
                               href={`/product/${p._id}`}
-                              className="flex items-center gap-2 rounded-lg border border-brass/30 p-2 hover:bg-brass/10 transition-colors"
+                              className="flex max-w-full items-center gap-2 rounded-lg border border-brass/30 p-2 transition-colors hover:bg-brass/10"
                             >
                               {p.images?.[0] && (
-                                <div className="relative w-10 h-10 rounded overflow-hidden flex-shrink-0">
+                                <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded">
                                   <Image src={p.images[0]} alt="" fill className="object-cover" />
                                 </div>
                               )}
-                              <span className="text-xs text-ivory truncate max-w-[100px]">{p.name}</span>
+                              <span className="max-w-[132px] truncate text-xs text-ivory sm:max-w-[100px]">{p.name}</span>
                             </Link>
                           );
                         })}
@@ -143,14 +143,14 @@ export default function AIChatStylist() {
               )}
               <div ref={bottomRef} />
             </div>
-            <div className="p-4 border-t border-brass/20 flex gap-2">
+            <div className="flex flex-col gap-2 border-t border-brass/20 p-3.5 sm:flex-row sm:p-4">
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && send()}
                 placeholder="Ask for outfit ideas..."
-                className="flex-1 bg-transparent border border-brass/40 text-ivory px-4 py-2 text-sm focus:outline-none focus:border-brass placeholder:text-silver"
+                className="flex-1 border border-brass/40 bg-transparent px-4 py-3 text-sm text-ivory placeholder:text-silver focus:border-brass focus:outline-none"
               />
               <motion.button
                 type="button"
@@ -158,7 +158,7 @@ export default function AIChatStylist() {
                 disabled={loading}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="px-4 py-2 border border-brass text-brass text-sm uppercase tracking-wider hover:bg-brass hover:text-black disabled:opacity-50"
+                className="border border-brass px-4 py-3 text-sm uppercase tracking-wider text-brass hover:bg-brass hover:text-black disabled:opacity-50 sm:px-4 sm:py-2"
               >
                 Send
               </motion.button>
