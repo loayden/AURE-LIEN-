@@ -1,17 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/connectDB";
 import Lookbook from "@/models/Lookbook";
+import { fallbackLookbooks } from "@/lib/lookbooksData";
 
 export async function GET(req: NextRequest) {
+  const published = req.nextUrl.searchParams.get("published");
+  const q = published === "true" ? { published: true } : {};
+
   try {
     await connectDB();
-    const published = req.nextUrl.searchParams.get("published");
-    const q = published === "true" ? { published: true } : {};
     const lookbooks = await Lookbook.find(q).sort({ createdAt: -1 }).lean();
     return NextResponse.json(lookbooks);
   } catch (e) {
     console.error("Lookbooks GET:", e);
-    return NextResponse.json({ error: "Failed to fetch lookbooks" }, { status: 500 });
+    const filtered = fallbackLookbooks.filter((lookbook) =>
+      q.published ? lookbook.published : true
+    );
+    return NextResponse.json(filtered);
   }
 }
 

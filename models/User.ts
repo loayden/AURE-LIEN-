@@ -6,6 +6,12 @@ const userSchema = new Schema({
   email: { type: String, required: true, unique: true, index: true },
   password: { type: String, required: true },
   role: { type: String, enum: ["customer", "admin"], default: "customer" },
+  phone: { type: String, default: "" },
+  address: { type: String, default: "" },
+  apartment: { type: String, default: "" },
+  city: { type: String, default: "" },
+  postalCode: { type: String, default: "" },
+  country: { type: String, default: "" },
   createdAt: { type: Date, default: Date.now },
 });
 

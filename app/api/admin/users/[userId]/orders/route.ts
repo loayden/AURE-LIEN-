@@ -17,6 +17,10 @@ function enrichOrderItems(raw: any[]) {
   });
 }
 
+function buildAddress(parts: Array<string | undefined>) {
+  return parts.map((part) => String(part ?? "").trim()).filter(Boolean).join(", ");
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ userId: string }> }
@@ -31,7 +35,16 @@ export async function GET(
   }
   try {
     const users = await getUsersJson();
-    let user: { id: string; name: string; email: string } | null =
+    let user: {
+      id: string;
+      name: string;
+      email: string;
+      phone?: string;
+      address?: string;
+      city?: string;
+      postalCode?: string;
+      country?: string;
+    } | null =
       users.find((u) => u.id === userId) ?? null;
 
     const raw: any[] = await getOrdersJson();
@@ -59,7 +72,23 @@ export async function GET(
         id: userId,
         name: name || (c?.email ?? ""),
         email: c?.email ?? "",
+        phone: c?.phone ?? "",
+        address: buildAddress([c?.address, c?.apartment]),
+        city: c?.city ?? "",
+        postalCode: c?.postalCode ?? "",
+        country: c?.country ?? "",
       };
+    }
+
+    const latestOrder = userOrders[0];
+    const latestCustomer = latestOrder?.customer ?? {};
+
+    if (user) {
+      user.phone ||= latestCustomer.phone ?? "";
+      user.address ||= buildAddress([latestCustomer.address, latestCustomer.apartment]);
+      user.city ||= latestCustomer.city ?? "";
+      user.postalCode ||= latestCustomer.postalCode ?? "";
+      user.country ||= latestCustomer.country ?? "";
     }
 
     const orders = userOrders.map((o) => {
@@ -79,7 +108,19 @@ export async function GET(
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
-    return NextResponse.json({ user: { id: user.id, name: user.name, email: user.email }, orders });
+    return NextResponse.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone ?? "",
+        address: user.address ?? "",
+        city: user.city ?? "",
+        postalCode: user.postalCode ?? "",
+        country: user.country ?? "",
+      },
+      orders,
+    });
   } catch (e) {
     console.error("Admin user orders API error:", e);
     return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 });

@@ -7,11 +7,26 @@ type OrderRow = {
   id?: string;
   _id?: string;
   userId?: string;
-  customer?: { email?: string; firstName?: string; lastName?: string; name?: string };
+  customer?: {
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+    name?: string;
+    phone?: string;
+    address?: string;
+    apartment?: string;
+    city?: string;
+    postalCode?: string;
+    country?: string;
+  };
   total?: number;
   totalPrice?: number;
   createdAt?: string;
 };
+
+function buildAddress(parts: Array<string | undefined>) {
+  return parts.map((part) => String(part ?? "").trim()).filter(Boolean).join(", ");
+}
 
 export async function GET(req: NextRequest) {
   const auth = await getAuthFromRequest(req);
@@ -25,7 +40,19 @@ export async function GET(req: NextRequest) {
     // Build map: email (lowercase) -> { _id, name, email, createdAt, orders count, totalSpent }
     const byEmail = new Map<
       string,
-      { _id: string; name: string; email: string; createdAt: string; orders: number; totalSpent: number }
+      {
+        _id: string;
+        name: string;
+        email: string;
+        createdAt: string;
+        orders: number;
+        totalSpent: number;
+        phone: string;
+        address: string;
+        city: string;
+        postalCode: string;
+        country: string;
+      }
     >();
 
     for (const u of users) {
@@ -36,6 +63,7 @@ export async function GET(req: NextRequest) {
           o.userId === u.id ||
           (o.customer?.email && o.customer.email.toLowerCase().trim() === key)
       );
+      const latestOrder = userOrders[0];
       const totalSpent = userOrders.reduce(
         (sum, o) => sum + (Number(o.totalPrice ?? o.total) || 0),
         0
@@ -47,6 +75,14 @@ export async function GET(req: NextRequest) {
         createdAt: u.createdAt,
         orders: userOrders.length,
         totalSpent,
+        phone: u.phone || latestOrder?.customer?.phone || "",
+        address: buildAddress([
+          u.address || latestOrder?.customer?.address,
+          u.apartment || latestOrder?.customer?.apartment,
+        ]),
+        city: u.city || latestOrder?.customer?.city || "",
+        postalCode: u.postalCode || latestOrder?.customer?.postalCode || "",
+        country: u.country || latestOrder?.customer?.country || "",
       });
     }
 
@@ -61,6 +97,11 @@ export async function GET(req: NextRequest) {
           existing.orders += 1;
           existing.totalSpent += orderTotal;
         }
+        existing.phone ||= o.customer?.phone?.trim() || "";
+        existing.address ||= buildAddress([o.customer?.address, o.customer?.apartment]);
+        existing.city ||= o.customer?.city?.trim() || "";
+        existing.postalCode ||= o.customer?.postalCode?.trim() || "";
+        existing.country ||= o.customer?.country?.trim() || "";
         continue;
       }
       const rawName =
@@ -75,6 +116,11 @@ export async function GET(req: NextRequest) {
         createdAt,
         orders: 1,
         totalSpent: orderTotal,
+        phone: o.customer?.phone?.trim() || "",
+        address: buildAddress([o.customer?.address, o.customer?.apartment]),
+        city: o.customer?.city?.trim() || "",
+        postalCode: o.customer?.postalCode?.trim() || "",
+        country: o.customer?.country?.trim() || "",
       });
     }
 
@@ -88,7 +134,10 @@ export async function GET(req: NextRequest) {
       result = result.filter(
         (u) =>
           u.email.toLowerCase().includes(search) ||
-          u.name.toLowerCase().includes(search)
+          u.name.toLowerCase().includes(search) ||
+          u.phone.toLowerCase().includes(search) ||
+          u.address.toLowerCase().includes(search) ||
+          u.city.toLowerCase().includes(search)
       );
     }
 

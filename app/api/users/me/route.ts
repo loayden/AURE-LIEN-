@@ -23,6 +23,12 @@ export async function GET(req: NextRequest) {
       email: user.email,
       role: user.role,
       createdAt: user.createdAt,
+      phone: user.phone ?? "",
+      address: user.address ?? "",
+      apartment: user.apartment ?? "",
+      city: user.city ?? "",
+      postalCode: user.postalCode ?? "",
+      country: user.country ?? "",
     });
   } catch {
     return NextResponse.json({ error: "Failed to fetch user" }, { status: 500 });

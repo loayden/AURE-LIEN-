@@ -11,6 +11,11 @@ interface AdminUser {
   createdAt: string;
   orders: number;
   totalSpent: number;
+  phone: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  country: string;
 }
 
 export default function AdminUsersPage() {
@@ -37,6 +42,10 @@ export default function AdminUsersPage() {
     } catch {
       return "-";
     }
+  };
+
+  const formatLocation = (user: AdminUser) => {
+    return [user.address, user.city, user.country].filter(Boolean).join(" • ") || "-";
   };
 
   return (
@@ -87,6 +96,8 @@ export default function AdminUsersPage() {
                 <tr className="border-b border-brass/20 bg-black/20">
                   <th className="text-left py-4 px-6 text-xs uppercase tracking-widest text-brass font-light">Name</th>
                   <th className="text-left py-4 px-6 text-xs uppercase tracking-widest text-brass font-light">Email</th>
+                  <th className="text-left py-4 px-6 text-xs uppercase tracking-widest text-brass font-light">Phone</th>
+                  <th className="text-left py-4 px-6 text-xs uppercase tracking-widest text-brass font-light">Address</th>
                   <th className="text-center py-4 px-6 text-xs uppercase tracking-widest text-brass font-light">Orders</th>
                   <th className="text-right py-4 px-6 text-xs uppercase tracking-widest text-brass font-light">Total Spent</th>
                   <th className="text-left py-4 px-6 text-xs uppercase tracking-widest text-brass font-light">Joined</th>
@@ -98,9 +109,13 @@ export default function AdminUsersPage() {
                   <tr
                     key={u._id}
                     className="border-b border-brass/10 hover:bg-brass/5 transition-colors"
-                  >
-                    <td className="py-4 px-6 text-ivory font-light">{u.name}</td>
-                    <td className="py-4 px-6 text-ivory-muted text-sm">{u.email}</td>
+                    >
+                      <td className="py-4 px-6 text-ivory font-light">{u.name}</td>
+                      <td className="py-4 px-6 text-ivory-muted text-sm">{u.email}</td>
+                      <td className="py-4 px-6 text-ivory-muted text-sm">{u.phone || "-"}</td>
+                      <td className="py-4 px-6 text-ivory-muted text-sm min-w-[240px]">
+                        {formatLocation(u)}
+                      </td>
                     <td className="py-4 px-6 text-center text-ivory">{u.orders}</td>
                     <td className="py-4 px-6 text-right text-brass font-light">EGP {u.totalSpent.toLocaleString()}</td>
                     <td className="py-4 px-6 text-ivory-muted text-sm">{formatDate(u.createdAt)}</td>

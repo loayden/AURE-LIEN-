@@ -25,6 +25,11 @@ interface UserData {
   id: string;
   name: string;
   email: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  postalCode?: string;
+  country?: string;
 }
 
 export default function AdminUserOrdersPage() {
@@ -67,6 +72,25 @@ export default function AdminUserOrdersPage() {
       <h1 className="text-2xl font-serif font-light tracking-luxury-wide border-b border-brass/30 pb-4">
         Orders — {user ? `${user.name} (${user.email})` : "Loading..."}
       </h1>
+
+      {user && (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-4">
+            <p className="text-xs uppercase tracking-widest text-brass/80 mb-2">Phone</p>
+            <p className="text-ivory">{user.phone || "-"}</p>
+          </div>
+          <div className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-4 sm:col-span-2">
+            <p className="text-xs uppercase tracking-widest text-brass/80 mb-2">Address</p>
+            <p className="text-ivory">{user.address || "-"}</p>
+          </div>
+          <div className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-4">
+            <p className="text-xs uppercase tracking-widest text-brass/80 mb-2">Location</p>
+            <p className="text-ivory">
+              {[user.city, user.postalCode, user.country].filter(Boolean).join(", ") || "-"}
+            </p>
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <p className="text-ivory-muted">Loading...</p>

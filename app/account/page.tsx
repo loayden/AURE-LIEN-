@@ -7,7 +7,16 @@ import { useEffect, useState } from "react";
 
 export default function AccountPage() {
   const router = useRouter();
-  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
+  const [user, setUser] = useState<{
+    name: string;
+    email: string;
+    phone?: string;
+    address?: string;
+    apartment?: string;
+    city?: string;
+    postalCode?: string;
+    country?: string;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -52,6 +61,14 @@ export default function AccountPage() {
           <h2 className="text-xs uppercase tracking-widest text-silver">Profile</h2>
           <p className="text-ivory font-light">{user.name}</p>
           <p className="text-ivory-muted">{user.email}</p>
+          {user.phone && <p className="text-ivory-muted">{user.phone}</p>}
+          {(user.address || user.city || user.country) && (
+            <p className="text-ivory-muted">
+              {[user.address, user.apartment, user.city, user.postalCode, user.country]
+                .filter(Boolean)
+                .join(", ")}
+            </p>
+          )}
         </section>
 
         <nav className="space-y-4 mb-16">

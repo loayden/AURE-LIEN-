@@ -1,19 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/connectDB";
 import Lookbook from "@/models/Lookbook";
+import { getFallbackLookbookById } from "@/lib/lookbooksData";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   try {
     await connectDB();
-    const { id } = await params;
     const lookbook = await Lookbook.findById(id).lean();
     if (!lookbook) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json(lookbook);
   } catch (e) {
-    return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
+    const lookbook = getFallbackLookbookById(id);
+    if (!lookbook) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+    return NextResponse.json(lookbook);
   }
 }
 

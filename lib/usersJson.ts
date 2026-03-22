@@ -2,6 +2,11 @@ import { promises as fs } from "fs";
 import connectDB from "@/lib/connectDB";
 import User from "@/models/User";
 import { paths } from "./dataPaths";
+import {
+  getRedisUsers,
+  isRedisStorageAvailable,
+  setRedisUsers,
+} from "@/lib/redisStorage";
 
 export interface UserRecord {
   id: string;
@@ -10,6 +15,12 @@ export interface UserRecord {
   password: string;
   role: "customer" | "admin";
   createdAt: string;
+  phone?: string;
+  address?: string;
+  apartment?: string;
+  city?: string;
+  postalCode?: string;
+  country?: string;
 }
 
 const BLOB_USERS_PATH = "users.json";
@@ -36,6 +47,12 @@ function normalizeUser(user: any): UserRecord {
     createdAt: user?.createdAt
       ? new Date(user.createdAt).toISOString()
       : new Date().toISOString(),
+    phone: String(user?.phone ?? "").trim(),
+    address: String(user?.address ?? "").trim(),
+    apartment: String(user?.apartment ?? "").trim(),
+    city: String(user?.city ?? "").trim(),
+    postalCode: String(user?.postalCode ?? user?.zipCode ?? "").trim(),
+    country: String(user?.country ?? "").trim(),
   };
 }
 
@@ -114,6 +131,14 @@ async function readUserSnapshots(): Promise<UserRecord[]> {
       return blobUsers;
     }
   }
+
+  if (isRedisStorageAvailable()) {
+    const redisUsers = await getRedisUsers();
+    if (redisUsers && redisUsers.length > 0) {
+      return redisUsers.map(normalizeUser);
+    }
+  }
+
   return readLocalUsers();
 }
 
@@ -122,6 +147,12 @@ async function writeUserSnapshots(users: UserRecord[]) {
     await writeBlobUsers(users);
     return;
   }
+
+  if (isRedisStorageAvailable()) {
+    await setRedisUsers(users);
+    return;
+  }
+
   await writeLocalUsers(users);
 }
 
@@ -167,31 +198,58 @@ export async function createUser(data: Omit<UserRecord, "id" | "createdAt">): Pr
   });
 
   if (useMongoStorage()) {
-    await connectDB();
-    await User.findOneAndUpdate(
-      { email: user.email },
-      user,
-      { upsert: true, new: true, setDefaultsOnInsert: true }
-    );
-    await syncUserSnapshotsFromMongo();
-    return user;
+    try {
+      await connectDB();
+      await User.findOneAndUpdate(
+        { email: user.email },
+        user,
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
+      try {
+        await syncUserSnapshotsFromMongo();
+      } catch (error) {
+        console.warn(
+          "⚠️ User saved to MongoDB but snapshot sync failed:",
+          error instanceof Error ? error.message : String(error)
+        );
+      }
+      return user;
+    } catch (error) {
+      console.warn(
+        "⚠️ MongoDB user save failed, falling back to snapshot storage:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
   }
 
   const users = await readUserSnapshots();
-  users.push(user);
-  await writeUserSnapshots(mergeUsers(users, []));
+  await writeUserSnapshots(mergeUsers([user], users));
   return user;
 }
 
 export async function updateUserRole(id: string, role: "customer" | "admin"): Promise<void> {
   if (useMongoStorage()) {
-    await connectDB();
-    await User.findOneAndUpdate(
-      { $or: [{ id }, { _id: id }] },
-      { role }
-    );
-    await syncUserSnapshotsFromMongo();
-    return;
+    try {
+      await connectDB();
+      await User.findOneAndUpdate(
+        { $or: [{ id }, { _id: id }] },
+        { role }
+      );
+      try {
+        await syncUserSnapshotsFromMongo();
+      } catch (error) {
+        console.warn(
+          "⚠️ MongoDB user role updated but snapshot sync failed:",
+          error instanceof Error ? error.message : String(error)
+        );
+      }
+      return;
+    } catch (error) {
+      console.warn(
+        "⚠️ MongoDB user role update failed, falling back to snapshot storage:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
   }
 
   const users = await readUserSnapshots();

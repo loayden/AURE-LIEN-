@@ -6,6 +6,10 @@ const CARTS_KEY = "aurelien:carts";
 const LEGACY_CARTS_KEY = "carts";
 const ORDERS_KEY = "aurelien:orders";
 const LEGACY_ORDERS_KEY = "orders";
+const USERS_KEY = "aurelien:users";
+const LEGACY_USERS_KEY = "users";
+const WISHLISTS_KEY = "aurelien:wishlists";
+const LEGACY_WISHLISTS_KEY = "wishlists";
 
 let redisClient: Redis | null | undefined;
 
@@ -368,4 +372,49 @@ export async function removeRedisOrder(orderId: string): Promise<void> {
     }
   }
   await redis.del(ORDERS_KEY);
+}
+
+export async function getRedisUsers(): Promise<any[] | null> {
+  const [legacyUsers, users] = await Promise.all([
+    readRedisKeyAsRecord<any>(LEGACY_USERS_KEY),
+    readRedisKeyAsRecord<any>(USERS_KEY),
+  ]);
+
+  return Object.values({ ...legacyUsers, ...users });
+}
+
+export async function setRedisUsers(users: any[]): Promise<void> {
+  const payload: Record<string, any> = {};
+  for (const user of users) {
+    const userId = String(user?.id ?? user?._id ?? user?.email ?? "");
+    if (!userId) continue;
+    payload[userId] = user;
+  }
+
+  await writeRedisHash(USERS_KEY, payload);
+}
+
+export async function getRedisWishlist(userId: string): Promise<any[] | null> {
+  const wishlist =
+    (await readRedisFieldFromKey<any[]>(WISHLISTS_KEY, userId)) ??
+    (await readRedisFieldFromKey<any[]>(LEGACY_WISHLISTS_KEY, userId));
+
+  return Array.isArray(wishlist) ? wishlist : [];
+}
+
+export async function saveRedisWishlist(userId: string, items: any[]): Promise<void> {
+  const redis = getRedis();
+  if (!redis) {
+    throw new Error("Redis storage is not configured");
+  }
+
+  try {
+    await redis.hset(WISHLISTS_KEY, { [userId]: JSON.stringify(items) });
+  } catch (error) {
+    if (!isWrongTypeError(error)) {
+      throw error;
+    }
+    await redis.del(WISHLISTS_KEY);
+    await redis.hset(WISHLISTS_KEY, { [userId]: JSON.stringify(items) });
+  }
 }
