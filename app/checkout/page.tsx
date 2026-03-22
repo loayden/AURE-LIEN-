@@ -372,8 +372,16 @@ export default function CheckoutPage() {
       
       if (fromCart) await fetch("/api/cart", { method: "DELETE" });
 
-      // Redirect to orders page
-      setTimeout(() => router.push("/orders"), 1800);
+      const placedOrderId = typeof data?.orderId === "string" ? data.orderId : "";
+
+      // Redirect to the freshly placed order
+      setTimeout(() => {
+        router.push(
+          placedOrderId
+            ? `/orders?orderId=${encodeURIComponent(placedOrderId)}`
+            : "/orders"
+        );
+      }, 1800);
     } catch (err: any) { 
       console.error("❌ Order error:", err);
       setError(err.message || "Failed to place order."); 

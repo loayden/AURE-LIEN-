@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Calendar, CheckCircle2, Clock, Hash, Package, ShoppingBag } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 function Orbs() {
@@ -237,7 +237,7 @@ function OrderCard({ order, index, onPending }: { order: any; index: number; onP
             <Package strokeWidth={1.2} className="w-3.5 h-3.5" style={{ color:"rgba(80,200,120,0.6)" }} />
             <span className="text-[9px] tracking-[0.3em] uppercase font-light"
                   style={{ color:"rgba(80,200,120,0.6)", fontFamily:"'Jost', sans-serif" }}>
-              Delivered
+              Completed
             </span>
           </div>
         )}
@@ -250,17 +250,20 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const orderId = searchParams.get("orderId");
 
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("/api/orders", { cache: "no-store" });
+        const query = orderId ? `?orderId=${encodeURIComponent(orderId)}` : "";
+        const res = await fetch(`/api/orders${query}`, { cache: "no-store" });
         const data = await res.json();
         setOrders(data.orders || []);
       } catch { setOrders([]); }
       finally { setLoading(false); }
     })();
-  }, []);
+  }, [orderId]);
 
   async function handlePending(order: any) {
     if (typeof window !== "undefined") sessionStorage.setItem("selectedOrder", JSON.stringify(order));

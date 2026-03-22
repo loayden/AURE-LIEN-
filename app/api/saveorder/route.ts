@@ -212,7 +212,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       totalPrice: calculatedTotal,
       customer: normalizedCustomer,
       createdAt: new Date().toISOString(),
-      status: "pending",
+      status: "completed",
     };
 
     console.log(`✅ Created new order ${newOrder._id} with ${items.length} items`);
