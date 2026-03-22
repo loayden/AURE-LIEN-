@@ -1,10 +1,12 @@
-import fs from 'fs';
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllProducts, getProductById } from "@/lib/getAllProducts";
 import { attachUserCookie, getOrCreateUserId } from "@/lib/userSession";
-import { paths } from "@/lib/dataPaths";
-
-const dataFilePath = paths.cart;
+import {
+  clearCartByUser,
+  getCartByUser,
+  setCartByUser,
+  type CartItemRecord,
+} from "@/lib/cartStorage";
 
 type CartItem = {
   _id?: string;
@@ -15,108 +17,88 @@ type CartItem = {
   color?: string | null;
 };
 
-function readCart(): CartItem[] {
-  try {
-    if (!fs.existsSync(dataFilePath)) {
-      return [];
-    }
-
-    const fileData = fs.readFileSync(dataFilePath, 'utf-8');
-    const parsed = JSON.parse(fileData);
-
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveCart(cart: CartItem[]) {
-  try {
-    fs.writeFileSync(dataFilePath, JSON.stringify(cart, null, 2), 'utf-8');
-  } catch {
-    // ignore errors
-  }
-}
-
 // GET: fetch cart items
 export async function GET(req: NextRequest) {
-  const { userId, isNew } = getOrCreateUserId(req);
-  const cart = readCart();
-  const products = await getAllProducts();
-  const productMap = new Map(products.map((product) => [String(product._id), product]));
+  try {
+    const { userId, isNew } = getOrCreateUserId(req);
+    const cart = await getCartByUser(userId);
+    const products = await getAllProducts();
+    const productMap = new Map(products.map((product) => [String(product._id), product]));
 
-  let items = cart.filter(item => item.userId === userId);
-  // Enrich response so cart/checkout can render products added from JSON/Mongo too.
-  items = items.map(item => {
-    const product = productMap.get(String(item.productId));
-    return {
-      ...item,
-      _id: item._id || product?._id || item.productId,
-      name: product?.name ?? "Unknown Product",
-      price: product?.price ?? 0,
-      image: product?.images?.[0] ?? "/images/placeholder.svg",
-      category: product?.category ?? "",
-    };
-  });
+    const items = cart.map(item => {
+      const product = productMap.get(String(item.productId));
+      return {
+        ...item,
+        _id: item._id || product?._id || item.productId,
+        name: product?.name ?? "Unknown Product",
+        price: product?.price ?? 0,
+        image: product?.images?.[0] ?? "/images/placeholder.svg",
+        category: product?.category ?? "",
+      };
+    });
 
-  const res = NextResponse.json(
-    { items },
-    {
-      status: 200,
-      headers: {
-        "Cache-Control": "no-store, max-age=0",
-      },
-    }
-  );
-  if (isNew) attachUserCookie(res, userId);
-  return res;
+    const res = NextResponse.json(
+      { items },
+      {
+        status: 200,
+        headers: {
+          "Cache-Control": "no-store, max-age=0",
+        },
+      }
+    );
+    if (isNew) attachUserCookie(res, userId);
+    return res;
+  } catch (error) {
+    console.error("Cart GET error:", error instanceof Error ? error.message : String(error));
+    return NextResponse.json({ items: [], error: "Failed to fetch cart" }, { status: 500 });
+  }
 }
 
 // POST: add to cart
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { userId, isNew } = getOrCreateUserId(req);
-  const cart = readCart();
-  const { productId, quantity, size, color } = body as {
-    productId?: string;
-    quantity?: number;
-    size?: string | null;
-    color?: string | null;
-  };
+  try {
+    const body = await req.json();
+    const { userId, isNew } = getOrCreateUserId(req);
+    const cart = await getCartByUser(userId);
+    const { productId, quantity, size, color } = body as {
+      productId?: string;
+      quantity?: number;
+      size?: string | null;
+      color?: string | null;
+    };
 
-  if (!productId || typeof productId !== "string" || typeof quantity !== 'number') {
-    return NextResponse.json({ error: 'Invalid cart data' }, { status: 400 });
-  }
+    if (!productId || typeof productId !== "string" || typeof quantity !== "number") {
+      return NextResponse.json({ error: "Invalid cart data" }, { status: 400 });
+    }
 
-  const product = await getProductById(productId);
-  if (!product) {
-    return NextResponse.json({ error: "Product not found" }, { status: 404 });
-  }
+    const product = await getProductById(productId);
+    if (!product) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
 
-  // Treat same product + same size + same color as the same line item
-  const index = cart.findIndex(
-    item =>
-      item.userId === userId &&
-      item.productId === productId &&
-      (item.size || null) === (size || null) &&
-      (item.color || null) === (color || null)
-  );
+    const index = cart.findIndex(
+      item =>
+        item.productId === productId &&
+        (item.size || null) === (size || null) &&
+        (item.color || null) === (color || null)
+    );
 
-  if (index !== -1) {
-    cart[index].quantity += quantity;
-    saveCart(cart);
-    const res = NextResponse.json({
-      item: {
-        ...cart[index],
-        _id: product._id,
-        name: product.name,
-        price: product.price,
-        image: product.images?.[0] ?? "/images/placeholder.svg",
-      },
-    }, { status: 200 });
-    if (isNew) attachUserCookie(res, userId);
-    return res;
-  } else {
+    if (index !== -1) {
+      cart[index].quantity += quantity;
+      await setCartByUser(userId, cart as CartItemRecord[]);
+      const res = NextResponse.json({
+        item: {
+          ...cart[index],
+          _id: product._id,
+          name: product.name,
+          price: product.price,
+          image: product.images?.[0] ?? "/images/placeholder.svg",
+        },
+      }, { status: 200 });
+      if (isNew) attachUserCookie(res, userId);
+      return res;
+    }
+
     const newItem: CartItem = {
       _id: product._id,
       userId,
@@ -126,7 +108,7 @@ export async function POST(req: NextRequest) {
       color: color || null,
     };
     cart.push(newItem);
-    saveCart(cart);
+    await setCartByUser(userId, cart as CartItemRecord[]);
     const res = NextResponse.json({
       item: {
         ...newItem,
@@ -137,70 +119,80 @@ export async function POST(req: NextRequest) {
     }, { status: 201 });
     if (isNew) attachUserCookie(res, userId);
     return res;
+  } catch (error) {
+    console.error("Cart POST error:", error instanceof Error ? error.message : String(error));
+    return NextResponse.json({ error: "Failed to add to cart" }, { status: 500 });
   }
 }
 
 // PUT: update quantity
 export async function PUT(req: NextRequest) {
-  const body = await req.json();
-  const { userId, isNew } = getOrCreateUserId(req);
-  const cart = readCart();
-  const { productId, quantity, size, color } = body as {
-    productId?: string;
-    quantity?: number;
-    size?: string | null;
-    color?: string | null;
-  };
+  try {
+    const body = await req.json();
+    const { userId, isNew } = getOrCreateUserId(req);
+    const cart = await getCartByUser(userId);
+    const { productId, quantity, size, color } = body as {
+      productId?: string;
+      quantity?: number;
+      size?: string | null;
+      color?: string | null;
+    };
 
-  if (!productId || typeof productId !== "string" || typeof quantity !== "number") {
-    return NextResponse.json({ error: "Invalid cart data" }, { status: 400 });
+    if (!productId || typeof productId !== "string" || typeof quantity !== "number") {
+      return NextResponse.json({ error: "Invalid cart data" }, { status: 400 });
+    }
+
+    const index = cart.findIndex(
+      item =>
+        item.productId === productId &&
+        (item.size || null) === (size || null) &&
+        (item.color || null) === (color || null)
+    );
+    if (index === -1) return NextResponse.json({ error: "Item not found" }, { status: 404 });
+
+    cart[index].quantity = quantity;
+    await setCartByUser(userId, cart as CartItemRecord[]);
+    const res = NextResponse.json({ item: cart[index] }, { status: 200 });
+    if (isNew) attachUserCookie(res, userId);
+    return res;
+  } catch (error) {
+    console.error("Cart PUT error:", error instanceof Error ? error.message : String(error));
+    return NextResponse.json({ error: "Failed to update cart" }, { status: 500 });
   }
-
-  const index = cart.findIndex(
-    item =>
-      item.userId === userId &&
-      item.productId === productId &&
-      (item.size || null) === (size || null) &&
-      (item.color || null) === (color || null)
-  );
-  if (index === -1) return NextResponse.json({ error: 'Item not found' }, { status: 404 });
-
-  cart[index].quantity = quantity;
-  saveCart(cart);
-  const res = NextResponse.json({ item: cart[index] }, { status: 200 });
-  if (isNew) attachUserCookie(res, userId);
-  return res;
 }
 
 // DELETE: remove item(s)
 export async function DELETE(req: NextRequest) {
-  const { userId, isNew } = getOrCreateUserId(req);
-  let cart = readCart();
-  const body = await req.json().catch(() => ({}));
-  const { productId, size, color } = (body ?? {}) as {
-    productId?: string;
-    size?: string | null;
-    color?: string | null;
-  };
+  try {
+    const { userId, isNew } = getOrCreateUserId(req);
+    let cart = await getCartByUser(userId);
+    const body = await req.json().catch(() => ({}));
+    const { productId, size, color } = (body ?? {}) as {
+      productId?: string;
+      size?: string | null;
+      color?: string | null;
+    };
 
-  if (productId) {
-    const index = cart.findIndex(
-      item =>
-        item.userId === userId &&
-        item.productId === productId &&
-        (size === undefined || (item.size || null) === (size || null)) &&
-        (color === undefined || (item.color || null) === (color || null))
-    );
-    if (index === -1) return NextResponse.json({ error: 'Item not found' }, { status: 404 });
+    if (productId) {
+      const index = cart.findIndex(
+        item =>
+          item.productId === productId &&
+          (size === undefined || (item.size || null) === (size || null)) &&
+          (color === undefined || (item.color || null) === (color || null))
+      );
+      if (index === -1) return NextResponse.json({ error: "Item not found" }, { status: 404 });
 
-    cart.splice(index, 1);
-  } else {
-    // delete all items for the user
-    cart = cart.filter(item => item.userId !== userId);
+      cart.splice(index, 1);
+      await setCartByUser(userId, cart as CartItemRecord[]);
+    } else {
+      await clearCartByUser(userId);
+    }
+
+    const res = NextResponse.json({ success: true }, { status: 200 });
+    if (isNew) attachUserCookie(res, userId);
+    return res;
+  } catch (error) {
+    console.error("Cart DELETE error:", error instanceof Error ? error.message : String(error));
+    return NextResponse.json({ error: "Failed to update cart" }, { status: 500 });
   }
-
-  saveCart(cart);
-  const res = NextResponse.json({ success: true }, { status: 200 });
-  if (isNew) attachUserCookie(res, userId);
-  return res;
 }

@@ -8,6 +8,13 @@ import { promises as fs } from "fs";
 import { paths } from "@/lib/dataPaths";
 import connectDB from "@/lib/connectDB";
 import Order from "@/models/order";
+import {
+  appendRedisOrder,
+  getRedisOrders,
+  isRedisStorageAvailable,
+  removeRedisOrder,
+  setRedisOrders,
+} from "@/lib/redisStorage";
 
 const BLOB_ORDERS_PATH = "orders.json";
 const BLOB_ORDERS_DATA_PATH = "ordersData.json";
@@ -156,40 +163,51 @@ async function writeLocalJson(filePath: string, data: unknown): Promise<void> {
 }
 
 async function readOrderSnapshots(): Promise<any[]> {
-  if (!useCloudStorage()) {
-    return readLocalJson<any[]>(paths.orders);
+  if (useCloudStorage()) {
+    try {
+      const text = await readBlobByPathname(BLOB_ORDERS_PATH);
+      if (!text) return [];
+      const parsed = JSON.parse(text);
+      return Array.isArray(parsed) ? parsed.map(normalizeOrder) : [];
+    } catch {
+      return [];
+    }
   }
-  try {
-    const text = await readBlobByPathname(BLOB_ORDERS_PATH);
-    if (!text) return [];
-    const parsed = JSON.parse(text);
-    return Array.isArray(parsed) ? parsed.map(normalizeOrder) : [];
-  } catch {
-    return [];
+
+  if (isRedisStorageAvailable()) {
+    const redisOrders = await getRedisOrders();
+    return Array.isArray(redisOrders) ? redisOrders.map(normalizeOrder) : [];
   }
+
+  return readLocalJson<any[]>(paths.orders);
 }
 
 async function writeOrderSnapshots(orders: any[]): Promise<void> {
   const normalized = sortOrdersByDateDesc(orders.map(normalizeOrder));
   const ordersData = normalized.map(toOrdersDataRecord);
 
-  if (!useCloudStorage()) {
-    await writeLocalJson(paths.orders, normalized);
-    await writeLocalJson(paths.ordersData, ordersData);
+  if (useCloudStorage()) {
+    const { put } = await import("@vercel/blob");
+    await Promise.all([
+      put(BLOB_ORDERS_PATH, JSON.stringify(normalized, null, 2), {
+        access: "public",
+        contentType: "application/json",
+      }),
+      put(BLOB_ORDERS_DATA_PATH, JSON.stringify(ordersData, null, 2), {
+        access: "public",
+        contentType: "application/json",
+      }),
+    ]);
     return;
   }
 
-  const { put } = await import("@vercel/blob");
-  await Promise.all([
-    put(BLOB_ORDERS_PATH, JSON.stringify(normalized, null, 2), {
-      access: "public",
-      contentType: "application/json",
-    }),
-    put(BLOB_ORDERS_DATA_PATH, JSON.stringify(ordersData, null, 2), {
-      access: "public",
-      contentType: "application/json",
-    }),
-  ]);
+  if (isRedisStorageAvailable()) {
+    await setRedisOrders(normalized);
+    return;
+  }
+
+  await writeLocalJson(paths.orders, normalized);
+  await writeLocalJson(paths.ordersData, ordersData);
 }
 
 async function readMongoOrders(): Promise<any[]> {
@@ -248,7 +266,19 @@ export async function appendOrder(order: any): Promise<any> {
       normalized,
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
-    await syncOrderSnapshotsFromMongo();
+    try {
+      await syncOrderSnapshotsFromMongo();
+    } catch (error) {
+      console.warn(
+        "⚠️ Order saved to MongoDB but snapshot sync failed:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
+    return normalized;
+  }
+
+  if (!useCloudStorage() && isRedisStorageAvailable()) {
+    await appendRedisOrder(normalized);
     return normalized;
   }
 
@@ -264,9 +294,33 @@ export async function removeOrderById(orderId: string, userId?: string): Promise
     const filter = userId ? { _id: orderId, userId } : { _id: orderId };
     const result = await Order.deleteOne(filter);
     if (result.deletedCount > 0) {
-      await syncOrderSnapshotsFromMongo([orderId]);
+      try {
+        await syncOrderSnapshotsFromMongo([orderId]);
+      } catch (error) {
+        console.warn(
+          "⚠️ Order removed from MongoDB but snapshot sync failed:",
+          error instanceof Error ? error.message : String(error)
+        );
+      }
     }
     return result.deletedCount > 0;
+  }
+
+  if (!useCloudStorage() && isRedisStorageAvailable()) {
+    const orders = await readOrderSnapshots();
+    const existing = orders.find((order) => {
+      const normalized = normalizeOrder(order);
+      if (normalized._id !== orderId) return false;
+      if (userId && normalized.userId !== userId) return false;
+      return true;
+    });
+
+    if (!existing) {
+      return false;
+    }
+
+    await removeRedisOrder(orderId);
+    return true;
   }
 
   const orders = await readOrderSnapshots();
@@ -299,7 +353,14 @@ export async function setOrdersJson(orders: any[]): Promise<void> {
     await connectDB();
     if (normalized.length === 0) {
       await Order.deleteMany({});
-      await writeOrderSnapshots([]);
+      try {
+        await writeOrderSnapshots([]);
+      } catch (error) {
+        console.warn(
+          "⚠️ MongoDB orders cleared but snapshot sync failed:",
+          error instanceof Error ? error.message : String(error)
+        );
+      }
       return;
     }
 
@@ -313,7 +374,14 @@ export async function setOrdersJson(orders: any[]): Promise<void> {
         },
       }))
     );
-    await writeOrderSnapshots(normalized);
+    try {
+      await writeOrderSnapshots(normalized);
+    } catch (error) {
+      console.warn(
+        "⚠️ MongoDB orders updated but snapshot sync failed:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
     return;
   }
   await writeOrderSnapshots(normalized);
