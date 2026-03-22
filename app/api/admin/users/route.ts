@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthFromRequest } from "@/lib/auth";
-import { promises as fs } from "fs";
-import { paths } from "@/lib/dataPaths";
 import { getOrdersJson } from "@/lib/orderStorage";
+import { getUsersJson } from "@/lib/usersJson";
 
 type OrderRow = {
   id?: string;
@@ -20,14 +19,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ message: "Not authorized" }, { status: 403 });
   }
   try {
-    let users: Array<{ id: string; name: string; email: string; createdAt: string }> = [];
-    try {
-      const usersData = await fs.readFile(paths.users, "utf-8");
-      users = JSON.parse(usersData);
-    } catch {
-      // users.json missing or empty (e.g. on serverless) — we'll build from orders
-    }
-
+    const users = await getUsersJson();
     const orders = (await getOrdersJson()) as OrderRow[];
 
     // Build map: email (lowercase) -> { _id, name, email, createdAt, orders count, totalSpent }

@@ -24,6 +24,26 @@ function useCloudStorage(): boolean {
   return typeof process.env.BLOB_READ_WRITE_TOKEN === "string" && process.env.BLOB_READ_WRITE_TOKEN.length > 0;
 }
 
+function sortOrdersByDateDesc(orders: any[]): any[] {
+  return [...orders].sort(
+    (a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime()
+  );
+}
+
+function mergeOrders(primary: any[], secondary: any[]): any[] {
+  const byId = new Map<string, any>();
+
+  for (const order of secondary.map(normalizeOrder)) {
+    byId.set(order._id, order);
+  }
+
+  for (const order of primary.map(normalizeOrder)) {
+    byId.set(order._id, order);
+  }
+
+  return sortOrdersByDateDesc(Array.from(byId.values()));
+}
+
 function normalizeOrder(order: any): any {
   const items = Array.isArray(order?.items) ? order.items : [];
   const products = Array.isArray(order?.products)
@@ -135,6 +155,59 @@ async function writeLocalJson(filePath: string, data: unknown): Promise<void> {
   await fs.writeFile(filePath, JSON.stringify(data, null, 2));
 }
 
+async function readOrderSnapshots(): Promise<any[]> {
+  if (!useCloudStorage()) {
+    return readLocalJson<any[]>(paths.orders);
+  }
+  try {
+    const text = await readBlobByPathname(BLOB_ORDERS_PATH);
+    if (!text) return [];
+    const parsed = JSON.parse(text);
+    return Array.isArray(parsed) ? parsed.map(normalizeOrder) : [];
+  } catch {
+    return [];
+  }
+}
+
+async function writeOrderSnapshots(orders: any[]): Promise<void> {
+  const normalized = sortOrdersByDateDesc(orders.map(normalizeOrder));
+  const ordersData = normalized.map(toOrdersDataRecord);
+
+  if (!useCloudStorage()) {
+    await writeLocalJson(paths.orders, normalized);
+    await writeLocalJson(paths.ordersData, ordersData);
+    return;
+  }
+
+  const { put } = await import("@vercel/blob");
+  await Promise.all([
+    put(BLOB_ORDERS_PATH, JSON.stringify(normalized, null, 2), {
+      access: "public",
+      contentType: "application/json",
+    }),
+    put(BLOB_ORDERS_DATA_PATH, JSON.stringify(ordersData, null, 2), {
+      access: "public",
+      contentType: "application/json",
+    }),
+  ]);
+}
+
+async function readMongoOrders(): Promise<any[]> {
+  await connectDB();
+  const orders = await Order.find({}).sort({ createdAt: -1 }).lean();
+  return orders.map(normalizeOrder);
+}
+
+async function syncOrderSnapshotsFromMongo(excludedOrderIds: string[] = []): Promise<any[]> {
+  const mongoOrders = await readMongoOrders();
+  const snapshotOrders = (await readOrderSnapshots()).filter(
+    (order) => !excludedOrderIds.includes(normalizeOrder(order)._id)
+  );
+  const merged = mergeOrders(mongoOrders, snapshotOrders);
+  await writeOrderSnapshots(merged);
+  return merged;
+}
+
 async function readBlobByPathname(pathname: string): Promise<string | null> {
   const token = process.env.BLOB_READ_WRITE_TOKEN;
   if (!token) return null;
@@ -151,22 +224,18 @@ async function readBlobByPathname(pathname: string): Promise<string | null> {
 
 /** Read orders array (used by /api/orders and /api/saveorder) */
 export async function getOrdersJson(): Promise<any[]> {
+  const snapshotOrders = await readOrderSnapshots();
+
   if (useMongoStorage()) {
-    await connectDB();
-    const orders = await Order.find({}).sort({ createdAt: -1 }).lean();
-    return orders.map(normalizeOrder);
+    try {
+      const mongoOrders = await readMongoOrders();
+      return mergeOrders(mongoOrders, snapshotOrders);
+    } catch {
+      return snapshotOrders;
+    }
   }
-  if (!useCloudStorage()) {
-    return readLocalJson<any[]>(paths.orders);
-  }
-  try {
-    const text = await readBlobByPathname(BLOB_ORDERS_PATH);
-    if (!text) return [];
-    const parsed = JSON.parse(text);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+
+  return snapshotOrders;
 }
 
 export async function appendOrder(order: any): Promise<any> {
@@ -179,10 +248,11 @@ export async function appendOrder(order: any): Promise<any> {
       normalized,
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
+    await syncOrderSnapshotsFromMongo();
     return normalized;
   }
 
-  const orders = await getOrdersJson();
+  const orders = await readOrderSnapshots();
   orders.push(normalized);
   await setOrdersJson(orders);
   return normalized;
@@ -193,10 +263,13 @@ export async function removeOrderById(orderId: string, userId?: string): Promise
     await connectDB();
     const filter = userId ? { _id: orderId, userId } : { _id: orderId };
     const result = await Order.deleteOne(filter);
+    if (result.deletedCount > 0) {
+      await syncOrderSnapshotsFromMongo([orderId]);
+    }
     return result.deletedCount > 0;
   }
 
-  const orders = await getOrdersJson();
+  const orders = await readOrderSnapshots();
   const filtered = orders.filter((order) => {
     const normalized = normalizeOrder(order);
     if (normalized._id !== orderId) return true;
@@ -214,58 +287,66 @@ export async function removeOrderById(orderId: string, userId?: string): Promise
 
 /** Read ordersData array (detailed format for admin/analytics) */
 export async function getOrdersDataJson(): Promise<any[]> {
-  if (useMongoStorage()) {
-    const orders = await getOrdersJson();
-    return orders.map(toOrdersDataRecord);
-  }
-  if (!useCloudStorage()) {
-    return readLocalJson<any[]>(paths.ordersData);
-  }
-  try {
-    const text = await readBlobByPathname(BLOB_ORDERS_DATA_PATH);
-    if (!text) return [];
-    const parsed = JSON.parse(text);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
+  const orders = await getOrdersJson();
+  return orders.map(toOrdersDataRecord);
 }
 
 /** Write orders array (append or replace) */
 export async function setOrdersJson(orders: any[]): Promise<void> {
+  const normalized = sortOrdersByDateDesc(orders.map(normalizeOrder));
+
   if (useMongoStorage()) {
     await connectDB();
-    const normalized = orders.map(normalizeOrder);
-    await Order.deleteMany({});
-    if (normalized.length > 0) {
-      await Order.insertMany(normalized, { ordered: true });
+    if (normalized.length === 0) {
+      await Order.deleteMany({});
+      await writeOrderSnapshots([]);
+      return;
     }
+
+    await Order.deleteMany({ _id: { $nin: normalized.map((order) => order._id) } });
+    await Order.bulkWrite(
+      normalized.map((order) => ({
+        replaceOne: {
+          filter: { _id: order._id },
+          replacement: order,
+          upsert: true,
+        },
+      }))
+    );
+    await writeOrderSnapshots(normalized);
     return;
   }
-  if (!useCloudStorage()) {
-    await writeLocalJson(paths.orders, orders);
-    return;
-  }
-  const { put } = await import("@vercel/blob");
-  await put(BLOB_ORDERS_PATH, JSON.stringify(orders, null, 2), {
-    access: "public",
-    contentType: "application/json",
-  });
+  await writeOrderSnapshots(normalized);
 }
 
 /** Write ordersData array */
 export async function setOrdersDataJson(ordersData: any[]): Promise<void> {
   if (useMongoStorage()) {
-    // ordersData is derived from the primary orders collection when Mongo is enabled.
+    await writeOrderSnapshots(
+      ordersData.map((record: any) => ({
+        id: record.id,
+        _id: record.id,
+        userId: record.userId,
+        products: record.products,
+        totalPrice: record.totalPrice ?? record.total,
+        total: record.total ?? record.totalPrice,
+        status: record.status,
+        createdAt: record.createdAt,
+        customer: record.customer ?? record.user,
+      }))
+    );
     return;
   }
-  if (!useCloudStorage()) {
-    await writeLocalJson(paths.ordersData, ordersData);
-    return;
-  }
-  const { put } = await import("@vercel/blob");
-  await put(BLOB_ORDERS_DATA_PATH, JSON.stringify(ordersData, null, 2), {
-    access: "public",
-    contentType: "application/json",
-  });
+  const orders = ordersData.map((record: any) => ({
+    id: record.id,
+    _id: record.id,
+    userId: record.userId,
+    products: record.products,
+    totalPrice: record.totalPrice ?? record.total,
+    total: record.total ?? record.totalPrice,
+    status: record.status,
+    createdAt: record.createdAt,
+    customer: record.customer ?? record.user,
+  }));
+  await writeOrderSnapshots(orders);
 }

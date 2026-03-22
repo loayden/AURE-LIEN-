@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthFromRequest } from "@/lib/auth";
-import { promises as fs } from "fs";
-import { paths } from "@/lib/dataPaths";
 import { getOrdersJson } from "@/lib/orderStorage";
+import { getUsersJson } from "@/lib/usersJson";
 import productsData from "@/lib/productsData";
 
 function enrichOrderItems(raw: any[]) {
@@ -31,14 +30,9 @@ export async function GET(
     return NextResponse.json({ error: "userId required" }, { status: 400 });
   }
   try {
-    let user: { id: string; name: string; email: string } | null = null;
-    try {
-      const usersData = await fs.readFile(paths.users, "utf-8");
-      const users: Array<{ id: string; name: string; email: string }> = JSON.parse(usersData);
-      user = users.find((u) => u.id === userId) ?? null;
-    } catch {
-      // users.json missing — resolve from orders below
-    }
+    const users = await getUsersJson();
+    let user: { id: string; name: string; email: string } | null =
+      users.find((u) => u.id === userId) ?? null;
 
     const raw: any[] = await getOrdersJson();
 
