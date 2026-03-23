@@ -3,8 +3,6 @@
 import ProductCard from "@/components/ProductCard";
 import products from "@/lib/productsData";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
 import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
 import {
   ChevronDown,
@@ -36,63 +34,130 @@ const PRICE_RANGES = [
 
 const BENEFITS = [
   {
-    title: "Visibility Without Compromise",
-    description: "Reach discerning customers searching for exclusive pieces. Position your boutique as a premium destination.",
-    points: ["Global audience of luxury-conscious shoppers", "Premium brand positioning", "Editorial curation and storytelling"],
+    title: "Luxury Presence, Preserved",
+    description:
+      "Your boutique is introduced inside a composed environment built to elevate perception rather than compete through marketplace noise.",
+    points: [
+      "Editorial presentation for premium discovery",
+      "A calmer context for high-value collections",
+      "Brand voice preserved across the experience",
+    ],
   },
   {
-    title: "Seamless Integration",
-    description: "No inventory management headaches. List once, sell across our network.",
-    points: ["Simple product submission", "Real-time inventory sync", "Automatic order fulfillment"],
+    title: "Growth With Restraint",
+    description:
+      "Reach a more relevant client without sacrificing the tone, selectivity, or pricing confidence that make your assortment distinctive.",
+    points: [
+      "Selective exposure instead of volume-driven traffic",
+      "Stronger alignment between audience and product",
+      "A platform rhythm designed for considered shopping",
+    ],
   },
   {
-    title: "Complete Control",
-    description: "Your collection stays yours. You set pricing. You approve placement.",
-    points: ["Full editorial control", "Pricing autonomy", "Your brand story, your way"],
+    title: "Operational Calm",
+    description:
+      "The experience is structured to remove friction for both your team and your clients, from onboarding to order flow.",
+    points: [
+      "Simpler partner onboarding",
+      "Clear merchandising and fulfilment flow",
+      "Less manual friction behind the scenes",
+    ],
   },
 ];
 
 const STEPS = [
   {
     number: "01",
-    title: "Curate",
-    subtitle: "Your boutique. Your voice. Your vision.",
-    description: "Tell us about your boutique. Share your philosophy, aesthetic, and most-loved pieces.",
+    title: "Align",
+    subtitle: "Your point of view comes first.",
+    description:
+      "We begin with your brand perspective, assortment priorities, and the type of client experience you want to create.",
   },
   {
     number: "02",
-    title: "List",
-    subtitle: "From your store to our platform in days, not months.",
-    description: "Submit your curated collection. We handle photography and positioning. You maintain oversight.",
+    title: "Present",
+    subtitle: "A cleaner digital expression of your boutique.",
+    description:
+      "Your collection is translated into a more refined online environment with stronger hierarchy, better context, and premium pacing.",
   },
   {
     number: "03",
-    title: "Sell",
-    subtitle: "Growth that feels effortless.",
-    description: "Customers discover your pieces. Orders flow in. You fulfill them your way.",
+    title: "Grow",
+    subtitle: "Reach expands without diluting identity.",
+    description:
+      "Clients discover your pieces in a setting designed to feel elevated on mobile and desktop, then move through a clearer purchase journey.",
   },
 ];
 
-const COLLECTION_HIGHLIGHTS = [
+const HERO_HIGHLIGHTS = [
+  { value: "Curated", label: "growth model" },
+  { value: "Editorial", label: "presentation" },
+  { value: "Comfortable", label: "mobile journey" },
+];
+
+const PLATFORM_PERSPECTIVES = [
   {
-    title: "Women's Edit",
-    image: "/uploads/main.jpg",
-    link: "/collection?category=jacket-coats",
+    label: "Refined Discovery",
+    title: "A calmer environment for premium product.",
+    description:
+      "The visual rhythm is intentionally quieter, allowing product, material, and story to carry more weight than cluttered promotional mechanics.",
   },
   {
-    title: "Men's Selection",
-    image: "/uploads/Knitwear.jpg",
-    link: "/collection?category=jacket-coats",
+    label: "Selective Context",
+    title: "Positioning that supports perceived value.",
+    description:
+      "Every section is designed to feel aligned, coherent, and intentional so collections appear in the right company and within the right tone.",
   },
   {
-    title: "Accessories",
-    image: "/uploads/accessories.jpg",
-    link: "/collection?category=accessories",
+    label: "Mobile Comfort",
+    title: "Luxury browsing that still feels easy in the hand.",
+    description:
+      "Spacing, hierarchy, and touch targets are structured to make smaller screens feel polished, readable, and relaxed rather than cramped.",
+  },
+];
+
+const CLIENT_EXPERIENCE_POINTS = [
+  {
+    title: "A calmer scroll",
+    description:
+      "First impressions are often made on the phone. The experience is paced to feel clean, readable, and composed from the first touch.",
   },
   {
-    title: "Curated Finds",
-    image: "/uploads/collections.jpg",
-    link: "/collection?category=jacket-coats",
+    title: "Confidence through clarity",
+    description:
+      "Descriptions, product groupings, and controls are arranged to help clients browse deliberately instead of rushing through visual clutter.",
+  },
+  {
+    title: "Premium tone throughout",
+    description:
+      "From discovery to order, the atmosphere stays consistent with the kind of quality your boutique is known for offline.",
+  },
+];
+
+const PARTNERSHIP_STANDARDS = [
+  {
+    label: "Editorial Positioning",
+    title: "A premium brand environment from the first impression.",
+    description:
+      "Your collection is presented with refined storytelling, disciplined visual direction, and a merchandising approach that protects perceived value.",
+  },
+  {
+    label: "Selective Curation",
+    title: "Every placement supports quality, coherence, and trust.",
+    description:
+      "We focus on alignment over volume, ensuring each featured piece contributes to a clear luxury point of view rather than marketplace noise.",
+  },
+  {
+    label: "Operational Ease",
+    title: "A lighter workflow for boutiques with higher expectations.",
+    description:
+      "From onboarding to order flow, the system is structured to reduce manual friction so your team can focus on product and client relationships.",
+  },
+  {
+    label: "Client Experience",
+    title: "Service that feels consistent with the products you sell.",
+    description:
+      "Customers discover collections in a calm, elevated environment designed to build confidence, encourage intent, and support repeat engagement.",
   },
 ];
 
@@ -322,9 +387,8 @@ export default function AureLienPlatform() {
         {/* ── MAIN HERO SECTION ── */}
         <section
           ref={heroRef}
-          className="relative min-h-[60vh] sm:min-h-[75vh] md:min-h-[85vh] flex items-center pt-16 sm:pt-24 md:pt-32 pb-10 sm:pb-20 md:pb-24 px-4 sm:px-6 md:px-10 overflow-hidden"
+          className="relative min-h-[72vh] sm:min-h-[82vh] md:min-h-[92vh] flex items-center pt-20 sm:pt-28 md:pt-36 pb-12 sm:pb-20 md:pb-28 px-4 sm:px-6 md:px-10 overflow-hidden"
         >
-          {/* Video Background */}
           <video
             autoPlay
             muted
@@ -336,88 +400,224 @@ export default function AureLienPlatform() {
             <source src="/uploads/0316 (3).mp4" type="video/mp4" />
           </video>
 
-          {/* Dark overlay */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
               background:
-                "radial-gradient(ellipse at 50% 0%, rgba(198,169,98,0.06) 0%, transparent 60%), linear-gradient(180deg, rgba(8,8,8,0.4) 0%, rgba(8,8,8,0.7) 100%)",
+                "radial-gradient(ellipse at 50% 0%, rgba(198,169,98,0.08) 0%, transparent 55%), linear-gradient(180deg, rgba(8,8,8,0.35) 0%, rgba(8,8,8,0.78) 100%)",
               zIndex: 1,
             }}
           />
 
           <motion.div
             style={{ y: heroY, opacity: heroOpacity }}
-            className="relative z-20 text-center max-w-4xl mx-auto"
+            className="relative z-20 w-full max-w-5xl mx-auto"
           >
-            <div className="sh1 mb-3 sm:mb-5 md:mb-8 flex justify-center">
-              <span className="glass inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full text-[8px] sm:text-[9px] text-white/45 tracking-[0.34em] uppercase font-light min-h-[44px] justify-center">
-                <Sparkles size={13} />
-                {products.length} Curated Pieces
-              </span>
+            <div className="text-center max-w-3xl mx-auto">
+              <div className="sh1 mb-4 sm:mb-5 md:mb-8 flex justify-center">
+                <span className="glass inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full text-[8px] sm:text-[9px] text-white/50 tracking-[0.32em] uppercase font-light min-h-[44px] justify-center">
+                  <Sparkles size={13} />
+                  Boutique Platform For Independent Luxury
+                </span>
+              </div>
+
+              <h1
+                className="sh2 font-light text-white leading-[0.95] mb-4 sm:mb-5 md:mb-7"
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: "clamp(2.2rem, 8vw, 5.6rem)",
+                  letterSpacing: "0.02em",
+                }}
+              >
+                Luxury Reach,
+                <br />
+                <em style={{ color: "#C6A962", fontStyle: "italic" }}>
+                  Without Marketplace Noise.
+                </em>
+              </h1>
+
+              <p
+                className="sh3 text-white/45 font-light max-w-2xl mx-auto leading-relaxed"
+                style={{
+                  fontSize: "clamp(12px, 3vw, 17px)",
+                  letterSpacing: "0.03em",
+                }}
+              >
+                AURE-LIEN gives independent boutiques a more composed digital presence:
+                stronger brand presentation, more selective visibility, and a shopping
+                experience that feels calm, elevated, and comfortable on mobile from the
+                first touch.
+              </p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.8, duration: 0.6 }}
+                className="mt-6 sm:mt-8 md:mt-10 flex flex-col gap-2.5 sm:gap-3 sm:flex-row sm:items-center sm:justify-center"
+              >
+                <button
+                  onClick={() => router.push("/collection")}
+                  aria-label="Explore collections"
+                  className="gold-glass px-5 sm:px-7 md:px-9 py-3 sm:py-3.5 rounded-full text-white/90 text-[10px] sm:text-[11px] tracking-[0.18em] uppercase font-light hover:text-white transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center gap-2 group w-full sm:w-auto"
+                >
+                  Explore Collections
+                  <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
+                </button>
+                <button
+                  onClick={() => router.push("/login")}
+                  aria-label="Join as a partner"
+                  className="glass px-5 sm:px-7 md:px-9 py-3 sm:py-3.5 rounded-full text-white/72 text-[10px] sm:text-[11px] tracking-[0.18em] uppercase font-light hover:text-white transition-colors min-h-[44px] min-w-[44px] w-full sm:w-auto"
+                >
+                  Become A Partner
+                </button>
+              </motion.div>
             </div>
 
-            <h1
-              className="sh2 font-light text-white leading-tight mb-3 sm:mb-5 md:mb-8"
-              style={{
-                fontFamily: "'Cormorant Garamond', serif",
-                fontSize: "clamp(1.8rem, 7vw, 4.5rem)",
-                letterSpacing: "0.02em",
-              }}
-            >
-              Elevate Your Boutique.
-              <br />
-              <em style={{ color: "#C6A962", fontStyle: "italic" }}>Reach Beyond.</em>
-            </h1>
-
-            <p
-              className="sh3 text-white/40 font-light max-w-2xl mx-auto leading-relaxed"
-              style={{
-                fontSize: "clamp(11px, 3vw, 16px)",
-                letterSpacing: "0.04em",
-              }}
-            >
-              A curated luxury platform that amplifies independent boutiques through
-              seamless digital presence—connecting your carefully curated collections to
-              discerning customers worldwide.
-            </p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.6 }}
-              className="mt-6 sm:mt-8 md:mt-10 flex flex-col gap-2 sm:gap-3 sm:flex-row sm:items-center sm:justify-center"
-            >
-              <button
-                onClick={() => router.push("/collection")}
-                aria-label="Explore collections"
-                className="gold-glass px-5 sm:px-7 md:px-9 py-3 sm:py-3.5 rounded-full text-white/90 text-[10px] sm:text-[11px] tracking-[0.2em] uppercase font-light hover:text-white transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center gap-2 group w-full sm:w-auto"
-              >
-                Explore Collections
-                <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
-              </button>
-              <button
-                onClick={() => router.push("/login")}
-                aria-label="Join as a partner"
-                className="glass px-5 sm:px-7 md:px-9 py-3 sm:py-3.5 rounded-full text-white/70 text-[10px] sm:text-[11px] tracking-[0.2em] uppercase font-light hover:text-white transition-colors min-h-[44px] min-w-[44px] w-full sm:w-auto"
-              >
-                Join as a Partner
-              </button>
-            </motion.div>
+            <div className="mt-6 sm:mt-8 md:mt-12 grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 max-w-4xl mx-auto">
+              {HERO_HIGHLIGHTS.map((item, i) => (
+                <motion.div
+                  key={item.label}
+                  initial={false}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.9 + i * 0.08, duration: 0.55 }}
+                  className="glass-md rounded-2xl px-4 py-4 sm:px-5 sm:py-5 text-center"
+                >
+                  <p
+                    className="text-white mb-1"
+                    style={{
+                      fontFamily: "'Cormorant Garamond', serif",
+                      fontSize: "clamp(1.1rem, 3vw, 1.55rem)",
+                      letterSpacing: "0.03em",
+                    }}
+                  >
+                    {item.value}
+                  </p>
+                  <p
+                    className="text-white/38 uppercase"
+                    style={{
+                      fontSize: "clamp(8px, 1.4vw, 9px)",
+                      letterSpacing: "0.22em",
+                    }}
+                  >
+                    {item.label}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
           </motion.div>
         </section>
 
-        {/* ── SECTION DIVIDER ── */}
         <div
-          className="relative z-10 mx-auto px-4 sm:px-6 md:px-10 mb-6 sm:mb-8 md:mb-10 h-px max-w-7xl"
+          className="relative z-10 mx-auto px-4 sm:px-6 md:px-10 mb-8 sm:mb-10 md:mb-12 h-px max-w-7xl"
           style={{
             background:
               "linear-gradient(90deg, transparent, rgba(198,169,98,0.18), transparent)",
           }}
         />
 
+        <section className="relative z-10 px-4 sm:px-6 md:px-10 mb-8 sm:mb-10 md:mb-14">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[1.05fr_0.95fr] gap-4 sm:gap-5 lg:gap-8 items-start">
+            <motion.div
+              initial={false}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.75 }}
+              className="glass-md rounded-[26px] sm:rounded-[32px] p-5 sm:p-7 md:p-10"
+            >
+              <p
+                className="text-white/24 uppercase mb-3 sm:mb-4"
+                style={{
+                  fontSize: "clamp(8px, 1.5vw, 9px)",
+                  letterSpacing: "0.34em",
+                }}
+              >
+                Platform Perspective
+              </p>
+              <h2
+                className="font-light text-white mb-4 sm:mb-5 md:mb-6"
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: "clamp(1.6rem, 5vw, 3.2rem)",
+                  letterSpacing: "0.02em",
+                  lineHeight: 0.98,
+                }}
+              >
+                For boutiques that want digital growth to feel as considered as the
+                in-store experience.
+              </h2>
+              <p
+                className="text-white/45 leading-relaxed mb-4 sm:mb-5"
+                style={{
+                  fontSize: "clamp(12px, 2.5vw, 15px)",
+                  letterSpacing: "0.025em",
+                }}
+              >
+                AURE-LIEN is built for brands that care about atmosphere, restraint, and
+                perception. Instead of placing product inside a generic retail shell, the
+                platform creates a quieter stage for your assortment, materials, and
+                point of view.
+              </p>
+              <p
+                className="text-white/40 leading-relaxed"
+                style={{
+                  fontSize: "clamp(11px, 2.3vw, 14px)",
+                  letterSpacing: "0.025em",
+                }}
+              >
+                That matters most on mobile, where clients increasingly discover premium
+                brands first. The experience should feel readable, spacious, and
+                intentional in the hand, not dense, hurried, or over-designed.
+              </p>
+            </motion.div>
+
+            <div className="space-y-3 sm:space-y-4">
+              {PLATFORM_PERSPECTIVES.map((item, i) => (
+                <motion.div
+                  key={item.label}
+                  initial={false}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08, duration: 0.65 }}
+                  className="gold-glass rounded-2xl p-4 sm:p-5 md:p-6"
+                >
+                  <p
+                    className="text-[#C6A962] uppercase mb-2"
+                    style={{
+                      fontSize: "clamp(8px, 1.4vw, 9px)",
+                      letterSpacing: "0.26em",
+                    }}
+                  >
+                    {item.label}
+                  </p>
+                  <h3
+                    className="text-white font-light mb-2.5 sm:mb-3"
+                    style={{
+                      fontFamily: "'Cormorant Garamond', serif",
+                      fontSize: "clamp(1.05rem, 2.8vw, 1.45rem)",
+                      letterSpacing: "0.02em",
+                      lineHeight: 1.08,
+                    }}
+                  >
+                    {item.title}
+                  </h3>
+                  <p
+                    className="text-white/42 leading-relaxed"
+                    style={{
+                      fontSize: "clamp(11px, 2vw, 13px)",
+                      letterSpacing: "0.025em",
+                    }}
+                  >
+                    {item.description}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* ── VALUE PROPOSITION ── */}
-        <section className="relative z-10 px-4 sm:px-6 md:px-10 mb-6 sm:mb-8 md:mb-10">
+        <section className="relative z-10 px-4 sm:px-6 md:px-10 mb-8 sm:mb-10 md:mb-14">
           <motion.div
             initial={false}
             whileInView={{ opacity: 1 }}
@@ -425,34 +625,44 @@ export default function AureLienPlatform() {
             transition={{ duration: 0.8 }}
             className="text-center mb-6 sm:mb-8 md:mb-10 max-w-7xl mx-auto"
           >
+            <p
+              className="text-white/20 uppercase mb-2 sm:mb-3"
+              style={{
+                fontSize: "clamp(8px, 1.5vw, 9px)",
+                letterSpacing: "0.4em",
+              }}
+            >
+              What The Platform Delivers
+            </p>
             <h2
               className="font-light text-white mb-2 sm:mb-3 md:mb-4"
               style={{
                 fontFamily: "'Cormorant Garamond', serif",
-                fontSize: "clamp(1.25rem, 5vw, 3rem)",
+                fontSize: "clamp(1.35rem, 5vw, 3rem)",
                 letterSpacing: "0.02em",
               }}
             >
-              Your Curated Vision.
+              A More Considered Way
               <br />
-              <span style={{ color: "#C6A962" }}>Our Platform.</span> Unlimited Potential.
+              To <span style={{ color: "#C6A962" }}>Expand Your Reach</span>
             </h2>
             <p
-              className="text-white/35 font-light max-w-xl mx-auto"
+              className="text-white/35 font-light max-w-2xl mx-auto"
               style={{
-                fontSize: "clamp(11px, 2.5vw, 14px)",
-                letterSpacing: "0.05em",
+                fontSize: "clamp(11px, 2.4vw, 14px)",
+                letterSpacing: "0.04em",
               }}
             >
-              Partner with AURE-LIEN to extend your boutique's reach without the
-              operational burden. We handle the complexity. You focus on curation.
+              The goal is not simply more visibility. It is stronger positioning,
+              cleaner presentation, and an experience that supports premium commerce
+              without asking your brand to behave like a mass-market storefront.
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-5 lg:gap-6 max-w-7xl mx-auto">
             {BENEFITS.map((benefit, i) => (
               <motion.div
-                key={i}
+                key={benefit.title}
                 initial={false}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -463,7 +673,7 @@ export default function AureLienPlatform() {
                   className="text-white font-light mb-2 sm:mb-3"
                   style={{
                     fontFamily: "'Cormorant Garamond', serif",
-                    fontSize: "clamp(1rem, 2.5vw, 1.3rem)",
+                    fontSize: "clamp(1.05rem, 2.5vw, 1.35rem)",
                     letterSpacing: "0.02em",
                   }}
                 >
@@ -479,9 +689,9 @@ export default function AureLienPlatform() {
                   {benefit.description}
                 </p>
                 <ul className="space-y-2 sm:space-y-2.5">
-                  {benefit.points.map((point, j) => (
+                  {benefit.points.map((point) => (
                     <li
-                      key={j}
+                      key={point}
                       className="flex items-start gap-2 text-[10px] sm:text-[11px] text-white/45 leading-relaxed"
                     >
                       <Check size={14} className="text-[#C6A962] flex-shrink-0 mt-0.5" />
@@ -495,55 +705,83 @@ export default function AureLienPlatform() {
         </section>
 
         {/* ── HOW IT WORKS ── */}
-        <section className="relative z-10 px-4 sm:px-6 md:px-10 mb-6 sm:mb-8 md:mb-10">
-          <motion.h2
+        <section className="relative z-10 px-4 sm:px-6 md:px-10 mb-8 sm:mb-10 md:mb-14">
+          <motion.div
             initial={false}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            className="text-center font-light text-white mb-6 sm:mb-8 md:mb-10 max-w-7xl mx-auto"
-            style={{
-              fontFamily: "'Cormorant Garamond', serif",
-              fontSize: "clamp(1.25rem, 5vw, 3rem)",
-              letterSpacing: "0.02em",
-            }}
+            className="text-center mb-6 sm:mb-8 md:mb-10 max-w-7xl mx-auto"
           >
-            How It Works
-          </motion.h2>
+            <p
+              className="text-white/20 uppercase mb-2 sm:mb-3"
+              style={{
+                fontSize: "clamp(8px, 1.5vw, 9px)",
+                letterSpacing: "0.4em",
+              }}
+            >
+              Partner Journey
+            </p>
+            <h2
+              className="font-light text-white mb-3 sm:mb-4"
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: "clamp(1.3rem, 5vw, 3rem)",
+                letterSpacing: "0.02em",
+              }}
+            >
+              How The Partnership
+              <br />
+              <em style={{ color: "#C6A962", fontStyle: "italic" }}>Unfolds</em>
+            </h2>
+            <p
+              className="text-white/35 font-light max-w-2xl mx-auto"
+              style={{
+                fontSize: "clamp(11px, 2.4vw, 14px)",
+                letterSpacing: "0.04em",
+              }}
+            >
+              The process is intentionally straightforward: align on the brand, shape
+              the presentation, and create a commerce experience that supports both
+              elegance and conversion.
+            </p>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 max-w-7xl mx-auto">
             {STEPS.map((step, i) => (
               <motion.div
-                key={i}
+                key={step.number}
                 initial={false}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.15, duration: 0.7 }}
+                transition={{ delay: i * 0.12, duration: 0.7 }}
+                className="glass-md rounded-2xl p-5 sm:p-6 md:p-7"
               >
                 <div
-                  className="font-light text-white/5 mb-2 sm:mb-3"
+                  className="font-light text-white/8 mb-3 sm:mb-4"
                   style={{
                     fontFamily: "'Cormorant Garamond', serif",
-                    fontSize: "clamp(3rem, 8vw, 5rem)",
+                    fontSize: "clamp(3.2rem, 8vw, 5rem)",
                     letterSpacing: "0.05em",
+                    lineHeight: 0.9,
                   }}
                 >
                   {step.number}
                 </div>
                 <h3
-                  className="text-white font-light mb-1 sm:mb-2"
+                  className="text-white font-light mb-1.5 sm:mb-2"
                   style={{
                     fontFamily: "'Cormorant Garamond', serif",
-                    fontSize: "clamp(1.2rem, 3vw, 1.6rem)",
+                    fontSize: "clamp(1.2rem, 3vw, 1.65rem)",
                     letterSpacing: "0.02em",
                   }}
                 >
                   {step.title}
                 </h3>
                 <p
-                  className="text-[#C6A962] uppercase font-light mb-2 sm:mb-3"
+                  className="text-[#C6A962] uppercase font-light mb-3 sm:mb-4"
                   style={{
                     fontSize: "clamp(9px, 2vw, 11px)",
-                    letterSpacing: "0.15em",
+                    letterSpacing: "0.14em",
                   }}
                 >
                   {step.subtitle}
@@ -552,6 +790,7 @@ export default function AureLienPlatform() {
                   className="text-white/40 leading-relaxed"
                   style={{
                     fontSize: "clamp(11px, 2vw, 13px)",
+                    letterSpacing: "0.02em",
                   }}
                 >
                   {step.description}
@@ -561,7 +800,102 @@ export default function AureLienPlatform() {
           </div>
         </section>
 
-        {/* ── COLLECTION HIGHLIGHTS ── */}
+        <section className="px-4 sm:px-6 md:px-10 py-10 sm:py-14 md:py-18 relative z-10">
+          <div className="mx-auto max-w-7xl grid grid-cols-1 lg:grid-cols-[0.92fr_1.08fr] gap-4 sm:gap-5 lg:gap-8 items-start">
+            <motion.div
+              initial={false}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.75 }}
+              className="gold-glass rounded-[26px] sm:rounded-[32px] p-5 sm:p-7 md:p-10"
+            >
+              <p
+                className="text-white/22 uppercase mb-3 sm:mb-4"
+                style={{
+                  fontSize: "clamp(8px, 1.5vw, 9px)",
+                  letterSpacing: "0.36em",
+                }}
+              >
+                Client Experience
+              </p>
+              <h2
+                className="font-light text-white mb-4 sm:mb-5"
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: "clamp(1.55rem, 5vw, 3rem)",
+                  letterSpacing: "0.02em",
+                  lineHeight: 1,
+                }}
+              >
+                Designed for modern luxury browsing.
+              </h2>
+              <p
+                className="text-white/45 leading-relaxed mb-4 sm:mb-5"
+                style={{
+                  fontSize: "clamp(12px, 2.5vw, 15px)",
+                  letterSpacing: "0.025em",
+                }}
+              >
+                Premium commerce increasingly begins on smaller screens. The platform is
+                designed so discovery still feels elegant there: easy to read, easy to
+                browse, and measured enough to let product quality speak with confidence.
+              </p>
+              <p
+                className="text-white/36 leading-relaxed"
+                style={{
+                  fontSize: "clamp(11px, 2.2vw, 13px)",
+                  letterSpacing: "0.02em",
+                }}
+              >
+                Comfort should not come at the cost of sophistication. The objective is
+                a mobile experience that feels softer, clearer, and more in line with the
+                expectations attached to premium product.
+              </p>
+            </motion.div>
+
+            <div className="space-y-3 sm:space-y-4">
+              {CLIENT_EXPERIENCE_POINTS.map((item, i) => (
+                <motion.div
+                  key={item.title}
+                  initial={false}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08, duration: 0.65 }}
+                  className="glass-md rounded-2xl p-4 sm:p-5 md:p-6"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="gold-glass rounded-full p-2 min-h-[44px] min-w-[44px] flex items-center justify-center flex-shrink-0">
+                      <Check size={16} className="text-[#C6A962]" />
+                    </div>
+                    <div>
+                      <h3
+                        className="text-white font-light mb-1.5 sm:mb-2"
+                        style={{
+                          fontFamily: "'Cormorant Garamond', serif",
+                          fontSize: "clamp(1rem, 2.5vw, 1.35rem)",
+                          letterSpacing: "0.02em",
+                        }}
+                      >
+                        {item.title}
+                      </h3>
+                      <p
+                        className="text-white/40 leading-relaxed"
+                        style={{
+                          fontSize: "clamp(11px, 2vw, 13px)",
+                          letterSpacing: "0.025em",
+                        }}
+                      >
+                        {item.description}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── PARTNERSHIP STANDARDS ── */}
         <section className="px-4 sm:px-6 md:px-10 py-10 sm:py-14 md:py-18 relative z-10">
           <motion.div
             initial={false}
@@ -577,19 +911,29 @@ export default function AureLienPlatform() {
                 letterSpacing: "0.45em",
               }}
             >
-              Categories
+              Standards
             </p>
             <h2
               className="font-light text-white"
               style={{
                 fontFamily: "'Cormorant Garamond', serif",
                 fontSize: "clamp(1.25rem, 5vw, 2.8rem)",
-                letterSpacing: "0.06em",
+                letterSpacing: "0.04em",
               }}
             >
-              Explore the{" "}
-              <em style={{ color: "#C6A962", fontStyle: "italic" }}>Collection</em>
+              The AURE-LIEN{" "}
+              <em style={{ color: "#C6A962", fontStyle: "italic" }}>Standard</em>
             </h2>
+            <p
+              className="mt-3 text-white/35 font-light max-w-2xl mx-auto"
+              style={{
+                fontSize: "clamp(11px, 2.5vw, 14px)",
+                letterSpacing: "0.04em",
+              }}
+            >
+              From brand presentation to fulfilment rhythm, each layer is shaped to keep
+              the partnership elevated, consistent, and commercially credible.
+            </p>
             <div
               className="mt-3 sm:mt-4 mx-auto w-8 h-px"
               style={{
@@ -599,10 +943,10 @@ export default function AureLienPlatform() {
             />
           </motion.div>
 
-          <div className="mx-auto grid max-w-7xl grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 lg:gap-6">
-            {COLLECTION_HIGHLIGHTS.map((item, i) => (
+          <div className="mx-auto grid max-w-7xl grid-cols-1 md:grid-cols-2 gap-3 sm:gap-5 lg:gap-6">
+            {PARTNERSHIP_STANDARDS.map((item, i) => (
               <motion.div
-                key={i}
+                key={item.label}
                 initial={false}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -611,61 +955,49 @@ export default function AureLienPlatform() {
                   duration: 0.75,
                   ease: [0.22, 1, 0.36, 1],
                 }}
+                className="gold-glass rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6"
               >
-                <Link
-                  href={item.link}
-                  aria-label={`Browse ${item.title}`}
-                  className="group block relative overflow-hidden min-h-[240px] sm:min-h-[300px] md:min-h-[340px] min-w-[44px]"
-                  style={{
-                    borderRadius: 16,
-                    boxShadow:
-                      "0 20px 50px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06)",
-                  }}
-                >
-                  <div className="relative w-full h-full overflow-hidden bg-white/5">
-                    <Image
-                      src={item.image}
-                      alt={item.title}
-                      fill
-                      className="object-cover transition-transform duration-[1.6s] ease-out group-hover:scale-105"
-                      sizes="(max-width:640px) 50vw, (max-width:1024px) 50vw, 25vw"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/72 via-transparent to-black/10 group-hover:from-black/55 transition-all duration-700" />
-                  </div>
-                  <div
-                    className="absolute inset-x-2 top-0 h-px pointer-events-none sm:inset-x-3"
+                <div className="flex items-start justify-between gap-3 mb-5">
+                  <span
+                    className="inline-flex items-center rounded-full px-3 py-2 min-h-[44px] text-white/55 uppercase"
                     style={{
                       background:
-                        "linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent)",
-                    }}
-                  />
-                  <div
-                    className="absolute bottom-2 left-2 right-2 px-2.5 py-2 rounded-lg sm:bottom-3 sm:left-3 sm:right-3 sm:px-3 sm:py-2.5"
-                    style={{
-                      background:
-                        "linear-gradient(135deg, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.03) 100%)",
-                      backdropFilter: "blur(16px)",
-                      border: "1px solid rgba(255,255,255,0.10)",
+                        "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                      fontSize: "clamp(8px, 1.5vw, 9px)",
+                      letterSpacing: "0.24em",
                     }}
                   >
-                    <p
-                      className="text-white/80 font-light tracking-[0.08em]"
-                      style={{
-                        fontFamily: "'Cormorant Garamond', serif",
-                        fontSize: "clamp(0.85rem, 2vw, 1rem)",
-                      }}
-                    >
-                      {item.title}
-                    </p>
-                    <div
-                      className="mt-1.5 h-px w-0 group-hover:w-full transition-all duration-500"
-                      style={{
-                        background:
-                          "linear-gradient(90deg, rgba(198,169,98,0.7), transparent)",
-                      }}
-                    />
-                  </div>
-                </Link>
+                    {item.label}
+                  </span>
+                  <div
+                    className="h-px flex-1 self-center"
+                    style={{
+                      background:
+                        "linear-gradient(90deg, rgba(198,169,98,0.35), transparent)",
+                    }}
+                  />
+                </div>
+                <h3
+                  className="text-white font-light mb-3 sm:mb-4"
+                  style={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontSize: "clamp(1.05rem, 2.8vw, 1.5rem)",
+                    letterSpacing: "0.03em",
+                    lineHeight: 1.12,
+                  }}
+                >
+                  {item.title}
+                </h3>
+                <p
+                  className="text-white/40 leading-relaxed"
+                  style={{
+                    fontSize: "clamp(11px, 2vw, 13px)",
+                    letterSpacing: "0.025em",
+                  }}
+                >
+                  {item.description}
+                </p>
               </motion.div>
             ))}
           </div>
@@ -690,6 +1022,15 @@ export default function AureLienPlatform() {
             viewport={{ once: true }}
             className="text-center mb-6 sm:mb-8 md:mb-10 max-w-7xl mx-auto"
           >
+            <p
+              className="text-white/20 uppercase mb-2 sm:mb-3"
+              style={{
+                fontSize: "clamp(8px, 1.5vw, 9px)",
+                letterSpacing: "0.42em",
+              }}
+            >
+              Selected Pieces
+            </p>
             <h2
               className="font-light text-white mb-2 sm:mb-3"
               style={{
@@ -698,19 +1039,22 @@ export default function AureLienPlatform() {
                 letterSpacing: "0.02em",
               }}
             >
-              The Quiet
+              Discover The
               <br />
-              <em style={{ color: "#C6A962", fontStyle: "italic" }}>Luxury Edit</em>
+              <em style={{ color: "#C6A962", fontStyle: "italic" }}>
+                Collection Experience
+              </em>
             </h2>
             <p
-              className="text-white/35 font-light max-w-xl mx-auto"
+              className="text-white/35 font-light max-w-2xl mx-auto"
               style={{
                 fontSize: "clamp(11px, 2.5vw, 14px)",
-                letterSpacing: "0.05em",
+                letterSpacing: "0.04em",
               }}
             >
-              Every piece crafted with meticulous care — timeless elegance, refined
-              for the modern connoisseur.
+              A live preview of how product is discovered inside the platform: calmer
+              browsing, cleaner controls, and a presentation style designed to keep
+              quality at the center.
             </p>
           </motion.div>
 
@@ -722,11 +1066,11 @@ export default function AureLienPlatform() {
             transition={{ duration: 0.6 }}
             className="mb-4 sm:mb-6 md:mb-8 max-w-7xl mx-auto"
           >
-            <div className="glass-md flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl min-h-[44px]">
+            <div className="glass-md flex items-center gap-3 px-4 py-3 sm:py-3.5 rounded-2xl min-h-[44px]">
               <Search size={16} className="text-white/40 flex-shrink-0" />
               <input
                 type="text"
-                placeholder="Search collections..."
+                placeholder="Search pieces, silhouettes, or details..."
                 value={filters.search}
                 onChange={(e) => setFilters({ ...filters, search: e.target.value })}
                 aria-label="Search collections"
@@ -970,7 +1314,7 @@ export default function AureLienPlatform() {
                 className="px-2.5 sm:px-3 py-2 rounded-full uppercase font-light transition-all whitespace-nowrap flex-shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center"
                 style={{
                   fontSize: "clamp(8px, 1.5vw, 9px)",
-                  letterSpacing: "0.2em",
+                  letterSpacing: "0.16em",
                   background:
                     filters.priceRange === null
                       ? "rgba(198,169,98,0.15)"
@@ -997,7 +1341,7 @@ export default function AureLienPlatform() {
                   className="px-2 sm:px-2.5 py-2 rounded-full uppercase font-light transition-all whitespace-nowrap flex-shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center"
                   style={{
                     fontSize: "clamp(8px, 1.5vw, 9px)",
-                    letterSpacing: "0.2em",
+                    letterSpacing: "0.16em",
                     background:
                       filters.priceRange === i
                         ? "rgba(198,169,98,0.15)"
@@ -1174,17 +1518,20 @@ export default function AureLienPlatform() {
                 letterSpacing: "0.02em",
               }}
             >
-              Ready to Elevate Your Reach?
+              If The Collection Is Distinctive,
+              <br />
+              The Platform Should Be Too.
             </h3>
             <p
-              className="text-white/40 font-light max-w-xl mx-auto mb-6 sm:mb-8 md:mb-10"
+              className="text-white/40 font-light max-w-2xl mx-auto mb-6 sm:mb-8 md:mb-10"
               style={{
                 fontSize: "clamp(11px, 2.5vw, 14px)",
                 letterSpacing: "0.04em",
               }}
             >
-              Your boutique deserves an audience that understands its value. Let's
-              grow together.
+              AURE-LIEN is intended for boutiques that want growth to feel aligned with
+              their identity: selective, elevated, and easier for clients to navigate on
+              every screen.
             </p>
             <div className="flex flex-col gap-2 sm:gap-3 sm:flex-row sm:items-center sm:justify-center">
               <button
@@ -1193,10 +1540,10 @@ export default function AureLienPlatform() {
                 className="gold-glass px-5 sm:px-8 md:px-10 py-3 sm:py-3.5 rounded-full text-white/90 uppercase font-light hover:text-white transition-colors min-h-[44px] min-w-[44px] w-full sm:w-auto"
                 style={{
                   fontSize: "clamp(9px, 1.5vw, 11px)",
-                  letterSpacing: "0.2em",
+                  letterSpacing: "0.18em",
                 }}
               >
-                List Your Collection
+                Start Partner Review
               </button>
               <button
                 onClick={() => router.push("/login")}
@@ -1204,10 +1551,10 @@ export default function AureLienPlatform() {
                 className="glass px-5 sm:px-8 md:px-10 py-3 sm:py-3.5 rounded-full text-white/70 uppercase font-light hover:text-white transition-colors min-h-[44px] min-w-[44px] w-full sm:w-auto"
                 style={{
                   fontSize: "clamp(9px, 1.5vw, 11px)",
-                  letterSpacing: "0.2em",
+                  letterSpacing: "0.18em",
                 }}
               >
-                Contact Us
+                Speak With Us
               </button>
             </div>
           </motion.div>
