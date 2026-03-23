@@ -1,679 +1,300 @@
 [
   {
-    "id": "1772483513673",
-    "customer": {
-      "name": "lo",
-      "email": "ooo@gmail.com",
-      "phone": "oo",
-      "address": "oo"
-    },
-    "products": [
-      {
-        "_id": "64b7f6a1a1f4c2e1d9a1b001",
-        "quantity": 2
-      }
-    ],
-    "total": 998,
-    "status": "Planned",
-    "createdAt": "2026-03-02T20:31:53.427Z"
-  },
-  {
-    "id": "1772483585687",
-    "customer": {
-      "name": "a",
-      "email": "a@gmail.com",
-      "phone": "a",
-      "address": "a"
-    },
-    "products": [
-      {
-        "_id": "64b7f6a1a1f4c2e1d9a1b001",
-        "quantity": 2
-      }
-    ],
-    "total": 998,
-    "status": "Planned",
-    "createdAt": "2026-03-02T20:33:05.660Z"
-  },
-  {
-    "customer": {
-      "name": "eee",
-      "email": "ee@gmail.com",
-      "phone": "sss",
-      "address": "ss"
-    },
-    "products": [
-      {
-        "_id": "64b7f6a1a1f4c2e1d9a1b001",
-        "quantity": 1
-      }
-    ],
-    "total": 499,
-    "status": "Planned",
-    "createdAt": "2026-03-03T01:19:43.658Z"
-  },
-  {
-    "id": "614a3853-d969-42a9-aa06-e6bd05ae9fa9",
-    "customer": {
-      "name": "dd",
-      "email": "dd@gmail.com",
-      "phone": "sss",
-      "address": "ss"
-    },
-    "products": [
-      {
-        "_id": "64b7f6a1a1f4c2e1d9a1b001",
-        "quantity": 1
-      }
-    ],
-    "total": 499,
-    "status": "Planned",
-    "createdAt": "2026-03-03T01:34:48.392Z",
-    "userId": "user-1"
-  },
-  {
-    "id": "732defb0-e9de-4e51-8f3b-c3f7ac1135b3",
-    "customer": {
-      "name": "lolo",
-      "email": "lolo@gmail.com",
-      "phone": "dd",
-      "address": "dd"
-    },
-    "products": [
-      {
-        "_id": "64b7f6a1a1f4c2e1d9a1b001",
-        "quantity": 1
-      }
-    ],
-    "total": 499,
-    "status": "Planned",
-    "createdAt": "2026-03-03T02:04:13.936Z",
-    "userId": "af3db8bf-bc96-403f-a482-619e3bdf6cb1"
-  },
-  {
-    "id": "e4de4588-a340-498d-96eb-1656cad054bf",
-    "customer": {
-      "name": "ll",
-      "email": "ll@gmail.com",
-      "phone": "dd",
-      "address": "cc"
-    },
-    "products": [
-      {
-        "_id": "p-sh-001",
-        "quantity": 2
-      }
-    ],
-    "total": 190,
-    "status": "Planned",
-    "createdAt": "2026-03-03T02:14:44.600Z",
-    "userId": "af3db8bf-bc96-403f-a482-619e3bdf6cb1"
-  },
-  {
-    "id": "5c62cffd-9d18-4271-93a5-f9a47cdaa2ea",
-    "customer": {
-      "name": "ll",
-      "email": "ll@gmail.com",
-      "phone": "lolo",
-      "address": "lol"
-    },
-    "products": [
-      {
-        "_id": "64b7f6a1a1f4c2e1d9a1b001",
-        "quantity": 1
-      }
-    ],
-    "total": 499,
-    "status": "Planned",
-    "createdAt": "2026-03-08T01:25:51.050Z",
-    "userId": "1fa9e7c7-1119-46f6-ae2e-3920a1d40356"
-  },
-  {
-    "id": "ad9f64a0-df56-4d54-ae0e-90dc0043c9d2",
-    "customer": {
-      "name": "ll",
-      "email": "ll@gmail.com",
-      "phone": "ll",
-      "address": "ff"
-    },
-    "products": [
-      {
-        "_id": "p-sn-003",
-        "quantity": 1
-      }
-    ],
-    "total": 119,
-    "status": "Planned",
-    "createdAt": "2026-03-08T03:48:37.089Z",
-    "userId": "f7fc45d2-23df-471d-8fad-6e123f924eb4"
-  },
-  {
-    "id": "a135646d-a96d-4a70-9243-3bb07506fc35",
-    "customer": {
-      "name": "lolo",
-      "email": "loayeldin77@gmail.com",
-      "phone": "lolo",
-      "address": "lolo"
-    },
-    "products": [
-      {
-        "_id": "64b7f6a1a1f4c2e1d9a1b004",
-        "quantity": 1
-      }
-    ],
-    "total": 149,
-    "status": "Planned",
-    "createdAt": "2026-03-08T05:49:02.120Z",
-    "userId": "f7fc45d2-23df-471d-8fad-6e123f924eb4"
-  },
-  {
-    "id": "1afe4548-9712-4db0-9c2e-57b6e709185a",
-    "customer": {
-      "name": "shereen",
-      "email": "shereenmagdyy81@gmail.com",
-      "phone": "01144999221",
-      "address": "lo"
-    },
-    "products": [
-      {
-        "_id": "64b7f6a1a1f4c2e1d9a1b002",
-        "quantity": 2
-      }
-    ],
-    "total": 1398,
-    "status": "Planned",
-    "createdAt": "2026-03-09T18:34:36.817Z",
-    "userId": "user-1773080606535-cku5otg"
-  },
-  {
-    "_id": "1e6ecb02-a2aa-4c8c-b203-aea8d40b2804",
-    "userId": "f7fc45d2-23df-471d-8fad-6e123f924eb4",
+    "_id": "order-1774159892803-tmxqqtp14",
+    "id": "order-1774159892803-tmxqqtp14",
+    "userId": "06828991-a489-4796-b699-20a475ce6556",
     "items": [
       {
-        "productId": "64b7f6a1a1f4c2e1d9a1b001",
+        "productId": "p-jc-014",
+        "name": "gray Urban Bomber Jacket",
+        "price": 749,
         "quantity": 1,
-        "name": "Classic Leather Jacket",
-        "price": 499,
-        "image": "/uploads/teddy-jacket-cream.jpg"
+        "image": "/uploads/greyjacket.jpg",
+        "size": "L",
+        "color": "gray"
       }
     ],
-    "totalPrice": 499,
-    "status": "pending",
-    "createdAt": "2026-03-10T03:54:11.074Z"
-  },
-  {
-    "id": "d974c3cf-adc6-477a-8772-4febf83e6a68",
-    "customer": {
-      "email": "loayeldinmo@gmail.com",
-      "firstName": "loay",
-      "lastName": "mo ",
-      "address": "ll",
-      "apartment": "ll",
-      "city": "ll",
-      "postalCode": "l",
-      "country": "Egypt",
-      "phone": "000",
-      "newsletter": true,
-      "shippingMethod": "within_cairo",
-      "shippingCost": 75,
-      "name": "loay mo"
-    },
     "products": [
       {
-        "_id": "64b7f6a1a1f4c2e1d9a1b002",
-        "quantity": 2
-      },
-      {
-        "_id": "64b7f6a1a1f4c2e1d9a1b003",
-        "quantity": 7
-      },
-      {
-        "_id": "64b7f6a1a1f4c2e1d9a1b004",
-        "quantity": 1
-      },
-      {
-        "_id": "64b7f6a1a1f4c2e1d9a1b005",
-        "quantity": 1
-      }
-    ],
-    "total": 8014,
-    "status": "Completed",
-    "createdAt": "2026-03-10T04:25:50.137Z",
-    "userId": "f7fc45d2-23df-471d-8fad-6e123f924eb4"
-  },
-  {
-    "id": "e0a574db-8196-494f-897e-af5023164575",
-    "customer": {
-      "email": "loayeldinmo@gmail.com",
-      "firstName": "loay",
-      "lastName": "eldin",
-      "address": "lolo",
-      "apartment": "loo",
-      "city": "ss",
-      "postalCode": "ss",
-      "country": "Egypt",
-      "phone": "sss",
-      "newsletter": true,
-      "shippingMethod": "within_cairo",
-      "shippingCost": 75,
-      "name": "loay eldin"
-    },
-    "products": [
-      {
-        "_id": "64b7f6a1a1f4c2e1d9a1b001",
-        "quantity": 1
-      }
-    ],
-    "total": 574,
-    "status": "Completed",
-    "createdAt": "2026-03-10T04:28:13.484Z",
-    "userId": "user-1773081671132-kpjg5uk"
-  },
-  {
-    "id": "cc80f5ab-6d6f-4b29-bbf5-515d0fa9f1fc",
-    "customer": {
-      "email": "loayeldinmo@gmail.com",
-      "firstName": "loay",
-      "lastName": "eldin",
-      "address": "ll",
-      "apartment": "ll",
-      "city": "ll",
-      "postalCode": "ll",
-      "country": "Egypt",
-      "phone": "l",
-      "newsletter": true,
-      "shippingMethod": "within_cairo",
-      "shippingCost": 75,
-      "name": "loay eldin"
-    },
-    "products": [
-      {
-        "_id": "64b7f6a1a1f4c2e1d9a1b001",
-        "quantity": 2
-      }
-    ],
-    "total": 1073,
-    "status": "Completed",
-    "createdAt": "2026-03-10T16:59:36.241Z",
-    "userId": "e0a67803-31a0-4eb8-87fb-72fff8e583f5"
-  },
-  {
-    "id": "09057989-fa65-4964-88ac-aceced4e1f62",
-    "customer": {
-      "email": "aaa@gmail.com",
-      "firstName": "xx",
-      "lastName": "xx",
-      "address": "xx",
-      "apartment": "xxx",
-      "city": "xx",
-      "country": "Egypt",
-      "phone": "xx",
-      "newsletter": false,
-      "shippingMethod": "within_cairo",
-      "shippingCost": 75,
-      "name": "xx xx"
-    },
-    "products": [
-      {
-        "_id": "64b7f6a1a1f4c2e1d9a1b002",
-        "quantity": 1
-      }
-    ],
-    "total": 774,
-    "status": "Completed",
-    "createdAt": "2026-03-10T17:00:40.838Z",
-    "userId": "e0a67803-31a0-4eb8-87fb-72fff8e583f5"
-  },
-  {
-    "id": "1ee9a267-61f8-4b8e-b585-82cde0dfde52",
-    "customer": {
-      "email": "aa@gmail.com",
-      "firstName": "aa",
-      "lastName": "aa",
-      "address": "aa",
-      "apartment": "aaa",
-      "city": "aa",
-      "postalCode": "aa",
-      "country": "Egypt",
-      "phone": "aa",
-      "newsletter": true,
-      "shippingMethod": "within_cairo",
-      "shippingCost": 75,
-      "name": "aa aa"
-    },
-    "products": [
-      {
-        "_id": "p-jc-001",
+        "_id": "p-jc-014",
+        "name": "gray Urban Bomber Jacket",
+        "price": 749,
         "quantity": 1,
-        "size": null,
-        "color": null
-      },
+        "image": "/uploads/greyjacket.jpg",
+        "size": "L",
+        "color": "gray"
+      }
+    ],
+    "totalPrice": 824,
+    "total": 824,
+    "status": "completed",
+    "createdAt": "2026-03-22T06:11:32.803Z",
+    "customer": {
+      "email": "loayeldin99@gmail.com",
+      "firstName": "qqq",
+      "lastName": "qqqq",
+      "name": "qqq qqqq",
+      "phone": "qqqqq",
+      "address": "qqqq",
+      "apartment": "qqq",
+      "city": "qqqq",
+      "postalCode": "qqqq",
+      "country": "Egypt",
+      "newsletter": true,
+      "shippingMethod": "within_egypt",
+      "shippingCost": 75
+    }
+  },
+  {
+    "_id": "order-1774159406830-iokaqhmy6",
+    "id": "order-1774159406830-iokaqhmy6",
+    "userId": "user-1774159315512-uemxhwv",
+    "items": [
       {
-        "_id": "p-jc-001",
+        "productId": "p-jc-001",
+        "name": "Black Minimal Leather Jacket",
+        "price": 1199,
         "quantity": 1,
+        "image": "/uploads/lether.jpg",
         "size": "XL",
         "color": "black"
       }
     ],
-    "total": 2473,
-    "status": "Completed",
-    "createdAt": "2026-03-10T21:56:51.121Z",
-    "userId": "e0a67803-31a0-4eb8-87fb-72fff8e583f5"
-  },
-  {
-    "id": "cdd37dab-b8ca-467f-850b-13eaad100efb",
-    "customer": {
-      "email": "ll@gmail.com",
-      "firstName": "ll",
-      "lastName": "ll",
-      "address": "ll",
-      "apartment": "ll",
-      "city": "ll",
-      "postalCode": "ll",
-      "country": "Egypt",
-      "phone": "ll",
-      "newsletter": false,
-      "shippingMethod": "within_cairo",
-      "shippingCost": 75,
-      "name": "ll ll"
-    },
     "products": [
       {
-        "_id": "64b7f6a1a1f4c2e1d9a1b002",
+        "_id": "p-jc-001",
+        "name": "Black Minimal Leather Jacket",
+        "price": 1199,
         "quantity": 1,
-        "size": "M",
-        "color": "navy"
+        "image": "/uploads/lether.jpg",
+        "size": "XL",
+        "color": "black"
       }
     ],
-    "total": 774,
-    "status": "Completed",
-    "createdAt": "2026-03-10T22:01:37.040Z",
-    "userId": "user-1773080606535-cku5otg"
+    "totalPrice": 1274,
+    "total": 1274,
+    "status": "completed",
+    "createdAt": "2026-03-22T06:03:26.830Z",
+    "customer": {
+      "email": "loayeldi@gmail.com",
+      "firstName": "lolo",
+      "lastName": ".ool",
+      "name": "lolo .ool",
+      "phone": "aaaa",
+      "address": "aaa",
+      "apartment": "aaaa",
+      "city": "aaa",
+      "postalCode": "aaaa",
+      "country": "Egypt",
+      "newsletter": false,
+      "shippingMethod": "within_egypt",
+      "shippingCost": 75
+    }
   },
   {
-    "id": "9885cc4e-bee3-4792-842e-78f9643bc955",
-    "customer": {
-      "email": "lol@gmail.com",
-      "firstName": "lol",
-      "lastName": "lol",
-      "address": "lol",
-      "apartment": "lol",
-      "city": "lol",
-      "postalCode": "lol",
-      "country": "Egypt",
-      "phone": "lol",
-      "newsletter": false,
-      "shippingMethod": "within_cairo",
-      "shippingCost": 75,
-      "name": "lol lol"
-    },
+    "_id": "order-1774159099527-d4j3ozlip",
+    "id": "order-1774159099527-d4j3ozlip",
+    "userId": "user-1773080606535-cku5otg",
+    "items": [
+      {
+        "productId": "p-jc-001",
+        "name": "Black Minimal Leather Jacket",
+        "price": 1199,
+        "quantity": 1,
+        "image": "/uploads/lether.jpg",
+        "size": "One Size",
+        "color": "Default"
+      }
+    ],
     "products": [
       {
-        "_id": "64b7f6a1a1f4c2e1d9a1b010",
+        "_id": "p-jc-001",
+        "name": "Black Minimal Leather Jacket",
+        "price": 1199,
         "quantity": 1,
-        "size": null,
-        "color": null
-      },
-      {
-        "_id": "64b7f6a1a1f4c2e1d9a1b011",
-        "quantity": 1,
-        "size": null,
-        "color": null
-      },
-      {
-        "_id": "64b7f6a1a1f4c2e1d9a1b012",
-        "quantity": 1,
-        "size": null,
-        "color": null
+        "image": "/uploads/lether.jpg",
+        "size": "One Size",
+        "color": "Default"
       }
     ],
-    "total": 562,
-    "status": "Completed",
-    "createdAt": "2026-03-10T22:18:39.304Z",
-    "userId": "e0a67803-31a0-4eb8-87fb-72fff8e583f5"
-  },
-  {
-    "id": "05ee239d-59e6-4d3a-924f-cf24fc11cf56",
+    "totalPrice": 1274,
+    "total": 1274,
+    "status": "completed",
+    "createdAt": "2026-03-22T05:58:19.527Z",
     "customer": {
       "email": "lolo@gmail.com",
-      "firstName": "lolo",
-      "lastName": "lolo",
-      "address": "lolo",
-      "apartment": "lolo",
-      "city": "lolo",
-      "postalCode": "lolo",
-      "country": "Egypt",
-      "phone": "lolo",
-      "newsletter": false,
-      "shippingMethod": "within_cairo",
-      "shippingCost": 75,
-      "name": "lolo lolo"
-    },
-    "products": [
-      {
-        "_id": "64b7f6a1a1f4c2e1d9a1b001",
-        "quantity": 1,
-        "size": null,
-        "color": null
-      }
-    ],
-    "total": 574,
-    "status": "Completed",
-    "createdAt": "2026-03-10T22:22:02.203Z",
-    "userId": "user-1773181264377-2uq9yup"
-  },
-  {
-    "id": "4ea41cc2-00b3-4109-a9c4-d8ded1fb8196",
-    "customer": {
-      "email": "aa@gmail.com",
-      "firstName": "aa",
-      "lastName": "aa",
-      "address": "aa",
-      "apartment": "aa",
-      "city": "aa",
-      "postalCode": "aa",
-      "country": "Egypt",
-      "phone": "aa",
-      "newsletter": true,
-      "shippingMethod": "within_egypt",
-      "shippingCost": 75,
-      "name": "aa aa"
-    },
-    "products": [
-      {
-        "_id": "64b7f6a1a1f4c2e1d9a1b002",
-        "quantity": 1,
-        "size": null,
-        "color": null
-      }
-    ],
-    "total": 774,
-    "status": "Completed",
-    "createdAt": "2026-03-14T04:02:57.784Z",
-    "userId": "user-1773080606535-cku5otg"
-  },
-  {
-    "id": "e37eb149-bae1-425c-bb49-3f8716c6e3f7",
-    "customer": {
-      "email": "ll@gmail.com",
       "firstName": "aaa",
-      "lastName": "aa",
-      "address": "aa",
+      "lastName": "aaa",
+      "name": "aaa aaa",
+      "phone": "aaaa",
+      "address": "aaa",
       "apartment": "aa",
       "city": "aaa",
-      "postalCode": "aa",
-      "country": "Egypt",
-      "phone": "aa",
-      "newsletter": false,
-      "shippingMethod": "within_egypt",
-      "shippingCost": 75,
-      "name": "aaa aa"
-    },
-    "products": [
-      {
-        "_id": "p-jc-001",
-        "quantity": 1,
-        "size": null,
-        "color": null
-      }
-    ],
-    "total": 1274,
-    "status": "Completed",
-    "createdAt": "2026-03-14T04:08:46.583Z",
-    "userId": "user-1773080606535-cku5otg"
-  },
-  {
-    "id": "6a5db514-ca12-40dd-8bdd-49293b382b3a",
-    "customer": {
-      "email": "looooo@gmail.com",
-      "firstName": "loay",
-      "lastName": "eldin",
-      "address": "a",
-      "apartment": "a",
-      "city": "a",
-      "postalCode": "a",
-      "country": "Egypt",
-      "phone": "a",
-      "newsletter": false,
-      "shippingMethod": "within_egypt",
-      "shippingCost": 75,
-      "name": "loay eldin"
-    },
-    "products": [
-      {
-        "_id": "64b7f6a1a1f4c2e1d9a1b001",
-        "quantity": 1,
-        "size": null,
-        "color": null
-      }
-    ],
-    "total": 574,
-    "status": "Completed",
-    "createdAt": "2026-03-15T01:10:31.123Z",
-    "userId": "92ebf15e-65e0-4829-a603-76291fc2418a"
-  },
-  {
-    "id": "f5b31744-4a3e-47ac-b58c-2dfd094423b5",
-    "customer": {
-      "email": "loayeldin@gmail.com",
-      "firstName": "aa",
-      "lastName": "aa",
-      "name": "aa aa",
-      "phone": "aa",
-      "address": "aa",
-      "apartment": "aa",
-      "city": "aa",
-      "postalCode": "aa",
+      "postalCode": "aaa",
       "country": "Egypt",
       "newsletter": false,
       "shippingMethod": "within_egypt",
       "shippingCost": 75
-    },
-    "products": [
-      {
-        "_id": "64b7f6a1a1f4c2e1d9a1b002",
-        "quantity": 1,
-        "size": "XL",
-        "color": "navy"
-      }
-    ],
-    "total": 774,
-    "status": "Completed",
-    "createdAt": "2026-03-15T01:20:42.425Z",
-    "userId": "user-1773080606535-cku5otg"
+    }
   },
   {
-    "id": "c7deb348-4cbe-4f67-93b8-ebdd670f77d4",
-    "customer": {
-      "email": "ll@gmail.com",
-      "firstName": "ss",
-      "lastName": "ss",
-      "name": "ss ss",
-      "phone": "ss",
-      "address": "ss",
-      "apartment": "ss",
-      "city": "ss",
-      "postalCode": "ss",
-      "country": "Egypt",
-      "newsletter": false,
-      "shippingMethod": "within_egypt",
-      "shippingCost": 75
-    },
-    "products": [
+    "_id": "order-1774158619108-eq3zmn9wf",
+    "id": "order-1774158619108-eq3zmn9wf",
+    "userId": "user-1773080606535-cku5otg",
+    "items": [
       {
-        "_id": "64b7f6a1a1f4c2e1d9a1b011",
+        "productId": "p-jc-001",
+        "name": "Black Minimal Leather Jacket",
+        "price": 1199,
         "quantity": 1,
-        "size": "11",
-        "color": "brown"
-      }
-    ],
-    "total": 324,
-    "status": "Completed",
-    "createdAt": "2026-03-15T01:22:40.940Z",
-    "userId": "92ebf15e-65e0-4829-a603-76291fc2418a"
-  },
-  {
-    "id": "88b65464-f03d-4f58-a338-c5d844d62efa",
-    "customer": {
-      "email": "lolo@gmail.com",
-      "firstName": ";;",
-      "lastName": "..",
-      "name": ";; ..",
-      "phone": "ddd",
-      "address": "dd",
-      "apartment": "dd",
-      "city": "ddd",
-      "postalCode": "dd",
-      "country": "Egypt",
-      "newsletter": true,
-      "shippingMethod": "within_egypt",
-      "shippingCost": 75
-    },
-    "products": [
-      {
-        "_id": "p-jc-001",
-        "quantity": 1,
+        "image": "/uploads/lether.jpg",
         "size": "S",
         "color": "black"
       }
     ],
+    "products": [
+      {
+        "_id": "p-jc-001",
+        "name": "Black Minimal Leather Jacket",
+        "price": 1199,
+        "quantity": 1,
+        "image": "/uploads/lether.jpg",
+        "size": "S",
+        "color": "black"
+      }
+    ],
+    "totalPrice": 1274,
     "total": 1274,
-    "status": "Completed",
-    "createdAt": "2026-03-17T22:13:19.180Z",
-    "userId": "06828991-a489-4796-b699-20a475ce6556"
-  },
-  {
-    "id": "9c07a80c-90cc-4751-afe4-7db0f257852a",
+    "status": "pending",
+    "createdAt": "2026-03-22T05:50:19.108Z",
     "customer": {
-      "email": "loayeldin77@gmail.com",
-      "firstName": "ss",
-      "lastName": "ss",
-      "name": "ss ss",
-      "phone": "sss",
-      "address": "ss",
-      "apartment": "ss",
-      "city": "ss",
-      "postalCode": "ss",
+      "email": "lolo@gmail.com",
+      "firstName": "aaa",
+      "lastName": "aaa",
+      "name": "aaa aaa",
+      "phone": "aaaa",
+      "address": "aaa",
+      "apartment": "aaa",
+      "city": "aaa",
+      "postalCode": "aaaa",
       "country": "Egypt",
       "newsletter": false,
       "shippingMethod": "within_egypt",
       "shippingCost": 75
-    },
+    }
+  },
+  {
+    "_id": "order-1774157214145-f1k9tf838",
+    "id": "order-1774157214145-f1k9tf838",
+    "userId": "user-1773080606535-cku5otg",
+    "items": [
+      {
+        "productId": "p-jc-002",
+        "name": "Vintage Knit Cardigan",
+        "price": 1249,
+        "quantity": 1,
+        "image": "/uploads/korean_bijam_peig2.jpg",
+        "size": "One Size",
+        "color": "Default"
+      }
+    ],
     "products": [
       {
         "_id": "p-jc-002",
+        "name": "Vintage Knit Cardigan",
+        "price": 1249,
         "quantity": 1,
+        "image": "/uploads/korean_bijam_peig2.jpg",
+        "size": "One Size",
+        "color": "Default"
+      }
+    ],
+    "totalPrice": 1324,
+    "total": 1324,
+    "status": "pending",
+    "createdAt": "2026-03-22T05:26:54.145Z",
+    "customer": {
+      "email": "lo@gmail.com",
+      "firstName": "lolo",
+      "lastName": "lolo",
+      "name": "lolo lolo",
+      "phone": "llll",
+      "address": "lll",
+      "apartment": "aaa",
+      "city": "llll",
+      "postalCode": "aaaa",
+      "country": "Egypt",
+      "newsletter": false,
+      "shippingMethod": "within_egypt",
+      "shippingCost": 75
+    }
+  },
+  {
+    "_id": "order-1774157182067-un7ag6k38",
+    "id": "order-1774157182067-un7ag6k38",
+    "userId": "user-1773080606535-cku5otg",
+    "items": [
+      {
+        "productId": "p-jc-002",
+        "name": "Vintage Knit Cardigan",
+        "price": 1249,
+        "quantity": 1,
+        "image": "/uploads/korean_bijam_peig2.jpg",
+        "size": "XL",
+        "color": "cream"
+      }
+    ],
+    "products": [
+      {
+        "_id": "p-jc-002",
+        "name": "Vintage Knit Cardigan",
+        "price": 1249,
+        "quantity": 1,
+        "image": "/uploads/korean_bijam_peig2.jpg",
+        "size": "XL",
+        "color": "cream"
+      }
+    ],
+    "totalPrice": 1324,
+    "total": 1324,
+    "status": "pending",
+    "createdAt": "2026-03-22T05:26:22.067Z",
+    "customer": {
+      "email": "lolo@gmail.com",
+      "firstName": "zzz",
+      "lastName": "sss",
+      "name": "zzz sss",
+      "phone": "ssssss",
+      "address": "sss",
+      "apartment": "ssss",
+      "city": "ssss",
+      "postalCode": "ssssss",
+      "country": "Egypt",
+      "newsletter": false,
+      "shippingMethod": "within_egypt",
+      "shippingCost": 75
+    }
+  },
+  {
+    "_id": "8dd5192f-e0cd-4802-9b76-53f6bf46150b",
+    "id": "8dd5192f-e0cd-4802-9b76-53f6bf46150b",
+    "userId": "user-1773080606535-cku5otg",
+    "items": [],
+    "products": [
+      {
+        "_id": "p-jc-002",
+        "name": "",
+        "price": 0,
+        "quantity": 2,
+        "image": "",
         "size": null,
         "color": null
       }
     ],
-    "total": 1324,
+    "totalPrice": 2573,
+    "total": 2573,
     "status": "Completed",
-    "createdAt": "2026-03-21T20:35:18.416Z",
-    "userId": "user-1773080606535-cku5otg"
-  },
-  {
-    "id": "8dd5192f-e0cd-4802-9b76-53f6bf46150b",
+    "createdAt": "2026-03-21T20:36:25.968Z",
     "customer": {
       "email": "dd@gmail.com",
       "firstName": "dd",
@@ -688,18 +309,1216 @@
       "newsletter": true,
       "shippingMethod": "within_egypt",
       "shippingCost": 75
-    },
+    }
+  },
+  {
+    "_id": "9c07a80c-90cc-4751-afe4-7db0f257852a",
+    "id": "9c07a80c-90cc-4751-afe4-7db0f257852a",
+    "userId": "user-1773080606535-cku5otg",
+    "items": [],
     "products": [
       {
         "_id": "p-jc-002",
-        "quantity": 2,
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
         "size": null,
         "color": null
       }
     ],
-    "total": 2573,
+    "totalPrice": 1324,
+    "total": 1324,
     "status": "Completed",
-    "createdAt": "2026-03-21T20:36:25.968Z",
-    "userId": "user-1773080606535-cku5otg"
+    "createdAt": "2026-03-21T20:35:18.416Z",
+    "customer": {
+      "email": "loayeldin77@gmail.com",
+      "firstName": "ss",
+      "lastName": "ss",
+      "name": "ss ss",
+      "phone": "sss",
+      "address": "ss",
+      "apartment": "ss",
+      "city": "ss",
+      "postalCode": "ss",
+      "country": "Egypt",
+      "newsletter": false,
+      "shippingMethod": "within_egypt",
+      "shippingCost": 75
+    }
+  },
+  {
+    "_id": "88b65464-f03d-4f58-a338-c5d844d62efa",
+    "id": "88b65464-f03d-4f58-a338-c5d844d62efa",
+    "userId": "06828991-a489-4796-b699-20a475ce6556",
+    "items": [],
+    "products": [
+      {
+        "_id": "p-jc-001",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": "S",
+        "color": "black"
+      }
+    ],
+    "totalPrice": 1274,
+    "total": 1274,
+    "status": "Completed",
+    "createdAt": "2026-03-17T22:13:19.180Z",
+    "customer": {
+      "email": "lolo@gmail.com",
+      "firstName": ";;",
+      "lastName": "..",
+      "name": ";; ..",
+      "phone": "ddd",
+      "address": "dd",
+      "apartment": "dd",
+      "city": "ddd",
+      "postalCode": "dd",
+      "country": "Egypt",
+      "newsletter": true,
+      "shippingMethod": "within_egypt",
+      "shippingCost": 75
+    }
+  },
+  {
+    "_id": "c7deb348-4cbe-4f67-93b8-ebdd670f77d4",
+    "id": "c7deb348-4cbe-4f67-93b8-ebdd670f77d4",
+    "userId": "92ebf15e-65e0-4829-a603-76291fc2418a",
+    "items": [],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b011",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": "11",
+        "color": "brown"
+      }
+    ],
+    "totalPrice": 324,
+    "total": 324,
+    "status": "Completed",
+    "createdAt": "2026-03-15T01:22:40.940Z",
+    "customer": {
+      "email": "ll@gmail.com",
+      "firstName": "ss",
+      "lastName": "ss",
+      "name": "ss ss",
+      "phone": "ss",
+      "address": "ss",
+      "apartment": "ss",
+      "city": "ss",
+      "postalCode": "ss",
+      "country": "Egypt",
+      "newsletter": false,
+      "shippingMethod": "within_egypt",
+      "shippingCost": 75
+    }
+  },
+  {
+    "_id": "f5b31744-4a3e-47ac-b58c-2dfd094423b5",
+    "id": "f5b31744-4a3e-47ac-b58c-2dfd094423b5",
+    "userId": "user-1773080606535-cku5otg",
+    "items": [],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b002",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": "XL",
+        "color": "navy"
+      }
+    ],
+    "totalPrice": 774,
+    "total": 774,
+    "status": "Completed",
+    "createdAt": "2026-03-15T01:20:42.425Z",
+    "customer": {
+      "email": "loayeldin@gmail.com",
+      "firstName": "aa",
+      "lastName": "aa",
+      "name": "aa aa",
+      "phone": "aa",
+      "address": "aa",
+      "apartment": "aa",
+      "city": "aa",
+      "postalCode": "aa",
+      "country": "Egypt",
+      "newsletter": false,
+      "shippingMethod": "within_egypt",
+      "shippingCost": 75
+    }
+  },
+  {
+    "_id": "6a5db514-ca12-40dd-8bdd-49293b382b3a",
+    "id": "6a5db514-ca12-40dd-8bdd-49293b382b3a",
+    "userId": "92ebf15e-65e0-4829-a603-76291fc2418a",
+    "items": [],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b001",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 574,
+    "total": 574,
+    "status": "Completed",
+    "createdAt": "2026-03-15T01:10:31.123Z",
+    "customer": {
+      "email": "looooo@gmail.com",
+      "firstName": "loay",
+      "lastName": "eldin",
+      "name": "loay eldin",
+      "phone": "a",
+      "address": "a",
+      "apartment": "a",
+      "city": "a",
+      "postalCode": "a",
+      "country": "Egypt",
+      "newsletter": false,
+      "shippingMethod": "within_egypt",
+      "shippingCost": 75
+    }
+  },
+  {
+    "_id": "e37eb149-bae1-425c-bb49-3f8716c6e3f7",
+    "id": "e37eb149-bae1-425c-bb49-3f8716c6e3f7",
+    "userId": "user-1773080606535-cku5otg",
+    "items": [],
+    "products": [
+      {
+        "_id": "p-jc-001",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 1274,
+    "total": 1274,
+    "status": "Completed",
+    "createdAt": "2026-03-14T04:08:46.583Z",
+    "customer": {
+      "email": "ll@gmail.com",
+      "firstName": "aaa",
+      "lastName": "aa",
+      "name": "aaa aa",
+      "phone": "aa",
+      "address": "aa",
+      "apartment": "aa",
+      "city": "aaa",
+      "postalCode": "aa",
+      "country": "Egypt",
+      "newsletter": false,
+      "shippingMethod": "within_egypt",
+      "shippingCost": 75
+    }
+  },
+  {
+    "_id": "4ea41cc2-00b3-4109-a9c4-d8ded1fb8196",
+    "id": "4ea41cc2-00b3-4109-a9c4-d8ded1fb8196",
+    "userId": "user-1773080606535-cku5otg",
+    "items": [],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b002",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 774,
+    "total": 774,
+    "status": "Completed",
+    "createdAt": "2026-03-14T04:02:57.784Z",
+    "customer": {
+      "email": "aa@gmail.com",
+      "firstName": "aa",
+      "lastName": "aa",
+      "name": "aa aa",
+      "phone": "aa",
+      "address": "aa",
+      "apartment": "aa",
+      "city": "aa",
+      "postalCode": "aa",
+      "country": "Egypt",
+      "newsletter": true,
+      "shippingMethod": "within_egypt",
+      "shippingCost": 75
+    }
+  },
+  {
+    "_id": "05ee239d-59e6-4d3a-924f-cf24fc11cf56",
+    "id": "05ee239d-59e6-4d3a-924f-cf24fc11cf56",
+    "userId": "user-1773181264377-2uq9yup",
+    "items": [],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b001",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 574,
+    "total": 574,
+    "status": "Completed",
+    "createdAt": "2026-03-10T22:22:02.203Z",
+    "customer": {
+      "email": "lolo@gmail.com",
+      "firstName": "lolo",
+      "lastName": "lolo",
+      "name": "lolo lolo",
+      "phone": "lolo",
+      "address": "lolo",
+      "apartment": "lolo",
+      "city": "lolo",
+      "postalCode": "lolo",
+      "country": "Egypt",
+      "newsletter": false,
+      "shippingMethod": "within_cairo",
+      "shippingCost": 75
+    }
+  },
+  {
+    "_id": "9885cc4e-bee3-4792-842e-78f9643bc955",
+    "id": "9885cc4e-bee3-4792-842e-78f9643bc955",
+    "userId": "e0a67803-31a0-4eb8-87fb-72fff8e583f5",
+    "items": [],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b010",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      },
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b011",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      },
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b012",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 562,
+    "total": 562,
+    "status": "Completed",
+    "createdAt": "2026-03-10T22:18:39.304Z",
+    "customer": {
+      "email": "lol@gmail.com",
+      "firstName": "lol",
+      "lastName": "lol",
+      "name": "lol lol",
+      "phone": "lol",
+      "address": "lol",
+      "apartment": "lol",
+      "city": "lol",
+      "postalCode": "lol",
+      "country": "Egypt",
+      "newsletter": false,
+      "shippingMethod": "within_cairo",
+      "shippingCost": 75
+    }
+  },
+  {
+    "_id": "cdd37dab-b8ca-467f-850b-13eaad100efb",
+    "id": "cdd37dab-b8ca-467f-850b-13eaad100efb",
+    "userId": "user-1773080606535-cku5otg",
+    "items": [],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b002",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": "M",
+        "color": "navy"
+      }
+    ],
+    "totalPrice": 774,
+    "total": 774,
+    "status": "Completed",
+    "createdAt": "2026-03-10T22:01:37.040Z",
+    "customer": {
+      "email": "ll@gmail.com",
+      "firstName": "ll",
+      "lastName": "ll",
+      "name": "ll ll",
+      "phone": "ll",
+      "address": "ll",
+      "apartment": "ll",
+      "city": "ll",
+      "postalCode": "ll",
+      "country": "Egypt",
+      "newsletter": false,
+      "shippingMethod": "within_cairo",
+      "shippingCost": 75
+    }
+  },
+  {
+    "_id": "1ee9a267-61f8-4b8e-b585-82cde0dfde52",
+    "id": "1ee9a267-61f8-4b8e-b585-82cde0dfde52",
+    "userId": "e0a67803-31a0-4eb8-87fb-72fff8e583f5",
+    "items": [],
+    "products": [
+      {
+        "_id": "p-jc-001",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      },
+      {
+        "_id": "p-jc-001",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": "XL",
+        "color": "black"
+      }
+    ],
+    "totalPrice": 2473,
+    "total": 2473,
+    "status": "Completed",
+    "createdAt": "2026-03-10T21:56:51.121Z",
+    "customer": {
+      "email": "aa@gmail.com",
+      "firstName": "aa",
+      "lastName": "aa",
+      "name": "aa aa",
+      "phone": "aa",
+      "address": "aa",
+      "apartment": "aaa",
+      "city": "aa",
+      "postalCode": "aa",
+      "country": "Egypt",
+      "newsletter": true,
+      "shippingMethod": "within_cairo",
+      "shippingCost": 75
+    }
+  },
+  {
+    "_id": "09057989-fa65-4964-88ac-aceced4e1f62",
+    "id": "09057989-fa65-4964-88ac-aceced4e1f62",
+    "userId": "e0a67803-31a0-4eb8-87fb-72fff8e583f5",
+    "items": [],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b002",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 774,
+    "total": 774,
+    "status": "Completed",
+    "createdAt": "2026-03-10T17:00:40.838Z",
+    "customer": {
+      "email": "aaa@gmail.com",
+      "firstName": "xx",
+      "lastName": "xx",
+      "name": "xx xx",
+      "phone": "xx",
+      "address": "xx",
+      "apartment": "xxx",
+      "city": "xx",
+      "postalCode": "",
+      "country": "Egypt",
+      "newsletter": false,
+      "shippingMethod": "within_cairo",
+      "shippingCost": 75
+    }
+  },
+  {
+    "_id": "cc80f5ab-6d6f-4b29-bbf5-515d0fa9f1fc",
+    "id": "cc80f5ab-6d6f-4b29-bbf5-515d0fa9f1fc",
+    "userId": "e0a67803-31a0-4eb8-87fb-72fff8e583f5",
+    "items": [],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b001",
+        "name": "",
+        "price": 0,
+        "quantity": 2,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 1073,
+    "total": 1073,
+    "status": "Completed",
+    "createdAt": "2026-03-10T16:59:36.241Z",
+    "customer": {
+      "email": "loayeldinmo@gmail.com",
+      "firstName": "loay",
+      "lastName": "eldin",
+      "name": "loay eldin",
+      "phone": "l",
+      "address": "ll",
+      "apartment": "ll",
+      "city": "ll",
+      "postalCode": "ll",
+      "country": "Egypt",
+      "newsletter": true,
+      "shippingMethod": "within_cairo",
+      "shippingCost": 75
+    }
+  },
+  {
+    "_id": "e0a574db-8196-494f-897e-af5023164575",
+    "id": "e0a574db-8196-494f-897e-af5023164575",
+    "userId": "user-1773081671132-kpjg5uk",
+    "items": [],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b001",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 574,
+    "total": 574,
+    "status": "Completed",
+    "createdAt": "2026-03-10T04:28:13.484Z",
+    "customer": {
+      "email": "loayeldinmo@gmail.com",
+      "firstName": "loay",
+      "lastName": "eldin",
+      "name": "loay eldin",
+      "phone": "sss",
+      "address": "lolo",
+      "apartment": "loo",
+      "city": "ss",
+      "postalCode": "ss",
+      "country": "Egypt",
+      "newsletter": true,
+      "shippingMethod": "within_cairo",
+      "shippingCost": 75
+    }
+  },
+  {
+    "_id": "d974c3cf-adc6-477a-8772-4febf83e6a68",
+    "id": "d974c3cf-adc6-477a-8772-4febf83e6a68",
+    "userId": "f7fc45d2-23df-471d-8fad-6e123f924eb4",
+    "items": [],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b002",
+        "name": "",
+        "price": 0,
+        "quantity": 2,
+        "image": "",
+        "size": null,
+        "color": null
+      },
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b003",
+        "name": "",
+        "price": 0,
+        "quantity": 7,
+        "image": "",
+        "size": null,
+        "color": null
+      },
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b004",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      },
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b005",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 8014,
+    "total": 8014,
+    "status": "Completed",
+    "createdAt": "2026-03-10T04:25:50.137Z",
+    "customer": {
+      "email": "loayeldinmo@gmail.com",
+      "firstName": "loay",
+      "lastName": "mo ",
+      "name": "loay mo",
+      "phone": "000",
+      "address": "ll",
+      "apartment": "ll",
+      "city": "ll",
+      "postalCode": "l",
+      "country": "Egypt",
+      "newsletter": true,
+      "shippingMethod": "within_cairo",
+      "shippingCost": 75
+    }
+  },
+  {
+    "_id": "1e6ecb02-a2aa-4c8c-b203-aea8d40b2804",
+    "id": "1e6ecb02-a2aa-4c8c-b203-aea8d40b2804",
+    "userId": "f7fc45d2-23df-471d-8fad-6e123f924eb4",
+    "items": [
+      {
+        "productId": "64b7f6a1a1f4c2e1d9a1b001",
+        "name": "Classic Leather Jacket",
+        "price": 499,
+        "quantity": 1,
+        "image": "/uploads/teddy-jacket-cream.jpg",
+        "size": null,
+        "color": null
+      }
+    ],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b001",
+        "name": "Classic Leather Jacket",
+        "price": 499,
+        "quantity": 1,
+        "image": "/uploads/teddy-jacket-cream.jpg",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 499,
+    "total": 499,
+    "status": "pending",
+    "createdAt": "2026-03-10T03:54:11.074Z",
+    "customer": {
+      "email": "",
+      "firstName": "",
+      "lastName": "",
+      "name": "",
+      "phone": "",
+      "address": "",
+      "apartment": "",
+      "city": "",
+      "postalCode": "",
+      "country": "",
+      "newsletter": false,
+      "shippingMethod": "",
+      "shippingCost": 0
+    }
+  },
+  {
+    "_id": "1afe4548-9712-4db0-9c2e-57b6e709185a",
+    "id": "1afe4548-9712-4db0-9c2e-57b6e709185a",
+    "userId": "user-1773080606535-cku5otg",
+    "items": [],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b002",
+        "name": "",
+        "price": 0,
+        "quantity": 2,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 1398,
+    "total": 1398,
+    "status": "Planned",
+    "createdAt": "2026-03-09T18:34:36.817Z",
+    "customer": {
+      "email": "shereenmagdyy81@gmail.com",
+      "firstName": "",
+      "lastName": "",
+      "name": "shereen",
+      "phone": "01144999221",
+      "address": "lo",
+      "apartment": "",
+      "city": "",
+      "postalCode": "",
+      "country": "",
+      "newsletter": false,
+      "shippingMethod": "",
+      "shippingCost": 0
+    }
+  },
+  {
+    "_id": "a135646d-a96d-4a70-9243-3bb07506fc35",
+    "id": "a135646d-a96d-4a70-9243-3bb07506fc35",
+    "userId": "f7fc45d2-23df-471d-8fad-6e123f924eb4",
+    "items": [],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b004",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 149,
+    "total": 149,
+    "status": "Planned",
+    "createdAt": "2026-03-08T05:49:02.120Z",
+    "customer": {
+      "email": "loayeldin77@gmail.com",
+      "firstName": "",
+      "lastName": "",
+      "name": "lolo",
+      "phone": "lolo",
+      "address": "lolo",
+      "apartment": "",
+      "city": "",
+      "postalCode": "",
+      "country": "",
+      "newsletter": false,
+      "shippingMethod": "",
+      "shippingCost": 0
+    }
+  },
+  {
+    "_id": "ad9f64a0-df56-4d54-ae0e-90dc0043c9d2",
+    "id": "ad9f64a0-df56-4d54-ae0e-90dc0043c9d2",
+    "userId": "f7fc45d2-23df-471d-8fad-6e123f924eb4",
+    "items": [],
+    "products": [
+      {
+        "_id": "p-sn-003",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 119,
+    "total": 119,
+    "status": "Planned",
+    "createdAt": "2026-03-08T03:48:37.089Z",
+    "customer": {
+      "email": "ll@gmail.com",
+      "firstName": "",
+      "lastName": "",
+      "name": "ll",
+      "phone": "ll",
+      "address": "ff",
+      "apartment": "",
+      "city": "",
+      "postalCode": "",
+      "country": "",
+      "newsletter": false,
+      "shippingMethod": "",
+      "shippingCost": 0
+    }
+  },
+  {
+    "_id": "5c62cffd-9d18-4271-93a5-f9a47cdaa2ea",
+    "id": "5c62cffd-9d18-4271-93a5-f9a47cdaa2ea",
+    "userId": "1fa9e7c7-1119-46f6-ae2e-3920a1d40356",
+    "items": [],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b001",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 499,
+    "total": 499,
+    "status": "Planned",
+    "createdAt": "2026-03-08T01:25:51.050Z",
+    "customer": {
+      "email": "ll@gmail.com",
+      "firstName": "",
+      "lastName": "",
+      "name": "ll",
+      "phone": "lolo",
+      "address": "lol",
+      "apartment": "",
+      "city": "",
+      "postalCode": "",
+      "country": "",
+      "newsletter": false,
+      "shippingMethod": "",
+      "shippingCost": 0
+    }
+  },
+  {
+    "_id": "e4de4588-a340-498d-96eb-1656cad054bf",
+    "id": "e4de4588-a340-498d-96eb-1656cad054bf",
+    "userId": "af3db8bf-bc96-403f-a482-619e3bdf6cb1",
+    "items": [],
+    "products": [
+      {
+        "_id": "p-sh-001",
+        "name": "",
+        "price": 0,
+        "quantity": 2,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 190,
+    "total": 190,
+    "status": "Planned",
+    "createdAt": "2026-03-03T02:14:44.600Z",
+    "customer": {
+      "email": "ll@gmail.com",
+      "firstName": "",
+      "lastName": "",
+      "name": "ll",
+      "phone": "dd",
+      "address": "cc",
+      "apartment": "",
+      "city": "",
+      "postalCode": "",
+      "country": "",
+      "newsletter": false,
+      "shippingMethod": "",
+      "shippingCost": 0
+    }
+  },
+  {
+    "_id": "732defb0-e9de-4e51-8f3b-c3f7ac1135b3",
+    "id": "732defb0-e9de-4e51-8f3b-c3f7ac1135b3",
+    "userId": "af3db8bf-bc96-403f-a482-619e3bdf6cb1",
+    "items": [],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b001",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 499,
+    "total": 499,
+    "status": "Planned",
+    "createdAt": "2026-03-03T02:04:13.936Z",
+    "customer": {
+      "email": "lolo@gmail.com",
+      "firstName": "",
+      "lastName": "",
+      "name": "lolo",
+      "phone": "dd",
+      "address": "dd",
+      "apartment": "",
+      "city": "",
+      "postalCode": "",
+      "country": "",
+      "newsletter": false,
+      "shippingMethod": "",
+      "shippingCost": 0
+    }
+  },
+  {
+    "_id": "614a3853-d969-42a9-aa06-e6bd05ae9fa9",
+    "id": "614a3853-d969-42a9-aa06-e6bd05ae9fa9",
+    "userId": "user-1",
+    "items": [],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b001",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 499,
+    "total": 499,
+    "status": "Planned",
+    "createdAt": "2026-03-03T01:34:48.392Z",
+    "customer": {
+      "email": "dd@gmail.com",
+      "firstName": "",
+      "lastName": "",
+      "name": "dd",
+      "phone": "sss",
+      "address": "ss",
+      "apartment": "",
+      "city": "",
+      "postalCode": "",
+      "country": "",
+      "newsletter": false,
+      "shippingMethod": "",
+      "shippingCost": 0
+    }
+  },
+  {
+    "_id": "order-1774154971339",
+    "id": "order-1774154971339",
+    "userId": "ee@gmail.com",
+    "items": [],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b001",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 499,
+    "total": 499,
+    "status": "Planned",
+    "createdAt": "2026-03-03T01:19:43.658Z",
+    "customer": {
+      "email": "ee@gmail.com",
+      "firstName": "",
+      "lastName": "",
+      "name": "eee",
+      "phone": "sss",
+      "address": "ss",
+      "apartment": "",
+      "city": "",
+      "postalCode": "",
+      "country": "",
+      "newsletter": false,
+      "shippingMethod": "",
+      "shippingCost": 0
+    }
+  },
+  {
+    "_id": "1772483585687",
+    "id": "1772483585687",
+    "userId": "a@gmail.com",
+    "items": [],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b001",
+        "name": "",
+        "price": 0,
+        "quantity": 2,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 998,
+    "total": 998,
+    "status": "Planned",
+    "createdAt": "2026-03-02T20:33:05.660Z",
+    "customer": {
+      "email": "a@gmail.com",
+      "firstName": "",
+      "lastName": "",
+      "name": "a",
+      "phone": "a",
+      "address": "a",
+      "apartment": "",
+      "city": "",
+      "postalCode": "",
+      "country": "",
+      "newsletter": false,
+      "shippingMethod": "",
+      "shippingCost": 0
+    }
+  },
+  {
+    "_id": "1772483513673",
+    "id": "1772483513673",
+    "userId": "ooo@gmail.com",
+    "items": [],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b001",
+        "name": "",
+        "price": 0,
+        "quantity": 2,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 998,
+    "total": 998,
+    "status": "Planned",
+    "createdAt": "2026-03-02T20:31:53.427Z",
+    "customer": {
+      "email": "ooo@gmail.com",
+      "firstName": "",
+      "lastName": "",
+      "name": "lo",
+      "phone": "oo",
+      "address": "oo",
+      "apartment": "",
+      "city": "",
+      "postalCode": "",
+      "country": "",
+      "newsletter": false,
+      "shippingMethod": "",
+      "shippingCost": 0
+    }
+  },
+  {
+    "_id": "69a227e1905aded1f1e2f40a",
+    "id": "69a227e1905aded1f1e2f40a",
+    "userId": "user-1",
+    "items": [
+      {
+        "productId": "64b7f6a1a1f4c2e1d9a1b006",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      },
+      {
+        "productId": "64b7f6a1a1f4c2e1d9a1b002",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      },
+      {
+        "productId": "64b7f6a1a1f4c2e1d9a1b003",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b006",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      },
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b002",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      },
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b003",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 1797,
+    "total": 1797,
+    "status": "pending",
+    "createdAt": "2026-02-27T23:25:21.200Z",
+    "customer": {
+      "email": "",
+      "firstName": "",
+      "lastName": "",
+      "name": "",
+      "phone": "",
+      "address": "",
+      "apartment": "",
+      "city": "",
+      "postalCode": "",
+      "country": "",
+      "newsletter": false,
+      "shippingMethod": "",
+      "shippingCost": 0
+    }
+  },
+  {
+    "_id": "69a2276c905aded1f1e2f405",
+    "id": "69a2276c905aded1f1e2f405",
+    "userId": "user-1",
+    "items": [
+      {
+        "productId": "64b7f6a1a1f4c2e1d9a1b006",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      },
+      {
+        "productId": "64b7f6a1a1f4c2e1d9a1b002",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      },
+      {
+        "productId": "64b7f6a1a1f4c2e1d9a1b003",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b006",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      },
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b002",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      },
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b003",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 1797,
+    "total": 1797,
+    "status": "pending",
+    "createdAt": "2026-02-27T23:23:24.869Z",
+    "customer": {
+      "email": "",
+      "firstName": "",
+      "lastName": "",
+      "name": "",
+      "phone": "",
+      "address": "",
+      "apartment": "",
+      "city": "",
+      "postalCode": "",
+      "country": "",
+      "newsletter": false,
+      "shippingMethod": "",
+      "shippingCost": 0
+    }
+  },
+  {
+    "_id": "69a2274e905aded1f1e2f402",
+    "id": "69a2274e905aded1f1e2f402",
+    "userId": "user-1",
+    "items": [
+      {
+        "productId": "64b7f6a1a1f4c2e1d9a1b006",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "products": [
+      {
+        "_id": "64b7f6a1a1f4c2e1d9a1b006",
+        "name": "",
+        "price": 0,
+        "quantity": 1,
+        "image": "",
+        "size": null,
+        "color": null
+      }
+    ],
+    "totalPrice": 199,
+    "total": 199,
+    "status": "pending",
+    "createdAt": "2026-02-27T23:22:54.029Z",
+    "customer": {
+      "email": "",
+      "firstName": "",
+      "lastName": "",
+      "name": "",
+      "phone": "",
+      "address": "",
+      "apartment": "",
+      "city": "",
+      "postalCode": "",
+      "country": "",
+      "newsletter": false,
+      "shippingMethod": "",
+      "shippingCost": 0
+    }
   }
 ]
