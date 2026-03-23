@@ -1,8 +1,6 @@
-import ClientLayout from '@/components/ClientLayout'
-import AIChatStylist from '@/components/AIChatStylist'
+import DeferredAIChatStylist from '@/components/DeferredAIChatStylist'
 import Footer from '@/components/Footer'
 import Navbar from '@/components/Navbar'
-import PageTransition from '@/components/PageTransition'
 import { Inter, Playfair_Display } from 'next/font/google'
 import './globals.css'
 
@@ -34,12 +32,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
       <body>
-        <ClientLayout>
-          <Navbar />
-          <PageTransition>{children}</PageTransition>
-          <AIChatStylist />
-          <Footer />
-        </ClientLayout>
+        <Navbar />
+        {children}
+        <DeferredAIChatStylist />
+        <Footer />
       </body>
     </html>
   )

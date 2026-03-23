@@ -36,10 +36,6 @@ export default function LuxuryFooter() {
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap');
-      `}</style>
-
       <footer
         className="relative mt-20 sm:mt-32 overflow-hidden"
         style={{

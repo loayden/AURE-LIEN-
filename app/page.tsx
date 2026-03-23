@@ -76,23 +76,23 @@ const STEPS = [
 const COLLECTION_HIGHLIGHTS = [
   {
     title: "Women's Edit",
-    image: "/images/collection-women.jpg",
-    link: "/collection?category=women",
+    image: "/uploads/main.jpg",
+    link: "/collection?category=jacket-coats",
   },
   {
     title: "Men's Selection",
-    image: "/images/collection-men.jpg",
-    link: "/collection?category=men",
+    image: "/uploads/Knitwear.jpg",
+    link: "/collection?category=jacket-coats",
   },
   {
     title: "Accessories",
-    image: "/images/collection-accessories.jpg",
+    image: "/uploads/accessories.jpg",
     link: "/collection?category=accessories",
   },
   {
     title: "Curated Finds",
-    image: "/images/collection-curated.jpg",
-    link: "/collection?category=curated",
+    image: "/uploads/collections.jpg",
+    link: "/collection?category=jacket-coats",
   },
 ];
 
@@ -213,7 +213,6 @@ export default function AureLienPlatform() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap');
         * { --gold: #C6A962; --dark: #080808; }
         body { background: var(--dark); }
 

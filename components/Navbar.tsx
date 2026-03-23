@@ -18,9 +18,11 @@ import {
   Watch,
   X,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import SearchOverlay from "./SearchOverlay";
+
+const SearchOverlay = dynamic(() => import("./SearchOverlay"));
 
 type SubmenuItem = { title: string; link: string };
 type MenuItem = {
@@ -384,10 +386,6 @@ export default function Navbar() {
 
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap');
-      `}</style>
-
       <motion.nav
         initial={{ y:-60, opacity:0 }}
         animate={{ y:0, opacity:1 }}

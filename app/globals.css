@@ -58,7 +58,6 @@
 
 *, *::before, *::after {
   box-sizing: border-box;
-  cursor: none;
 }
 
 html {
@@ -236,7 +235,6 @@ textarea {
   font-weight: 300;
   letter-spacing: 0.32em;
   text-transform: uppercase;
-  cursor: none;
   transition: transform 0.35s cubic-bezier(0.22,1,0.36,1),
               box-shadow 0.35s ease;
   position: relative;
@@ -284,7 +282,6 @@ textarea {
   font-weight: 300;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  cursor: none;
   transition: color 0.3s, border-color 0.3s, transform 0.3s cubic-bezier(0.22,1,0.36,1);
   min-height: 44px;
   min-width: 44px;
