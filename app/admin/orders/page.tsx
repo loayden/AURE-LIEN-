@@ -121,6 +121,12 @@ export default function AdminOrdersPage() {
     return customer?.source === "account" ? "Account" : "Guest";
   };
 
+  const resolveCustomerReference = (order: Order) => {
+    if (order.customer?.accountId) return order.customer.accountId;
+    if (order.customer?.email) return order.customer.email;
+    return order.userId || "guest";
+  };
+
   const totalRevenue = orders.reduce((s, o) => s + Number(o.totalPrice ?? 0), 0);
 
   return (
@@ -193,7 +199,12 @@ export default function AdminOrdersPage() {
                     {" · "}
                     Status: <span className="text-ivory">{order.status}</span>
                   </p>
-                  <p className="text-ivory-muted text-xs mt-1">User ID: {order.userId}</p>
+                  <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-ivory-muted">
+                    <span className="rounded-full border border-brass/20 px-2.5 py-1 text-brass/90">
+                      {formatSource(order.customer)}
+                    </span>
+                    <span className="truncate">Ref: {resolveCustomerReference(order)}</span>
+                  </div>
                 </div>
                 <p className="text-brass text-lg font-light">
                   EGP {Number(order.totalPrice).toLocaleString()}
@@ -207,6 +218,11 @@ export default function AdminOrdersPage() {
                     <p>
                       <span className="text-ivory-muted">Profile:</span> {formatSource(order.customer)}
                     </p>
+                    {order.customer.accountId && (
+                      <p>
+                        <span className="text-ivory-muted">Account ID:</span> {order.customer.accountId}
+                      </p>
+                    )}
                     {order.customer.totalOrders != null && (
                       <p>
                         <span className="text-ivory-muted">Customer orders:</span> {order.customer.totalOrders}

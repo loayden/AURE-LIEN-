@@ -150,7 +150,7 @@ export default function AIChatStylist() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && send()}
                 placeholder="Ask for outfit ideas..."
-                className="flex-1 border border-brass/40 bg-transparent px-4 py-3 text-base text-ivory placeholder:text-silver focus:border-brass focus:outline-none sm:text-sm"
+                className="glass-input flex-1 px-4 py-3 text-base sm:text-sm"
               />
               <motion.button
                 type="button"
@@ -158,7 +158,7 @@ export default function AIChatStylist() {
                 disabled={loading}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="min-h-[44px] min-w-[44px] border border-brass px-4 py-3 text-[11px] uppercase tracking-wider text-brass hover:bg-brass hover:text-black disabled:opacity-50 sm:px-4 sm:py-2 sm:text-sm"
+                className="btn-gold min-h-[44px] min-w-[44px] px-4 py-3 text-[11px] disabled:opacity-50 sm:px-4 sm:py-2 sm:text-sm"
               >
                 Send
               </motion.button>

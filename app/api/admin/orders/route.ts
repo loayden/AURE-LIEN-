@@ -38,6 +38,17 @@ function resolveCustomerName(customer: any) {
   return combinedName || "—";
 }
 
+function resolveOrderUserId(order: any, customerSummary: any, customer: any) {
+  const accountId = String(customerSummary?.accountId ?? "").trim();
+  if (accountId) return accountId;
+
+  const email = String(customerSummary?.email ?? customer?.email ?? "").trim();
+  if (email) return email;
+
+  const rawUserId = String(order?.userId ?? "").trim();
+  return rawUserId || "guest";
+}
+
 export async function GET(req: NextRequest) {
   const auth = await getAuthFromRequest(req);
   if (!auth || auth.role !== "admin") {
@@ -68,7 +79,7 @@ export async function GET(req: NextRequest) {
 
       return {
         _id: String(order._id ?? order.id ?? `legacy-${Date.now()}`),
-        userId: String(order.userId ?? customerSummary?.accountId ?? rawCustomer.email ?? "guest"),
+        userId: resolveOrderUserId(order, customerSummary, rawCustomer),
         items,
         totalPrice,
         status: order.status ?? "pending",

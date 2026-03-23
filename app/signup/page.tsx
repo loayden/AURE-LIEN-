@@ -117,36 +117,6 @@ export default function SignupPage() {
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap');
         body { background: #080808; }
         ::selection { background: #C6A962; color: #080808; }
-
-        .glass-input {
-          width: 100%;
-          background: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          border: 1px solid rgba(255,255,255,0.09);
-          border-radius: 14px;
-          padding: 14px 18px;
-          color: rgba(255,255,255,0.80);
-          font-size: 1rem;
-          letter-spacing: 0.05em;
-          font-family: 'Jost', sans-serif;
-          font-weight: 300;
-          outline: none;
-          transition: border-color 0.35s, box-shadow 0.35s;
-        }
-        .glass-input::placeholder { color: rgba(255,255,255,0.18); }
-        .glass-input:focus {
-          border-color: rgba(198,169,98,0.5);
-          box-shadow: 0 0 0 3px rgba(198,169,98,0.08);
-        }
-        .glass-input.match {
-          border-color: rgba(80,200,120,0.4);
-          box-shadow: 0 0 0 3px rgba(80,200,120,0.07);
-        }
-        .glass-input.mismatch {
-          border-color: rgba(255,80,80,0.4);
-          box-shadow: 0 0 0 3px rgba(255,80,80,0.07);
-        }
       `}</style>
 
       <main

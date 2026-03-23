@@ -28,23 +28,6 @@ interface FormData {
 
 const SHIPPING_COST_CAIRO = 75;
 
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  background: "linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)",
-  backdropFilter: "blur(16px)",
-  WebkitBackdropFilter: "blur(16px)",
-  border: "1px solid rgba(255,255,255,0.09)",
-  borderRadius: 12,
-  padding: "12px 16px",
-  color: "rgba(255,255,255,0.80)",
-  fontSize: "0.85rem",
-  letterSpacing: "0.04em",
-  outline: "none",
-  fontFamily: "'Jost', sans-serif",
-  transition: "border-color 0.3s, box-shadow 0.3s",
-};
-const inputFocusClass = "focus:border-[rgba(198,169,98,0.45)] focus:shadow-[0_0_0_3px_rgba(198,169,98,0.08)]";
-
 function GlassSection({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
     <div
@@ -417,28 +400,6 @@ export default function CheckoutPage() {
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap');
         body { background: #080808; }
         ::selection { background: #C6A962; color: #080808; }
-
-        input[type="text"], input[type="email"], input[type="tel"], select, textarea {
-          background: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%) !important;
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          border: 1px solid rgba(255,255,255,0.09) !important;
-          border-radius: 12px !important;
-          padding: 12px 16px !important;
-          color: rgba(255,255,255,0.80) !important;
-          font-size: 0.85rem !important;
-          letter-spacing: 0.04em !important;
-          font-family: 'Jost', sans-serif !important;
-          outline: none !important;
-          transition: border-color 0.3s, box-shadow 0.3s !important;
-          width: 100%;
-          min-height: 44px;
-        }
-        input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.22) !important; }
-        input:focus, select:focus, textarea:focus {
-          border-color: rgba(198,169,98,0.45) !important;
-          box-shadow: 0 0 0 3px rgba(198,169,98,0.08) !important;
-        }
         select option { background: #141414; color: rgba(255,255,255,0.8); }
 
         input[type="checkbox"] {

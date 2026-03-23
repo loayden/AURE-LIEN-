@@ -49,7 +49,7 @@ export default function UploadPage() {
 
         <button
           type="submit"
-          className="min-h-[44px] min-w-[44px] bg-gold px-6 py-3 text-black"
+          className="btn-gold min-h-[44px] min-w-[44px] px-6 py-3"
           disabled={loading}
         >
           {loading ? "Uploading…" : "Upload"}

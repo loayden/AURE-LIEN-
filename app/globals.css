@@ -9,6 +9,8 @@
    ============================================ */
 
 :root {
+  color-scheme: dark;
+
   /* ── Core palette ── */
   --black:          #080808;
   --surface:        #060606;
@@ -32,6 +34,21 @@
   --gold-glass-fill: linear-gradient(135deg, rgba(198,169,98,0.16) 0%, rgba(198,169,98,0.05) 100%);
   --gold-glass-border: rgba(198,169,98,0.26);
   --gold-glass-shadow: 0 8px 32px rgba(198,169,98,0.10), inset 0 1px 0 rgba(255,255,255,0.14);
+
+  /* ── Form surfaces ── */
+  --field-fill: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+  --field-fill-strong: rgba(12,12,14,0.94);
+  --field-border: rgba(255,255,255,0.10);
+  --field-border-focus: rgba(198,169,98,0.42);
+  --field-text: rgba(255,255,255,0.88);
+  --field-placeholder: rgba(255,255,255,0.24);
+  --field-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 10px 24px rgba(0,0,0,0.18);
+  --field-shadow-focus: 0 0 0 3px rgba(198,169,98,0.08), inset 0 1px 0 rgba(255,255,255,0.08);
+  --button-fill: linear-gradient(135deg, rgba(198,169,98,0.18) 0%, rgba(198,169,98,0.06) 100%);
+  --button-fill-muted: linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%);
+  --button-border: rgba(198,169,98,0.28);
+  --button-border-muted: rgba(255,255,255,0.10);
+  --button-shadow: 0 12px 28px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.12);
 
   /* ── Typography ── */
   --font-serif: 'Cormorant Garamond', Georgia, serif;
@@ -102,6 +119,8 @@ select,
 textarea,
 [role="button"] {
   touch-action: manipulation;
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
 }
 
 input,
@@ -110,6 +129,160 @@ textarea {
   font-size: 16px;
   min-height: 44px;
   min-width: 44px;
+}
+
+button,
+[type="button"],
+[type="submit"],
+[type="reset"],
+[role="button"] {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: transparent;
+  color: inherit;
+  border: 1px solid transparent;
+  border-radius: 999px;
+}
+
+button:not([class]),
+input[type="button"]:not([class]),
+input[type="submit"]:not([class]),
+input[type="reset"]:not([class]) {
+  background: var(--button-fill);
+  border-color: var(--button-border);
+  box-shadow: var(--button-shadow);
+  color: var(--ivory);
+  padding: 0.85rem 1.35rem;
+  font-size: 0.72rem;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+button:not([class]):hover,
+input[type="button"]:not([class]):hover,
+input[type="submit"]:not([class]):hover,
+input[type="reset"]:not([class]):hover {
+  border-color: rgba(198,169,98,0.42);
+  box-shadow: 0 16px 32px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.14);
+}
+
+:is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="submit"]):not([type="reset"]):not([type="button"]),
+  textarea
+) {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+:is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="submit"]):not([type="reset"]):not([type="button"]),
+  textarea,
+  select
+) {
+  width: 100%;
+  background: var(--field-fill);
+  background-color: rgba(10,10,12,0.72);
+  border: 1px solid var(--field-border);
+  border-radius: 14px;
+  color: var(--field-text);
+  box-shadow: var(--field-shadow);
+  caret-color: var(--ivory);
+  outline: none;
+  transition:
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    background-color 0.35s ease,
+    color 0.35s ease;
+}
+
+:is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="submit"]):not([type="reset"]):not([type="button"]),
+  textarea,
+  select
+)::placeholder {
+  color: var(--field-placeholder);
+}
+
+:is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="submit"]):not([type="reset"]):not([type="button"]),
+  textarea,
+  select
+):focus,
+:is(
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="submit"]):not([type="reset"]):not([type="button"]),
+  textarea,
+  select
+):focus-visible {
+  border-color: var(--field-border-focus);
+  box-shadow: var(--field-shadow-focus);
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+select {
+  color-scheme: dark;
+}
+
+select option,
+select optgroup {
+  background: #0d0d0f;
+  color: var(--field-text);
+}
+
+input[type="file"] {
+  width: 100%;
+  max-width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--field-border);
+  border-radius: 16px;
+  background: var(--field-fill);
+  background-color: rgba(10,10,12,0.72);
+  color: rgba(255,255,255,0.72);
+  box-shadow: var(--field-shadow);
+}
+
+input[type="file"]::file-selector-button,
+input[type="file"]::-webkit-file-upload-button {
+  appearance: none;
+  -webkit-appearance: none;
+  margin-right: 0.85rem;
+  border: 1px solid var(--button-border);
+  border-radius: 999px;
+  background: var(--button-fill);
+  color: var(--gold);
+  padding: 0.8rem 1rem;
+  font-size: 0.65rem;
+  font-weight: 300;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  box-shadow: var(--button-shadow);
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--field-text) !important;
+  caret-color: var(--ivory);
+  border: 1px solid var(--field-border) !important;
+  -webkit-box-shadow:
+    0 0 0 1000px var(--field-fill-strong) inset,
+    0 0 0 1px var(--field-border),
+    inset 0 1px 0 rgba(255,255,255,0.06) !important;
+  box-shadow:
+    0 0 0 1000px var(--field-fill-strong) inset,
+    0 0 0 1px var(--field-border),
+    inset 0 1px 0 rgba(255,255,255,0.06) !important;
+  transition: background-color 9999s ease-out 0s, color 9999s ease-out 0s;
 }
 
 @media (min-width: 640px) {
@@ -177,30 +350,32 @@ textarea {
 
 .glass-input {
   width: 100%;
-  background: var(--glass-fill-md);
+  background: var(--field-fill);
+  background-color: rgba(10,10,12,0.72);
   backdrop-filter: var(--glass-blur-sm);
   -webkit-backdrop-filter: var(--glass-blur-sm);
-  border: 1px solid var(--glass-border-sm);
+  border: 1px solid var(--field-border);
   border-radius: 14px;
   padding: 14px 18px;
-  color: rgba(255,255,255,0.80);
+  color: var(--field-text);
   font-size: 1rem;
   letter-spacing: 0.05em;
   font-family: var(--font-sans);
   font-weight: 300;
   min-height: 44px;
   outline: none;
-  transition: border-color 0.35s ease, box-shadow 0.35s ease;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+  transition: border-color 0.35s ease, box-shadow 0.35s ease, background-color 0.35s ease;
+  box-shadow: var(--field-shadow);
+  caret-color: var(--ivory);
 }
 
 .glass-input::placeholder {
-  color: rgba(255,255,255,0.18);
+  color: var(--field-placeholder);
 }
 
 .glass-input:focus {
-  border-color: rgba(198,169,98,0.50);
-  box-shadow: 0 0 0 3px rgba(198,169,98,0.09), inset 0 1px 0 rgba(255,255,255,0.08);
+  border-color: var(--field-border-focus);
+  box-shadow: var(--field-shadow-focus);
 }
 
 .glass-input.match {
@@ -224,12 +399,12 @@ textarea {
   gap: 0.5rem;
   padding: 0.875rem 2rem;
   border-radius: 9999px;
-  background: var(--gold-glass-fill);
+  background: linear-gradient(135deg, rgba(198,169,98,0.22) 0%, rgba(198,169,98,0.08) 100%);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--gold-glass-border);
-  box-shadow: 0 0 28px rgba(198,169,98,0.12), inset 0 1px 0 rgba(255,255,255,0.14);
-  color: var(--gold);
+  border: 1px solid rgba(198,169,98,0.34);
+  box-shadow: 0 0 28px rgba(198,169,98,0.14), inset 0 1px 0 rgba(255,255,255,0.14);
+  color: rgba(255,245,224,0.92);
   font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 300;
@@ -272,11 +447,11 @@ textarea {
   gap: 0.5rem;
   padding: 0.75rem 1.75rem;
   border-radius: 9999px;
-  background: var(--glass-fill-md);
+  background: var(--button-fill-muted);
   backdrop-filter: var(--glass-blur-sm);
   -webkit-backdrop-filter: var(--glass-blur-sm);
-  border: 1px solid var(--glass-border);
-  color: rgba(255,255,255,0.55);
+  border: 1px solid var(--button-border-muted);
+  color: rgba(255,255,255,0.72);
   font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 300;
