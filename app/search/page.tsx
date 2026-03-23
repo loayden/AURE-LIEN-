@@ -35,12 +35,12 @@ function SearchContent() {
   }
 
   return (
-    <main className="min-h-screen bg-black text-ivory pt-28 pb-20 px-6">
+    <main className="min-h-screen bg-black text-ivory pt-16 pb-16 px-4 sm:pt-24 sm:pb-20 sm:px-6 md:px-10">
       <div className="max-w-7xl mx-auto">
         <motion.h1
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="font-serif text-display-md tracking-luxury-wide border-b border-brass/30 pb-6 mb-12"
+          className="font-serif text-display-md tracking-luxury-wide border-b border-brass/30 pb-4 sm:pb-6 mb-6 sm:mb-8 md:mb-10"
         >
           Search {q ? `"${q}"` : ""}
         </motion.h1>
@@ -50,7 +50,7 @@ function SearchContent() {
         ) : products.length === 0 ? (
           <p className="text-silver">No products found. Try different keywords.</p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+          <div className="product-grid-shell lg:grid-cols-4">
             {products.map((product, i) => (
               <motion.div
                 key={product._id}
@@ -70,7 +70,7 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-black pt-28 flex justify-center text-silver">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-black pt-16 sm:pt-24 flex justify-center px-4 text-silver sm:px-6 md:px-10">Loading...</div>}>
       <SearchContent />
     </Suspense>
   );

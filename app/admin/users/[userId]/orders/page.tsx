@@ -63,13 +63,13 @@ export default function AdminUserOrdersPage() {
     <div className="space-y-8">
       <Link
         href="/admin/users"
-        className="inline-flex items-center gap-2 text-brass hover:text-brass/80 transition-colors text-sm tracking-wide"
+        className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 text-[11px] tracking-wide text-brass transition-colors hover:text-brass/80 sm:text-sm"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Users
       </Link>
 
-      <h1 className="text-2xl font-serif font-light tracking-luxury-wide border-b border-brass/30 pb-4">
+      <h1 className="border-b border-brass/30 pb-4 text-xl font-serif font-light tracking-luxury-wide sm:text-2xl">
         Orders — {user ? `${user.name} (${user.email})` : "Loading..."}
       </h1>
 

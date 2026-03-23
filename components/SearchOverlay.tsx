@@ -79,11 +79,11 @@ export default function SearchOverlay({
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="relative mx-auto w-full max-w-3xl flex-shrink-0 px-4 pt-20 pb-5 sm:px-6 sm:pt-24 sm:pb-6"
+            className="relative mx-auto w-full max-w-3xl flex-shrink-0 px-4 pt-16 pb-4 sm:px-6 sm:pt-24 sm:pb-6 md:px-10"
           >
             {/* Input row */}
             <div
-              className="relative flex items-center gap-3 overflow-hidden rounded-2xl px-4 py-3.5 sm:gap-4 sm:px-5 sm:py-4"
+              className="relative flex items-center gap-2 overflow-hidden rounded-2xl px-4 py-3.5 sm:gap-3 sm:px-5 sm:py-4"
               style={{
                 background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.025) 100%)",
                 backdropFilter: "blur(20px)",
@@ -107,10 +107,10 @@ export default function SearchOverlay({
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Search products, styles, categories…"
                 autoFocus
-                className="flex-1 bg-transparent outline-none text-white/80 placeholder:text-white/20 font-light"
+                className="flex-1 bg-transparent text-base font-light text-white/80 outline-none placeholder:text-white/20 sm:text-lg"
                 style={{
                   fontFamily: "'Cormorant Garamond', serif",
-                  fontSize: "clamp(1.05rem, 5vw, 1.35rem)",
+                  fontSize: "clamp(1rem, 4.8vw, 1.25rem)",
                   letterSpacing: "0.04em",
                 }}
               />
@@ -124,7 +124,7 @@ export default function SearchOverlay({
                     exit={{ opacity: 0, scale: 0.7 }}
                     type="button"
                     onClick={() => setQ("")}
-                    className="flex items-center justify-center w-7 h-7 rounded-full flex-shrink-0 transition-all duration-300"
+                    className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full transition-all duration-300"
                     style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.10)" }}
                   >
                     <X strokeWidth={1.3} className="w-3.5 h-3.5 text-white/40" />
@@ -141,7 +141,7 @@ export default function SearchOverlay({
           </motion.div>
 
           {/* ── RESULTS ── */}
-          <div className="mx-auto flex-1 w-full max-w-3xl overflow-y-auto px-4 pb-20 sm:px-6 sm:pb-24">
+          <div className="mx-auto flex-1 w-full max-w-3xl overflow-y-auto px-4 pb-16 sm:px-6 sm:pb-24 md:px-10">
 
             {/* Loading shimmer */}
             <AnimatePresence>
@@ -195,7 +195,7 @@ export default function SearchOverlay({
                       {results.length} {results.length === 1 ? "Piece" : "Pieces"} Found
                     </motion.p>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
                       {results.slice(0, 8).map((p, i) => (
                         <motion.div
                           key={p._id}
@@ -206,7 +206,7 @@ export default function SearchOverlay({
                           <Link
                             href={`/product/${p._id}`}
                             onClick={onClose}
-                            className="group flex items-center gap-4 p-3 rounded-2xl transition-all duration-300"
+                            className="group flex min-h-[44px] min-w-[44px] items-center gap-3 rounded-2xl p-3 transition-all duration-300 sm:gap-4"
                             style={{ border: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.03)" }}
                             onMouseEnter={(e) => {
                               (e.currentTarget as HTMLElement).style.borderColor = "rgba(198,169,98,0.25)";

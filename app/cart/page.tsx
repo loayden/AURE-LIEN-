@@ -12,12 +12,12 @@ function Orbs() {
   return (
     <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
       <div style={{
-        position: "absolute", width: 700, height: 700, top: "-10%", right: "-10%",
+        position: "absolute", width: 380, height: 380, top: "-10%", right: "-10%",
         background: "radial-gradient(circle, rgba(198,169,98,0.07) 0%, transparent 65%)",
         filter: "blur(90px)", animation: "cOA 24s ease-in-out infinite",
       }} />
       <div style={{
-        position: "absolute", width: 550, height: 550, bottom: "5%", left: "-8%",
+        position: "absolute", width: 320, height: 320, bottom: "5%", left: "-8%",
         background: "radial-gradient(circle, rgba(150,140,220,0.05) 0%, transparent 65%)",
         filter: "blur(80px)", animation: "cOB 30s ease-in-out infinite",
       }} />
@@ -156,14 +156,14 @@ export default function CartPage() {
       >
         <Orbs />
 
-        <div className="relative z-10 max-w-6xl mx-auto px-6 sm:px-10 pt-28 pb-32">
+        <div className="relative z-10 mx-auto max-w-6xl px-4 pt-16 pb-16 sm:px-6 sm:pt-24 sm:pb-24 md:px-10 md:pb-32">
 
           {/* ── PAGE HEADER ── */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="mb-12"
+            className="mb-6 sm:mb-8 md:mb-10"
           >
             <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase mb-4">Review & Checkout</p>
             <div className="flex items-end justify-between gap-4 flex-wrap">
@@ -178,7 +178,7 @@ export default function CartPage() {
                 Your <em style={{ color: "#C6A962", fontStyle: "italic" }}>Cart</em>
               </h1>
               {items.length > 0 && (
-                <span className="gold-glass px-4 py-2 rounded-full text-[#C6A962] text-[10px] tracking-[0.3em] uppercase font-light">
+                <span className="gold-glass inline-flex min-h-[44px] min-w-[44px] items-center rounded-full px-4 py-2 text-[10px] font-light uppercase tracking-[0.3em] text-[#C6A962]">
                   {totalItems} {totalItems === 1 ? "Piece" : "Pieces"}
                 </span>
               )}
@@ -212,9 +212,9 @@ export default function CartPage() {
               </p>
               <button
                 onClick={() => router.push("/shop")}
-                className="gold-glass inline-flex items-center gap-3 px-8 py-3.5 rounded-full
+                className="gold-glass inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-full px-6 py-3.5
                            text-[#C6A962] text-[10px] tracking-[0.3em] uppercase font-light
-                           hover:scale-[1.02] transition-all duration-500"
+                           hover:scale-[1.02] transition-all duration-500 sm:gap-3 sm:px-8"
               >
                 Browse Collection
                 <ArrowRight strokeWidth={1.3} className="w-3.5 h-3.5" />
@@ -270,7 +270,7 @@ export default function CartPage() {
                           <div className="inline-flex items-center gap-2 rounded-full border border-white/10 px-2 py-1 text-[10px] tracking-[0.18em] uppercase">
                             <button
                               type="button"
-                              className="w-6 h-6 flex items-center justify-center rounded-full bg-white/5 active:scale-95 transition-transform"
+                              className="flex h-6 w-6 items-center justify-center rounded-full bg-white/5 transition-transform active:scale-95"
                               onClick={() => updateQuantity(item.productId, item.size ?? null, item.color ?? null, (item.quantity ?? 1) - 1)}
                             >
                               -
@@ -280,7 +280,7 @@ export default function CartPage() {
                             </span>
                             <button
                               type="button"
-                              className="w-6 h-6 flex items-center justify-center rounded-full bg-white/5 active:scale-95 transition-transform"
+                              className="flex h-6 w-6 items-center justify-center rounded-full bg-white/5 transition-transform active:scale-95"
                               onClick={() => updateQuantity(item.productId, item.size ?? null, item.color ?? null, (item.quantity ?? 1) + 1)}
                             >
                               +
@@ -328,7 +328,7 @@ export default function CartPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2, duration: 0.8 }}
-                className="glass rounded-2xl p-6 sticky top-24 flex flex-col gap-5 overflow-hidden"
+                className="mobile-sticky-top glass sticky flex flex-col gap-5 overflow-hidden rounded-2xl p-5 sm:p-6"
               >
                 {/* Specular */}
                 <div className="absolute inset-x-4 top-0 h-px pointer-events-none"
@@ -402,7 +402,7 @@ export default function CartPage() {
                   onClick={() => router.push("/checkout")}
                   whileHover={{ scale: 1.015 }}
                   whileTap={{ scale: 0.985 }}
-                  className="relative w-full overflow-hidden rounded-full py-4 flex items-center justify-center gap-3"
+                  className="relative flex min-h-[44px] min-w-[44px] w-full items-center justify-center gap-2 overflow-hidden rounded-full py-4 sm:gap-3"
                   style={{
                     background: "linear-gradient(135deg, rgba(198,169,98,0.22), rgba(178,149,78,0.10))",
                     border: "1px solid rgba(198,169,98,0.35)",
@@ -434,7 +434,7 @@ export default function CartPage() {
               transition={{ duration: 0.9 }}
               className="mt-20"
             >
-              <div className="flex items-end justify-between mb-10 gap-4 flex-wrap">
+              <div className="mb-6 flex flex-wrap items-end justify-between gap-4 sm:mb-8 md:mb-10">
                 <div>
                   <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase mb-3">Handpicked For You</p>
                   <h2
@@ -453,10 +453,10 @@ export default function CartPage() {
                      style={{ background: "linear-gradient(90deg, rgba(198,169,98,0.2), transparent)" }} />
               </div>
 
-              <div className="h-px mb-10"
+              <div className="mb-6 h-px sm:mb-8 md:mb-10"
                    style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent)" }} />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="product-grid-shell lg:grid-cols-4">
                 {recommended.map((product, i) => (
                   <motion.div
                     key={product._id}

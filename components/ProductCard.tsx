@@ -308,7 +308,7 @@ export default function ProductCard({
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="absolute top-3 left-3 z-30 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider"
+            className="absolute top-3 left-3 z-30 px-3 py-1.5 rounded-full text-[11px] font-semibold uppercase tracking-wider sm:text-xs"
             style={{
               background: badgeStyles[product.badge].bg,
               color: badgeStyles[product.badge].text,
@@ -324,7 +324,7 @@ export default function ProductCard({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="absolute top-3 right-3 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider"
+            className="absolute top-3 right-3 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold uppercase tracking-wider sm:text-xs"
             style={{
               background: "rgba(255, 179, 71, 0.85)",
               color: "#fff",
@@ -397,7 +397,7 @@ export default function ProductCard({
 
       {/* ══════════ LABEL ══════════ */}
       <div
-        className="relative z-10 px-4 pt-4 pb-4 flex flex-col gap-2.5"
+        className="relative z-10 flex flex-col gap-2.5 px-4 pb-4 pt-4"
         style={{
           background: "linear-gradient(170deg, rgba(18,16,12,0.82) 0%, rgba(10,9,8,0.94) 100%)",
           backdropFilter: "blur(36px) saturate(140%)",
@@ -452,14 +452,14 @@ export default function ProductCard({
         )}
 
         {/* Size & Color Selector - Compact */}
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex flex-wrap gap-2">
           {sizes && sizes.length > 0 && (
             <motion.button
               onClick={(e) => {
                 e.stopPropagation();
                 setShowSizeSelector(!showSizeSelector);
               }}
-              className="text-[11px] px-2.5 py-1.5 rounded-lg transition-all"
+              className="min-h-[44px] min-w-[44px] rounded-lg px-2.5 py-1.5 text-[11px] transition-all"
               style={{
                 background: selectedSize ? "rgba(198,169,98,0.3)" : "rgba(255,255,255,0.08)",
                 color: selectedSize ? "#C6A962" : "rgba(255,255,255,0.6)",
@@ -480,7 +480,7 @@ export default function ProductCard({
                 e.stopPropagation();
                 setShowColorSelector(!showColorSelector);
               }}
-              className="w-8 h-8 rounded-lg transition-all border"
+              className="h-8 w-8 rounded-lg border transition-all"
               style={{
                 background: selectedColor || normalizedColors[0].hex,
                 border: selectedColor ? "2px solid #C6A962" : "1px solid rgba(255,255,255,0.2)",
@@ -510,7 +510,7 @@ export default function ProductCard({
                     setSelectedSize(size);
                     setShowSizeSelector(false);
                   }}
-                  className="text-[10px] px-2.5 py-1.5 rounded-md transition-all font-semibold uppercase tracking-wider"
+                  className="min-h-[44px] min-w-[44px] rounded-md px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wider transition-all"
                   style={{
                     background: selectedSize === size ? "rgba(198,169,98,0.6)" : "rgba(255,255,255,0.08)",
                     color: selectedSize === size ? "#fff" : "rgba(255,255,255,0.6)",
@@ -611,7 +611,7 @@ export default function ProductCard({
             onClick={handleAddToCart}
             disabled={loading || outOfStock}
             whileTap={{ scale: 0.82 }}
-            className="flex items-center justify-center rounded-full transition-all duration-500 disabled:opacity-35"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition-all duration-500 disabled:opacity-35"
             style={{
               width: 44, height: 44,
               background: added

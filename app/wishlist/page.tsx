@@ -11,12 +11,12 @@ function Orbs() {
   return (
     <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
       <div style={{
-        position:"absolute", width:680, height:680, top:"-12%", right:"-10%",
+        position:"absolute", width:380, height:380, top:"-12%", right:"-10%",
         background:"radial-gradient(circle, rgba(198,169,98,0.07) 0%, transparent 65%)",
         filter:"blur(90px)", animation:"wlOA 25s ease-in-out infinite",
       }} />
       <div style={{
-        position:"absolute", width:520, height:520, bottom:"5%", left:"-8%",
+        position:"absolute", width:320, height:320, bottom:"5%", left:"-8%",
         background:"radial-gradient(circle, rgba(200,80,120,0.05) 0%, transparent 65%)",
         filter:"blur(80px)", animation:"wlOB 31s ease-in-out infinite",
       }} />
@@ -66,7 +66,7 @@ export default function WishlistPage() {
       `}</style>
 
       <main
-        className="relative min-h-screen bg-[#080808] text-white pt-28 pb-32 px-6"
+        className="relative min-h-screen bg-[#080808] px-4 pb-16 pt-16 text-white sm:px-6 sm:pb-24 sm:pt-24 md:px-10 md:pb-32"
         style={{ fontFamily:"'Jost', sans-serif" }}
       >
         <Orbs />
@@ -78,7 +78,7 @@ export default function WishlistPage() {
             initial={{ opacity:0, y:20 }}
             animate={{ opacity:1, y:0 }}
             transition={{ duration:0.8 }}
-            className="mb-12"
+            className="mb-6 sm:mb-8 md:mb-10"
           >
             <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase mb-4">Account</p>
             <div className="flex items-end justify-between gap-4 flex-wrap">
@@ -98,7 +98,7 @@ export default function WishlistPage() {
                 <motion.span
                   initial={{ opacity:0, scale:0.85 }}
                   animate={{ opacity:1, scale:1 }}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full"
+                  className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 px-4 py-2 rounded-full"
                   style={{
                     background:"linear-gradient(135deg, rgba(198,169,98,0.14), rgba(198,169,98,0.04))",
                     border:"1px solid rgba(198,169,98,0.22)",
@@ -151,7 +151,7 @@ export default function WishlistPage() {
               <motion.div whileHover={{ scale:1.02 }} whileTap={{ scale:0.97 }}>
                 <Link
                   href="/shop"
-                  className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full text-[#C6A962] text-[10px] tracking-[0.3em] uppercase font-light transition-all duration-500"
+                  className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-full px-6 py-3.5 text-[10px] font-light uppercase tracking-[0.3em] text-[#C6A962] transition-all duration-500 sm:gap-3 sm:px-8"
                   style={{
                     background:"linear-gradient(135deg, rgba(198,169,98,0.14), rgba(198,169,98,0.04))",
                     border:"1px solid rgba(198,169,98,0.25)",
@@ -166,7 +166,7 @@ export default function WishlistPage() {
           ) : (
             /* ── GRID ── */
             <AnimatePresence mode="popLayout">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="product-grid-shell lg:grid-cols-4">
                 {items.map((product, i) => (
                   <motion.div
                     key={product._id}

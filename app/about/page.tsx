@@ -10,12 +10,12 @@ function Orbs() {
   return (
     <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
       <div style={{
-        position:"absolute", width:700, height:700, top:"-15%", right:"-10%",
+        position:"absolute", width:380, height:380, top:"-15%", right:"-10%",
         background:"radial-gradient(circle, rgba(198,169,98,0.07) 0%, transparent 65%)",
         filter:"blur(90px)", animation:"abOA 26s ease-in-out infinite",
       }} />
       <div style={{
-        position:"absolute", width:550, height:550, bottom:"5%", left:"-8%",
+        position:"absolute", width:320, height:320, bottom:"5%", left:"-8%",
         background:"radial-gradient(circle, rgba(150,140,220,0.05) 0%, transparent 65%)",
         filter:"blur(80px)", animation:"abOB 33s ease-in-out infinite",
       }} />
@@ -121,7 +121,7 @@ export default function AboutPage() {
                style={{ background:"linear-gradient(to top, #080808, transparent)" }} />
 
           <motion.div style={{ opacity:heroOpacity, y:heroY }}
-                      className="relative z-10 text-center px-6 flex flex-col items-center">
+                      className="relative z-10 flex flex-col items-center px-4 text-center sm:px-6 md:px-10">
             <motion.div
               initial={{ opacity:0, y:16 }}
               animate={{ opacity:1, y:0 }}
@@ -148,7 +148,7 @@ export default function AboutPage() {
               className="font-light text-white leading-none mb-6"
               style={{
                 fontFamily:"'Cormorant Garamond', serif",
-                fontSize:"clamp(5rem, 14vw, 12rem)",
+                fontSize:"clamp(2.4rem, 12vw, 8rem)",
                 letterSpacing:"0.06em",
                 textShadow:"0 4px 60px rgba(0,0,0,0.4)",
               }}
@@ -187,7 +187,7 @@ export default function AboutPage() {
         {/* ══════════════════════════════════════
             MANIFESTO
         ══════════════════════════════════════ */}
-        <section className="relative z-10 py-32 px-6">
+        <section className="relative z-10 px-4 py-16 sm:px-6 sm:py-24 md:px-10">
           <div className="max-w-3xl mx-auto text-center">
             <motion.p
               initial={{ opacity:0 }}
@@ -227,7 +227,7 @@ export default function AboutPage() {
         {/* ══════════════════════════════════════
             STATS
         ══════════════════════════════════════ */}
-        <section className="relative z-10 py-16 px-6"
+        <section className="relative z-10 px-4 py-12 sm:px-6 sm:py-16 md:px-10"
                  style={{ borderTop:"1px solid rgba(255,255,255,0.05)", borderBottom:"1px solid rgba(255,255,255,0.05)" }}>
           <motion.div
             initial={{ opacity:0, y:20 }}
@@ -246,7 +246,7 @@ export default function AboutPage() {
         {/* ══════════════════════════════════════
             THREE PILLARS
         ══════════════════════════════════════ */}
-        <section className="relative z-10 py-32 px-6">
+        <section className="relative z-10 px-4 py-16 sm:px-6 sm:py-24 md:px-10">
           <div className="max-w-5xl mx-auto">
             <motion.div
               initial={{ opacity:0, y:16 }}
@@ -287,7 +287,7 @@ export default function AboutPage() {
         {/* ══════════════════════════════════════
             STORY — TWO COL
         ══════════════════════════════════════ */}
-        <section className="relative z-10 py-24 px-6"
+        <section className="relative z-10 px-4 py-16 sm:px-6 sm:py-24 md:px-10"
                  style={{ background:"#060606", borderTop:"1px solid rgba(255,255,255,0.05)" }}>
           <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
 
@@ -370,7 +370,7 @@ export default function AboutPage() {
         {/* ══════════════════════════════════════
             MATERIAL PHILOSOPHY
         ══════════════════════════════════════ */}
-        <section className="relative z-10 py-32 px-6">
+        <section className="relative z-10 px-4 py-16 sm:px-6 sm:py-24 md:px-10">
           <div className="max-w-5xl mx-auto">
             <motion.div
               initial={{ opacity:0, y:16 }}

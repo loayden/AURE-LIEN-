@@ -9,10 +9,10 @@ import { useEffect, useState } from "react";
 function Orbs() {
   return (
     <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-      <div style={{ position:"absolute", width:700, height:700, top:"-12%", right:"-10%",
+      <div style={{ position:"absolute", width:380, height:380, top:"-12%", right:"-10%",
         background:"radial-gradient(circle, rgba(198,169,98,0.07) 0%, transparent 65%)",
         filter:"blur(90px)", animation:"orOA 25s ease-in-out infinite" }} />
-      <div style={{ position:"absolute", width:550, height:550, bottom:"8%", left:"-8%",
+      <div style={{ position:"absolute", width:320, height:320, bottom:"8%", left:"-8%",
         background:"radial-gradient(circle, rgba(150,140,220,0.05) 0%, transparent 65%)",
         filter:"blur(80px)", animation:"orOB 31s ease-in-out infinite" }} />
       <style>{`
@@ -79,7 +79,7 @@ function OrderCard({ order, index, onPending }: { order: any; index: number; onP
            style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent)" }} />
 
       {/* ── Card header ── */}
-      <div className="flex items-start justify-between gap-4 px-6 pt-6 pb-5"
+      <div className="flex items-start justify-between gap-4 px-4 pt-5 pb-4 sm:px-6 sm:pt-6 sm:pb-5"
            style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl"
@@ -114,7 +114,7 @@ function OrderCard({ order, index, onPending }: { order: any; index: number; onP
       </div>
 
       {/* ── Items ── */}
-      <div className="px-6 py-5 flex flex-col gap-3">
+      <div className="flex flex-col gap-3 px-4 py-4 sm:px-6 sm:py-5">
         {items.map((item: any, i: number) => (
           <div
             key={`${order._id}-${item.productId||item._id||i}-${i}`}
@@ -176,7 +176,7 @@ function OrderCard({ order, index, onPending }: { order: any; index: number; onP
       </div>
 
       {/* ── Card footer ── */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-6 pb-6 pt-3"
+      <div className="flex flex-col items-start justify-between gap-4 px-4 pb-5 pt-3 sm:flex-row sm:items-center sm:px-6 sm:pb-6"
            style={{ borderTop: "1px solid rgba(255,255,255,0.06)" }}>
 
         {/* Left — qty + total */}
@@ -211,7 +211,7 @@ function OrderCard({ order, index, onPending }: { order: any; index: number; onP
             onClick={() => onPending(order)}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
-            className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full font-light transition-all duration-400"
+            className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 px-5 py-3 rounded-full font-light transition-all duration-400 sm:gap-3 sm:px-6"
             style={{
               background: "linear-gradient(135deg, rgba(255,180,50,0.18), rgba(255,160,30,0.06))",
               border: "1px solid rgba(255,180,50,0.28)",
@@ -294,10 +294,10 @@ export default function OrdersPage() {
       <div className="relative min-h-screen bg-[#080808] text-white" style={{ fontFamily:"'Jost', sans-serif" }}>
         <Orbs />
 
-        <div className="relative z-10 max-w-4xl mx-auto px-6 sm:px-10 pt-28 pb-32">
+        <div className="relative z-10 mx-auto max-w-4xl px-4 pt-16 pb-16 sm:px-6 sm:pt-24 sm:pb-24 md:px-10 md:pb-32">
 
           {/* ── HEADER ── */}
-          <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.8 }} className="mb-12">
+          <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.8 }} className="mb-6 sm:mb-8 md:mb-10">
             <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase mb-4">Account</p>
             <div className="flex items-end justify-between gap-4 flex-wrap">
               <h1 className="font-light text-white leading-none"
@@ -305,7 +305,7 @@ export default function OrdersPage() {
                 Your <em style={{ color:"#C6A962", fontStyle:"italic" }}>Orders</em>
               </h1>
               {orders.length > 0 && (
-                <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full"
+                <span className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 px-4 py-2 rounded-full"
                       style={{ background:"linear-gradient(135deg, rgba(198,169,98,0.14), rgba(198,169,98,0.04))", border:"1px solid rgba(198,169,98,0.22)", backdropFilter:"blur(16px)" }}>
                   <span className="text-[#C6A962] text-[10px] tracking-[0.3em] uppercase font-light">
                     {orders.length} {orders.length === 1 ? "Order" : "Orders"}
@@ -336,7 +336,7 @@ export default function OrdersPage() {
                 onClick={() => router.push("/shop")}
                 whileHover={{ scale:1.02 }}
                 whileTap={{ scale:0.97 }}
-                className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full text-[#C6A962] text-[10px] tracking-[0.3em] uppercase font-light transition-all duration-500"
+                className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-full px-6 py-3.5 text-[10px] font-light uppercase tracking-[0.3em] text-[#C6A962] transition-all duration-500 sm:gap-3 sm:px-8"
                 style={{ background:"linear-gradient(135deg, rgba(198,169,98,0.14), rgba(198,169,98,0.04))", border:"1px solid rgba(198,169,98,0.25)", backdropFilter:"blur(16px)" }}
               >
                 Browse Collection

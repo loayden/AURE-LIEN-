@@ -99,7 +99,7 @@ function SubcategorySection({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
-      className="mb-12 sm:mb-16"
+      className="mb-6 sm:mb-8 md:mb-10"
     >
       {/* Subcategory header with product count */}
       <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
@@ -120,7 +120,7 @@ function SubcategorySection({
 
       {/* MOBILE: Grid optimized for small screens */}
       {productsInCategory.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 lg:gap-6">
           {productsInCategory.map((product, idx) => (
             <motion.div
               key={product._id}
@@ -320,7 +320,7 @@ export default function CollectionPage() {
             style={{ background: "linear-gradient(to bottom, rgba(8,8,8,0.6), transparent)" }}
           />
 
-          <motion.div style={{ opacity: heroOpacity }} className="relative z-10 text-center px-4 sm:px-6 max-w-3xl mx-auto">
+          <motion.div style={{ opacity: heroOpacity }} className="relative z-10 mx-auto max-w-3xl px-4 text-center sm:px-6 md:px-10">
             <p className="hero-line-1 text-white/30 text-[8px] sm:text-[10px] tracking-[0.45em] uppercase font-light mb-3 sm:mb-5">
               2025 Season
             </p>
@@ -328,7 +328,7 @@ export default function CollectionPage() {
               className="hero-line-2 font-light text-white mb-3 sm:mb-5 leading-none"
               style={{
                 fontFamily: "'Cormorant Garamond', serif",
-                fontSize: "clamp(2rem, 7vw, 7.5rem)",
+                fontSize: "clamp(1.8rem, 7vw, 5.5rem)",
                 letterSpacing: "0.04em",
                 textShadow: "0 4px 40px rgba(0,0,0,0.5)",
               }}
@@ -362,12 +362,12 @@ export default function CollectionPage() {
         </section>
 
         {/* ── STICKY NAV (Mobile optimized) ── */}
-        <div className="sticky top-0 z-40 sticky-nav py-4 px-4 sm:px-6 flex justify-center overflow-x-auto">
+        <div className="sticky top-20 sm:top-24 z-40 sticky-nav py-4 px-4 sm:px-6 md:px-10 flex justify-center overflow-x-auto">
           <GlassNav active={activeSection} onChange={setActiveSection} />
         </div>
 
         {/* ── MAIN SECTIONS ── */}
-        <div className="relative px-4 sm:px-6 max-w-7xl mx-auto py-12 sm:py-20">
+        <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-20 md:px-10">
           {SECTIONS.map((section, sectionIdx) => (
             <motion.section
               key={section.id}
@@ -434,7 +434,7 @@ export default function CollectionPage() {
 
         {/* ── FOOTER CTA ── */}
         <section
-          className="relative py-16 sm:py-24 px-4 sm:px-6 flex flex-col items-center justify-center text-center overflow-hidden mt-8"
+          className="relative mt-8 flex flex-col items-center justify-center overflow-hidden px-4 py-16 text-center sm:px-6 sm:py-24 md:px-10"
           style={{ background: "#060606" }}
         >
           <div

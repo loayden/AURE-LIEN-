@@ -94,11 +94,11 @@ export default function AdminLookbooksPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-serif font-light tracking-luxury-wide mb-10">
+      <h1 className="mb-6 text-2xl font-serif font-light tracking-luxury-wide sm:mb-8 md:mb-10 sm:text-3xl">
         Lookbooks
       </h1>
 
-      <div className="mb-12 p-6 border border-brass/20 rounded-xl bg-charcoal-light/30">
+      <div className="mb-6 rounded-xl border border-brass/20 bg-charcoal-light/30 p-4 sm:mb-8 sm:p-6 md:mb-10">
         <h2 className="text-lg font-serif mb-4">Create Lookbook</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <input
@@ -106,14 +106,14 @@ export default function AdminLookbooksPage() {
             placeholder="Title"
             value={form.title}
             onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-            className="bg-charcoal border border-brass/40 text-ivory px-4 py-2 rounded"
+            className="min-h-[44px] min-w-[44px] rounded border border-brass/40 bg-charcoal px-4 py-2 text-base text-ivory sm:text-sm"
           />
           <input
             type="text"
             placeholder="Slug (e.g. autumn-2025)"
             value={form.slug}
             onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
-            className="bg-charcoal border border-brass/40 text-ivory px-4 py-2 rounded"
+            className="min-h-[44px] min-w-[44px] rounded border border-brass/40 bg-charcoal px-4 py-2 text-base text-ivory sm:text-sm"
           />
         </div>
         <div className="space-y-4 mb-4">

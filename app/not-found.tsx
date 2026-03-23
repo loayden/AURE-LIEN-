@@ -8,12 +8,12 @@ function Orbs() {
   return (
     <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
       <div style={{
-        position:"absolute", width:700, height:700, top:"-15%", right:"-10%",
+        position:"absolute", width:380, height:380, top:"-15%", right:"-10%",
         background:"radial-gradient(circle, rgba(198,169,98,0.07) 0%, transparent 65%)",
         filter:"blur(100px)", animation:"nfOA 26s ease-in-out infinite",
       }} />
       <div style={{
-        position:"absolute", width:500, height:500, bottom:"-10%", left:"-8%",
+        position:"absolute", width:320, height:320, bottom:"-10%", left:"-8%",
         background:"radial-gradient(circle, rgba(150,140,220,0.05) 0%, transparent 65%)",
         filter:"blur(80px)", animation:"nfOB 32s ease-in-out infinite",
       }} />
@@ -35,7 +35,7 @@ export default function NotFound() {
       `}</style>
 
       <main
-        className="relative min-h-screen bg-[#080808] flex items-center justify-center px-6"
+        className="relative flex min-h-screen items-center justify-center bg-[#080808] px-4 sm:px-6 md:px-10"
         style={{ fontFamily:"'Jost', sans-serif" }}
       >
         <Orbs />
@@ -71,7 +71,7 @@ export default function NotFound() {
             initial={{ opacity:0, y:24 }}
             animate={{ opacity:1, y:0 }}
             transition={{ duration:0.9, delay:0.2, ease:[0.22,1,0.36,1] }}
-            className="relative overflow-hidden -mt-10 px-12 py-10 rounded-3xl flex flex-col items-center gap-6 max-w-sm w-full"
+            className="relative -mt-10 flex w-full max-w-sm flex-col items-center gap-6 overflow-hidden rounded-3xl px-6 py-8 sm:px-12 sm:py-10"
             style={{
               background:"linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.025) 100%)",
               backdropFilter:"blur(28px) saturate(160%)",
@@ -100,7 +100,7 @@ export default function NotFound() {
                  style={{ background:"linear-gradient(90deg, transparent, rgba(198,169,98,0.6), transparent)" }} />
 
             {/* Body */}
-            <p className="text-white/30 font-light text-sm leading-relaxed text-center max-w-xs"
+            <p className="max-w-xs text-center text-[11px] font-light leading-relaxed text-white/30 sm:text-sm"
                style={{ letterSpacing:"0.06em" }}>
               The page you're looking for doesn't exist or has been moved. Let us take you somewhere worthy of your attention.
             </p>
@@ -109,7 +109,7 @@ export default function NotFound() {
             <motion.div whileHover={{ scale:1.02 }} whileTap={{ scale:0.97 }}>
               <Link
                 href="/"
-                className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full font-light transition-all duration-400"
+                className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-full px-6 py-3.5 font-light transition-all duration-400 sm:gap-3 sm:px-8"
                 style={{
                   background:"linear-gradient(135deg, rgba(198,169,98,0.20), rgba(198,169,98,0.07))",
                   backdropFilter:"blur(16px)",
@@ -129,7 +129,7 @@ export default function NotFound() {
             {/* Secondary link */}
             <Link
               href="/shop"
-              className="text-white/20 text-[9px] tracking-[0.25em] uppercase hover:text-white/45 transition-colors duration-300"
+              className="inline-flex min-h-[44px] min-w-[44px] items-center text-white/20 text-[9px] tracking-[0.25em] uppercase hover:text-white/45 transition-colors duration-300"
             >
               or Browse the Collection
             </Link>

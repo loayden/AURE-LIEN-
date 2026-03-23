@@ -86,7 +86,7 @@ function DesktopMenuItem({ item }: { item: MenuItem }) {
     <li className="relative flex items-center" onMouseEnter={enter} onMouseLeave={leave}>
       <Link
         href={item.link}
-        className="group relative flex items-center gap-1.5 px-3.5 py-2 rounded-full text-white/55 hover:text-white/90 transition-all duration-300"
+        className="group relative flex min-h-[44px] min-w-[44px] items-center gap-1.5 rounded-full px-3.5 py-2 text-white/55 transition-all duration-300 hover:text-white/90"
         style={{ fontSize:"10px", letterSpacing:"0.22em", fontFamily:"'Jost', sans-serif", fontWeight:300 }}
       >
         {/* Hover pill bg */}
@@ -157,7 +157,7 @@ function UtilityBtn({ item }: { item: MenuItem }) {
       <Link
         href={item.link}
         aria-label={item.title}
-        className="relative group flex h-10 w-10 items-center justify-center rounded-full text-white/45 transition-colors duration-300 hover:text-white/85 lg:h-9 lg:w-9"
+        className="relative group flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-white/45 transition-colors duration-300 hover:text-white/85 lg:h-10 lg:w-10"
       >
         <span className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               style={{ background:"rgba(255,255,255,0.07)" }} />
@@ -228,7 +228,7 @@ function MobileMenu({
             <motion.button
               onClick={closeMenu}
               whileTap={{ scale:0.85 }}
-              className="flex h-10 w-10 items-center justify-center rounded-full text-white/45 transition-all duration-300 hover:text-white/80"
+              className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-white/45 transition-all duration-300 hover:text-white/80"
               style={{ background:"rgba(255,255,255,0.07)", border:"1px solid rgba(255,255,255,0.08)" }}
             >
               <X strokeWidth={1.3} className="w-3.5 h-3.5" />
@@ -245,10 +245,10 @@ function MobileMenu({
                   <Link
                     href={item.link}
                     onClick={!item.submenu ? closeMenu : undefined}
-                    className="flex items-center gap-3 flex-1"
+                    className="flex min-h-[44px] min-w-[44px] flex-1 items-center gap-2 sm:gap-3"
                   >
                     <span
-                      className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl"
+                      className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl"
                       style={{
                         background:"linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))",
                         border:"1px solid rgba(255,255,255,0.07)",
@@ -269,7 +269,7 @@ function MobileMenu({
                     <motion.button
                       type="button"
                       onClick={() => setActiveSubmenu(activeSubmenu === idx ? null : idx)}
-                      className="flex h-10 w-10 items-center justify-center rounded-full text-white/30 transition-all duration-300 hover:text-white/60"
+                      className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-white/30 transition-all duration-300 hover:text-white/60"
                       style={{ background:"rgba(255,255,255,0.05)" }}
                       animate={{ rotate: activeSubmenu === idx ? 180 : 0 }}
                       transition={{ duration:0.3 }}
@@ -296,7 +296,7 @@ function MobileMenu({
                             <Link
                               href={sub.link}
                               onClick={closeMenu}
-                              className="group flex items-center justify-between px-4 py-3.5 text-white/45 transition-all duration-200 hover:bg-white/[0.04] hover:text-white/75"
+                              className="group flex min-h-[44px] min-w-[44px] items-center justify-between px-4 py-3.5 text-white/45 transition-all duration-200 hover:bg-white/[0.04] hover:text-white/75"
                               style={{ fontSize:"11px", letterSpacing:"0.12em", fontFamily:"'Jost', sans-serif", fontWeight:300 }}
                             >
                               <span>{sub.title}</span>
@@ -324,10 +324,10 @@ function MobileMenu({
                 <Link
                   href={item.link}
                   onClick={closeMenu}
-                  className="flex items-center gap-3 rounded-2xl px-3 py-3.5 transition-all duration-300 hover:bg-white/[0.04]"
+                  className="flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-2xl px-3 py-3.5 transition-all duration-300 hover:bg-white/[0.04] sm:gap-3"
                 >
                   <span
-                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl"
+                    className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl"
                     style={{
                       background:"linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))",
                       border:"1px solid rgba(255,255,255,0.07)",
@@ -410,7 +410,7 @@ export default function Navbar() {
         <div className="absolute inset-x-0 top-0 h-px pointer-events-none"
              style={{ background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.08) 30%, rgba(255,255,255,0.08) 70%, transparent)" }} />
 
-        <div className="mx-auto flex h-[62px] max-w-[1440px] items-center justify-between px-3.5 sm:h-[64px] sm:px-5 md:px-8">
+        <div className="mx-auto flex h-[62px] max-w-[1440px] items-center justify-between px-4 sm:h-[64px] sm:px-6 md:px-10">
 
           {/* Logo */}
           <Link href="/" className="group relative flex-shrink-0">
@@ -445,7 +445,7 @@ export default function Navbar() {
               onClick={() => setSearchOpen(true)}
               whileHover={{ scale:1.08 }}
               whileTap={{ scale:0.9 }}
-              className="relative group flex items-center justify-center w-9 h-9 rounded-full text-white/45 hover:text-white/85 transition-colors duration-300"
+              className="relative group flex h-10 w-10 min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-white/45 transition-colors duration-300 hover:text-white/85"
               aria-label="Search"
             >
               <span className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -465,7 +465,7 @@ export default function Navbar() {
             ].map((btn, i) => (
               <motion.div key={i} whileTap={{ scale:0.88 }}>
                 <Link href={btn.href} aria-label={btn.label}
-                  className="relative group flex h-11 w-11 items-center justify-center rounded-full text-white/50 transition-colors duration-300 hover:text-white/85">
+                  className="relative group flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-white/50 transition-colors duration-300 hover:text-white/85">
                   <span className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                         style={{ background:"rgba(255,255,255,0.06)" }} />
                   <span className="relative z-10">{btn.icon}</span>
@@ -478,7 +478,7 @@ export default function Navbar() {
               type="button"
               onClick={() => setSearchOpen(true)}
               whileTap={{ scale:0.88 }}
-              className="relative group flex h-11 w-11 items-center justify-center rounded-full text-white/50 transition-colors duration-300 hover:text-white/85"
+              className="relative group flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-white/50 transition-colors duration-300 hover:text-white/85"
             >
               <span className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     style={{ background:"rgba(255,255,255,0.06)" }} />
@@ -489,7 +489,7 @@ export default function Navbar() {
             <motion.button
               onClick={() => setMobileOpen(!mobileOpen)}
               whileTap={{ scale:0.88 }}
-              className="relative group ml-0.5 flex h-11 w-11 items-center justify-center rounded-full text-white/50 transition-colors duration-300 hover:text-white/85"
+              className="relative group ml-0.5 flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-white/50 transition-colors duration-300 hover:text-white/85"
               aria-label="Toggle menu"
             >
               <span className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"

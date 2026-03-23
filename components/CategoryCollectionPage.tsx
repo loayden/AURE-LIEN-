@@ -22,23 +22,23 @@ export default function CategoryCollectionPage({
   return (
     <main className="min-h-screen bg-[#0b0b0b] text-white">
       <section className="catalog-shell">
-        <div className="mx-auto mb-10 max-w-3xl text-center sm:mb-14">
+        <div className="mx-auto mb-6 max-w-3xl text-center sm:mb-8 md:mb-10">
           <p className="mb-4 text-[9px] font-light uppercase tracking-[0.4em] text-white/28">
             {eyebrow}
           </p>
           <h1 className="luxury-title mb-5 text-white">
             {title}
           </h1>
-          <p className="mx-auto max-w-2xl text-sm font-light leading-relaxed tracking-[0.08em] text-white/40 sm:text-base">
+          <p className="mx-auto max-w-2xl text-[11px] font-light leading-relaxed tracking-[0.08em] text-white/40 sm:text-sm md:text-base">
             {description}
           </p>
 
-          <div className="mt-6 flex items-center justify-center gap-3 sm:gap-4">
+          <div className="mt-6 flex items-center justify-center gap-2 sm:gap-3">
             <span
               className="h-px w-8 sm:w-10"
               style={{ background: "linear-gradient(90deg, transparent, rgba(198,169,98,0.72), transparent)" }}
             />
-            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[9px] uppercase tracking-[0.3em] text-white/45">
+            <span className="inline-flex min-h-[44px] min-w-[44px] items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[9px] uppercase tracking-[0.3em] text-white/45">
               {products.length} {pieceLabel}
             </span>
             <span
@@ -55,8 +55,8 @@ export default function CategoryCollectionPage({
             ))}
           </div>
         ) : (
-          <div className="mx-auto max-w-2xl rounded-[1.75rem] border border-white/8 bg-white/[0.03] px-6 py-10 text-center shadow-[0_18px_44px_rgba(0,0,0,0.28)]">
-            <p className="text-base font-light tracking-[0.08em] text-white/46 sm:text-lg">
+          <div className="mx-auto max-w-2xl rounded-[1.75rem] border border-white/8 bg-white/[0.03] px-4 py-8 text-center shadow-[0_18px_44px_rgba(0,0,0,0.28)] sm:px-6 sm:py-10">
+            <p className="text-[11px] font-light tracking-[0.08em] text-white/46 sm:text-sm md:text-lg">
               {emptyMessage}
             </p>
           </div>

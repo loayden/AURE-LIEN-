@@ -54,15 +54,15 @@ export default function LuxuryFooter() {
         {/* Ambient glow */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div style={{
-            position: "absolute", width: 600, height: 600,
+            position: "absolute",
             bottom: "-20%", left: "50%", transform: "translateX(-50%)",
             background: "radial-gradient(circle, rgba(198,169,98,0.05) 0%, transparent 65%)",
             filter: "blur(80px)",
-          }} />
+          }} className="mobile-orb-lg" />
         </div>
 
         {/* ── UPPER GRID ── */}
-        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-10 px-4 py-14 sm:grid-cols-2 sm:gap-12 sm:px-8 sm:py-24 xl:grid-cols-4 xl:gap-14">
+        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-12 sm:grid-cols-2 sm:gap-10 sm:px-6 sm:py-20 md:px-10 xl:grid-cols-4 xl:gap-12">
 
           {/* Brand */}
           <div className="flex flex-col gap-5 md:col-span-1">
@@ -76,7 +76,7 @@ export default function LuxuryFooter() {
             </Link>
             <div className="w-10 h-px"
                  style={{ background:"linear-gradient(90deg, rgba(198,169,98,0.7), transparent)" }} />
-            <p className="max-w-none text-sm font-light leading-relaxed tracking-wide text-white/30 sm:max-w-[220px]">
+            <p className="max-w-none text-[11px] font-light leading-relaxed tracking-[0.08em] text-white/30 sm:max-w-[220px] sm:text-sm">
               Crafted in silence. Designed with discipline. A study in structure, presence, and restraint.
             </p>
 
@@ -90,7 +90,7 @@ export default function LuxuryFooter() {
                   rel="noopener noreferrer"
                   whileHover={{ scale: 1.12, y: -1 }}
                   whileTap={{ scale: 0.92 }}
-                  className="p-3 sm:p-2.5 rounded-xl transition-all duration-400"
+                  className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl p-3 transition-all duration-400 sm:p-2.5"
                   style={{
                     background: "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))",
                     border: "1px solid rgba(255,255,255,0.08)",
@@ -115,8 +115,8 @@ export default function LuxuryFooter() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="group flex items-center gap-2 text-white/40 hover:text-white/80 transition-all duration-300"
-                    style={{ fontSize:"0.85rem", letterSpacing:"0.08em" }}
+                    className="group flex min-h-[44px] min-w-[44px] items-center gap-2 text-white/40 transition-all duration-300 hover:text-white/80"
+                    style={{ fontSize:"0.75rem", letterSpacing:"0.08em" }}
                   >
                     <span className="w-3 h-px transition-all duration-300 group-hover:w-5"
                           style={{ background:"rgba(198,169,98,0.5)", flexShrink:0 }} />
@@ -136,8 +136,8 @@ export default function LuxuryFooter() {
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="group flex items-center gap-2 text-white/40 hover:text-white/80 transition-all duration-300"
-                    style={{ fontSize:"0.85rem", letterSpacing:"0.08em" }}
+                    className="group flex min-h-[44px] min-w-[44px] items-center gap-2 text-white/40 transition-all duration-300 hover:text-white/80"
+                    style={{ fontSize:"0.75rem", letterSpacing:"0.08em" }}
                   >
                     <span className="w-3 h-px transition-all duration-300 group-hover:w-5"
                           style={{ background:"rgba(198,169,98,0.5)", flexShrink:0 }} />
@@ -152,7 +152,7 @@ export default function LuxuryFooter() {
           <div className="flex flex-col gap-5">
             <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase">Private Access</p>
             <div className="w-6 h-px" style={{ background:"rgba(198,169,98,0.4)" }} />
-            <p className="text-white/30 text-sm font-light leading-relaxed tracking-wide">
+            <p className="text-[11px] font-light leading-relaxed tracking-[0.08em] text-white/30 sm:text-sm">
               Join the Maison.<br />Receive exclusive releases.
             </p>
 
@@ -183,14 +183,14 @@ export default function LuxuryFooter() {
                   onChange={(e) => setEmail(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleJoin()}
                   placeholder="Your email"
-                  className="flex-1 bg-transparent outline-none px-4 py-3 text-white/60 text-xs tracking-[0.12em] placeholder:text-white/20"
+                  className="flex-1 bg-transparent px-4 py-3 text-base tracking-[0.12em] text-white/60 outline-none placeholder:text-white/20 sm:text-sm"
                   style={{ fontFamily:"'Jost', sans-serif" }}
                 />
                 <motion.button
                   onClick={handleJoin}
                   whileHover={{ scale:1.05 }}
                   whileTap={{ scale:0.95 }}
-                  className="px-4 py-3 flex items-center justify-center gap-1.5 transition-all duration-300 border-t border-white/10 sm:border-t-0 sm:border-l"
+                  className="flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 border-t border-white/10 px-4 py-3 transition-all duration-300 sm:border-l sm:border-t-0 sm:gap-3"
                 >
                   <span className="text-[9px] tracking-[0.3em] uppercase font-light text-white/30 hover:text-[#C6A962] transition-colors">
                     Join
@@ -208,12 +208,12 @@ export default function LuxuryFooter() {
         </div>
 
         {/* ── DIVIDER ── */}
-        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-8">
+        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 md:px-10">
           <div className="h-px" style={{ background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)" }} />
         </div>
 
         {/* ── BOTTOM BAR ── */}
-        <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row sm:gap-6 sm:px-8 sm:py-10">
+        <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row sm:gap-6 sm:px-6 sm:py-10 md:px-10">
 
           {/* Presented by */}
           <motion.a
@@ -237,10 +237,10 @@ export default function LuxuryFooter() {
           </p>
 
           {/* Legal links */}
-          <div className="flex items-center justify-center flex-wrap gap-4 sm:gap-5">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5">
             {["Privacy", "Terms", "Cookies"].map((l) => (
               <Link key={l} href="#"
-                className="text-white/20 text-[9px] tracking-[0.25em] uppercase hover:text-white/50 transition-colors duration-300">
+                className="inline-flex min-h-[44px] min-w-[44px] items-center text-white/20 text-[9px] tracking-[0.25em] uppercase transition-colors duration-300 hover:text-white/50">
                 {l}
               </Link>
             ))}

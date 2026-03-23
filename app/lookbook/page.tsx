@@ -24,10 +24,10 @@ interface Section {
 function Orbs() {
   return (
     <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-      <div style={{ position:"absolute", width:700, height:700, top:"-15%", right:"-10%",
+      <div style={{ position:"absolute", width:380, height:380, top:"-15%", right:"-10%",
         background:"radial-gradient(circle, rgba(198,169,98,0.06) 0%, transparent 65%)",
         filter:"blur(90px)", animation:"lbOA 26s ease-in-out infinite" }} />
-      <div style={{ position:"absolute", width:550, height:550, bottom:"10%", left:"-8%",
+      <div style={{ position:"absolute", width:320, height:320, bottom:"10%", left:"-8%",
         background:"radial-gradient(circle, rgba(150,140,220,0.05) 0%, transparent 65%)",
         filter:"blur(80px)", animation:"lbOB 32s ease-in-out infinite" }} />
       <style>{`
@@ -192,7 +192,7 @@ function LookbookSection({ section, index }: { section: Section; index: number }
           {/* CTA */}
           <Link
             href="/shop"
-            className="inline-flex items-center gap-3 px-7 py-3.5 rounded-full font-light transition-all duration-500 hover:scale-[1.02]"
+            className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-full px-5 py-3.5 font-light transition-all duration-500 hover:scale-[1.02] sm:gap-3 sm:px-7"
             style={{
               background:"linear-gradient(135deg, rgba(198,169,98,0.18) 0%, rgba(198,169,98,0.06) 100%)",
               backdropFilter:"blur(16px)",
@@ -241,7 +241,7 @@ export default function LookbookPage() {
         <Orbs />
 
         {/* ── HERO ── */}
-        <section ref={heroRef} className="relative h-[70vh] w-full overflow-hidden flex items-end justify-center pb-16">
+        <section ref={heroRef} className="relative flex h-[60vh] w-full items-end justify-center overflow-hidden px-4 pb-10 sm:h-[75vh] sm:px-6 sm:pb-20 md:h-[85vh] md:px-10">
           {/* Background — mosaic of lookbook images */}
           <motion.div style={{ y:heroY }} className="absolute inset-0 scale-110">
             <Image
@@ -262,7 +262,7 @@ export default function LookbookPage() {
           <div className="absolute inset-x-0 top-0 h-24"
                style={{ background:"linear-gradient(to bottom, rgba(8,8,8,0.5), transparent)" }} />
 
-          <motion.div style={{ opacity:heroOpacity }} className="relative z-10 text-center px-6 flex flex-col items-center">
+          <motion.div style={{ opacity:heroOpacity }} className="relative z-10 flex flex-col items-center px-4 text-center sm:px-6 md:px-10">
             <div className="mb-7">
               <span
                 className="inline-block px-5 py-2 rounded-full text-[9px] text-white/45 tracking-[0.4em] uppercase font-light"
@@ -301,7 +301,7 @@ export default function LookbookPage() {
         </section>
 
         {/* ── CHAPTER INDEX ── */}
-        <section className="relative z-10 py-16 px-6">
+        <section className="relative z-10 px-4 py-12 sm:px-6 sm:py-16 md:px-10">
           <motion.div
             initial={false}
             whileInView={{ opacity:1, y:0 }}
@@ -333,7 +333,7 @@ export default function LookbookPage() {
         </section>
 
         {/* ── SECTIONS ── */}
-        <section className="relative z-10 max-w-6xl mx-auto px-6 sm:px-12 pb-32 flex flex-col gap-28">
+        <section className="relative z-10 mx-auto flex max-w-6xl flex-col gap-16 px-4 pb-16 sm:gap-20 sm:px-6 sm:pb-24 md:gap-28 md:px-10 md:pb-32">
           {sections.map((section, i) => (
             <div key={section.slug || i} id={section.slug}>
               <LookbookSection section={section} index={i} />
@@ -342,7 +342,7 @@ export default function LookbookPage() {
         </section>
 
         {/* ── FOOTER CTA ── */}
-        <section className="relative z-10 py-24 px-6 text-center overflow-hidden"
+        <section className="relative z-10 overflow-hidden px-4 py-16 text-center sm:px-6 sm:py-24 md:px-10"
                  style={{ background:"#060606" }}>
           <div className="absolute inset-0 pointer-events-none"
                style={{ background:"radial-gradient(ellipse at 50% 100%, rgba(198,169,98,0.05) 0%, transparent 60%)" }} />

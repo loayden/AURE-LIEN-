@@ -51,7 +51,7 @@ export default function AdminUsersPage() {
   return (
     <div className="space-y-8">
       <div className="border-b border-brass/30 pb-4">
-        <h1 className="text-2xl font-serif font-light tracking-luxury-wide">
+        <h1 className="text-xl font-serif font-light tracking-luxury-wide sm:text-2xl">
           Users
         </h1>
         <p className="text-ivory-muted text-sm mt-1">
@@ -67,14 +67,14 @@ export default function AdminUsersPage() {
             placeholder="Search by name or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full sm:w-72 pl-10 pr-4 py-2.5 bg-charcoal border border-brass/30 rounded-lg text-ivory placeholder:text-ivory-muted/60 focus:outline-none focus:border-brass"
+            className="w-full min-h-[44px] min-w-[44px] rounded-lg border border-brass/30 bg-charcoal py-2.5 pl-10 pr-4 text-base text-ivory placeholder:text-ivory-muted/60 focus:border-brass focus:outline-none sm:w-72 sm:text-sm"
           />
         </div>
         <div className="relative">
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value)}
-            className="appearance-none w-full sm:w-48 pl-4 pr-10 py-2.5 bg-charcoal border border-brass/30 rounded-lg text-ivory focus:outline-none focus:border-brass"
+            className="min-h-[44px] min-w-[44px] w-full appearance-none rounded-lg border border-brass/30 bg-charcoal py-2.5 pl-4 pr-10 text-base text-ivory focus:border-brass focus:outline-none sm:w-48 sm:text-sm"
           >
             <option value="newest">Newest first</option>
             <option value="orders">Most orders</option>
@@ -122,7 +122,7 @@ export default function AdminUsersPage() {
                     <td className="py-4 px-6 text-center">
                       <Link
                         href={`/admin/users/${u._id}/orders`}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 border border-brass/50 text-brass text-sm tracking-wide hover:bg-brass/10 transition-colors rounded-lg"
+                        className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-lg border border-brass/50 px-4 py-2 text-[11px] tracking-wide text-brass transition-colors hover:bg-brass/10 sm:text-sm"
                       >
                         <Eye className="w-4 h-4" />
                         View

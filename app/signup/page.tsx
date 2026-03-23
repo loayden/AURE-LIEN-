@@ -10,12 +10,12 @@ function Orbs() {
   return (
     <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
       <div style={{
-        position:"absolute", width:650, height:650, top:"-15%", left:"-10%",
+        position:"absolute", width:380, height:380, top:"-15%", left:"-10%",
         background:"radial-gradient(circle, rgba(198,169,98,0.08) 0%, transparent 65%)",
         filter:"blur(90px)", animation:"suOA 24s ease-in-out infinite",
       }} />
       <div style={{
-        position:"absolute", width:500, height:500, bottom:"-10%", right:"-8%",
+        position:"absolute", width:320, height:320, bottom:"-10%", right:"-8%",
         background:"radial-gradient(circle, rgba(150,140,220,0.06) 0%, transparent 65%)",
         filter:"blur(80px)", animation:"suOB 30s ease-in-out infinite",
       }} />
@@ -127,7 +127,7 @@ export default function SignupPage() {
           border-radius: 14px;
           padding: 14px 18px;
           color: rgba(255,255,255,0.80);
-          font-size: 0.85rem;
+          font-size: 1rem;
           letter-spacing: 0.05em;
           font-family: 'Jost', sans-serif;
           font-weight: 300;
@@ -150,7 +150,7 @@ export default function SignupPage() {
       `}</style>
 
       <main
-        className="relative min-h-screen bg-[#080808] flex items-center justify-center px-6 py-24"
+        className="relative min-h-screen bg-[#080808] flex items-center justify-center px-4 py-16 sm:px-6 sm:py-24 md:px-10"
         style={{ fontFamily:"'Jost', sans-serif" }}
       >
         <Orbs />
@@ -172,7 +172,7 @@ export default function SignupPage() {
           <div className="absolute inset-x-6 top-0 h-px pointer-events-none"
                style={{ background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)" }} />
 
-          <div className="px-8 pt-10 pb-10">
+          <div className="px-5 pt-8 pb-8 sm:px-8 sm:pt-10 sm:pb-10">
 
             {/* Brand header */}
             <div className="text-center mb-8">
@@ -195,7 +195,7 @@ export default function SignupPage() {
                   animate={{ opacity:1, y:0, height:"auto" }}
                   exit={{ opacity:0, y:-8, height:0 }}
                   transition={{ duration:0.3 }}
-                  className="mb-5 flex items-center gap-3 px-4 py-3 rounded-2xl overflow-hidden"
+                  className="mb-5 flex items-center gap-2 px-4 py-3 rounded-2xl overflow-hidden sm:gap-3"
                   style={{ background:"rgba(255,60,60,0.07)", border:"1px solid rgba(255,80,80,0.18)", backdropFilter:"blur(12px)" }}
                 >
                   <AlertCircle strokeWidth={1.3} className="w-3.5 h-3.5 text-red-400/70 shrink-0" />
@@ -249,7 +249,7 @@ export default function SignupPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/55 transition-colors duration-300"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] text-white/25 transition-colors duration-300 hover:text-white/55"
                   >
                     {showPassword
                       ? <EyeOff strokeWidth={1.3} className="w-4 h-4" />
@@ -274,7 +274,7 @@ export default function SignupPage() {
                     style={{ paddingRight:80 }}
                   />
                   {/* Match indicator */}
-                  <div className="absolute right-10 top-1/2 -translate-y-1/2">
+                  <div className="absolute right-12 top-1/2 -translate-y-1/2">
                     <AnimatePresence mode="wait">
                       {passwordsMatch && (
                         <motion.span key="ok" initial={{ opacity:0, scale:0.7 }} animate={{ opacity:1, scale:1 }} exit={{ opacity:0 }}>
@@ -286,7 +286,7 @@ export default function SignupPage() {
                   <button
                     type="button"
                     onClick={() => setShowConfirm(!showConfirm)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/55 transition-colors duration-300"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] text-white/25 transition-colors duration-300 hover:text-white/55"
                   >
                     {showConfirm
                       ? <EyeOff strokeWidth={1.3} className="w-4 h-4" />

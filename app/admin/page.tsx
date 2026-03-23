@@ -53,11 +53,11 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <h1 className="text-3xl font-serif font-light tracking-luxury-wide mb-10">
+      <h1 className="mb-6 text-2xl font-serif font-light tracking-luxury-wide sm:mb-8 md:mb-10 sm:text-3xl">
         Dashboard
       </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:mb-8 sm:grid-cols-2 sm:gap-5 md:mb-10 lg:grid-cols-4 lg:gap-6">
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -102,7 +102,7 @@ export default function AdminDashboard() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="mb-12 p-6 border border-brass/20 rounded-xl bg-charcoal-light/30"
+          className="mb-6 rounded-xl border border-brass/20 bg-charcoal-light/30 p-4 sm:mb-8 sm:p-6 md:mb-10"
         >
           <h2 className="text-lg font-serif mb-6">Revenue by Month</h2>
           <div className="h-64">
@@ -126,7 +126,7 @@ export default function AdminDashboard() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
-          className="p-6 border border-brass/20 rounded-xl bg-charcoal-light/30"
+          className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-4 sm:p-6"
         >
           <h2 className="text-lg font-serif mb-6">Best Selling Products</h2>
           <div className="h-64">

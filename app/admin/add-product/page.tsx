@@ -63,7 +63,7 @@ export default function AdminAddProductPage() {
 
   return (
     <div className="space-y-8 max-w-2xl">
-      <h1 className="text-2xl font-serif font-light tracking-luxury-wide border-b border-brass/30 pb-4">
+      <h1 className="border-b border-brass/30 pb-4 text-xl font-serif font-light tracking-luxury-wide sm:text-2xl">
         Add Product
       </h1>
 
@@ -78,7 +78,7 @@ export default function AdminAddProductPage() {
             required
             value={form.name}
             onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-            className="w-full px-4 py-2.5 bg-charcoal border border-brass/30 rounded-lg text-ivory focus:outline-none focus:border-brass"
+            className="min-h-[44px] min-w-[44px] w-full rounded-lg border border-brass/30 bg-charcoal px-4 py-2.5 text-base text-ivory focus:border-brass focus:outline-none sm:text-sm"
           />
         </div>
         <div>
@@ -87,7 +87,7 @@ export default function AdminAddProductPage() {
             required
             value={form.category}
             onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
-            className="w-full px-4 py-2.5 bg-charcoal border border-brass/30 rounded-lg text-ivory focus:outline-none focus:border-brass"
+            className="min-h-[44px] min-w-[44px] w-full rounded-lg border border-brass/30 bg-charcoal px-4 py-2.5 text-base text-ivory focus:border-brass focus:outline-none sm:text-sm"
           >
             <option value="">Select category</option>
             {CATEGORIES.map((c) => (
@@ -103,7 +103,7 @@ export default function AdminAddProductPage() {
             min={0}
             value={form.price}
             onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
-            className="w-full px-4 py-2.5 bg-charcoal border border-brass/30 rounded-lg text-ivory focus:outline-none focus:border-brass"
+            className="min-h-[44px] min-w-[44px] w-full rounded-lg border border-brass/30 bg-charcoal px-4 py-2.5 text-base text-ivory focus:border-brass focus:outline-none sm:text-sm"
           />
         </div>
         <div>
@@ -112,7 +112,7 @@ export default function AdminAddProductPage() {
             rows={3}
             value={form.description}
             onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-            className="w-full px-4 py-2.5 bg-charcoal border border-brass/30 rounded-lg text-ivory focus:outline-none focus:border-brass resize-none"
+            className="min-h-[44px] min-w-[44px] w-full resize-none rounded-lg border border-brass/30 bg-charcoal px-4 py-2.5 text-base text-ivory focus:border-brass focus:outline-none sm:text-sm"
           />
         </div>
         <div>

@@ -88,7 +88,7 @@ export default function AdminOrdersPage() {
     <div className="space-y-8">
       <Link
         href="/admin"
-        className="inline-flex items-center gap-2 text-brass hover:text-brass/80 transition-colors text-sm tracking-wide"
+        className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 text-[11px] tracking-wide text-brass transition-colors hover:text-brass/80 sm:text-sm"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Admin
@@ -96,7 +96,7 @@ export default function AdminOrdersPage() {
 
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-brass/30 pb-4">
         <div>
-          <h1 className="text-2xl font-serif font-light tracking-luxury-wide">
+          <h1 className="text-xl font-serif font-light tracking-luxury-wide sm:text-2xl">
             All Orders
           </h1>
           <p className="text-ivory-muted text-sm mt-1">
@@ -107,7 +107,7 @@ export default function AdminOrdersPage() {
           type="button"
           onClick={handleExportJson}
           disabled={exporting || orders.length === 0}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-brass/30 text-brass hover:bg-brass/10 disabled:opacity-50 disabled:cursor-not-allowed text-sm tracking-wide transition-colors"
+          className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-lg border border-brass/30 px-4 py-2 text-[11px] tracking-wide text-brass transition-colors hover:bg-brass/10 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
         >
           <Download className="w-4 h-4" />
           {exporting ? "Exporting…" : "Download all orders (JSON)"}

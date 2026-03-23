@@ -23,11 +23,11 @@ export default function SectionHeader({
       transition={{ duration: 0.6, ease: "easeOut" }}
       className={`${align === "center" ? "text-center" : "text-left"} ${className}`}
     >
-      <h2 className="text-display-md font-serif font-light text-ivory tracking-luxury-wide">
+      <h2 className="text-xl font-serif font-light text-ivory tracking-luxury-wide sm:text-2xl lg:text-display-md">
         {title}
       </h2>
       {subtitle && (
-        <p className="mt-4 max-w-xl text-ivory-muted/80 text-base sm:text-lg leading-relaxed tracking-wide font-light">
+        <p className="mt-4 max-w-xl text-[11px] font-light leading-relaxed tracking-[0.08em] text-ivory-muted/80 sm:text-sm lg:text-base">
           {subtitle}
         </p>
       )}

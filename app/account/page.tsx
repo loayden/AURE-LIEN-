@@ -47,17 +47,17 @@ export default function AccountPage() {
   if (!user) return null;
 
   return (
-    <main className="min-h-screen bg-black text-ivory pt-28 pb-20 px-6">
+    <main className="min-h-screen bg-black text-ivory pt-16 pb-16 px-4 sm:pt-24 sm:pb-20 sm:px-6 md:px-10">
       <div className="max-w-2xl mx-auto">
         <motion.h1
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="font-serif text-display-md tracking-luxury-wide border-b border-brass/30 pb-6 mb-12"
+          className="font-serif text-display-md tracking-luxury-wide border-b border-brass/30 pb-4 sm:pb-6 mb-6 sm:mb-8 md:mb-10"
         >
           Account
         </motion.h1>
 
-        <section className="space-y-8 mb-16">
+        <section className="mb-10 space-y-6 sm:mb-12 sm:space-y-8">
           <h2 className="text-xs uppercase tracking-widest text-silver">Profile</h2>
           <p className="text-ivory font-light">{user.name}</p>
           <p className="text-ivory-muted">{user.email}</p>
@@ -71,16 +71,16 @@ export default function AccountPage() {
           )}
         </section>
 
-        <nav className="space-y-4 mb-16">
+        <nav className="mb-10 space-y-3 sm:mb-12 sm:space-y-4">
           <Link
             href="/orders"
-            className="block py-4 border border-brass/30 text-ivory font-serif tracking-wide hover:bg-brass/10 transition-colors text-center"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center border border-brass/30 py-4 text-center font-serif tracking-wide text-ivory transition-colors hover:bg-brass/10"
           >
             Order History
           </Link>
           <Link
             href="/wishlist"
-            className="block py-4 border border-brass/30 text-ivory font-serif tracking-wide hover:bg-brass/10 transition-colors text-center"
+            className="flex min-h-[44px] min-w-[44px] items-center justify-center border border-brass/30 py-4 text-center font-serif tracking-wide text-ivory transition-colors hover:bg-brass/10"
           >
             Wishlist
           </Link>
@@ -90,7 +90,7 @@ export default function AccountPage() {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleLogout}
-          className="w-full py-4 border border-brass text-brass font-serif tracking-widest uppercase text-sm hover:bg-brass hover:text-black transition-colors"
+          className="w-full min-h-[44px] min-w-[44px] border border-brass py-4 text-sm font-serif uppercase tracking-widest text-brass transition-colors hover:bg-brass hover:text-black"
         >
           Sign Out
         </motion.button>

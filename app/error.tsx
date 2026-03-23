@@ -26,13 +26,13 @@ export default function GlobalError({
           @keyframes errOB { 0%,100%{transform:translate(0,0)} 50%{transform:translate(32px,-18px)} }
 
           .orb-gold {
-            position: fixed; width: 680px; height: 680px; top: -15%; right: -10%;
+            position: fixed; width: 380px; height: 380px; top: -15%; right: -10%;
             background: radial-gradient(circle, rgba(198,169,98,0.07) 0%, transparent 65%);
             filter: blur(90px); border-radius: 50%; pointer-events: none;
             animation: errOA 26s ease-in-out infinite;
           }
           .orb-red {
-            position: fixed; width: 520px; height: 520px; bottom: -10%; left: -8%;
+            position: fixed; width: 320px; height: 320px; bottom: -10%; left: -8%;
             background: radial-gradient(circle, rgba(220,60,60,0.06) 0%, transparent 65%);
             filter: blur(80px); border-radius: 50%; pointer-events: none;
             animation: errOB 32s ease-in-out infinite;

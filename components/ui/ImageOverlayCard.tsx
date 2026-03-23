@@ -18,7 +18,7 @@ export default function ImageOverlayCard({
   index = 0,
 }: ImageOverlayCardProps) {
   return (
-    <Link href={link} className="group block">
+    <Link href={link} className="group block min-h-[44px] min-w-[44px]">
       <motion.div
         initial={false}
         whileInView={{ opacity: 1, y: 0 }}
@@ -35,11 +35,11 @@ export default function ImageOverlayCard({
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
         />
         <div className="absolute inset-0 bg-black/50 transition-opacity duration-500 group-hover:bg-black/30" />
-        <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-6">
-          <h3 className="text-2xl sm:text-3xl font-serif font-light text-brass tracking-luxury-wide group-hover:text-brass-light transition-colors duration-500">
+        <div className="absolute inset-0 flex flex-col items-center justify-center px-4 text-center sm:px-6">
+          <h3 className="text-xl font-serif font-light text-brass tracking-luxury-wide transition-colors duration-500 group-hover:text-brass-light sm:text-2xl md:text-3xl">
             {title}
           </h3>
-          <span className="mt-4 block h-px w-12 bg-brass transition-all duration-500 group-hover:w-20" />
+          <span className="mt-3 block h-px w-10 bg-brass transition-all duration-500 group-hover:w-20 sm:mt-4 sm:w-12" />
         </div>
       </motion.div>
     </Link>

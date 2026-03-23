@@ -41,12 +41,12 @@ export default function AdminLayout({
   };
 
   return (
-    <div className="min-h-screen bg-charcoal text-ivory flex">
-      <aside className="w-64 border-r border-brass/20 p-6 flex flex-col">
-        <h2 className="text-xl font-serif font-light tracking-luxury-wide mb-8">
+    <div className="flex min-h-screen flex-col bg-charcoal text-ivory lg:flex-row">
+      <aside className="flex w-full flex-col border-b border-brass/20 p-4 sm:p-6 lg:w-64 lg:border-b-0 lg:border-r">
+        <h2 className="mb-6 text-xl font-serif font-light tracking-luxury-wide sm:mb-8">
           Admin
         </h2>
-        <nav className="space-y-2 flex-1">
+        <nav className="flex-1 space-y-2">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -54,7 +54,7 @@ export default function AdminLayout({
                 key={item.href}
                 href={item.href}
                 prefetch={false}
-                className={`flex items-center gap-3 py-3 px-4 rounded-lg text-sm tracking-wide transition-colors ${
+                className={`flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-lg px-4 py-3 text-[11px] tracking-wide transition-colors sm:gap-3 sm:text-sm ${
                   pathname === item.href
                     ? "bg-brass/20 text-brass border border-brass/30"
                     : "text-ivory-muted hover:text-ivory hover:bg-charcoal-light"
@@ -70,13 +70,13 @@ export default function AdminLayout({
           type="button"
           onClick={handleExportOrders}
           disabled={exporting}
-          className="mt-4 flex items-center gap-3 py-3 px-4 rounded-lg border border-brass/30 text-brass hover:bg-brass/10 disabled:opacity-50 disabled:cursor-not-allowed text-sm tracking-wide transition-colors w-full"
+          className="mt-4 flex min-h-[44px] min-w-[44px] w-full items-center gap-2 rounded-lg border border-brass/30 px-4 py-3 text-[11px] tracking-wide text-brass transition-colors hover:bg-brass/10 disabled:cursor-not-allowed disabled:opacity-50 sm:gap-3 sm:text-sm"
         >
           <Download className="w-4 h-4 shrink-0" />
           {exporting ? "Exporting…" : "Download orders (JSON)"}
         </button>
       </aside>
-      <main className="flex-1 p-8">{children}</main>
+      <main className="flex-1 px-4 py-6 sm:px-6 sm:py-8 md:px-10">{children}</main>
     </div>
   );
 }

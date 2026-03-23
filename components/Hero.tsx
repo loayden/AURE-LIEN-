@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export default function Hero() {
   return (
-    <section className="relative mobile-safe-hero flex items-center justify-center overflow-hidden">
+    <section className="relative mobile-safe-hero flex items-center justify-center overflow-hidden px-4 pb-10 sm:px-6 sm:pb-20 md:px-10">
 
       {/* Background Image */}
       <motion.div
@@ -31,19 +31,20 @@ export default function Hero() {
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.8, ease: "easeInOut" }}
-        className="relative max-w-4xl px-5 text-center sm:px-6"
+        className="relative max-w-4xl text-center"
       >
-        <h1 className="mb-8 text-4xl font-light leading-tight tracking-[0.16em] text-[#F2EFE8] sm:mb-10 sm:text-5xl md:text-6xl">
+        <h1
+          className="hero-title-fluid mb-6 font-light tracking-[0.16em] text-[#F2EFE8] sm:mb-8"
+          style={{ fontFamily: "'Cormorant Garamond', serif" }}
+        >
           Enduring by Design.
         </h1>
 
-        <p className="mb-10 text-base tracking-[0.08em] text-[#F2EFE8]/70 sm:mb-14">
+        <p className="hero-body-copy mb-8 text-[#F2EFE8]/70 sm:mb-12">
           Founded in restraint. Refined without display.
         </p>
 
-        <button className="border border-[#F2EFE8]/60 px-8 py-3.5 text-[#F2EFE8] sm:px-14 sm:py-4 
-          hover:bg-[#F2EFE8] hover:text-[#111111] transition-all duration-700
-          tracking-[0.35em] uppercase text-xs">
+        <button className="min-h-[44px] min-w-[44px] border border-[#F2EFE8]/60 px-5 py-3 text-[11px] tracking-[0.35em] uppercase text-[#F2EFE8] transition-all duration-700 hover:bg-[#F2EFE8] hover:text-[#111111] sm:px-14 sm:py-4 sm:text-xs">
           EXPLORE COLLECTION
         </button>
       </motion.div>

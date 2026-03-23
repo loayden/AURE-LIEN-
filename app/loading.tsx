@@ -17,7 +17,7 @@ export default function Loading() {
         {/* Ambient glow */}
         <div className="pointer-events-none fixed inset-0 overflow-hidden">
           <div style={{
-            position:"absolute", width:600, height:600,
+            position:"absolute", width:340, height:340,
             top:"50%", left:"50%", transform:"translate(-50%,-50%)",
             background:"radial-gradient(circle, rgba(198,169,98,0.06) 0%, transparent 65%)",
             filter:"blur(80px)",

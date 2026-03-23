@@ -67,7 +67,7 @@ export default function AIChatStylist() {
       <motion.button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-brass text-black shadow-lg transition-shadow hover:shadow-brass-glow sm:h-14 sm:w-14"
+        className="fixed bottom-4 right-4 z-50 flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-brass text-black shadow-lg transition-shadow hover:shadow-brass-glow sm:bottom-8 sm:right-8 sm:h-14 sm:w-14"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         aria-label="Open stylist chat"
@@ -90,7 +90,7 @@ export default function AIChatStylist() {
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="text-silver hover:text-ivory"
+                className="touch-target inline-flex items-center justify-center text-silver hover:text-ivory"
               >
                 ×
               </button>
@@ -108,7 +108,7 @@ export default function AIChatStylist() {
                         : "bg-charcoal text-ivory border border-brass/10"
                     }`}
                   >
-                    <p className="text-sm whitespace-pre-wrap">{m.content}</p>
+                    <p className="whitespace-pre-wrap text-[11px] sm:text-sm">{m.content}</p>
                     {m.productIds && m.productIds.length > 0 && (
                       <div className="mt-3 flex flex-wrap gap-2">
                         {m.productIds.slice(0, 4).map((id) => {
@@ -150,7 +150,7 @@ export default function AIChatStylist() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && send()}
                 placeholder="Ask for outfit ideas..."
-                className="flex-1 border border-brass/40 bg-transparent px-4 py-3 text-sm text-ivory placeholder:text-silver focus:border-brass focus:outline-none"
+                className="flex-1 border border-brass/40 bg-transparent px-4 py-3 text-base text-ivory placeholder:text-silver focus:border-brass focus:outline-none sm:text-sm"
               />
               <motion.button
                 type="button"
@@ -158,7 +158,7 @@ export default function AIChatStylist() {
                 disabled={loading}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="border border-brass px-4 py-3 text-sm uppercase tracking-wider text-brass hover:bg-brass hover:text-black disabled:opacity-50 sm:px-4 sm:py-2"
+                className="min-h-[44px] min-w-[44px] border border-brass px-4 py-3 text-[11px] uppercase tracking-wider text-brass hover:bg-brass hover:text-black disabled:opacity-50 sm:px-4 sm:py-2 sm:text-sm"
               >
                 Send
               </motion.button>

@@ -36,19 +36,20 @@ export default function UploadPage() {
   }
 
   return (
-    <div className="pt-32 max-w-3xl mx-auto px-6">
-      <h1 className="text-2xl mb-6">Upload Image</h1>
+    <div className="mx-auto max-w-3xl px-4 pt-16 sm:px-6 sm:pt-24 md:px-10">
+      <h1 className="mb-6 text-xl sm:text-2xl">Upload Image</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="file"
           accept="image/*"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          className="min-h-[44px] min-w-[44px] text-base sm:text-sm"
         />
 
         <button
           type="submit"
-          className="px-6 py-2 bg-gold text-black"
+          className="min-h-[44px] min-w-[44px] bg-gold px-6 py-3 text-black"
           disabled={loading}
         >
           {loading ? "Uploading…" : "Upload"}

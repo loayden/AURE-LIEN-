@@ -22,13 +22,13 @@ function Orbs() {
   return (
     <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
       <div style={{
-        position: "absolute", width: 700, height: 700, top: "-10%", right: "-10%",
+        position: "absolute", width: 380, height: 380, top: "-10%", right: "-10%",
         background: "radial-gradient(circle, rgba(198,169,98,0.07) 0%, transparent 65%)",
         filter: "blur(90px)",
         animation: "orbA 24s ease-in-out infinite",
       }} />
       <div style={{
-        position: "absolute", width: 500, height: 500, bottom: "15%", left: "-8%",
+        position: "absolute", width: 320, height: 320, bottom: "15%", left: "-8%",
         background: "radial-gradient(circle, rgba(160,140,220,0.05) 0%, transparent 65%)",
         filter: "blur(80px)",
         animation: "orbB 30s ease-in-out infinite",
@@ -121,7 +121,7 @@ export default function AccessoriesPage() {
                style={{ background: "linear-gradient(to bottom, rgba(8,8,8,0.55), transparent)" }} />
 
           {/* Content */}
-          <motion.div style={{ opacity: heroOpacity }} className="relative z-10 px-6 flex flex-col items-center">
+          <motion.div style={{ opacity: heroOpacity }} className="relative z-10 flex flex-col items-center px-4 sm:px-6 md:px-10">
             {/* Eyebrow */}
             <div className="au-1 mb-7">
               <span className="glass inline-block px-5 py-2 rounded-full text-[9px] text-white/50 tracking-[0.4em] uppercase font-light">
@@ -134,7 +134,7 @@ export default function AccessoriesPage() {
               className="au-2 font-light text-white leading-none mb-5"
               style={{
                 fontFamily: "'Cormorant Garamond', serif",
-                fontSize: "clamp(4rem, 11vw, 9rem)",
+                fontSize: "clamp(1.8rem, 7vw, 4.5rem)",
                 letterSpacing: "0.05em",
                 textShadow: "0 4px 48px rgba(0,0,0,0.5)",
               }}
@@ -157,7 +157,7 @@ export default function AccessoriesPage() {
         </section>
 
         {/* ── PHILOSOPHY STRIP ── */}
-        <section className="relative z-10 py-20 px-6 max-w-2xl mx-auto text-center">
+        <section className="relative z-10 max-w-2xl mx-auto px-4 py-16 text-center sm:px-6 sm:py-20 md:px-10">
           <motion.div
             initial={false}
             whileInView={{ opacity: 1, y: 0 }}
@@ -206,7 +206,7 @@ export default function AccessoriesPage() {
         </section>
 
         {/* ── COLLECTION GRID ── */}
-        <section ref={parallaxRef} className="relative z-10 py-10 pb-28 px-6 sm:px-12 max-w-6xl mx-auto">
+        <section ref={parallaxRef} className="relative z-10 max-w-6xl mx-auto px-4 py-10 pb-16 sm:px-6 sm:pb-24 md:px-10">
           <motion.div style={{ y: titleY }} className="text-center mb-14">
             <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase mb-5">Collection</p>
             <h2
@@ -299,7 +299,7 @@ export default function AccessoriesPage() {
         </section>
 
         {/* ── CRAFT STORY ── */}
-        <section className="relative z-10 py-24 px-6 sm:px-12 overflow-hidden"
+        <section className="relative z-10 overflow-hidden px-4 py-16 sm:px-6 sm:py-24 md:px-10"
                  style={{ background: "#060606" }}>
           <div className="absolute inset-0 pointer-events-none"
                style={{ background: "radial-gradient(ellipse at 50% 100%, rgba(198,169,98,0.05) 0%, transparent 60%)" }} />

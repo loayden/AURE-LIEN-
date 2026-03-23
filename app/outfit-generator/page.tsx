@@ -13,10 +13,10 @@ type Outfit = { name: string; items: Product[] };
 function Orbs() {
   return (
     <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-      <div style={{ position:"absolute", width:680, height:680, top:"-12%", right:"-10%",
+      <div style={{ position:"absolute", width:380, height:380, top:"-12%", right:"-10%",
         background:"radial-gradient(circle, rgba(198,169,98,0.07) 0%, transparent 65%)",
         filter:"blur(90px)", animation:"ogOA 24s ease-in-out infinite" }} />
-      <div style={{ position:"absolute", width:520, height:520, bottom:"5%", left:"-8%",
+      <div style={{ position:"absolute", width:320, height:320, bottom:"5%", left:"-8%",
         background:"radial-gradient(circle, rgba(150,140,220,0.05) 0%, transparent 65%)",
         filter:"blur(80px)", animation:"ogOB 30s ease-in-out infinite" }} />
       <style>{`
@@ -50,7 +50,7 @@ function GlassSelect({
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="relative flex items-center justify-between px-5 py-3.5 rounded-2xl text-left transition-all duration-300"
+        className="relative flex min-h-[44px] min-w-[44px] items-center justify-between rounded-2xl px-4 py-3.5 text-left transition-all duration-300 sm:px-5"
         style={{
           background:"linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)",
           backdropFilter:"blur(16px)",
@@ -90,7 +90,7 @@ function GlassSelect({
                 <button
                   type="button"
                   onClick={() => { onChange(opt.value); setOpen(false); }}
-                  className="w-full flex items-center justify-between px-5 py-3 text-left transition-all duration-200 hover:bg-white/[0.05]"
+                  className="flex min-h-[44px] min-w-[44px] w-full items-center justify-between px-4 py-3 text-left transition-all duration-200 hover:bg-white/[0.05] sm:px-5"
                   style={{
                     color: opt.value === value ? "#C6A962" : "rgba(255,255,255,0.50)",
                     fontSize:"11px",
@@ -142,7 +142,7 @@ function OutfitCard({ outfit, index, onAddToCart }: {
            style={{ background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.20), transparent)" }} />
 
       {/* Card header */}
-      <div className="px-6 pt-6 pb-4" style={{ borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
+      <div className="px-4 pb-4 pt-5 sm:px-6 sm:pt-6" style={{ borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
         <div className="flex items-center gap-3 mb-1">
           <span className="text-[#C6A962] text-[9px] tracking-[0.35em] uppercase font-light"
                 style={{ fontFamily:"'Jost', sans-serif" }}>
@@ -213,7 +213,7 @@ function OutfitCard({ outfit, index, onAddToCart }: {
       </div>
 
       {/* Card footer */}
-      <div className="px-6 pb-6 pt-4 flex flex-col gap-3"
+      <div className="flex flex-col gap-3 px-4 pb-5 pt-4 sm:px-6 sm:pb-6"
            style={{ borderTop:"1px solid rgba(255,255,255,0.06)" }}>
         {/* Total */}
         <div className="flex items-center justify-between">
@@ -232,7 +232,7 @@ function OutfitCard({ outfit, index, onAddToCart }: {
           onClick={() => onAddToCart(outfit.items)}
           whileHover={{ scale:1.015 }}
           whileTap={{ scale:0.985 }}
-          className="w-full py-3 rounded-full flex items-center justify-center gap-2.5 font-light transition-all duration-400 relative overflow-hidden"
+          className="relative flex min-h-[44px] min-w-[44px] w-full items-center justify-center gap-2 rounded-full py-3 font-light transition-all duration-400 overflow-hidden sm:gap-3"
           style={{
             background:"linear-gradient(135deg, rgba(198,169,98,0.20), rgba(198,169,98,0.07))",
             backdropFilter:"blur(16px)",
@@ -313,7 +313,7 @@ export default function OutfitGeneratorPage() {
         ::selection { background: #C6A962; color: #080808; }
       `}</style>
 
-      <main className="relative min-h-screen bg-[#080808] text-white pt-28 pb-32 px-6"
+      <main className="relative min-h-screen bg-[#080808] px-4 pb-16 pt-16 text-white sm:px-6 sm:pb-24 sm:pt-24 md:px-10 md:pb-32"
             style={{ fontFamily:"'Jost', sans-serif" }}>
         <Orbs />
 
@@ -324,7 +324,7 @@ export default function OutfitGeneratorPage() {
             initial={{ opacity:0, y:20 }}
             animate={{ opacity:1, y:0 }}
             transition={{ duration:0.8 }}
-            className="mb-14"
+            className="mb-6 sm:mb-8 md:mb-10"
           >
             <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase mb-4">AI Styling</p>
             <div className="flex items-end gap-4 flex-wrap justify-between">
@@ -335,7 +335,7 @@ export default function OutfitGeneratorPage() {
                 Outfit <em style={{ color:"#C6A962", fontStyle:"italic" }}>Generator</em>
               </h1>
               <span
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full"
+                className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 px-4 py-2 rounded-full"
                 style={{
                   background:"linear-gradient(135deg, rgba(198,169,98,0.12), rgba(198,169,98,0.04))",
                   border:"1px solid rgba(198,169,98,0.20)",
@@ -355,7 +355,7 @@ export default function OutfitGeneratorPage() {
             initial={{ opacity:0, y:16 }}
             animate={{ opacity:1, y:0 }}
             transition={{ duration:0.8, delay:0.1 }}
-            className="relative overflow-hidden rounded-3xl p-8 mb-10"
+            className="relative mb-6 overflow-hidden rounded-3xl p-5 sm:mb-8 sm:p-8 md:mb-10"
             style={{
               background:"linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)",
               backdropFilter:"blur(24px) saturate(160%)",
@@ -372,7 +372,7 @@ export default function OutfitGeneratorPage() {
               Configure Your Look
             </p>
 
-            <div className="grid sm:grid-cols-2 gap-6 mb-8">
+            <div className="mb-6 grid gap-4 sm:mb-8 sm:grid-cols-2 sm:gap-6">
               <GlassSelect
                 label="Occasion"
                 value={occasion}

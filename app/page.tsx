@@ -46,7 +46,7 @@ export default function Home() {
         {/* ══════════════════════════════════════
             HERO
         ══════════════════════════════════════ */}
-        <section ref={heroRef} className="relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center">
+        <section ref={heroRef} className="relative mobile-safe-hero flex w-full items-center justify-center overflow-hidden px-4 pb-10 sm:px-6 sm:pb-20 md:px-10">
 
           <motion.div style={{ y: heroY }} className="absolute inset-0 scale-110">
             <video
@@ -65,7 +65,7 @@ export default function Home() {
                style={{ background:"linear-gradient(to bottom, rgba(8,8,8,0.55), transparent)" }} />
 
           <motion.div style={{ opacity: heroOpacity }}
-                      className="relative z-10 flex flex-col items-center text-center px-5 sm:px-6">
+                      className="relative z-10 flex flex-col items-center px-4 text-center sm:px-6 md:px-10">
             <motion.span
               initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }}
               transition={{ duration:0.9, delay:0.3 }}
@@ -85,7 +85,7 @@ export default function Home() {
               className="font-light text-white leading-none mb-6"
               style={{
                 fontFamily:"'Cormorant Garamond', serif",
-                fontSize:"clamp(2.9rem, 14vw, 8rem)",
+                fontSize:"clamp(1.8rem, 12vw, 6rem)",
                 letterSpacing:"0.04em",
                 textShadow:"0 4px 48px rgba(0,0,0,0.35)",
               }}
@@ -97,8 +97,8 @@ export default function Home() {
             <motion.p
               initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }}
               transition={{ duration:0.9, delay:0.7 }}
-              className="text-white/35 font-light mb-8 sm:mb-10 max-w-sm leading-relaxed"
-              style={{ fontSize:"0.92rem", letterSpacing:"0.08em" }}
+              className="mb-8 max-w-sm text-[11px] font-light leading-relaxed text-white/35 sm:mb-10 sm:text-sm"
+              style={{ letterSpacing:"0.08em" }}
             >
               Refined menswear for those who speak through presence.
             </motion.p>
@@ -106,10 +106,10 @@ export default function Home() {
             <motion.div
               initial={{ opacity:0, y:12 }} animate={{ opacity:1, y:0 }}
               transition={{ duration:0.9, delay:0.9 }}
-              className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto max-w-xs sm:max-w-none"
+              className="flex w-full max-w-xs flex-col items-center gap-2 sm:w-auto sm:max-w-none sm:flex-row sm:gap-3"
             >
               <Link href="/collection"
-                className="inline-flex items-center justify-center gap-2.5 w-full sm:w-auto px-7 sm:px-8 py-3.5 rounded-full text-white text-[10px] font-light tracking-[0.24em] uppercase transition-all duration-500 hover:scale-[1.02]"
+                className="inline-flex min-h-[44px] min-w-[44px] w-full items-center justify-center gap-2 sm:w-auto sm:gap-3 px-6 sm:px-8 py-3.5 rounded-full text-white text-[10px] font-light tracking-[0.24em] uppercase transition-all duration-500 hover:scale-[1.02]"
                 style={{
                   background:"linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.06))",
                   backdropFilter:"blur(20px) saturate(180%)", border:"1px solid rgba(255,255,255,0.18)",
@@ -119,7 +119,7 @@ export default function Home() {
                 <ArrowRight strokeWidth={1.2} className="w-3.5 h-3.5" />
               </Link>
               <Link href="shop"
-                className="w-full sm:w-auto text-center px-6 py-3.5 rounded-full text-white/40 text-[10px] font-light tracking-[0.24em] uppercase border border-white/10 hover:border-white/22 hover:text-white/65 transition-all duration-400">
+                className="inline-flex min-h-[44px] min-w-[44px] w-full items-center justify-center rounded-full border border-white/10 px-6 py-3.5 text-center text-[10px] font-light uppercase tracking-[0.24em] text-white/40 transition-all duration-400 hover:border-white/22 hover:text-white/65 sm:w-auto">
                 SHOP
               </Link>
             </motion.div>
@@ -137,10 +137,10 @@ export default function Home() {
         <section ref={stmtRef} className="relative py-24 sm:py-36 overflow-hidden"
                  style={{ background:"linear-gradient(180deg, #080808 0%, #0d0d0d 100%)" }}>
           <div className="pointer-events-none absolute inset-0 overflow-hidden">
-            <div style={{ position:"absolute", width:600, height:600, top:"-10%", left:"-8%",
+            <div style={{ position:"absolute", width:360, height:360, top:"-10%", left:"-8%",
               background:"radial-gradient(circle, rgba(198,169,98,0.08) 0%, transparent 65%)",
               filter:"blur(80px)", animation:"stOA 22s ease-in-out infinite" }} />
-            <div style={{ position:"absolute", width:480, height:480, bottom:"-5%", right:"-5%",
+            <div style={{ position:"absolute", width:300, height:300, bottom:"-5%", right:"-5%",
               background:"radial-gradient(circle, rgba(160,150,220,0.06) 0%, transparent 65%)",
               filter:"blur(70px)", animation:"stOB 28s ease-in-out infinite" }} />
             <style>{`
@@ -149,7 +149,7 @@ export default function Home() {
             `}</style>
           </div>
 
-          <motion.div style={{ y: stmtY }} className="relative z-10 text-center px-6">
+          <motion.div style={{ y: stmtY }} className="relative z-10 px-4 text-center sm:px-6 md:px-10">
             <motion.p initial={false} whileInView={{ opacity:1 }} viewport={{ once:true }}
               transition={{ duration:0.8 }}
               className="text-white/18 text-[9px] tracking-[0.5em] uppercase mb-8">
@@ -166,7 +166,7 @@ export default function Home() {
             </motion.h2>
           </motion.div>
 
-          <div className="relative z-10 mt-14 sm:mt-20 flex items-center justify-center gap-3 sm:gap-6 flex-wrap px-5 sm:px-6">
+          <div className="relative z-10 mt-14 flex flex-wrap items-center justify-center gap-2 sm:mt-20 sm:gap-3 px-4 sm:px-6 md:px-10">
             {[{ value:"2025", label:"Established" },{ value:"20+", label:"shop" },{ value:"100%", label:"Sustainable" }].map((s, i) => (
               <motion.div key={i}
                 initial={false} whileInView={{ opacity:1, y:0 }}
@@ -190,7 +190,7 @@ export default function Home() {
         {/* ══════════════════════════════════════
             COLLECTION GRID
         ══════════════════════════════════════ */}
-        <section className="bg-[#080808] px-4 py-16 sm:px-12 sm:py-28">
+        <section className="bg-[#080808] px-4 py-16 sm:px-6 sm:py-24 md:px-10">
           <motion.div initial={false} whileInView={{ opacity:1, y:0 }}
             viewport={{ once:true }} transition={{ duration:0.8 }} className="text-center mb-14">
             <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase mb-4">Categories</p>
@@ -238,7 +238,7 @@ export default function Home() {
         {/* ══════════════════════════════════════
             LOOKBOOK
         ══════════════════════════════════════ */}
-        <section className="px-4 py-20 sm:px-12 sm:py-28"
+        <section className="px-4 py-16 sm:px-6 sm:py-24 md:px-10"
                  style={{ background:"linear-gradient(180deg, #0a0a0a 0%, #080808 100%)" }}>
           <motion.div initial={false} whileInView={{ opacity:1, y:0 }}
             viewport={{ once:true }} transition={{ duration:0.8 }} className="text-center mb-14">

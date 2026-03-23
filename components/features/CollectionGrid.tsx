@@ -19,9 +19,9 @@ export default function CollectionGrid({
   cols = 4,
 }: CollectionGridProps) {
   return (
-    <section className="py-24 px-6 sm:px-12 max-w-7xl mx-auto">
+    <section className="luxury-container section-padding max-w-7xl">
       {title && <SectionHeader title={title} subtitle={subtitle} />}
-      <div className={`grid grid-cols-1 sm:grid-cols-2 gap-8 ${cols === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4"} ${title ? "mt-16" : ""}`}>
+      <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:gap-6 ${cols === 3 ? "lg:grid-cols-3" : "lg:grid-cols-4"} ${title ? "mt-8 sm:mt-12 md:mt-16" : ""}`}>
         {items.map((item, index) => (
           <ImageOverlayCard
             key={item.link}

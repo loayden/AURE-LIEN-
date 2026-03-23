@@ -23,16 +23,16 @@ export default function LuxuryButton({
   disabled = false,
 }: LuxuryButtonProps) {
   const baseStyles =
-    "inline-flex items-center justify-center font-sans font-light tracking-[0.2em] uppercase transition-all duration-400 ease-out border border-brass";
+    "inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 sm:gap-3 font-sans font-light tracking-[0.2em] uppercase transition-all duration-400 ease-out border border-brass";
   const variants = {
     primary: "bg-brass text-black hover:bg-brass-light hover:border-brass-light",
     outline: "bg-transparent text-ivory hover:bg-brass hover:text-black",
     ghost: "border-transparent text-ivory hover:text-brass hover:border-brass/50",
   };
   const sizes = {
-    sm: "px-6 py-2.5 text-xs",
-    md: "px-8 py-3 text-xs",
-    lg: "px-10 py-4 text-sm",
+    sm: "px-4 py-2.5 text-[11px] sm:px-6 sm:text-xs",
+    md: "px-5 py-3 text-[11px] sm:px-8 sm:text-xs",
+    lg: "px-6 py-3.5 text-[11px] sm:px-10 sm:py-4 sm:text-sm",
   };
 
   const motionProps = {

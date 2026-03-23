@@ -15,24 +15,24 @@ export default function ProductsFromAPIPage() {
 
   if (loading) {
     return (
-      <main className="pt-36 bg-[#111111] min-h-screen text-[#EFEFEF] tracking-wide flex items-center justify-center">
+      <main className="flex min-h-screen items-center justify-center bg-[#111111] px-4 pt-16 text-[#EFEFEF] tracking-wide sm:px-6 sm:pt-24 md:px-10">
         <p className="text-lg">Loading products...</p>
       </main>
     );
   }
 
   return (
-    <main className="pt-36 bg-[#111111] min-h-screen text-[#EFEFEF] tracking-wide px-6 pb-40">
-      <section className="text-center mb-24">
-        <h1 className="text-5xl font-serif font-light tracking-[0.25em] mb-4">
+    <main className="min-h-screen bg-[#111111] px-4 pb-24 pt-16 text-[#EFEFEF] tracking-wide sm:px-6 sm:pb-32 sm:pt-24 md:px-10 md:pb-40">
+      <section className="mb-10 text-center sm:mb-16 md:mb-24">
+        <h1 className="mb-4 text-3xl font-serif font-light tracking-[0.25em] sm:text-4xl md:text-5xl">
           Products
         </h1>
-        <p className="text-[#EFEFEF]/60 max-w-xl mx-auto text-base tracking-wide leading-relaxed">
+        <p className="mx-auto max-w-xl text-[11px] leading-relaxed tracking-wide text-[#EFEFEF]/60 sm:text-sm md:text-base">
           All products from the catalog.
         </p>
       </section>
       {products.length > 0 ? (
-        <section className="max-w-7xl mx-auto grid md:grid-cols-3 gap-16">
+        <section className="product-grid-shell mx-auto max-w-7xl lg:grid-cols-4">
           {products.map((product) => (
             <ProductCard key={product._id} product={product} />
           ))}

@@ -28,7 +28,6 @@ interface FormData {
 
 const SHIPPING_COST_CAIRO = 75;
 
-/* ── Shared glass input style ── */
 const inputStyle: React.CSSProperties = {
   width: "100%",
   background: "linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)",
@@ -46,11 +45,10 @@ const inputStyle: React.CSSProperties = {
 };
 const inputFocusClass = "focus:border-[rgba(198,169,98,0.45)] focus:shadow-[0_0_0_3px_rgba(198,169,98,0.08)]";
 
-/* ── Section card ── */
 function GlassSection({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
     <div
-      className="relative overflow-hidden rounded-2xl p-6"
+      className="relative overflow-hidden rounded-2xl p-5 sm:p-6"
       style={{
         background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.025) 100%)",
         backdropFilter: "blur(24px) saturate(160%)",
@@ -59,10 +57,9 @@ function GlassSection({ icon, title, children }: { icon: React.ReactNode; title:
         boxShadow: "0 16px 48px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.14)",
       }}
     >
-      {/* Specular line */}
       <div className="absolute inset-x-5 top-0 h-px pointer-events-none"
            style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent)" }} />
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-5 sm:mb-6">
         <div className="p-2 rounded-xl"
              style={{
                background: "linear-gradient(135deg, rgba(198,169,98,0.14), rgba(198,169,98,0.04))",
@@ -71,8 +68,8 @@ function GlassSection({ icon, title, children }: { icon: React.ReactNode; title:
           <span style={{ color: "#C6A962" }}>{icon}</span>
         </div>
         <h2
-          className="font-light text-white"
-          style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.25rem", letterSpacing: "0.08em" }}
+          className="font-light text-white text-lg sm:text-xl"
+          style={{ fontFamily: "'Cormorant Garamond', serif", letterSpacing: "0.08em" }}
         >
           {title}
         </h2>
@@ -85,10 +82,10 @@ function GlassSection({ icon, title, children }: { icon: React.ReactNode; title:
 function Orbs() {
   return (
     <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-      <div style={{ position:"absolute", width:700, height:700, top:"-10%", right:"-10%",
+      <div style={{ position:"absolute", width:500, height:500, top:"-10%", right:"-15%",
         background:"radial-gradient(circle, rgba(198,169,98,0.07) 0%, transparent 65%)",
         filter:"blur(90px)", animation:"ckOA 26s ease-in-out infinite" }} />
-      <div style={{ position:"absolute", width:550, height:550, bottom:"5%", left:"-8%",
+      <div style={{ position:"absolute", width:400, height:400, bottom:"5%", left:"-15%",
         background:"radial-gradient(circle, rgba(150,140,220,0.05) 0%, transparent 65%)",
         filter:"blur(80px)", animation:"ckOB 32s ease-in-out infinite" }} />
       <style>{`
@@ -129,7 +126,6 @@ export default function CheckoutPage() {
     (async () => {
       setLoading(true);
       try {
-        // Try draft first
         const draftRes = await fetch("/api/checkout-draft");
         const draftData = await draftRes.json();
         const draft = draftData.draft;
@@ -150,7 +146,6 @@ export default function CheckoutPage() {
           return;
         }
 
-        // Try sessionStorage checkoutItems
         const checkoutJson = typeof window !== "undefined" ? sessionStorage.getItem("checkoutItems") : null;
         if (checkoutJson) {
           const items = JSON.parse(checkoutJson);
@@ -167,7 +162,6 @@ export default function CheckoutPage() {
           if (merged.length > 0) { setCart(merged); setLoading(false); return; }
         }
 
-        // Try sessionStorage selectedOrder
         const selectedJson = typeof window !== "undefined" ? sessionStorage.getItem("selectedOrder") : null;
         if (selectedJson) {
           const sel = JSON.parse(selectedJson);
@@ -199,7 +193,6 @@ export default function CheckoutPage() {
           }
         }
 
-        // Finally try the cart API, which resolves anonymous users from the server cookie.
         setFromCart(true);
         const res = await fetch("/api/cart", { cache: "no-store" });
         if (!res.ok) {
@@ -216,7 +209,6 @@ export default function CheckoutPage() {
           return; 
         }
 
-        // ✅ MAP ITEMS TO FULL PRODUCT DETAILS (IMPORTANT!)
         setCart(items.map((i: any) => {
           const p = productsData.find((p: Product) => String(p._id) === String(i.productId));
           return {
@@ -273,14 +265,12 @@ export default function CheckoutPage() {
     setSuccess(""); 
     setSubmitting(true);
 
-    // ✅ Validate cart
     if (!cart.length) { 
       setError("No products to order."); 
       setSubmitting(false); 
       return; 
     }
 
-    // ✅ Validate form fields
     const required: [keyof FormData, string][] = [
       ["email","email"],
       ["firstName","first name"],
@@ -297,7 +287,6 @@ export default function CheckoutPage() {
       } 
     }
 
-    // ✅ BUILD ITEMS ARRAY WITH FULL DETAILS (NOT JUST _id!)
     const items = cart
       .filter(item => item.productId && (item.quantity ?? 0) > 0)
       .map((item) => ({
@@ -333,7 +322,7 @@ export default function CheckoutPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          items, // ✅ Full item objects with name, price, quantity, etc.
+          items,
           total,
           customerInfo: {
             email: form.email,
@@ -363,7 +352,6 @@ export default function CheckoutPage() {
       setSuccess("Order placed successfully."); 
       setCart([]);
       
-      // ✅ Clear cart data
       if (typeof window !== "undefined") { 
         sessionStorage.removeItem("checkoutItems"); 
         sessionStorage.removeItem("selectedOrder"); 
@@ -374,7 +362,6 @@ export default function CheckoutPage() {
 
       const placedOrderId = typeof data?.orderId === "string" ? data.orderId : "";
 
-      // Redirect to the freshly placed order
       setTimeout(() => {
         router.push(
           placedOrderId
@@ -391,7 +378,6 @@ export default function CheckoutPage() {
     }
   }
 
-  /* ── Loading ── */
   if (loading) return (
     <div className="min-h-screen bg-[#080808] flex items-center justify-center">
       <motion.p animate={{ opacity:[0.3,0.7,0.3] }} transition={{ repeat:Infinity, duration:1.8 }}
@@ -402,9 +388,8 @@ export default function CheckoutPage() {
     </div>
   );
 
-  /* ── Success overlay ── */
   if (success) return (
-    <div className="min-h-screen bg-[#080808] flex items-center justify-center px-6">
+    <div className="min-h-screen bg-[#080808] flex items-center justify-center px-4 sm:px-6">
       <motion.div
         initial={{ opacity:0, scale:0.95, y:20 }}
         animate={{ opacity:1, scale:1, y:0 }}
@@ -418,7 +403,7 @@ export default function CheckoutPage() {
             <CheckCircle2 strokeWidth={1.2} className="w-8 h-8" style={{ color:"#C6A962" }} />
           </div>
         </div>
-        <h2 className="font-light text-white mb-3" style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"2rem", letterSpacing:"0.06em" }}>
+        <h2 className="font-light text-white mb-3" style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.8rem, 5vw, 2rem)", letterSpacing:"0.06em" }}>
           Order <em style={{ color:"#C6A962" }}>Confirmed</em>
         </h2>
         <p className="text-white/35 text-sm font-light tracking-widest">Redirecting to your orders…</p>
@@ -447,6 +432,7 @@ export default function CheckoutPage() {
           outline: none !important;
           transition: border-color 0.3s, box-shadow 0.3s !important;
           width: 100%;
+          min-height: 44px;
         }
         input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.22) !important; }
         input:focus, select:focus, textarea:focus {
@@ -460,34 +446,42 @@ export default function CheckoutPage() {
           width: 14px !important; height: 14px !important;
           border-radius: 4px !important;
           padding: 0 !important;
+          cursor: pointer;
         }
         input[type="radio"] {
           accent-color: #C6A962;
           width: 14px !important; height: 14px !important;
           padding: 0 !important;
+          cursor: pointer;
+        }
+        
+        @media (max-width: 640px) {
+          input[type="text"], input[type="email"], input[type="tel"], select, textarea {
+            font-size: 16px !important;
+          }
         }
       `}</style>
 
       <div className="relative min-h-screen bg-[#080808] text-white" style={{ fontFamily:"'Jost', sans-serif" }}>
         <Orbs />
 
-        <div className="relative z-10 max-w-5xl mx-auto px-6 sm:px-10 pt-28 pb-32">
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-10 pt-20 sm:pt-28 pb-24 sm:pb-32">
 
           {/* ── HEADER ── */}
-          <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.8 }} className="mb-12">
-            <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase mb-4">Final Step</p>
+          <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.8 }} className="mb-8 sm:mb-12">
+            <p className="text-white/20 text-[8px] sm:text-[9px] tracking-[0.45em] uppercase mb-3 sm:mb-4">Final Step</p>
             <h1 className="font-light text-white leading-none mb-2"
-                style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(2.5rem, 6vw, 4.5rem)", letterSpacing:"0.04em" }}>
+                style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(2rem, 7vw, 4.5rem)", letterSpacing:"0.04em" }}>
               Check<em style={{ color:"#C6A962", fontStyle:"italic" }}>out</em>
             </h1>
-            <div className="mt-5 h-px" style={{ background:"linear-gradient(90deg, rgba(198,169,98,0.4), transparent)" }} />
+            <div className="mt-4 sm:mt-5 h-px" style={{ background:"linear-gradient(90deg, rgba(198,169,98,0.4), transparent)" }} />
           </motion.div>
 
           {/* ── ERROR ── */}
           <AnimatePresence>
             {error && (
               <motion.div initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}
-                className="mb-6 px-5 py-3.5 rounded-2xl flex items-center gap-3"
+                className="mb-6 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl flex items-center gap-3"
                 style={{ background:"rgba(255,60,60,0.08)", border:"1px solid rgba(255,80,80,0.2)", backdropFilter:"blur(16px)" }}>
                 <span className="text-red-400/70 text-xs tracking-[0.2em] font-light">{error}</span>
               </motion.div>
@@ -495,23 +489,23 @@ export default function CheckoutPage() {
           </AnimatePresence>
 
           {cart.length > 0 ? (
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-6 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 items-start">
 
               {/* ── LEFT — form ── */}
-              <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4 sm:gap-5">
 
                 {/* Contact */}
                 <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.1, duration:0.7 }}>
                   <GlassSection icon={<User strokeWidth={1.3} className="w-4 h-4" />} title="Contact">
                     <div className="flex flex-col gap-3 max-w-lg">
-                      <p className="text-white/25 text-[10px] tracking-[0.25em] font-light">
+                      <p className="text-white/25 text-[9px] sm:text-[10px] tracking-[0.25em] font-light">
                         Have an account?{" "}
                         <Link href="/login" className="text-[#C6A962] hover:underline transition-all">Sign in</Link>
                       </p>
                       <input type="email" placeholder="Email address" value={form.email} onChange={(e) => update("email", e.target.value)} autoComplete="email" required />
                       <label className="flex items-center gap-3 cursor-pointer group">
                         <input type="checkbox" checked={form.newsletter} onChange={(e) => update("newsletter", e.target.checked)} />
-                        <span className="text-white/30 text-[10px] tracking-[0.22em] uppercase group-hover:text-white/50 transition-colors">
+                        <span className="text-white/30 text-[9px] sm:text-[10px] tracking-[0.22em] uppercase group-hover:text-white/50 transition-colors">
                           Email me with news and offers
                         </span>
                       </label>
@@ -546,7 +540,7 @@ export default function CheckoutPage() {
                   <GlassSection icon={<Truck strokeWidth={1.3} className="w-4 h-4" />} title="Shipping Method">
                     <div className="max-w-lg">
                       <label
-                        className="flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all duration-300"
+                        className="flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all duration-300 min-h-[56px]"
                         style={form.shippingMethod === "within_egypt" ? {
                           background:"linear-gradient(135deg, rgba(198,169,98,0.12), rgba(198,169,98,0.04))",
                           border:"1px solid rgba(198,169,98,0.3)",
@@ -564,7 +558,7 @@ export default function CheckoutPage() {
                             <p className="text-white/30 text-[9px] tracking-[0.25em] uppercase mt-0.5">Standard Delivery · 2–3 days</p>
                           </div>
                         </div>
-                        <span className="font-light" style={{ color:"#C6A962", fontFamily:"'Cormorant Garamond', serif", fontSize:"1.1rem" }}>
+                        <span className="font-light whitespace-nowrap ml-2" style={{ color:"#C6A962", fontFamily:"'Cormorant Garamond', serif", fontSize:"1.1rem" }}>
                           EGP 75
                         </span>
                       </label>
@@ -574,13 +568,13 @@ export default function CheckoutPage() {
 
                 {/* Submit / Cancel */}
                 <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.34, duration:0.7 }}>
-                  <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex flex-col gap-3">
                     <motion.button
                       type="submit"
                       disabled={submitting}
                       whileHover={{ scale:1.015 }}
                       whileTap={{ scale:0.985 }}
-                      className="relative w-full overflow-hidden rounded-full py-4 flex items-center justify-center gap-3 disabled:opacity-50"
+                      className="relative w-full overflow-hidden rounded-full py-4 flex items-center justify-center gap-3 disabled:opacity-50 min-h-[48px]"
                       style={{
                         background:"linear-gradient(135deg, rgba(198,169,98,0.22), rgba(178,149,78,0.10))",
                         border:"1px solid rgba(198,169,98,0.35)",
@@ -596,7 +590,7 @@ export default function CheckoutPage() {
                     <button
                       type="button"
                       onClick={handleCancel}
-                      className="w-full rounded-full py-4 text-[10px] tracking-[0.28em] uppercase font-light border border-white/10 text-white/60 hover:text-white hover:border-white/30 transition-colors"
+                      className="w-full rounded-full py-4 text-[10px] tracking-[0.28em] uppercase font-light border border-white/10 text-white/60 hover:text-white hover:border-white/30 transition-colors min-h-[48px]"
                     >
                       Cancel Checkout
                     </button>
@@ -606,7 +600,7 @@ export default function CheckoutPage() {
 
               {/* ── RIGHT — Order summary ── */}
               <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.2, duration:0.8 }}
-                className="sticky top-24 flex flex-col gap-4">
+                className="sticky top-20 sm:top-24 flex flex-col gap-4">
 
                 {/* Summary card */}
                 <div className="relative overflow-hidden rounded-2xl p-5"
@@ -614,8 +608,8 @@ export default function CheckoutPage() {
                   <div className="absolute inset-x-4 top-0 h-px pointer-events-none"
                        style={{ background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent)" }} />
 
-                  <p className="text-white/20 text-[9px] tracking-[0.4em] uppercase mb-4">Your Order</p>
-                  <h3 className="font-light text-white mb-5" style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"1.4rem", letterSpacing:"0.07em" }}>
+                  <p className="text-white/20 text-[8px] sm:text-[9px] tracking-[0.4em] uppercase mb-4">Your Order</p>
+                  <h3 className="font-light text-white mb-5" style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.2rem, 3vw, 1.4rem)", letterSpacing:"0.07em" }}>
                     Order <em style={{ color:"#C6A962" }}>Summary</em>
                   </h3>
 
@@ -626,7 +620,6 @@ export default function CheckoutPage() {
                         <div className="relative w-14 h-14 flex-shrink-0 overflow-hidden rounded-xl"
                              style={{ boxShadow:"0 4px 16px rgba(0,0,0,0.4)" }}>
                           <Image src={item.image||"/images/placeholder.svg"} alt={item.name} fill className="object-cover" sizes="56px" />
-                          {/* Qty badge */}
                           <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-light"
                                style={{ background:"rgba(198,169,98,0.9)", color:"#080808" }}>
                             {item.quantity}
@@ -651,10 +644,8 @@ export default function CheckoutPage() {
                     ))}
                   </div>
 
-                  {/* Divider */}
                   <div className="h-px mb-4" style={{ background:"rgba(255,255,255,0.06)" }} />
 
-                  {/* Pricing rows */}
                   <div className="flex flex-col gap-2 mb-4">
                     <div className="flex justify-between">
                       <p className="text-white/30 text-[9px] tracking-[0.3em] uppercase">Subtotal</p>
@@ -666,11 +657,10 @@ export default function CheckoutPage() {
                     </div>
                   </div>
 
-                  {/* Total row */}
                   <div className="rounded-xl px-4 py-3.5 flex justify-between items-center"
                        style={{ background:"linear-gradient(135deg, rgba(198,169,98,0.14), rgba(198,169,98,0.04))", border:"1px solid rgba(198,169,98,0.22)" }}>
                     <p className="text-[#C6A962] text-[9px] tracking-[0.35em] uppercase">Total</p>
-                    <p className="font-light" style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"1.3rem", color:"#C6A962", letterSpacing:"0.06em" }}>
+                    <p className="font-light" style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.1rem, 3vw, 1.3rem)", color:"#C6A962", letterSpacing:"0.06em" }}>
                       EGP {total.toLocaleString()}
                     </p>
                   </div>
@@ -692,20 +682,19 @@ export default function CheckoutPage() {
               </motion.div>
             </div>
           ) : (
-            /* ── Empty ── */
             <motion.div initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.8 }}
-              className="flex flex-col items-center justify-center text-center py-28">
+              className="flex flex-col items-center justify-center text-center py-20 sm:py-28">
               <div className="w-16 h-16 rounded-3xl flex items-center justify-center mb-6"
                    style={{ background:"linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))", border:"1px solid rgba(255,255,255,0.09)" }}>
                 <Package strokeWidth={1} className="w-7 h-7 text-white/20" />
               </div>
               <h2 className="font-light text-white mb-3"
-                  style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"1.8rem", letterSpacing:"0.06em" }}>
+                  style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.5rem, 5vw, 1.8rem)", letterSpacing:"0.06em" }}>
                 Nothing to <em style={{ color:"#C6A962" }}>checkout</em>
               </h2>
               <p className="text-white/25 text-sm font-light tracking-widest mb-8">Add items to your cart first.</p>
               <Link href="/shop"
-                className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full text-[#C6A962] text-[10px] tracking-[0.3em] uppercase font-light transition-all duration-500 hover:scale-[1.02]"
+                className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full text-[#C6A962] text-[10px] tracking-[0.3em] uppercase font-light transition-all duration-500 hover:scale-[1.02] min-h-[44px]"
                 style={{ background:"linear-gradient(135deg, rgba(198,169,98,0.14), rgba(198,169,98,0.04))", border:"1px solid rgba(198,169,98,0.25)", backdropFilter:"blur(16px)" }}>
                 Continue Shopping
               </Link>
