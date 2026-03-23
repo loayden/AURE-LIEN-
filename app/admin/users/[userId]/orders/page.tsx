@@ -30,6 +30,11 @@ interface UserData {
   city?: string;
   postalCode?: string;
   country?: string;
+  orders?: number;
+  totalSpent?: number;
+  source?: "account" | "guest";
+  createdAt?: string;
+  lastOrderAt?: string;
 }
 
 export default function AdminUserOrdersPage() {
@@ -38,17 +43,49 @@ export default function AdminUserOrdersPage() {
   const [user, setUser] = useState<UserData | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!userId) return;
-    fetch(`/api/admin/users/${userId}/orders`)
-        .then((r) => r.json())
-        .then((d) => {
-          setUser(d.user);
-          setOrders(d.orders || []);
-        })
-        .catch(() => setOrders([]))
-        .finally(() => setLoading(false));
+
+    let cancelled = false;
+
+    async function loadUserOrders() {
+      setLoading(true);
+      setError("");
+
+      try {
+        const response = await fetch(`/api/admin/users/${userId}/orders`, {
+          cache: "no-store",
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data?.error || data?.message || "Failed to load user orders");
+        }
+
+        if (!cancelled) {
+          setUser(data.user || null);
+          setOrders(Array.isArray(data.orders) ? data.orders : []);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setUser(null);
+          setOrders([]);
+          setError(err instanceof Error ? err.message : "Failed to load user orders");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void loadUserOrders();
+
+    return () => {
+      cancelled = true;
+    };
   }, [userId]);
 
   const formatDate = (d: string) => {
@@ -58,6 +95,8 @@ export default function AdminUserOrdersPage() {
       return "-";
     }
   };
+
+  const totalSpent = orders.reduce((sum, order) => sum + Number(order.totalPrice || 0), 0);
 
   return (
     <div className="space-y-8">
@@ -73,8 +112,18 @@ export default function AdminUserOrdersPage() {
         Orders — {user ? `${user.name} (${user.email})` : "Loading..."}
       </h1>
 
+      {error && (
+        <div className="rounded-xl border border-red-400/20 bg-red-500/5 p-4 text-sm text-red-100">
+          {error}
+        </div>
+      )}
+
       {user && (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-4">
+            <p className="text-xs uppercase tracking-widest text-brass/80 mb-2">Profile</p>
+            <p className="text-ivory">{user.source === "account" ? "Registered account" : "Guest checkout"}</p>
+          </div>
           <div className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-4">
             <p className="text-xs uppercase tracking-widest text-brass/80 mb-2">Phone</p>
             <p className="text-ivory">{user.phone || "-"}</p>
@@ -84,10 +133,22 @@ export default function AdminUserOrdersPage() {
             <p className="text-ivory">{user.address || "-"}</p>
           </div>
           <div className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-4">
+            <p className="text-xs uppercase tracking-widest text-brass/80 mb-2">Orders</p>
+            <p className="text-ivory">{user.orders ?? orders.length}</p>
+          </div>
+          <div className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-4">
+            <p className="text-xs uppercase tracking-widest text-brass/80 mb-2">Total Spent</p>
+            <p className="text-brass">EGP {Number(user.totalSpent ?? totalSpent).toLocaleString()}</p>
+          </div>
+          <div className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-4">
             <p className="text-xs uppercase tracking-widest text-brass/80 mb-2">Location</p>
             <p className="text-ivory">
               {[user.city, user.postalCode, user.country].filter(Boolean).join(", ") || "-"}
             </p>
+          </div>
+          <div className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-4">
+            <p className="text-xs uppercase tracking-widest text-brass/80 mb-2">Last Activity</p>
+            <p className="text-ivory">{formatDate(user.lastOrderAt || user.createdAt || "")}</p>
           </div>
         </div>
       )}

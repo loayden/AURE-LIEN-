@@ -20,18 +20,57 @@ interface Stats {
   totalCustomers: number;
   bestSellingProducts: { id: string; name: string; quantity: number }[];
   revenueByMonth: { month: string; revenue: number }[];
+  recentCustomers: {
+    _id: string;
+    name: string;
+    email: string;
+    orders: number;
+    totalSpent: number;
+    lastOrderAt: string;
+    source: "account" | "guest";
+  }[];
 }
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("/api/admin/analytics", { cache: "no-store" })
-      .then((r) => r.json())
-      .then(setStats)
-      .catch(() => setStats(null))
-      .finally(() => setLoading(false));
+    let cancelled = false;
+
+    async function loadStats() {
+      setLoading(true);
+      setError("");
+
+      try {
+        const response = await fetch("/api/admin/analytics", { cache: "no-store" });
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data?.error || data?.message || "Failed to load dashboard");
+        }
+
+        if (!cancelled) {
+          setStats(data);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setStats(null);
+          setError(err instanceof Error ? err.message : "Failed to load dashboard");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void loadStats();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (loading) {
@@ -49,6 +88,15 @@ export default function AdminDashboard() {
     totalCustomers: 0,
     bestSellingProducts: [],
     revenueByMonth: [],
+    recentCustomers: [],
+  };
+
+  const formatDate = (value: string) => {
+    try {
+      return new Date(value).toLocaleString();
+    } catch {
+      return "-";
+    }
   };
 
   return (
@@ -56,6 +104,12 @@ export default function AdminDashboard() {
       <h1 className="mb-6 text-2xl font-serif font-light tracking-luxury-wide sm:mb-8 md:mb-10 sm:text-3xl">
         Dashboard
       </h1>
+
+      {error && (
+        <div className="mb-6 rounded-xl border border-red-400/20 bg-red-500/5 p-4 text-sm text-red-100 sm:mb-8">
+          {error}
+        </div>
+      )}
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:mb-8 sm:grid-cols-2 sm:gap-5 md:mb-10 lg:grid-cols-4 lg:gap-6">
         <motion.div
@@ -117,6 +171,49 @@ export default function AdminDashboard() {
                 <Line type="monotone" dataKey="revenue" stroke="#C6A75E" strokeWidth={2} dot={{ fill: "#C6A75E" }} />
               </LineChart>
             </ResponsiveContainer>
+          </div>
+        </motion.div>
+      )}
+
+      {s.recentCustomers.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.22 }}
+          className="mb-6 rounded-xl border border-brass/20 bg-charcoal-light/30 p-4 sm:mb-8 sm:p-6 md:mb-10"
+        >
+          <h2 className="text-lg font-serif mb-6">Recent Customers</h2>
+          <div className="space-y-4">
+            {s.recentCustomers.map((customer) => (
+              <div
+                key={customer._id}
+                className="flex flex-col gap-3 rounded-xl border border-brass/10 bg-black/10 p-4 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <div>
+                  <p className="text-ivory font-light">{customer.name}</p>
+                  <p className="text-sm text-ivory-muted">
+                    {customer.email || "No email"}
+                  </p>
+                  <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-brass/80">
+                    {customer.source === "account" ? "Account" : "Guest"}
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-sm sm:flex sm:items-center sm:gap-6">
+                  <div>
+                    <p className="text-ivory-muted">Orders</p>
+                    <p className="text-ivory">{customer.orders}</p>
+                  </div>
+                  <div>
+                    <p className="text-ivory-muted">Spend</p>
+                    <p className="text-brass">EGP {customer.totalSpent.toLocaleString()}</p>
+                  </div>
+                  <div className="col-span-2 sm:col-span-1">
+                    <p className="text-ivory-muted">Last activity</p>
+                    <p className="text-ivory">{formatDate(customer.lastOrderAt)}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </motion.div>
       )}

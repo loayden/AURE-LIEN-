@@ -2,30 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthFromRequest } from "@/lib/auth";
 import { getOrdersJson } from "@/lib/orderStorage";
 import { getUsersJson } from "@/lib/usersJson";
+import { buildAdminCustomerIndex } from "@/lib/adminCustomers";
 
-type OrderRow = {
-  id?: string;
-  _id?: string;
-  userId?: string;
-  customer?: {
-    email?: string;
-    firstName?: string;
-    lastName?: string;
-    name?: string;
-    phone?: string;
-    address?: string;
-    apartment?: string;
-    city?: string;
-    postalCode?: string;
-    country?: string;
-  };
-  total?: number;
-  totalPrice?: number;
-  createdAt?: string;
+const NO_STORE_HEADERS = {
+  "Cache-Control": "no-store, max-age=0",
 };
 
-function buildAddress(parts: Array<string | undefined>) {
-  return parts.map((part) => String(part ?? "").trim()).filter(Boolean).join(", ");
+function getNewestTimestamp(value: { createdAt: string; lastOrderAt: string }) {
+  return new Date(value.lastOrderAt || value.createdAt).getTime();
 }
 
 export async function GET(req: NextRequest) {
@@ -33,125 +17,47 @@ export async function GET(req: NextRequest) {
   if (!auth || auth.role !== "admin") {
     return NextResponse.json({ message: "Not authorized" }, { status: 403 });
   }
+
   try {
-    const users = await getUsersJson();
-    const orders = (await getOrdersJson()) as OrderRow[];
+    const [users, orders] = await Promise.all([getUsersJson(), getOrdersJson()]);
+    const customerIndex = buildAdminCustomerIndex(users, orders);
 
-    // Build map: email (lowercase) -> { _id, name, email, createdAt, orders count, totalSpent }
-    const byEmail = new Map<
-      string,
-      {
-        _id: string;
-        name: string;
-        email: string;
-        createdAt: string;
-        orders: number;
-        totalSpent: number;
-        phone: string;
-        address: string;
-        city: string;
-        postalCode: string;
-        country: string;
-      }
-    >();
-
-    for (const u of users) {
-      const key = u.email.toLowerCase().trim();
-      if (!key) continue;
-      const userOrders = orders.filter(
-        (o) =>
-          o.userId === u.id ||
-          (o.customer?.email && o.customer.email.toLowerCase().trim() === key)
-      );
-      const latestOrder = userOrders[0];
-      const totalSpent = userOrders.reduce(
-        (sum, o) => sum + (Number(o.totalPrice ?? o.total) || 0),
-        0
-      );
-      byEmail.set(key, {
-        _id: u.id,
-        name: u.name,
-        email: u.email,
-        createdAt: u.createdAt,
-        orders: userOrders.length,
-        totalSpent,
-        phone: u.phone || latestOrder?.customer?.phone || "",
-        address: buildAddress([
-          u.address || latestOrder?.customer?.address,
-          u.apartment || latestOrder?.customer?.apartment,
-        ]),
-        city: u.city || latestOrder?.customer?.city || "",
-        postalCode: u.postalCode || latestOrder?.customer?.postalCode || "",
-        country: u.country || latestOrder?.customer?.country || "",
-      });
-    }
-
-    // Add everyone who placed an order (with or without account) so all data appears in Admin Users
-    for (const o of orders) {
-      const email = o.customer?.email?.toLowerCase().trim();
-      if (!email) continue;
-      const orderTotal = Number(o.totalPrice ?? o.total) || 0;
-      const existing = byEmail.get(email);
-      if (existing) {
-        if (existing._id.startsWith("order-")) {
-          existing.orders += 1;
-          existing.totalSpent += orderTotal;
-        }
-        existing.phone ||= o.customer?.phone?.trim() || "";
-        existing.address ||= buildAddress([o.customer?.address, o.customer?.apartment]);
-        existing.city ||= o.customer?.city?.trim() || "";
-        existing.postalCode ||= o.customer?.postalCode?.trim() || "";
-        existing.country ||= o.customer?.country?.trim() || "";
-        continue;
-      }
-      const rawName =
-        o.customer?.name ||
-        [o.customer?.firstName, o.customer?.lastName].filter(Boolean).join(" ").trim();
-      const name = rawName && rawName !== "—" ? rawName : `Guest (${o.customer?.email ?? email})`;
-      const createdAt = o.createdAt ?? new Date().toISOString();
-      byEmail.set(email, {
-        _id: `order-${email}`,
-        name,
-        email: o.customer?.email ?? email,
-        createdAt,
-        orders: 1,
-        totalSpent: orderTotal,
-        phone: o.customer?.phone?.trim() || "",
-        address: buildAddress([o.customer?.address, o.customer?.apartment]),
-        city: o.customer?.city?.trim() || "",
-        postalCode: o.customer?.postalCode?.trim() || "",
-        country: o.customer?.country?.trim() || "",
-      });
-    }
-
-    let result = Array.from(byEmail.values());
+    let result = customerIndex.customers.map((customer) => ({ ...customer }));
 
     const { searchParams } = new URL(req.url);
     const search = searchParams.get("search")?.toLowerCase().trim();
     const sort = searchParams.get("sort") || "newest";
 
     if (search) {
-      result = result.filter(
-        (u) =>
-          u.email.toLowerCase().includes(search) ||
-          u.name.toLowerCase().includes(search) ||
-          u.phone.toLowerCase().includes(search) ||
-          u.address.toLowerCase().includes(search) ||
-          u.city.toLowerCase().includes(search)
+      result = result.filter((customer) =>
+        [
+          customer.name,
+          customer.email,
+          customer.phone,
+          customer.address,
+          customer.city,
+          customer.country,
+        ]
+          .join(" ")
+          .toLowerCase()
+          .includes(search)
       );
     }
 
-    if (sort === "newest") {
-      result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    } else if (sort === "orders") {
+    if (sort === "orders") {
       result.sort((a, b) => b.orders - a.orders);
     } else if (sort === "spent") {
       result.sort((a, b) => b.totalSpent - a.totalSpent);
+    } else {
+      result.sort((a, b) => getNewestTimestamp(b) - getNewestTimestamp(a));
     }
 
-    return NextResponse.json(result);
-  } catch (e) {
-    console.error("Admin users API error:", e);
-    return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 });
+    return NextResponse.json(result, { headers: NO_STORE_HEADERS });
+  } catch (error) {
+    console.error("Admin users API error:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch users" },
+      { status: 500, headers: NO_STORE_HEADERS }
+    );
   }
 }

@@ -15,6 +15,12 @@ interface OrderItem {
 }
 
 interface Customer {
+  accountId?: string | null;
+  source?: "account" | "guest";
+  totalOrders?: number;
+  totalSpent?: number;
+  joinedAt?: string;
+  lastOrderAt?: string;
   email?: string;
   firstName?: string;
   lastName?: string;
@@ -22,6 +28,7 @@ interface Customer {
   phone?: string;
   address?: string;
   apartment?: string;
+  fullAddress?: string;
   city?: string;
   postalCode?: string;
   country?: string;
@@ -44,6 +51,7 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
+  const [error, setError] = useState("");
 
   const handleExportJson = async () => {
     setExporting(true);
@@ -65,13 +73,40 @@ export default function AdminOrdersPage() {
   };
 
   useEffect(() => {
-    fetch("/api/admin/orders", { cache: "no-store" })
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.orders) setOrders(d.orders);
-      })
-      .catch(() => setOrders([]))
-      .finally(() => setLoading(false));
+    let cancelled = false;
+
+    async function loadOrders() {
+      setLoading(true);
+      setError("");
+
+      try {
+        const response = await fetch("/api/admin/orders", { cache: "no-store" });
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data?.error || data?.message || "Failed to load orders");
+        }
+
+        if (!cancelled) {
+          setOrders(Array.isArray(data?.orders) ? data.orders : []);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setOrders([]);
+          setError(err instanceof Error ? err.message : "Failed to load orders");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void loadOrders();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const formatDate = (d: string) => {
@@ -80,6 +115,10 @@ export default function AdminOrdersPage() {
     } catch {
       return "-";
     }
+  };
+
+  const formatSource = (customer?: Customer) => {
+    return customer?.source === "account" ? "Account" : "Guest";
   };
 
   const totalRevenue = orders.reduce((s, o) => s + Number(o.totalPrice ?? 0), 0);
@@ -127,6 +166,12 @@ export default function AdminOrdersPage() {
         </div>
       )}
 
+      {error && (
+        <div className="rounded-xl border border-red-400/20 bg-red-500/5 p-4 text-sm text-red-100">
+          {error}
+        </div>
+      )}
+
       {loading ? (
         <p className="text-ivory-muted">Loading...</p>
       ) : orders.length === 0 ? (
@@ -159,6 +204,24 @@ export default function AdminOrdersPage() {
                 <div className="mb-6 p-4 rounded-lg bg-charcoal/50 border border-brass/10">
                   <h3 className="text-brass text-sm font-medium mb-3 uppercase tracking-wide">Customer & delivery</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                    <p>
+                      <span className="text-ivory-muted">Profile:</span> {formatSource(order.customer)}
+                    </p>
+                    {order.customer.totalOrders != null && (
+                      <p>
+                        <span className="text-ivory-muted">Customer orders:</span> {order.customer.totalOrders}
+                      </p>
+                    )}
+                    {order.customer.totalSpent != null && (
+                      <p>
+                        <span className="text-ivory-muted">Lifetime spend:</span> EGP {Number(order.customer.totalSpent).toLocaleString()}
+                      </p>
+                    )}
+                    {order.customer.joinedAt && (
+                      <p>
+                        <span className="text-ivory-muted">First seen:</span> {formatDate(order.customer.joinedAt)}
+                      </p>
+                    )}
                     {order.customer.email != null && order.customer.email !== "" && (
                       <p><span className="text-ivory-muted">Email:</span> {order.customer.email}</p>
                     )}
@@ -166,8 +229,8 @@ export default function AdminOrdersPage() {
                       <p><span className="text-ivory-muted">Phone:</span> {order.customer.phone}</p>
                     )}
                     <p><span className="text-ivory-muted">Name:</span> {order.customer.name || `${order.customer.firstName || ""} ${order.customer.lastName || ""}`.trim() || "—"}</p>
-                    {((order.customer.address ?? "") !== "" || (order.customer.apartment ?? "") !== "") && (
-                      <p><span className="text-ivory-muted">Address:</span> {[order.customer.address, order.customer.apartment].filter(Boolean).join(", ") || "—"}</p>
+                    {((order.customer.fullAddress ?? "") !== "" || (order.customer.address ?? "") !== "" || (order.customer.apartment ?? "") !== "") && (
+                      <p><span className="text-ivory-muted">Address:</span> {order.customer.fullAddress || [order.customer.address, order.customer.apartment].filter(Boolean).join(", ") || "—"}</p>
                     )}
                     {order.customer.city != null && order.customer.city !== "" && (
                       <p><span className="text-ivory-muted">City:</span> {order.customer.city}</p>
