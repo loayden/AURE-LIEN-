@@ -22,10 +22,10 @@ const SORT_OPTIONS = [
 ];
 
 const PRICE_RANGES = [
-  { label: "Under 1,000 EGP", min: 0, max: 1000 },
-  { label: "1,000 - 5,000 EGP", min: 1000, max: 5000 },
-  { label: "5,000 - 10,000 EGP", min: 5000, max: 10000 },
-  { label: "10,000+ EGP", min: 10000, max: Infinity },
+  { label: "Under 1,000 EGP", mobileLabel: "Under 1k", min: 0, max: 1000 },
+  { label: "1,000 - 5,000 EGP", mobileLabel: "1k to 5k", min: 1000, max: 5000 },
+  { label: "5,000 - 10,000 EGP", mobileLabel: "5k to 10k", min: 5000, max: 10000 },
+  { label: "10,000+ EGP", mobileLabel: "10k+", min: 10000, max: Infinity },
 ];
 
 function Orbs() {
@@ -347,7 +347,8 @@ export default function EnhancedShopPage() {
                   onClick={() => setFilters({ ...filters, priceRange: i })}
                   className={`luxury-filter-pill ${filters.priceRange === i ? "is-active" : ""}`}
                 >
-                  {range.label.length > 20 ? `${range.label.split(' ')[0]} ${range.label.split(' ')[1]}` : range.label}
+                  <span className="sm:hidden">{range.mobileLabel}</span>
+                  <span className="hidden sm:inline">{range.label}</span>
                 </motion.button>
               ))}
             </motion.div>
