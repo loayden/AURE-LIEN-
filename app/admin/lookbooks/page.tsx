@@ -152,7 +152,7 @@ export default function AdminLookbooksPage() {
                   };
                   setForm((f) => ({ ...f, sections: s2 }));
                 }}
-                className="bg-charcoal border border-brass/40 text-ivory px-3 py-2 rounded text-sm"
+                className="luxury-select bg-charcoal border border-brass/40 text-ivory px-3 py-2 rounded text-sm"
               >
                 <option value="">No product hotspot</option>
                 {productsData.map((p) => (

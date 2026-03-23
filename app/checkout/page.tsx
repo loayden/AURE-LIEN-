@@ -478,7 +478,12 @@ export default function CheckoutPage() {
                 <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.18, duration:0.7 }}>
                   <GlassSection icon={<MapPin strokeWidth={1.3} className="w-4 h-4" />} title="Delivery">
                     <div className="grid gap-3 max-w-lg">
-                      <select value={form.country} onChange={(e) => update("country", e.target.value)} required>
+                      <select
+                        value={form.country}
+                        onChange={(e) => update("country", e.target.value)}
+                        className="luxury-select"
+                        required
+                      >
                         <option value="Egypt">Egypt</option>
                       </select>
                       <div className="grid grid-cols-2 gap-3">

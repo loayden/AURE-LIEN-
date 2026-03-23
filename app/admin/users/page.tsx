@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Eye, Search } from "lucide-react";
+import { Eye, Search } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -112,13 +112,12 @@ export default function AdminUsersPage() {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value)}
-            className="min-h-[44px] min-w-[44px] w-full appearance-none rounded-lg border border-brass/30 bg-charcoal py-2.5 pl-4 pr-10 text-base text-ivory focus:border-brass focus:outline-none sm:w-48 sm:text-sm"
+            className="luxury-select min-h-[44px] min-w-[44px] w-full rounded-lg border border-brass/30 bg-charcoal py-2.5 pl-4 pr-10 text-base text-ivory focus:border-brass focus:outline-none sm:w-48 sm:text-sm"
           >
             <option value="newest">Newest first</option>
             <option value="orders">Most orders</option>
             <option value="spent">Most spent</option>
           </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ivory-muted pointer-events-none" />
         </div>
       </div>
 

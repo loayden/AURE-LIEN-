@@ -148,62 +148,8 @@ export default function EnhancedShopPage() {
           box-shadow: 0 8px 32px rgba(198,169,98,0.08), inset 0 1px 0 rgba(255,255,255,0.14);
         }
 
-        .sort-dropdown, .filter-dropdown {
-          position: absolute;
-          top: calc(100% + 8px);
-          right: 0;
-          min-width: 200px;
-          z-index: 50;
-          background: linear-gradient(135deg, rgba(18,18,20,0.95) 0%, rgba(10,10,12,0.98) 100%);
-          backdrop-filter: blur(28px) saturate(160%);
-          -webkit-backdrop-filter: blur(28px) saturate(160%);
-          border: 1px solid rgba(255,255,255,0.10);
-          box-shadow: 0 24px 60px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.10);
-          border-radius: 16px;
-          overflow: hidden;
-          max-height: 400px;
-          overflow-y: auto;
-        }
-        .sort-option, .filter-option {
-          padding: 12px 16px;
-          font-size: 10px;
-          letter-spacing: 0.28em;
-          text-transform: uppercase;
-          font-family: 'Jost', sans-serif;
-          font-weight: 300;
-          color: rgba(255,255,255,0.5);
-          cursor: pointer;
-          transition: all 0.25s;
-          border-bottom: 1px solid rgba(255,255,255,0.05);
-          min-height: 44px;
-          display: flex;
-          align-items: center;
-        }
-        .sort-option:last-child, .filter-option:last-child { border-bottom: none; }
-        .sort-option:hover, .filter-option:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.85); }
-        .sort-option.active, .filter-option.active { color: var(--gold); background: rgba(198,169,98,0.07); }
-
-        .sort-dropdown::-webkit-scrollbar, .filter-dropdown::-webkit-scrollbar {
-          width: 6px;
-        }
-        .sort-dropdown::-webkit-scrollbar-track, .filter-dropdown::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .sort-dropdown::-webkit-scrollbar-thumb, .filter-dropdown::-webkit-scrollbar-thumb {
-          background: rgba(255,255,255,0.1);
-          border-radius: 3px;
-        }
-
         .scrollbar-hide { scrollbar-width: none; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
-
-        @media (max-width: 640px) {
-          .sort-dropdown, .filter-dropdown {
-            right: -50%;
-            transform: translateX(50%);
-            min-width: 220px;
-          }
-        }
       `}</style>
 
       <motion.main
@@ -302,16 +248,7 @@ export default function EnhancedShopPage() {
                     whileHover={{ scale: 1.08 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setViewMode("grid")}
-                    className="p-2 rounded-lg transition-all min-h-[44px] min-w-[44px] flex items-center justify-center"
-                    style={viewMode === "grid" ? {
-                      background: "rgba(198,169,98,0.15)",
-                      border: "1px solid rgba(198,169,98,0.3)",
-                      color: "#C6A962",
-                    } : {
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "rgba(255,255,255,0.4)",
-                    }}
+                    className={`luxury-icon-toggle ${viewMode === "grid" ? "is-active" : ""}`}
                   >
                     <Grid size={16} />
                   </motion.button>
@@ -319,16 +256,7 @@ export default function EnhancedShopPage() {
                     whileHover={{ scale: 1.08 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setViewMode("list")}
-                    className="p-2 rounded-lg transition-all min-h-[44px] min-w-[44px] flex items-center justify-center"
-                    style={viewMode === "list" ? {
-                      background: "rgba(198,169,98,0.15)",
-                      border: "1px solid rgba(198,169,98,0.3)",
-                      color: "#C6A962",
-                    } : {
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      color: "rgba(255,255,255,0.4)",
-                    }}
+                    className={`luxury-icon-toggle ${viewMode === "list" ? "is-active" : ""}`}
                   >
                     <List size={16} />
                   </motion.button>
@@ -341,16 +269,7 @@ export default function EnhancedShopPage() {
                   whileHover={{ scale: 1.08 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setViewMode("grid")}
-                  className="p-2.5 rounded-lg transition-all"
-                  style={viewMode === "grid" ? {
-                    background: "rgba(198,169,98,0.15)",
-                    border: "1px solid rgba(198,169,98,0.3)",
-                    color: "#C6A962",
-                  } : {
-                    background: "rgba(255,255,255,0.05)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    color: "rgba(255,255,255,0.4)",
-                  }}
+                  className={`luxury-icon-toggle ${viewMode === "grid" ? "is-active" : ""}`}
                 >
                   <Grid size={16} />
                 </motion.button>
@@ -358,16 +277,7 @@ export default function EnhancedShopPage() {
                   whileHover={{ scale: 1.08 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setViewMode("list")}
-                  className="p-2.5 rounded-lg transition-all"
-                  style={viewMode === "list" ? {
-                    background: "rgba(198,169,98,0.15)",
-                    border: "1px solid rgba(198,169,98,0.3)",
-                    color: "#C6A962",
-                  } : {
-                    background: "rgba(255,255,255,0.05)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    color: "rgba(255,255,255,0.4)",
-                  }}
+                  className={`luxury-icon-toggle ${viewMode === "list" ? "is-active" : ""}`}
                 >
                   <List size={16} />
                 </motion.button>
@@ -377,24 +287,13 @@ export default function EnhancedShopPage() {
               <div className="relative w-full sm:w-auto">
                 <button
                   onClick={() => setSortOpen(!sortOpen)}
-                  className="w-full sm:w-auto flex items-center justify-between sm:justify-center gap-2 px-4 sm:px-5 py-3 sm:py-2.5 rounded-full transition-all duration-300 min-h-[44px]"
-                  style={sortOpen ? {
-                    background: "linear-gradient(135deg, rgba(198,169,98,0.14), rgba(198,169,98,0.05))",
-                    border: "1px solid rgba(198,169,98,0.25)",
-                    backdropFilter: "blur(16px)",
-                  } : {
-                    background: "rgba(255,255,255,0.05)",
-                    border: "1px solid rgba(255,255,255,0.09)",
-                    backdropFilter: "blur(16px)",
-                  }}
+                  className={`luxury-sort-trigger w-full sm:w-auto ${sortOpen ? "is-open" : ""}`}
                 >
-                  <span className="text-[9px] sm:text-[10px] tracking-[0.28em] uppercase font-light"
-                        style={{ color: sortOpen ? "#C6A962" : "rgba(255,255,255,0.55)" }}>
+                  <span className="luxury-sort-label">
                     {activeLabel}
                   </span>
                   <motion.span animate={{ rotate: sortOpen ? 180 : 0 }} transition={{ duration: 0.3 }}>
-                    <ChevronDown strokeWidth={1.3} className="w-4 h-4"
-                                 style={{ color: sortOpen ? "#C6A962" : "rgba(255,255,255,0.35)" }} />
+                    <ChevronDown strokeWidth={1.3} className="luxury-sort-icon w-4 h-4" />
                   </motion.span>
                 </button>
 
@@ -404,12 +303,15 @@ export default function EnhancedShopPage() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-                    className="sort-dropdown"
+                    role="listbox"
+                    className="luxury-dropdown-panel mobile-centered"
                   >
                     {SORT_OPTIONS.map((opt) => (
                       <div
                         key={opt.value}
-                        className={`sort-option ${sort === opt.value ? "active" : ""}`}
+                        role="option"
+                        aria-selected={sort === opt.value}
+                        className={`luxury-dropdown-option ${sort === opt.value ? "active" : ""}`}
                         onClick={() => { setSort(opt.value); setSortOpen(false); }}
                       >
                         {opt.label}
@@ -433,16 +335,7 @@ export default function EnhancedShopPage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setFilters({ ...filters, priceRange: null })}
-                className="px-3 py-2 rounded-full text-[9px] tracking-[0.2em] uppercase font-light transition-all whitespace-nowrap flex-shrink-0 min-h-[36px]"
-                style={filters.priceRange === null ? {
-                  background: "rgba(198,169,98,0.15)",
-                  border: "1px solid rgba(198,169,98,0.3)",
-                  color: "#C6A962",
-                } : {
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                  color: "rgba(255,255,255,0.4)",
-                }}
+                className={`luxury-filter-pill ${filters.priceRange === null ? "is-active" : ""}`}
               >
                 All
               </motion.button>
@@ -452,16 +345,7 @@ export default function EnhancedShopPage() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setFilters({ ...filters, priceRange: i })}
-                  className="px-2.5 sm:px-3 py-2 rounded-full text-[8px] sm:text-[9px] tracking-[0.2em] uppercase font-light transition-all whitespace-nowrap flex-shrink-0 min-h-[36px]"
-                  style={filters.priceRange === i ? {
-                    background: "rgba(198,169,98,0.15)",
-                    border: "1px solid rgba(198,169,98,0.3)",
-                    color: "#C6A962",
-                  } : {
-                    background: "rgba(255,255,255,0.05)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    color: "rgba(255,255,255,0.4)",
-                  }}
+                  className={`luxury-filter-pill ${filters.priceRange === i ? "is-active" : ""}`}
                 >
                   {range.label.length > 20 ? `${range.label.split(' ')[0]} ${range.label.split(' ')[1]}` : range.label}
                 </motion.button>

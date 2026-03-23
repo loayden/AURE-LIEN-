@@ -312,63 +312,9 @@ export default function AureLienPlatform() {
           box-shadow: 0 8px 32px rgba(198,169,98,0.08), inset 0 1px 0 rgba(255,255,255,0.14);
         }
 
-        .sort-dropdown {
-          position: absolute;
-          top: calc(100% + 8px);
-          right: 0;
-          width: min(220px, calc(100vw - 32px));
-          min-width: 200px;
-          z-index: 50;
-          background: linear-gradient(135deg, rgba(18,18,20,0.95) 0%, rgba(10,10,12,0.98) 100%);
-          backdrop-filter: blur(28px) saturate(160%);
-          -webkit-backdrop-filter: blur(28px) saturate(160%);
-          border: 1px solid rgba(255,255,255,0.10);
-          box-shadow: 0 24px 60px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.10);
-          border-radius: 16px;
-          overflow: hidden;
-          max-height: 400px;
-          overflow-y: auto;
-        }
-        .sort-option {
-          padding: 12px 16px;
-          font-size: 10px;
-          letter-spacing: 0.28em;
-          text-transform: uppercase;
-          font-family: 'Jost', sans-serif;
-          font-weight: 300;
-          color: rgba(255,255,255,0.5);
-          cursor: pointer;
-          transition: all 0.25s;
-          border-bottom: 1px solid rgba(255,255,255,0.05);
-          min-height: 44px;
-          display: flex;
-          align-items: center;
-        }
-        .sort-option:last-child { border-bottom: none; }
-        .sort-option:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.85); }
-        .sort-option.active { color: var(--gold); background: rgba(198,169,98,0.07); }
-        .sort-dropdown::-webkit-scrollbar {
-          width: 6px;
-        }
-        .sort-dropdown::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .sort-dropdown::-webkit-scrollbar-thumb {
-          background: rgba(255,255,255,0.12);
-          border-radius: 999px;
-        }
-
         input::placeholder { font-size: 16px; }
         @media (min-width: 641px) {
           input::placeholder { font-size: clamp(12px, 1.2vw, 14px); }
-        }
-
-        @media (max-width: 640px) {
-          .sort-dropdown {
-            right: auto;
-            left: 50%;
-            transform: translateX(-50%);
-          }
         }
 
         .scrollbar-hide { scrollbar-width: none; }
@@ -1124,20 +1070,7 @@ export default function AureLienPlatform() {
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setViewMode("grid")}
                     aria-label="Switch to grid view"
-                    className="p-2 rounded-lg transition-all min-h-[44px] min-w-[44px] flex items-center justify-center"
-                    style={
-                      viewMode === "grid"
-                        ? {
-                            background: "rgba(198,169,98,0.15)",
-                            border: "1px solid rgba(198,169,98,0.3)",
-                            color: "#C6A962",
-                          }
-                        : {
-                            background: "rgba(255,255,255,0.05)",
-                            border: "1px solid rgba(255,255,255,0.1)",
-                            color: "rgba(255,255,255,0.4)",
-                          }
-                    }
+                    className={`luxury-icon-toggle ${viewMode === "grid" ? "is-active" : ""}`}
                   >
                     <Grid size={16} />
                   </motion.button>
@@ -1146,20 +1079,7 @@ export default function AureLienPlatform() {
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setViewMode("list")}
                     aria-label="Switch to list view"
-                    className="p-2 rounded-lg transition-all min-h-[44px] min-w-[44px] flex items-center justify-center"
-                    style={
-                      viewMode === "list"
-                        ? {
-                            background: "rgba(198,169,98,0.15)",
-                            border: "1px solid rgba(198,169,98,0.3)",
-                            color: "#C6A962",
-                          }
-                        : {
-                            background: "rgba(255,255,255,0.05)",
-                            border: "1px solid rgba(255,255,255,0.1)",
-                            color: "rgba(255,255,255,0.4)",
-                          }
-                    }
+                    className={`luxury-icon-toggle ${viewMode === "list" ? "is-active" : ""}`}
                   >
                     <List size={16} />
                   </motion.button>
@@ -1172,20 +1092,7 @@ export default function AureLienPlatform() {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setViewMode("grid")}
                   aria-label="Switch to grid view"
-                  className="p-2 sm:p-2.5 rounded-lg transition-all min-h-[44px] min-w-[44px] flex items-center justify-center"
-                  style={
-                    viewMode === "grid"
-                      ? {
-                          background: "rgba(198,169,98,0.15)",
-                          border: "1px solid rgba(198,169,98,0.3)",
-                          color: "#C6A962",
-                        }
-                      : {
-                          background: "rgba(255,255,255,0.05)",
-                          border: "1px solid rgba(255,255,255,0.1)",
-                          color: "rgba(255,255,255,0.4)",
-                        }
-                  }
+                  className={`luxury-icon-toggle ${viewMode === "grid" ? "is-active" : ""}`}
                 >
                   <Grid size={16} />
                 </motion.button>
@@ -1194,20 +1101,7 @@ export default function AureLienPlatform() {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setViewMode("list")}
                   aria-label="Switch to list view"
-                  className="p-2 sm:p-2.5 rounded-lg transition-all min-h-[44px] min-w-[44px] flex items-center justify-center"
-                  style={
-                    viewMode === "list"
-                      ? {
-                          background: "rgba(198,169,98,0.15)",
-                          border: "1px solid rgba(198,169,98,0.3)",
-                          color: "#C6A962",
-                        }
-                      : {
-                          background: "rgba(255,255,255,0.05)",
-                          border: "1px solid rgba(255,255,255,0.1)",
-                          color: "rgba(255,255,255,0.4)",
-                        }
-                  }
+                  className={`luxury-icon-toggle ${viewMode === "list" ? "is-active" : ""}`}
                 >
                   <List size={16} />
                 </motion.button>
@@ -1219,31 +1113,9 @@ export default function AureLienPlatform() {
                   aria-expanded={sortOpen}
                   aria-haspopup="listbox"
                   aria-label="Sort products"
-                  className="w-full sm:w-auto flex items-center justify-between gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-full transition-all duration-300 min-h-[44px] min-w-[44px]"
-                  style={
-                    sortOpen
-                      ? {
-                          background:
-                            "linear-gradient(135deg, rgba(198,169,98,0.14), rgba(198,169,98,0.05))",
-                          border: "1px solid rgba(198,169,98,0.25)",
-                          backdropFilter: "blur(16px)",
-                        }
-                      : {
-                          background: "rgba(255,255,255,0.05)",
-                          border: "1px solid rgba(255,255,255,0.09)",
-                          backdropFilter: "blur(16px)",
-                        }
-                  }
+                  className={`luxury-sort-trigger w-full sm:w-auto ${sortOpen ? "is-open" : ""}`}
                 >
-                  <span
-                    className="tracking-[0.28em] uppercase font-light"
-                    style={{
-                      fontSize: "clamp(9px, 1.5vw, 10px)",
-                      color: sortOpen
-                        ? "#C6A962"
-                        : "rgba(255,255,255,0.55)",
-                    }}
-                  >
+                  <span className="luxury-sort-label">
                     {activeLabel}
                   </span>
                   <motion.span
@@ -1252,12 +1124,7 @@ export default function AureLienPlatform() {
                   >
                     <ChevronDown
                       strokeWidth={1.3}
-                      className="w-4 h-4"
-                      style={{
-                        color: sortOpen
-                          ? "#C6A962"
-                          : "rgba(255,255,255,0.35)",
-                      }}
+                      className="luxury-sort-icon w-4 h-4"
                     />
                   </motion.span>
                 </button>
@@ -1272,14 +1139,14 @@ export default function AureLienPlatform() {
                       ease: [0.22, 1, 0.36, 1],
                     }}
                     role="listbox"
-                    className="sort-dropdown"
+                    className="luxury-dropdown-panel mobile-centered"
                   >
                     {SORT_OPTIONS.map((opt) => (
                       <div
                         key={opt.value}
                         role="option"
                         aria-selected={sort === opt.value}
-                        className={`sort-option ${sort === opt.value ? "active" : ""}`}
+                        className={`luxury-dropdown-option ${sort === opt.value ? "active" : ""}`}
                         onClick={() => {
                           setSort(opt.value);
                           setSortOpen(false);
@@ -1312,23 +1179,7 @@ export default function AureLienPlatform() {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setFilters({ ...filters, priceRange: null })}
                 aria-label="Show all prices"
-                className="px-2.5 sm:px-3 py-2 rounded-full uppercase font-light transition-all whitespace-nowrap flex-shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center"
-                style={{
-                  fontSize: "clamp(8px, 1.5vw, 9px)",
-                  letterSpacing: "0.16em",
-                  background:
-                    filters.priceRange === null
-                      ? "rgba(198,169,98,0.15)"
-                      : "rgba(255,255,255,0.05)",
-                  border:
-                    filters.priceRange === null
-                      ? "1px solid rgba(198,169,98,0.3)"
-                      : "1px solid rgba(255,255,255,0.1)",
-                  color:
-                    filters.priceRange === null
-                      ? "#C6A962"
-                      : "rgba(255,255,255,0.4)",
-                }}
+                className={`luxury-filter-pill ${filters.priceRange === null ? "is-active" : ""}`}
               >
                 All
               </motion.button>
@@ -1339,23 +1190,7 @@ export default function AureLienPlatform() {
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setFilters({ ...filters, priceRange: i })}
                   aria-label={`Filter by ${range.label}`}
-                  className="px-2 sm:px-2.5 py-2 rounded-full uppercase font-light transition-all whitespace-nowrap flex-shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center"
-                  style={{
-                    fontSize: "clamp(8px, 1.5vw, 9px)",
-                    letterSpacing: "0.16em",
-                    background:
-                      filters.priceRange === i
-                        ? "rgba(198,169,98,0.15)"
-                        : "rgba(255,255,255,0.05)",
-                    border:
-                      filters.priceRange === i
-                        ? "1px solid rgba(198,169,98,0.3)"
-                        : "1px solid rgba(255,255,255,0.1)",
-                    color:
-                      filters.priceRange === i
-                        ? "#C6A962"
-                        : "rgba(255,255,255,0.4)",
-                  }}
+                  className={`luxury-filter-pill ${filters.priceRange === i ? "is-active" : ""}`}
                 >
                   {range.label.length > 18
                     ? `${range.label.split(" ")[0]} ${range.label.split(" ")[1]}`

@@ -87,7 +87,7 @@ export default function AdminAddProductPage() {
             required
             value={form.category}
             onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
-            className="min-h-[44px] min-w-[44px] w-full rounded-lg border border-brass/30 bg-charcoal px-4 py-2.5 text-base text-ivory focus:border-brass focus:outline-none sm:text-sm"
+            className="luxury-select min-h-[44px] min-w-[44px] w-full rounded-lg border border-brass/30 bg-charcoal px-4 py-2.5 text-base text-ivory focus:border-brass focus:outline-none sm:text-sm"
           >
             <option value="">Select category</option>
             {CATEGORIES.map((c) => (
