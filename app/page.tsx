@@ -116,21 +116,21 @@ const PLATFORM_PERSPECTIVES = [
   },
 ];
 
-const CLIENT_EXPERIENCE_POINTS = [
+const PLATFORM_EXPERIENCE_POINTS = [
   {
-    title: "A calmer scroll",
+    title: "A more considered presence",
     description:
-      "First impressions are often made on the phone. The experience is paced to feel clean, readable, and composed from the first touch.",
+      "Your collections are displayed in an environment designed to feel calm, structured, and visually confident, allowing each piece to stand on its own.",
   },
   {
-    title: "Confidence through clarity",
+    title: "Clarity in presentation",
     description:
-      "Descriptions, product groupings, and controls are arranged to help clients browse deliberately instead of rushing through visual clutter.",
+      "Product organization, descriptions, and layout are arranged to highlight value without overwhelming the viewer, supporting a more intentional browsing experience.",
   },
   {
-    title: "Premium tone throughout",
+    title: "Consistency in positioning",
     description:
-      "From discovery to order, the atmosphere stays consistent with the kind of quality your boutique is known for offline.",
+      "From first discovery to final selection, your boutique is represented with a tone that reflects premium standards, maintaining the same level of perception your brand holds in-store.",
   },
 ];
 
@@ -816,7 +816,7 @@ export default function AureLienPlatform() {
                   letterSpacing: "0.36em",
                 }}
               >
-                Client Experience
+                Platform Experience
               </p>
               <h2
                 className="font-light text-white mb-4 sm:mb-5"
@@ -827,7 +827,7 @@ export default function AureLienPlatform() {
                   lineHeight: 1,
                 }}
               >
-                Designed for modern luxury browsing.
+                Designed for modern boutique growth.
               </h2>
               <p
                 className="text-white/45 leading-relaxed mb-4 sm:mb-5"
@@ -836,9 +836,10 @@ export default function AureLienPlatform() {
                   letterSpacing: "0.025em",
                 }}
               >
-                Premium commerce increasingly begins on smaller screens. The platform is
-                designed so discovery still feels elegant there: easy to read, easy to
-                browse, and measured enough to let product quality speak with confidence.
+                Premium commerce no longer lives only in physical spaces. The platform is
+                built to translate the presence of your boutique into a refined digital
+                experience, where your collections are presented with clarity, structure,
+                and intention.
               </p>
               <p
                 className="text-white/36 leading-relaxed"
@@ -847,14 +848,14 @@ export default function AureLienPlatform() {
                   letterSpacing: "0.02em",
                 }}
               >
-                Comfort should not come at the cost of sophistication. The objective is
-                a mobile experience that feels softer, clearer, and more in line with the
-                expectations attached to premium product.
+                Visibility should not come at the cost of identity. The objective is to
+                provide a space where your products are discovered in a way that feels
+                aligned with the quality and positioning you have built offline.
               </p>
             </motion.div>
 
             <div className="space-y-3 sm:space-y-4">
-              {CLIENT_EXPERIENCE_POINTS.map((item, i) => (
+              {PLATFORM_EXPERIENCE_POINTS.map((item, i) => (
                 <motion.div
                   key={item.title}
                   initial={false}
