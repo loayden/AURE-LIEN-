@@ -1,6 +1,7 @@
 "use client";
 
 import ProductCard from "@/components/ProductCard";
+import { getProductPageContent, type ProductPageSpecification } from "@/lib/productPageContent";
 import products from "@/lib/productsData";
 import type { Product } from "@/lib/types";
 import { AnimatePresence, motion } from "framer-motion";
@@ -53,20 +54,6 @@ const goldGlass = {
   border: "1px solid rgba(198,169,98,0.28)",
   boxShadow: "0 8px 32px rgba(198,169,98,0.12), inset 0 1px 0 rgba(255,255,255,0.14)",
 };
-
-interface Specification {
-  label: string;
-  value: string;
-}
-
-const MOCK_SPECS: Specification[] = [
-  { label: "Material", value: "Premium Leather" },
-  { label: "Dimensions", value: "35 x 28 x 15 cm" },
-  { label: "Weight", value: "1.2 kg" },
-  { label: "Color", value: "Varies by selection" },
-  { label: "Interior Pockets", value: "5" },
-  { label: "Warranty", value: "2 years" },
-];
 
 /* ────────────────────────────────────────────────────────────────── */
 /* HORIZONTAL SCROLL GALLERY COMPONENT */
@@ -346,14 +333,14 @@ function ShareButtons({ product }: { product: Product }) {
 /* SPECIFICATIONS TAB */
 /* ────────────────────────────────────────────────────────────────── */
 
-function SpecificationsTab() {
+function SpecificationsTab({ specs }: { specs: ProductPageSpecification[] }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="grid grid-cols-1 md:grid-cols-2 gap-4"
     >
-      {MOCK_SPECS.map((spec, i) => (
+      {specs.map((spec, i) => (
         <motion.div
           key={i}
           initial={{ opacity: 0, x: -10 }}
@@ -470,6 +457,8 @@ export default function PremiumProductPage() {
   const relatedProducts = products
     .filter((r) => r.category === product.category && r._id !== product._id)
     .slice(0, 4) as Product[];
+  const pageContent = getProductPageContent(product);
+  const highlightIcons = [Award, Star, Check, Box];
 
   const sizes = product.size || [];
   const colors = product.colors || [];
@@ -723,7 +712,7 @@ export default function PremiumProductPage() {
                 className="text-white/45 font-light leading-relaxed mb-10"
                 style={{ fontSize: "0.95rem", letterSpacing: "0.02em", lineHeight: "1.7" }}
               >
-                {product.description}
+                {pageContent.story}
               </motion.p>
 
               {/* Size selector */}
@@ -950,7 +939,7 @@ export default function PremiumProductPage() {
             >
               <span className="flex items-center gap-2">
                 <Award size={14} />
-                Why Choose
+                Highlights
               </span>
             </motion.button>
           </div>
@@ -965,7 +954,7 @@ export default function PremiumProductPage() {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.4 }}
               >
-                <SpecificationsTab />
+                <SpecificationsTab specs={pageContent.specs} />
               </motion.div>
             )}
 
@@ -978,12 +967,10 @@ export default function PremiumProductPage() {
                 transition={{ duration: 0.4 }}
               >
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {[
-                    { icon: "🚚", title: "Free Returns", desc: "30 days hassle-free" },
-                    { icon: "🔒", title: "Secure Checkout", desc: "Payment protected" },
-                    { icon: "✓", title: "Authentic", desc: "100% genuine" },
-                    { icon: "🎁", title: "Gift Wrapping", desc: "Premium packaging" },
-                  ].map((item, i) => (
+                  {pageContent.highlights.map((item, i) => {
+                    const Icon = highlightIcons[i % highlightIcons.length];
+
+                    return (
                     <motion.div
                       key={i}
                       initial={{ opacity: 0, y: 10 }}
@@ -992,13 +979,25 @@ export default function PremiumProductPage() {
                       className="p-6 rounded-2xl text-center"
                       style={glass}
                     >
-                      <p className="text-3xl mb-3">{item.icon}</p>
+                      <div className="mb-4 flex justify-center">
+                        <div
+                          className="flex h-12 w-12 items-center justify-center rounded-full"
+                          style={{
+                            background: "linear-gradient(135deg, rgba(198,169,98,0.16), rgba(198,169,98,0.05))",
+                            border: "1px solid rgba(198,169,98,0.24)",
+                            color: "#C6A962",
+                          }}
+                        >
+                          <Icon size={18} strokeWidth={1.4} />
+                        </div>
+                      </div>
                       <p className="text-white font-light mb-1" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.1rem" }}>
                         {item.title}
                       </p>
                       <p className="text-white/40 text-[12px]">{item.desc}</p>
                     </motion.div>
-                  ))}
+                    );
+                  })}
                 </div>
               </motion.div>
             )}
