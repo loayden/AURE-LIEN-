@@ -39,6 +39,11 @@ function getColorHex(color: string) {
   return COLOR_MAP[color.toLowerCase()] || color;
 }
 
+function getOriginalPrice(price: number, discount?: number) {
+  if (!discount || discount <= 0 || discount >= 100) return null;
+  return Math.round(price / (1 - discount / 100));
+}
+
 const glass = {
   background: "linear-gradient(135deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)",
   backdropFilter: "blur(24px) saturate(160%)",
@@ -462,6 +467,7 @@ export default function PremiumProductPage() {
 
   const sizes = product.size || [];
   const colors = product.colors || [];
+  const originalPrice = getOriginalPrice(product.price, product.discount);
 
   const handleAddToCart = async () => {
     if (sizes.length > 0 && !selectedSize) {
@@ -687,6 +693,14 @@ export default function PremiumProductPage() {
                 className="mb-8"
               >
                 <p className="text-white/40 text-[10px] tracking-[0.35em] uppercase mb-3">Price</p>
+                {originalPrice ? (
+                  <p
+                    className="mb-2 text-white/35 line-through"
+                    style={{ fontSize: "0.95rem", letterSpacing: "0.12em", fontFamily: "'Jost', sans-serif" }}
+                  >
+                    EGP {originalPrice.toLocaleString()}
+                  </p>
+                ) : null}
                 <p
                   className="font-light"
                   style={{ fontSize: "2.2rem", color: "#C6A962", letterSpacing: "0.05em", fontFamily: "'Cormorant Garamond', serif" }}

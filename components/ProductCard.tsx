@@ -75,6 +75,11 @@ function getColorHex(colorName: string): string {
   return COLOR_HEX_MAP[normalized] || "#000000";
 }
 
+function getOriginalPrice(price: number, discount?: number): number | null {
+  if (!discount || discount <= 0 || discount >= 100) return null;
+  return Math.round(price / (1 - discount / 100));
+}
+
 export default function ProductCard({
   product,
   className = "",
@@ -122,6 +127,7 @@ export default function ProductCard({
 
   const isLowStock = (product.stock ?? 10) < 5;
   const outOfStock = (product.stock ?? 1) === 0;
+  const originalPrice = getOriginalPrice(product.price ?? 0, product.discount);
 
   const isInteractiveTarget = useCallback((target: EventTarget | null) => {
     if (!(target instanceof Element)) return false;
@@ -560,7 +566,7 @@ export default function ProductCard({
         <div className="flex items-center justify-between gap-3.5 pt-2.5 border-t border-white/10">
           {/* Price */}
           <div>
-            {product.discount ? (
+            {originalPrice ? (
               <>
                 <p className="font-light text-[10px] line-through"
                   style={{
@@ -568,7 +574,7 @@ export default function ProductCard({
                     color: "rgba(255,255,255,0.4)",
                     letterSpacing: "0.07em",
                   }}>
-                  EGP {((product.price ?? 0) * (1 + (product.discount ?? 0) / 100)).toLocaleString()}
+                  EGP {originalPrice.toLocaleString()}
                 </p>
                 <p className="font-semibold leading-none mt-0.5"
                   style={{

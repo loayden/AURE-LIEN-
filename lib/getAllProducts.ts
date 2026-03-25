@@ -59,6 +59,10 @@ function normalizeProduct(raw: any): Product {
     name: String(raw?.name ?? "").trim(),
     category: String(raw?.category ?? "").trim(),
     price: Number(raw?.price ?? 0),
+    discount:
+      typeof raw?.discount === "number" && raw.discount > 0
+        ? raw.discount
+        : undefined,
     images: images.length > 0 ? images : [PLACEHOLDER_IMAGE],
     size: Array.isArray(raw?.size)
       ? raw.size.map((value: unknown) => String(value))
