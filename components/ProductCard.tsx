@@ -6,7 +6,7 @@ import {
   motion,
   useMotionValue, useSpring, useTransform,
 } from "framer-motion";
-import { Heart, ShoppingBag, Star, Zap } from "lucide-react";
+import { ArrowRight, Heart, ShoppingBag, Star, Zap } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
@@ -38,8 +38,16 @@ interface ProductCardProps {
   showRemoveFromWishlist?: boolean;
 }
 
+type WishlistSnapshotListener = (ids: Set<string>) => void;
+
 const AUTO_MS = 3000;
 const DRAG_SUPPRESS_MS = 220;
+const WISHLIST_INVALIDATE_EVENT = "wishlist:invalidate";
+const wishlistListeners = new Set<WishlistSnapshotListener>();
+
+let wishlistIdsCache: Set<string> | null = null;
+let wishlistIdsRequest: Promise<Set<string>> | null = null;
+let wishlistInvalidationBound = false;
 
 const badgeStyles = {
   new: { bg: "rgba(102, 153, 255, 0.85)", text: "#fff", label: "New" },
@@ -80,6 +88,82 @@ function getOriginalPrice(price: number, discount?: number): number | null {
   return Math.round(price / (1 - discount / 100));
 }
 
+function formatCategoryLabel(category: string): string {
+  return category
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" / ");
+}
+
+function formatSizeSummary(values: string[]): string {
+  if (values.length === 0) return "Open";
+  if (values.length === 1) return values[0];
+  return `${values[0]} - ${values[values.length - 1]}`;
+}
+
+function cloneWishlistIds(ids?: Iterable<string>) {
+  return new Set(ids ?? []);
+}
+
+function emitWishlistIds(ids: Iterable<string>) {
+  wishlistIdsCache = cloneWishlistIds(ids);
+  for (const listener of wishlistListeners) {
+    listener(cloneWishlistIds(wishlistIdsCache));
+  }
+}
+
+function subscribeToWishlist(listener: WishlistSnapshotListener) {
+  wishlistListeners.add(listener);
+  if (wishlistIdsCache) {
+    listener(cloneWishlistIds(wishlistIdsCache));
+  }
+
+  return () => {
+    wishlistListeners.delete(listener);
+  };
+}
+
+async function loadWishlistIds() {
+  if (wishlistIdsCache) return cloneWishlistIds(wishlistIdsCache);
+  if (!wishlistIdsRequest) {
+    wishlistIdsRequest = fetch("/api/wishlist/list?ids=1")
+      .then((response) => response.json())
+      .then((data) => {
+        const nextIds = Array.isArray(data?.ids) ? data.ids.map((value: unknown) => String(value)) : [];
+        emitWishlistIds(nextIds);
+        return cloneWishlistIds(nextIds);
+      })
+      .catch(() => {
+        emitWishlistIds([]);
+        return new Set<string>();
+      })
+      .finally(() => {
+        wishlistIdsRequest = null;
+      });
+  }
+
+  return wishlistIdsRequest.then((ids) => cloneWishlistIds(ids));
+}
+
+function updateWishlistIds(productId: string, isInWishlist: boolean) {
+  const nextIds = cloneWishlistIds(wishlistIdsCache ?? undefined);
+  if (isInWishlist) {
+    nextIds.add(productId);
+  } else {
+    nextIds.delete(productId);
+  }
+  emitWishlistIds(nextIds);
+}
+
+if (typeof window !== "undefined" && !wishlistInvalidationBound) {
+  window.addEventListener(WISHLIST_INVALIDATE_EVENT, () => {
+    wishlistIdsCache = null;
+    wishlistIdsRequest = null;
+  });
+  wishlistInvalidationBound = true;
+}
+
 export default function ProductCard({
   product,
   className = "",
@@ -93,7 +177,7 @@ export default function ProductCard({
   const [direction, setDirection] = useState(1);
   const [paused, setPaused] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [inWishlist, setInWishlist] = useState(false);
+  const [inWishlist, setInWishlist] = useState(Boolean(showRemoveFromWishlist));
   const [added, setAdded] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
@@ -128,6 +212,20 @@ export default function ProductCard({
   const isLowStock = (product.stock ?? 10) < 5;
   const outOfStock = (product.stock ?? 1) === 0;
   const originalPrice = getOriginalPrice(product.price ?? 0, product.discount);
+  const selectedColorOption = normalizedColors.find((color) => color.hex === selectedColor) ?? null;
+  const displayColorOption = selectedColorOption ?? normalizedColors[0] ?? null;
+  const resolvedSize = selectedSize ?? (sizes.length === 1 ? sizes[0] : null);
+  const resolvedColor = selectedColor ?? (normalizedColors.length === 1 ? normalizedColors[0].hex : null);
+  const categoryLabel = formatCategoryLabel(product.category ?? "");
+  const sizeSummary = resolvedSize ?? formatSizeSummary(sizes);
+  const colorSummary = selectedColorOption?.name ?? (displayColorOption ? displayColorOption.name : "Mono");
+  const descriptionPreview =
+    product.description?.trim() ||
+    "Refined wardrobe staple with a composed silhouette and a more considered finish.";
+  const availabilityLabel = outOfStock ? "Sold Out" : isLowStock ? "Limited" : "Ready";
+  const imageCounterLabel = count > 1
+    ? `${String(current + 1).padStart(2, "0")} / ${String(count).padStart(2, "0")}`
+    : "Single View";
 
   const isInteractiveTarget = useCallback((target: EventTarget | null) => {
     if (!(target instanceof Element)) return false;
@@ -141,6 +239,19 @@ export default function ProductCard({
     if (!productHref) return;
     router.push(productHref);
   }, [productHref, router]);
+
+  function openCategoryPage(e: ReactMouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!product.category) return;
+    router.push(`/${encodeURIComponent(product.category)}`);
+  }
+
+  function handleViewDetails(e: ReactMouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+    openProductPage();
+  }
 
   function onCardKeyDown(e: ReactKeyboardEvent<HTMLDivElement>) {
     if (dragging || isInteractiveTarget(e.target)) return;
@@ -202,26 +313,78 @@ export default function ProductCard({
 
   /* ── Wishlist ── */
   useEffect(() => {
-    fetch("/api/wishlist/list").then(r => r.json())
-      .then(d => setInWishlist((d.items || []).some((p: Product) => p._id === product._id)))
-      .catch(() => {});
-  }, [product._id]);
+    if (showRemoveFromWishlist) {
+      setInWishlist(true);
+      return;
+    }
+
+    let active = true;
+    const syncWishlistState = (ids: Set<string>) => {
+      if (!active) return;
+      setInWishlist(ids.has(product._id));
+    };
+
+    const unsubscribe = subscribeToWishlist(syncWishlistState);
+    loadWishlistIds().then(syncWishlistState).catch(() => {});
+
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, [product._id, showRemoveFromWishlist]);
 
   async function toggleWishlist(e: ReactMouseEvent) {
     e.preventDefault(); e.stopPropagation();
+    if (!product._id) return;
+
+    const nextInWishlist = !inWishlist;
+    setInWishlist(nextInWishlist);
+    updateWishlistIds(product._id, nextInWishlist);
+
     try {
-      await fetch(inWishlist ? "/api/wishlist/remove" : "/api/wishlist/add", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ productId: product._id }) });
-      setInWishlist(v => !v);
-      if (inWishlist) onWishlistUpdate?.(product._id);
-    } catch { router.push("/login"); }
+      const response = await fetch(
+        inWishlist ? "/api/wishlist/remove" : "/api/wishlist/add",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ productId: product._id }),
+        }
+      );
+
+      if (!response.ok) throw new Error("Wishlist request failed");
+      if (!nextInWishlist) onWishlistUpdate?.(product._id);
+    } catch {
+      setInWishlist(inWishlist);
+      updateWishlistIds(product._id, inWishlist);
+      router.push("/login");
+    }
   }
 
   async function handleAddToCart(e: ReactMouseEvent) {
     e.stopPropagation();
     if (!product._id || outOfStock) return;
+    if (sizes.length > 1 && !selectedSize) {
+      setShowSizeSelector(true);
+      setShowColorSelector(false);
+      return;
+    }
+    if (normalizedColors.length > 1 && !selectedColor) {
+      setShowColorSelector(true);
+      setShowSizeSelector(false);
+      return;
+    }
     try {
       setLoading(true);
-      const res = await fetch("/api/cart", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ productId: product._id, quantity: 1, size: selectedSize, color: selectedColor }) });
+      const res = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: product._id,
+          quantity: 1,
+          size: resolvedSize,
+          color: resolvedColor,
+        }),
+      });
       if (!res.ok) throw new Error();
       setAdded(true);
       setTimeout(() => setAdded(false), 2200);
@@ -310,18 +473,22 @@ export default function ProductCard({
           style={{ background: "linear-gradient(to top, rgba(4,4,6,0.92) 0%, rgba(4,4,6,0.18) 38%, transparent 62%)" }} />
 
         {/* ── Badge ── */}
-        {product.badge && (
+        {(product.badge || product.discount) && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className="absolute top-3 left-3 z-30 px-3 py-1.5 rounded-full text-[11px] font-semibold uppercase tracking-wider sm:text-xs"
             style={{
-              background: badgeStyles[product.badge].bg,
-              color: badgeStyles[product.badge].text,
+              background: product.badge
+                ? badgeStyles[product.badge].bg
+                : "rgba(198, 169, 98, 0.88)",
+              color: product.badge
+                ? badgeStyles[product.badge].text
+                : "#110d07",
               backdropFilter: "blur(12px)",
             }}
           >
-            {badgeStyles[product.badge].label}
+            {product.badge ? badgeStyles[product.badge].label : `${product.discount}% Off`}
           </motion.div>
         )}
 
@@ -403,9 +570,9 @@ export default function ProductCard({
 
       {/* ══════════ LABEL ══════════ */}
       <div
-        className="relative z-10 flex flex-col gap-2.5 px-4 pb-4 pt-4"
+        className="relative z-10 flex flex-col gap-4 px-4 pb-4 pt-4"
         style={{
-          background: "linear-gradient(170deg, rgba(18,16,12,0.82) 0%, rgba(10,9,8,0.94) 100%)",
+          background: "linear-gradient(170deg, rgba(20,17,13,0.9) 0%, rgba(9,8,7,0.97) 100%)",
           backdropFilter: "blur(36px) saturate(140%)",
           WebkitBackdropFilter: "blur(36px) saturate(140%)",
           borderTop: "1px solid rgba(255,255,255,0.06)",
@@ -415,17 +582,50 @@ export default function ProductCard({
         <div className="absolute inset-x-0 top-0 h-px pointer-events-none"
           style={{ background: "linear-gradient(90deg, transparent 5%, rgba(255,255,255,0.10) 40%, rgba(255,255,255,0.10) 60%, transparent 95%)" }} />
 
+        <div className="flex items-center justify-between gap-3">
+          {product.category ? (
+            <motion.button
+              type="button"
+              onClick={openCategoryPage}
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.98 }}
+              className="inline-flex min-h-[44px] min-w-[44px] items-center rounded-full px-3.5 py-2 text-[9px] uppercase tracking-[0.26em] text-white/58 transition-colors hover:text-white"
+              style={{
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                fontFamily: "'Jost', sans-serif",
+              }}
+            >
+              {categoryLabel}
+            </motion.button>
+          ) : <span />}
+
+          <span
+            className="text-[9px] uppercase tracking-[0.3em] text-white/26"
+            style={{ fontFamily: "'Jost', sans-serif" }}
+          >
+            {imageCounterLabel}
+          </span>
+        </div>
+
         {/* Name + Rating */}
-        <div>
-          <h3 className="font-light leading-snug line-clamp-1"
+        <div className="space-y-2">
+          <h3 className="font-light leading-snug line-clamp-2"
             style={{
               fontFamily: "'Cormorant Garamond', serif",
-              fontSize: "clamp(1rem, 4vw, 1.08rem)",
-              letterSpacing: "0.055em",
-              color: "rgba(255,255,255,0.88)",
+              fontSize: "clamp(1.05rem, 4vw, 1.28rem)",
+              letterSpacing: "0.045em",
+              color: "rgba(255,255,255,0.92)",
             }}>
             {product.name}
           </h3>
+
+          <p
+            className="line-clamp-2 text-[11px] leading-relaxed text-white/40 sm:text-[12px]"
+            style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.05em" }}
+          >
+            {descriptionPreview}
+          </p>
 
           {/* Rating */}
           {product.rating && (
@@ -449,52 +649,99 @@ export default function ProductCard({
           )}
         </div>
 
-        {/* Category */}
-        {product.category && (
-          <p className="text-[8px] tracking-[0.28em] uppercase"
-            style={{ fontFamily: "'Jost', sans-serif", color: "rgba(255,255,255,0.22)" }}>
-            {product.category}
-          </p>
-        )}
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { label: "Sizing", value: sizeSummary },
+            { label: "Palette", value: colorSummary },
+            { label: "Status", value: availabilityLabel },
+          ].map((item) => (
+            <div
+              key={item.label}
+              className="rounded-2xl px-3 py-3"
+              style={{
+                background: "linear-gradient(145deg, rgba(255,255,255,0.055), rgba(255,255,255,0.02))",
+                border: "1px solid rgba(255,255,255,0.07)",
+              }}
+            >
+              <p
+                className="mb-1 text-[8px] uppercase tracking-[0.28em] text-white/22"
+                style={{ fontFamily: "'Jost', sans-serif" }}
+              >
+                {item.label}
+              </p>
+              <p
+                className="line-clamp-1 text-[10px] text-white/74 sm:text-[11px]"
+                style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.06em" }}
+              >
+                {item.value}
+              </p>
+            </div>
+          ))}
+        </div>
 
         {/* Size & Color Selector - Compact */}
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2.5">
           {sizes && sizes.length > 0 && (
             <motion.button
+              type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 setShowSizeSelector(!showSizeSelector);
+                setShowColorSelector(false);
               }}
-              className="min-h-[44px] min-w-[44px] rounded-lg px-2.5 py-1.5 text-[11px] transition-all"
+              className="inline-flex min-h-[44px] min-w-[44px] items-center rounded-2xl px-3.5 py-2 text-[11px] transition-all"
               style={{
-                background: selectedSize ? "rgba(198,169,98,0.3)" : "rgba(255,255,255,0.08)",
-                color: selectedSize ? "#C6A962" : "rgba(255,255,255,0.6)",
-                border: selectedSize ? "1px solid rgba(198,169,98,0.5)" : "1px solid rgba(255,255,255,0.1)",
+                background: resolvedSize ? "rgba(198,169,98,0.16)" : "rgba(255,255,255,0.06)",
+                color: resolvedSize ? "#F1D79A" : "rgba(255,255,255,0.62)",
+                border: resolvedSize ? "1px solid rgba(198,169,98,0.34)" : "1px solid rgba(255,255,255,0.08)",
                 fontFamily: "'Jost', sans-serif",
-                fontWeight: 600,
-                letterSpacing: "0.05em",
+                fontWeight: 400,
+                letterSpacing: "0.08em",
               }}
               whileHover={{ scale: 1.05 }}
             >
-              {selectedSize || "Size"}
+              {resolvedSize ? `Size ${resolvedSize}` : "Select Size"}
             </motion.button>
           )}
 
           {normalizedColors.length > 0 && (
             <motion.button
+              type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 setShowColorSelector(!showColorSelector);
+                setShowSizeSelector(false);
               }}
-              className="h-8 w-8 rounded-lg border transition-all"
+              className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-2xl px-3.5 py-2 transition-all"
               style={{
-                background: selectedColor || normalizedColors[0].hex,
-                border: selectedColor ? "2px solid #C6A962" : "1px solid rgba(255,255,255,0.2)",
-                opacity: 0.8,
+                background: displayColorOption ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.04)",
+                border: selectedColorOption ? "1px solid rgba(198,169,98,0.34)" : "1px solid rgba(255,255,255,0.08)",
               }}
               whileHover={{ scale: 1.1 }}
-              title={`Color: ${selectedColor || normalizedColors[0].name}`}
-            />
+              title={`Color: ${colorSummary}`}
+            >
+              {displayColorOption ? (
+                <>
+                  <span
+                    className="h-4 w-4 rounded-full border border-white/15"
+                    style={{ background: displayColorOption.hex }}
+                  />
+                  <span
+                    className="text-[11px] text-white/66"
+                    style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.08em" }}
+                  >
+                    {selectedColorOption ? selectedColorOption.name : "Choose Tone"}
+                  </span>
+                </>
+              ) : (
+                <span
+                  className="text-[11px] text-white/66"
+                  style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.08em" }}
+                >
+                  No Palette
+                </span>
+              )}
+            </motion.button>
           )}
         </div>
 
@@ -505,7 +752,7 @@ export default function ProductCard({
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="flex flex-wrap gap-1.5 mt-1 pt-2 border-t border-white/10"
+              className="flex flex-wrap gap-1.5 mt-1 rounded-2xl border border-white/8 bg-white/[0.03] p-2.5"
               onClick={(e) => e.stopPropagation()}
             >
               {sizes.map((size) => (
@@ -516,11 +763,12 @@ export default function ProductCard({
                     setSelectedSize(size);
                     setShowSizeSelector(false);
                   }}
-                  className="min-h-[44px] min-w-[44px] rounded-md px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-wider transition-all"
+                  className="min-h-[44px] min-w-[44px] rounded-xl px-3 py-2 text-[10px] uppercase tracking-[0.18em] transition-all"
                   style={{
-                    background: selectedSize === size ? "rgba(198,169,98,0.6)" : "rgba(255,255,255,0.08)",
-                    color: selectedSize === size ? "#fff" : "rgba(255,255,255,0.6)",
-                    border: selectedSize === size ? "1px solid #C6A962" : "1px solid rgba(255,255,255,0.1)",
+                    background: selectedSize === size ? "rgba(198,169,98,0.16)" : "rgba(255,255,255,0.05)",
+                    color: selectedSize === size ? "#F3DEAB" : "rgba(255,255,255,0.62)",
+                    border: selectedSize === size ? "1px solid rgba(198,169,98,0.36)" : "1px solid rgba(255,255,255,0.08)",
+                    fontFamily: "'Jost', sans-serif",
                   }}
                 >
                   {size}
@@ -537,7 +785,7 @@ export default function ProductCard({
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="flex flex-wrap gap-2 mt-1 pt-2 border-t border-white/10"
+              className="flex flex-wrap gap-2 mt-1 rounded-2xl border border-white/8 bg-white/[0.03] p-2.5"
               onClick={(e) => e.stopPropagation()}
             >
               {normalizedColors.map((color) => (
@@ -548,100 +796,126 @@ export default function ProductCard({
                     setSelectedColor(color.hex);
                     setShowColorSelector(false);
                   }}
-                  className="w-7 h-7 rounded-md transition-all border-2"
+                  className="flex h-10 min-w-[44px] items-center justify-center rounded-xl border-2 px-3 transition-all"
                   style={{
                     background: color.hex,
                     borderColor: selectedColor === color.hex ? "#C6A962" : "transparent",
-                    opacity: 0.8,
+                    opacity: 0.9,
                   }}
                   whileHover={{ scale: 1.15 }}
                   title={color.name}
-                />
+                >
+                  <span className="sr-only">{color.name}</span>
+                </motion.button>
               ))}
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Price + Cart - Bottom Row */}
-        <div className="flex items-center justify-between gap-3.5 pt-2.5 border-t border-white/10">
-          {/* Price */}
-          <div>
-            {originalPrice ? (
-              <>
-                <p className="font-light text-[10px] line-through"
-                  style={{
-                    fontFamily: "'Jost', sans-serif",
-                    color: "rgba(255,255,255,0.4)",
-                    letterSpacing: "0.07em",
-                  }}>
-                  EGP {originalPrice.toLocaleString()}
-                </p>
-                <p className="font-semibold leading-none mt-0.5"
-                  style={{
-                    fontFamily: "'Cormorant Garamond', serif",
-                    fontSize: "1rem",
-                    color: "#C6A962",
-                    letterSpacing: "0.04em",
-                  }}>
+        {/* Price + Actions */}
+        <div
+          className="rounded-[1.35rem] p-3.5"
+          style={{
+            background: "linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))",
+            border: "1px solid rgba(255,255,255,0.08)",
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
+          }}
+        >
+          <div className="mb-3 flex items-start justify-between gap-3">
+            <div>
+              <p
+                className="mb-1 text-[8px] uppercase tracking-[0.32em] text-white/26"
+                style={{ fontFamily: "'Jost', sans-serif" }}
+              >
+                Private Price
+              </p>
+              {originalPrice ? (
+                <>
+                  <p
+                    className="text-[10px] line-through text-white/34"
+                    style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.08em" }}
+                  >
+                    EGP {originalPrice.toLocaleString()}
+                  </p>
+                  <p
+                    className="mt-1 font-light text-[#C6A962]"
+                    style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.45rem", letterSpacing: "0.04em" }}
+                  >
+                    EGP {(product.price ?? 0).toLocaleString()}
+                  </p>
+                </>
+              ) : (
+                <p
+                  className="font-light text-[#C6A962]"
+                  style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.45rem", letterSpacing: "0.04em" }}
+                >
                   EGP {(product.price ?? 0).toLocaleString()}
                 </p>
-              </>
-            ) : (
-              <>
-                <p className="font-light leading-none text-[10px]"
-                  style={{
-                    fontFamily: "'Jost', sans-serif",
-                    color: "#C6A962",
-                    letterSpacing: "0.07em",
-                  }}>
-                  EGP
-                </p>
-                <p className="font-light leading-none mt-0.5"
-                  style={{
-                    fontFamily: "'Cormorant Garamond', serif",
-                    fontSize: "1.1rem",
-                    color: "#C6A962",
-                    letterSpacing: "0.04em",
-                  }}>
-                  {(product.price ?? 0).toLocaleString()}
-                </p>
-              </>
-            )}
+              )}
+            </div>
+
+            <div className="text-right">
+              <p
+                className="text-[8px] uppercase tracking-[0.3em] text-white/22"
+                style={{ fontFamily: "'Jost', sans-serif" }}
+              >
+                Selection
+              </p>
+              <p
+                className="mt-1 text-[10px] text-white/66"
+                style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.06em" }}
+              >
+                {resolvedSize ?? (sizes.length ? "Choose size" : "One fit")}
+              </p>
+              <p
+                className="mt-1 text-[10px] text-white/48"
+                style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.06em" }}
+              >
+                {selectedColorOption?.name ?? (displayColorOption ? `Tone ${displayColorOption.name}` : "Single tone")}
+              </p>
+            </div>
           </div>
 
-          {/* Divider */}
-          <div className="h-8 w-px" style={{ background: "rgba(255,255,255,0.08)" }} />
-
-          {/* Add to cart */}
-          <motion.button
-            onClick={handleAddToCart}
-            disabled={loading || outOfStock}
-            whileTap={{ scale: 0.82 }}
-            className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition-all duration-500 disabled:opacity-35"
-            style={{
-              width: 44, height: 44,
-              background: added
-                ? "linear-gradient(135deg, rgba(198,169,98,0.28), rgba(198,169,98,0.10))"
-                : "rgba(255,255,255,0.07)",
-              border: added
-                ? "1px solid rgba(198,169,98,0.45)"
-                : "1px solid rgba(255,255,255,0.10)",
-              backdropFilter: "blur(12px)",
-              boxShadow: added ? "0 0 20px rgba(198,169,98,0.22)" : "none",
-            }}
-            aria-label={added ? "Added" : "Add to cart"}
-          >
-            <motion.div
-              animate={{ rotate: loading ? 360 : 0 }}
-              transition={{ repeat: loading ? Infinity : 0, duration: 0.9, ease: "linear" }}
+          <div className="grid grid-cols-2 gap-2">
+            <motion.button
+              type="button"
+              onClick={handleViewDetails}
+              whileTap={{ scale: 0.98 }}
+              className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full border border-white/10 px-4 py-3 text-[10px] uppercase tracking-[0.22em] text-white/72 transition-colors hover:text-white"
+              style={{ fontFamily: "'Jost', sans-serif", background: "rgba(255,255,255,0.04)" }}
             >
-              <ShoppingBag
-                strokeWidth={1.25}
-                className="w-4 h-4 transition-colors duration-400"
-                style={{ color: added ? "#C6A962" : "rgba(255,255,255,0.45)" }}
-              />
-            </motion.div>
-          </motion.button>
+              Details
+              <ArrowRight strokeWidth={1.2} className="h-3.5 w-3.5" />
+            </motion.button>
+
+            <motion.button
+              type="button"
+              onClick={handleAddToCart}
+              disabled={loading || outOfStock}
+              whileTap={{ scale: 0.98 }}
+              className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full px-4 py-3 text-[10px] uppercase tracking-[0.22em] transition-all disabled:opacity-35"
+              style={{
+                fontFamily: "'Jost', sans-serif",
+                background: added
+                  ? "linear-gradient(135deg, rgba(198,169,98,0.28), rgba(198,169,98,0.10))"
+                  : "linear-gradient(135deg, rgba(198,169,98,0.88), rgba(167,134,66,0.92))",
+                color: added ? "#F5E7BD" : "#0f0b05",
+                border: added
+                  ? "1px solid rgba(198,169,98,0.45)"
+                  : "1px solid rgba(198,169,98,0.65)",
+                boxShadow: added ? "0 0 20px rgba(198,169,98,0.22)" : "0 14px 30px rgba(198,169,98,0.18)",
+              }}
+              aria-label={added ? "Added" : "Add to cart"}
+            >
+              <motion.div
+                animate={{ rotate: loading ? 360 : 0 }}
+                transition={{ repeat: loading ? Infinity : 0, duration: 0.9, ease: "linear" }}
+              >
+                <ShoppingBag strokeWidth={1.25} className="h-4 w-4" />
+              </motion.div>
+              {added ? "Added" : "Add to Cart"}
+            </motion.button>
+          </div>
         </div>
       </div>
 

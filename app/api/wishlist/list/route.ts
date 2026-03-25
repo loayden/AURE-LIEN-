@@ -6,11 +6,12 @@ import productsData from "@/lib/productsData";
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const auth = await getAuthFromRequest(req);
+    const idsOnly = req.nextUrl.searchParams.get("ids") === "1";
 
     // Not logged in - return empty wishlist with 200
     if (!auth || !auth.userId) {
       return NextResponse.json(
-        { items: [], message: "Not authenticated" },
+        { items: [], ids: [], message: "Not authenticated" },
         { status: 200 }
       );
     }
@@ -18,6 +19,12 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     try {
       const entries = await getWishlistByUserMongo(auth.userId);
       
+      const ids = entries.map((entry) => String(entry.productId));
+
+      if (idsOnly) {
+        return NextResponse.json({ ids }, { status: 200 });
+      }
+
       const items = entries.map((e) => {
         if (e.productData && e.productData._id) {
           const { _id, ...rest } = e.productData;
@@ -27,13 +34,13 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
         return p || { _id: e.productId };
       });
 
-      return NextResponse.json({ items }, { status: 200 });
+      return NextResponse.json({ items, ids }, { status: 200 });
     } catch (mongoError) {
       console.error("❌ Wishlist MongoDB error for user", auth.userId, ":", mongoError instanceof Error ? mongoError.message : String(mongoError));
       
       // Return empty list instead of 500
       return NextResponse.json(
-        { items: [], error: "Failed to fetch wishlist" },
+        { items: [], ids: [], error: "Failed to fetch wishlist" },
         { status: 200 }
       );
     }
@@ -41,7 +48,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     console.error("❌ Wishlist list error:", error instanceof Error ? error.message : String(error));
     // Return empty list on error instead of 500 for better UX
     return NextResponse.json(
-      { items: [], error: "Failed to fetch wishlist" },
+      { items: [], ids: [], error: "Failed to fetch wishlist" },
       { status: 200 }
     );
   }

@@ -50,6 +50,7 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Login failed");
+      window.dispatchEvent(new Event("wishlist:invalidate"));
       router.push(redirect || (data?.user?.role === "admin" ? "/admin" : "/account"));
       router.refresh();
     } catch (err: any) {

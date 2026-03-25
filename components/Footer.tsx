@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Facebook, Instagram, Twitter } from "lucide-react";
+import { ArrowRight, Instagram } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -20,10 +20,13 @@ const NAV_SERVICE = [
   { label: "About", href: "/about" },
 ];
 
-const SOCIALS = [
-  { Icon: Instagram, href: "https://www.instagram.com/fr3_fdn/" },
-  { Icon: Twitter, href: "#" },
-  { Icon: Facebook, href: "#" },
+const INSTAGRAM_URL = "https://www.instagram.com/aurelien.clothes/?__pwa=1";
+
+const SOCIALS = [{ Icon: Instagram, href: INSTAGRAM_URL }];
+const LEGAL_LINKS = [
+  { label: "Privacy", href: "/privacy" },
+  { label: "Terms", href: "/terms" },
+  { label: "Cookies", href: "/cookies" },
 ];
 
 export default function LuxuryFooter() {
@@ -213,17 +216,16 @@ export default function LuxuryFooter() {
 
           {/* Presented by */}
           <motion.a
-            href="https://www.instagram.com/fr3_fdn/"
+            href={INSTAGRAM_URL}
             target="_blank"
             rel="noopener noreferrer"
             whileHover={{ opacity:1 }}
             className="flex flex-col items-center sm:items-start gap-1 cursor-pointer select-none"
             style={{ opacity:0.6, transition:"opacity 0.3s" }}
           >
-            <span className="text-white/30 text-[8px] tracking-[0.35em] uppercase font-light">Presented by</span>
-            <span className="flex items-center gap-1 tracking-[0.5em] text-xs font-light uppercase">
-              <span style={{ color:"#7C3AED" }}>FR</span>
-              <span style={{ color:"#C6A962" }}>ع</span>
+            <span className="text-white/30 text-[8px] tracking-[0.35em] uppercase font-light">Instagram</span>
+            <span className="tracking-[0.24em] text-[10px] font-light uppercase text-[#C6A962] sm:text-xs">
+              @AURELIEN.CLOTHES
             </span>
           </motion.a>
 
@@ -234,10 +236,10 @@ export default function LuxuryFooter() {
 
           {/* Legal links */}
           <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5">
-            {["Privacy", "Terms", "Cookies"].map((l) => (
-              <Link key={l} href="#"
+            {LEGAL_LINKS.map((item) => (
+              <Link key={item.label} href={item.href}
                 className="inline-flex min-h-[44px] min-w-[44px] items-center text-white/20 text-[9px] tracking-[0.25em] uppercase transition-colors duration-300 hover:text-white/50">
-                {l}
+                {item.label}
               </Link>
             ))}
           </div>
