@@ -11,6 +11,7 @@ import { readProductsJson } from "./productsJson";
 import type { Product } from "./types";
 
 const PLACEHOLDER_IMAGE = "/images/placeholder.svg";
+const DEFAULT_CATALOG_DISCOUNT = 40;
 
 let cache: Product[] | null = null;
 
@@ -62,7 +63,7 @@ function normalizeProduct(raw: any): Product {
     discount:
       typeof raw?.discount === "number" && raw.discount > 0
         ? raw.discount
-        : undefined,
+        : DEFAULT_CATALOG_DISCOUNT,
     images: images.length > 0 ? images : [PLACEHOLDER_IMAGE],
     size: Array.isArray(raw?.size)
       ? raw.size.map((value: unknown) => String(value))

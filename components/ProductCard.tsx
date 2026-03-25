@@ -456,17 +456,33 @@ export default function ProductCard({
         rotateX: rX, rotateY: rY,
         transformStyle: "preserve-3d",
         perspective: 900,
-        borderRadius: 18,
-        boxShadow: "0 1px 0 rgba(255,255,255,0.07), 0 24px 60px rgba(0,0,0,0.50)",
-        border: "1px solid rgba(255,255,255,0.07)",
+        borderRadius: 24,
+        background:
+          "linear-gradient(145deg, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.05) 42%, rgba(255,255,255,0.03) 100%)",
+        backdropFilter: "blur(28px) saturate(165%)",
+        WebkitBackdropFilter: "blur(28px) saturate(165%)",
+        boxShadow: "0 24px 72px rgba(0,0,0,0.44), inset 0 1px 0 rgba(255,255,255,0.16)",
+        border: "1px solid rgba(255,255,255,0.12)",
       }}
-      whileHover={{ y: -5, boxShadow: "0 1px 0 rgba(255,255,255,0.10), 0 36px 80px rgba(0,0,0,0.60), 0 0 0 1px rgba(198,169,98,0.08)", transition: { type: "spring", stiffness: 260, damping: 26 } }}
+      whileHover={{
+        y: -5,
+        boxShadow:
+          "0 30px 88px rgba(0,0,0,0.52), inset 0 1px 0 rgba(255,255,255,0.18), 0 0 0 1px rgba(198,169,98,0.12)",
+        transition: { type: "spring", stiffness: 260, damping: 26 },
+      }}
       className={`group relative w-full flex flex-col overflow-hidden cursor-pointer select-none ${className}`}
     >
+      <div
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          background:
+            "radial-gradient(circle at top left, rgba(255,255,255,0.16) 0%, transparent 34%), radial-gradient(circle at bottom right, rgba(198,169,98,0.10) 0%, transparent 30%)",
+        }}
+      />
 
       {/* ══════════ CAROUSEL ══════════ */}
       <div
-        className="relative overflow-hidden"
+        className="relative z-10 overflow-hidden"
         style={{ aspectRatio: "4/5", touchAction: "pan-y" }}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
@@ -610,10 +626,11 @@ export default function ProductCard({
       <div
         className="relative z-10 flex flex-col gap-4 px-4 pb-4 pt-4"
         style={{
-          background: "linear-gradient(170deg, rgba(20,17,13,0.9) 0%, rgba(9,8,7,0.97) 100%)",
-          backdropFilter: "blur(36px) saturate(140%)",
-          WebkitBackdropFilter: "blur(36px) saturate(140%)",
-          borderTop: "1px solid rgba(255,255,255,0.06)",
+          background:
+            "linear-gradient(170deg, rgba(20,20,24,0.54) 0%, rgba(10,10,14,0.72) 58%, rgba(8,8,12,0.82) 100%)",
+          backdropFilter: "blur(32px) saturate(165%)",
+          WebkitBackdropFilter: "blur(32px) saturate(165%)",
+          borderTop: "1px solid rgba(255,255,255,0.10)",
         }}
       >
         {/* Specular inset top edge */}
@@ -702,8 +719,8 @@ export default function ProductCard({
                       onClick={openCategoryPage}
                       className="inline-flex min-h-[44px] min-w-[44px] items-center rounded-full px-3.5 py-2 text-[9px] uppercase tracking-[0.26em] text-white/76 transition-colors hover:text-white"
                       style={{
-                        background: "rgba(255,255,255,0.06)",
-                        border: "1px solid rgba(255,255,255,0.08)",
+                        background: "linear-gradient(135deg, rgba(255,255,255,0.11), rgba(255,255,255,0.04))",
+                        border: "1px solid rgba(255,255,255,0.12)",
                         fontFamily: "'Jost', sans-serif",
                       }}
                     >
@@ -758,8 +775,8 @@ export default function ProductCard({
                       key={item.label}
                       className="rounded-2xl px-3 py-3"
                       style={{
-                        background: "linear-gradient(145deg, rgba(255,255,255,0.055), rgba(255,255,255,0.02))",
-                        border: "1px solid rgba(255,255,255,0.07)",
+                        background: "linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03))",
+                        border: "1px solid rgba(255,255,255,0.11)",
                       }}
                     >
                       <p
@@ -789,9 +806,11 @@ export default function ProductCard({
                       }}
                       className="inline-flex min-h-[44px] min-w-[44px] items-center rounded-2xl px-3.5 py-2 text-[11px] transition-all"
                       style={{
-                        background: resolvedSize ? "rgba(198,169,98,0.16)" : "rgba(255,255,255,0.06)",
+                        background: resolvedSize
+                          ? "linear-gradient(135deg, rgba(198,169,98,0.22), rgba(198,169,98,0.08))"
+                          : "linear-gradient(135deg, rgba(255,255,255,0.11), rgba(255,255,255,0.04))",
                         color: resolvedSize ? "#F1D79A" : "rgba(255,255,255,0.62)",
-                        border: resolvedSize ? "1px solid rgba(198,169,98,0.34)" : "1px solid rgba(255,255,255,0.08)",
+                        border: resolvedSize ? "1px solid rgba(198,169,98,0.34)" : "1px solid rgba(255,255,255,0.12)",
                         fontFamily: "'Jost', sans-serif",
                         fontWeight: 400,
                         letterSpacing: "0.08em",
@@ -811,8 +830,10 @@ export default function ProductCard({
                       }}
                       className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-2xl px-3.5 py-2 transition-all"
                       style={{
-                        background: displayColorOption ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.04)",
-                        border: selectedColorOption ? "1px solid rgba(198,169,98,0.34)" : "1px solid rgba(255,255,255,0.08)",
+                        background: displayColorOption
+                          ? "linear-gradient(135deg, rgba(255,255,255,0.11), rgba(255,255,255,0.04))"
+                          : "linear-gradient(135deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03))",
+                        border: selectedColorOption ? "1px solid rgba(198,169,98,0.34)" : "1px solid rgba(255,255,255,0.12)",
                       }}
                       title={`Color: ${colorSummary}`}
                     >
@@ -847,7 +868,7 @@ export default function ProductCard({
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="flex flex-wrap gap-1.5 mt-1 rounded-2xl border border-white/8 bg-white/[0.03] p-2.5"
+                      className="mt-1 flex flex-wrap gap-1.5 rounded-2xl border border-white/10 bg-white/[0.05] p-2.5"
                       onClick={(e) => e.stopPropagation()}
                     >
                       {sizes.map((size) => (
@@ -861,9 +882,11 @@ export default function ProductCard({
                           }}
                           className="min-h-[44px] min-w-[44px] rounded-xl px-3 py-2 text-[10px] uppercase tracking-[0.18em] transition-all"
                           style={{
-                            background: selectedSize === size ? "rgba(198,169,98,0.16)" : "rgba(255,255,255,0.05)",
+                            background: selectedSize === size
+                              ? "linear-gradient(135deg, rgba(198,169,98,0.22), rgba(198,169,98,0.08))"
+                              : "linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04))",
                             color: selectedSize === size ? "#F3DEAB" : "rgba(255,255,255,0.62)",
-                            border: selectedSize === size ? "1px solid rgba(198,169,98,0.36)" : "1px solid rgba(255,255,255,0.08)",
+                            border: selectedSize === size ? "1px solid rgba(198,169,98,0.36)" : "1px solid rgba(255,255,255,0.12)",
                             fontFamily: "'Jost', sans-serif",
                           }}
                         >
@@ -880,7 +903,7 @@ export default function ProductCard({
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="flex flex-wrap gap-2 mt-1 rounded-2xl border border-white/8 bg-white/[0.03] p-2.5"
+                      className="mt-1 flex flex-wrap gap-2 rounded-2xl border border-white/10 bg-white/[0.05] p-2.5"
                       onClick={(e) => e.stopPropagation()}
                     >
                       {normalizedColors.map((color) => (
@@ -910,9 +933,9 @@ export default function ProductCard({
                 <div
                   className="rounded-[1.35rem] p-3.5"
                   style={{
-                    background: "linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
+                    background: "linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04))",
+                    border: "1px solid rgba(255,255,255,0.11)",
+                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
                   }}
                 >
                   <div className="mb-3 flex items-start justify-between gap-3">

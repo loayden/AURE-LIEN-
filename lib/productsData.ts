@@ -1,4 +1,6 @@
-const productsData = [
+const CATALOG_DISCOUNT = 40;
+
+const rawProductsData = [
   // Jackets & Coats
   {
     _id: "p-jc-001",
@@ -484,5 +486,10 @@ const productsData = [
     colors: ["blue"],
   },
 ];
+
+const productsData = rawProductsData.map((product) => ({
+  ...product,
+  discount: CATALOG_DISCOUNT,
+}));
 
 export default productsData;
