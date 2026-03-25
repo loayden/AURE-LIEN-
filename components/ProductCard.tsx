@@ -185,6 +185,7 @@ export default function ProductCard({
   const [showSizeSelector, setShowSizeSelector] = useState(false);
   const [showColorSelector, setShowColorSelector] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [isMobileViewport, setIsMobileViewport] = useState(false);
   const productHref = product._id
     ? `/product/${encodeURIComponent(String(product._id))}`
     : null;
@@ -286,6 +287,27 @@ export default function ProductCard({
     const t = setTimeout(() => goTo(current + 1, 1), AUTO_MS);
     return () => clearTimeout(t);
   }, [current, paused, count, goTo]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const mediaQuery = window.matchMedia("(max-width: 639px)");
+    const syncViewport = (matches: boolean) => {
+      setIsMobileViewport(matches);
+      if (matches) {
+        setDetailsOpen(true);
+      }
+    };
+
+    syncViewport(mediaQuery.matches);
+
+    const handleViewportChange = (event: MediaQueryListEvent) => {
+      syncViewport(event.matches);
+    };
+
+    mediaQuery.addEventListener("change", handleViewportChange);
+    return () => mediaQuery.removeEventListener("change", handleViewportChange);
+  }, []);
 
   /* ── Touch ── */
   const tx = useRef(0), ty = useRef(0), sg = useRef<boolean | null>(null);
@@ -610,7 +632,7 @@ export default function ProductCard({
           <div className="flex items-end justify-between gap-3">
             <div>
               <p
-                className="mb-1 text-[8px] uppercase tracking-[0.32em] text-white/24"
+                className="mb-1 text-[8px] uppercase tracking-[0.32em] text-white/50"
                 style={{ fontFamily: "'Jost', sans-serif" }}
               >
                 Private Price
@@ -618,7 +640,7 @@ export default function ProductCard({
               {originalPrice ? (
                 <>
                   <p
-                    className="text-[10px] line-through text-white/34"
+                    className="text-[10px] line-through text-white/50"
                     style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.08em" }}
                   >
                     EGP {originalPrice.toLocaleString()}
@@ -652,7 +674,8 @@ export default function ProductCard({
               type="button"
               onClick={toggleDetailsPanel}
               aria-expanded={detailsOpen}
-              className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full border border-white/10 px-4 py-3 text-[10px] uppercase tracking-[0.22em] text-white/72 transition-colors hover:text-white"
+              aria-label={detailsOpen ? "Collapse product details" : "Expand product details"}
+              className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full border border-white/10 px-4 py-3 text-[10px] uppercase tracking-[0.22em] text-white/84 transition-colors hover:text-white"
               style={{ fontFamily: "'Jost', sans-serif", background: "rgba(255,255,255,0.04)" }}
             >
               {detailsOpen ? "Less" : "More"}
@@ -675,7 +698,7 @@ export default function ProductCard({
                     <button
                       type="button"
                       onClick={openCategoryPage}
-                      className="inline-flex min-h-[44px] min-w-[44px] items-center rounded-full px-3.5 py-2 text-[9px] uppercase tracking-[0.26em] text-white/58 transition-colors hover:text-white"
+                      className="inline-flex min-h-[44px] min-w-[44px] items-center rounded-full px-3.5 py-2 text-[9px] uppercase tracking-[0.26em] text-white/76 transition-colors hover:text-white"
                       style={{
                         background: "rgba(255,255,255,0.06)",
                         border: "1px solid rgba(255,255,255,0.08)",
@@ -687,7 +710,7 @@ export default function ProductCard({
                   ) : <span />}
 
                   <span
-                    className="text-[9px] uppercase tracking-[0.3em] text-white/26"
+                    className="text-[9px] uppercase tracking-[0.3em] text-white/52"
                     style={{ fontFamily: "'Jost', sans-serif" }}
                   >
                     {imageCounterLabel}
@@ -696,7 +719,7 @@ export default function ProductCard({
 
                 <div className="space-y-2">
                   <p
-                    className="line-clamp-2 text-[11px] leading-relaxed text-white/40 sm:text-[12px]"
+                    className="line-clamp-2 text-[11px] leading-relaxed text-white/62 sm:text-[12px]"
                     style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.05em" }}
                   >
                     {descriptionPreview}
@@ -738,7 +761,7 @@ export default function ProductCard({
                       }}
                     >
                       <p
-                        className="mb-1 text-[8px] uppercase tracking-[0.28em] text-white/22"
+                        className="mb-1 text-[8px] uppercase tracking-[0.28em] text-white/48"
                         style={{ fontFamily: "'Jost', sans-serif" }}
                       >
                         {item.label}
@@ -893,7 +916,7 @@ export default function ProductCard({
                   <div className="mb-3 flex items-start justify-between gap-3">
                     <div>
                       <p
-                        className="text-[8px] uppercase tracking-[0.3em] text-white/22"
+                        className="text-[8px] uppercase tracking-[0.3em] text-white/48"
                         style={{ fontFamily: "'Jost', sans-serif" }}
                       >
                         Selection
@@ -914,7 +937,7 @@ export default function ProductCard({
 
                     <div className="text-right">
                       <p
-                        className="text-[8px] uppercase tracking-[0.3em] text-white/22"
+                        className="text-[8px] uppercase tracking-[0.3em] text-white/48"
                         style={{ fontFamily: "'Jost', sans-serif" }}
                       >
                         Availability
@@ -928,11 +951,11 @@ export default function ProductCard({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className={`grid gap-2 ${isMobileViewport ? "grid-cols-1" : "grid-cols-2"}`}>
                     <button
                       type="button"
                       onClick={handleViewDetails}
-                      className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full border border-white/10 px-4 py-3 text-[10px] uppercase tracking-[0.22em] text-white/72 transition-colors hover:text-white"
+                      className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full border border-white/10 px-4 py-3 text-[10px] uppercase tracking-[0.22em] text-white/84 transition-colors hover:text-white"
                       style={{ fontFamily: "'Jost', sans-serif", background: "rgba(255,255,255,0.04)" }}
                     >
                       Details

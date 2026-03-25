@@ -88,12 +88,6 @@ const STEPS = [
   },
 ];
 
-const HERO_HIGHLIGHTS = [
-  { value: "Curated", label: "growth model" },
-  { value: "Editorial", label: "presentation" },
-  { value: "Comfortable", label: "mobile journey" },
-];
-
 const PLATFORM_PERSPECTIVES = [
   {
     label: "Refined Discovery",
@@ -375,7 +369,7 @@ export default function AureLienPlatform() {
               </h1>
 
               <p
-                className="sh3 text-white/45 font-light max-w-2xl mx-auto leading-relaxed"
+                className="sh3 mx-auto max-w-2xl font-light leading-relaxed text-white/62"
                 style={{
                   fontSize: "clamp(12px, 3vw, 17px)",
                   letterSpacing: "0.03em",
@@ -411,38 +405,6 @@ export default function AureLienPlatform() {
               </motion.div>
             </div>
 
-            <div className="mt-6 sm:mt-8 md:mt-12 grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 max-w-4xl mx-auto">
-              {HERO_HIGHLIGHTS.map((item, i) => (
-                <motion.div
-                  key={item.label}
-                  initial={false}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.9 + i * 0.08, duration: 0.55 }}
-                  className="glass-md rounded-2xl px-4 py-4 sm:px-5 sm:py-5 text-center"
-                >
-                  <p
-                    className="text-white mb-1"
-                    style={{
-                      fontFamily: "'Cormorant Garamond', serif",
-                      fontSize: "clamp(1.1rem, 3vw, 1.55rem)",
-                      letterSpacing: "0.03em",
-                    }}
-                  >
-                    {item.value}
-                  </p>
-                  <p
-                    className="text-white/38 uppercase"
-                    style={{
-                      fontSize: "clamp(8px, 1.4vw, 9px)",
-                      letterSpacing: "0.22em",
-                    }}
-                  >
-                    {item.label}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
           </motion.div>
         </section>
 
@@ -464,7 +426,7 @@ export default function AureLienPlatform() {
               className="glass-md rounded-[26px] sm:rounded-[32px] p-5 sm:p-7 md:p-10"
             >
               <p
-                className="text-white/24 uppercase mb-3 sm:mb-4"
+                className="text-white/52 uppercase mb-3 sm:mb-4"
                 style={{
                   fontSize: "clamp(8px, 1.5vw, 9px)",
                   letterSpacing: "0.34em",
@@ -485,7 +447,7 @@ export default function AureLienPlatform() {
                 in-store experience.
               </h2>
               <p
-                className="text-white/45 leading-relaxed mb-4 sm:mb-5"
+                className="text-white/62 leading-relaxed mb-4 sm:mb-5"
                 style={{
                   fontSize: "clamp(12px, 2.5vw, 15px)",
                   letterSpacing: "0.025em",
@@ -497,7 +459,7 @@ export default function AureLienPlatform() {
                 point of view.
               </p>
               <p
-                className="text-white/40 leading-relaxed"
+                className="text-white/58 leading-relaxed"
                 style={{
                   fontSize: "clamp(11px, 2.3vw, 14px)",
                   letterSpacing: "0.025em",
@@ -564,7 +526,7 @@ export default function AureLienPlatform() {
             className="text-center mb-6 sm:mb-8 md:mb-10 max-w-7xl mx-auto"
           >
             <p
-              className="text-white/20 uppercase mb-2 sm:mb-3"
+              className="text-white/48 uppercase mb-2 sm:mb-3"
               style={{
                 fontSize: "clamp(8px, 1.5vw, 9px)",
                 letterSpacing: "0.4em",
@@ -618,7 +580,7 @@ export default function AureLienPlatform() {
                   {benefit.title}
                 </h3>
                 <p
-                  className="text-white/40 leading-relaxed mb-3 sm:mb-4"
+                  className="text-white/58 leading-relaxed mb-3 sm:mb-4"
                   style={{
                     fontSize: "clamp(11px, 2vw, 13px)",
                     letterSpacing: "0.03em",
@@ -630,7 +592,7 @@ export default function AureLienPlatform() {
                   {benefit.points.map((point) => (
                     <li
                       key={point}
-                      className="flex items-start gap-2 text-[10px] sm:text-[11px] text-white/45 leading-relaxed"
+                      className="flex items-start gap-2 text-[10px] leading-relaxed text-white/62 sm:text-[11px]"
                     >
                       <Check size={14} className="text-[#C6A962] flex-shrink-0 mt-0.5" />
                       <span>{point}</span>
@@ -651,7 +613,7 @@ export default function AureLienPlatform() {
             className="text-center mb-6 sm:mb-8 md:mb-10 max-w-7xl mx-auto"
           >
             <p
-              className="text-white/20 uppercase mb-2 sm:mb-3"
+              className="text-white/48 uppercase mb-2 sm:mb-3"
               style={{
                 fontSize: "clamp(8px, 1.5vw, 9px)",
                 letterSpacing: "0.4em",
@@ -725,7 +687,7 @@ export default function AureLienPlatform() {
                   {step.subtitle}
                 </p>
                 <p
-                  className="text-white/40 leading-relaxed"
+                  className="text-white/58 leading-relaxed"
                   style={{
                     fontSize: "clamp(11px, 2vw, 13px)",
                     letterSpacing: "0.02em",
@@ -748,7 +710,7 @@ export default function AureLienPlatform() {
               className="gold-glass rounded-[26px] sm:rounded-[32px] p-5 sm:p-7 md:p-10"
             >
               <p
-                className="text-white/22 uppercase mb-3 sm:mb-4"
+                className="text-white/48 uppercase mb-3 sm:mb-4"
                 style={{
                   fontSize: "clamp(8px, 1.5vw, 9px)",
                   letterSpacing: "0.36em",
@@ -768,7 +730,7 @@ export default function AureLienPlatform() {
                 Designed for modern boutique growth.
               </h2>
               <p
-                className="text-white/45 leading-relaxed mb-4 sm:mb-5"
+                className="text-white/62 leading-relaxed mb-4 sm:mb-5"
                 style={{
                   fontSize: "clamp(12px, 2.5vw, 15px)",
                   letterSpacing: "0.025em",
@@ -818,7 +780,7 @@ export default function AureLienPlatform() {
                         {item.title}
                       </h3>
                       <p
-                        className="text-white/40 leading-relaxed"
+                        className="text-white/58 leading-relaxed"
                         style={{
                           fontSize: "clamp(11px, 2vw, 13px)",
                           letterSpacing: "0.025em",
@@ -844,7 +806,7 @@ export default function AureLienPlatform() {
             className="text-center mb-6 sm:mb-8 md:mb-10 max-w-7xl mx-auto"
           >
             <p
-              className="text-white/20 uppercase mb-2 sm:mb-3"
+              className="text-white/48 uppercase mb-2 sm:mb-3"
               style={{
                 fontSize: "clamp(8px, 1.5vw, 9px)",
                 letterSpacing: "0.45em",
@@ -929,7 +891,7 @@ export default function AureLienPlatform() {
                   {item.title}
                 </h3>
                 <p
-                  className="text-white/40 leading-relaxed"
+                  className="text-white/58 leading-relaxed"
                   style={{
                     fontSize: "clamp(11px, 2vw, 13px)",
                     letterSpacing: "0.025em",
@@ -962,7 +924,7 @@ export default function AureLienPlatform() {
             className="text-center mb-6 sm:mb-8 md:mb-10 max-w-7xl mx-auto"
           >
             <p
-              className="text-white/20 uppercase mb-2 sm:mb-3"
+              className="text-white/48 uppercase mb-2 sm:mb-3"
               style={{
                 fontSize: "clamp(8px, 1.5vw, 9px)",
                 letterSpacing: "0.42em",
@@ -1006,7 +968,7 @@ export default function AureLienPlatform() {
             className="mb-4 sm:mb-6 md:mb-8 max-w-7xl mx-auto"
           >
             <div className="glass-md flex items-center gap-3 px-4 py-3 sm:py-3.5 rounded-2xl min-h-[44px]">
-              <Search size={16} className="text-white/40 flex-shrink-0" />
+              <Search size={16} className="text-white/60 flex-shrink-0" />
               <input
                 type="text"
                 placeholder="Search pieces, silhouettes, or details..."
@@ -1021,7 +983,7 @@ export default function AureLienPlatform() {
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setFilters({ ...filters, search: "" })}
                   aria-label="Clear search"
-                  className="text-white/40 hover:text-white/70 transition-colors flex-shrink-0 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg"
+                  className="flex min-h-[44px] min-w-[44px] flex-shrink-0 items-center justify-center rounded-lg p-2 text-white/72 transition-colors hover:text-white"
                 >
                   <X size={16} />
                 </motion.button>
@@ -1035,7 +997,7 @@ export default function AureLienPlatform() {
               <div className="hidden sm:flex items-center gap-3 md:gap-4">
                 <SlidersHorizontal
                   strokeWidth={1.3}
-                  className="w-4 h-4 text-white/25 flex-shrink-0"
+                  className="h-4 w-4 flex-shrink-0 text-white/52"
                 />
                 <div
                   className="w-px h-5"
@@ -1212,7 +1174,7 @@ export default function AureLienPlatform() {
                 transition={{ duration: 0.3 }}
                 className={
                   viewMode === "grid"
-                    ? "grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 lg:gap-6 max-w-7xl mx-auto"
+                    ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 lg:gap-6 max-w-7xl mx-auto"
                     : "space-y-2 sm:space-y-3 max-w-7xl mx-auto"
                 }
               >
@@ -1296,7 +1258,7 @@ export default function AureLienPlatform() {
                 className="py-12 sm:py-16 md:py-20 text-center max-w-7xl mx-auto"
               >
                 <p
-                  className="text-white/40 tracking-[0.1em] font-light mb-5 sm:mb-6"
+                  className="mb-5 text-white/60 tracking-[0.1em] font-light sm:mb-6"
                   style={{ fontSize: "clamp(12px, 2vw, 14px)" }}
                 >
                   No pieces match your filters
@@ -1341,7 +1303,7 @@ export default function AureLienPlatform() {
               The Platform Should Be Too.
             </h3>
             <p
-              className="text-white/40 font-light max-w-2xl mx-auto mb-6 sm:mb-8 md:mb-10"
+              className="mx-auto mb-6 max-w-2xl font-light text-white/60 sm:mb-8 md:mb-10"
               style={{
                 fontSize: "clamp(11px, 2.5vw, 14px)",
                 letterSpacing: "0.04em",
