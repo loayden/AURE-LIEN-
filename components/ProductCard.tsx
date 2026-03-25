@@ -6,7 +6,7 @@ import {
   motion,
   useMotionValue, useSpring, useTransform,
 } from "framer-motion";
-import { ArrowRight, Heart, ShoppingBag, Star, Zap } from "lucide-react";
+import { ArrowRight, ChevronDown, Heart, ShoppingBag, Star, Zap } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
@@ -184,6 +184,7 @@ export default function ProductCard({
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [showSizeSelector, setShowSizeSelector] = useState(false);
   const [showColorSelector, setShowColorSelector] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const productHref = product._id
     ? `/product/${encodeURIComponent(String(product._id))}`
     : null;
@@ -251,6 +252,18 @@ export default function ProductCard({
     e.preventDefault();
     e.stopPropagation();
     openProductPage();
+  }
+
+  function toggleDetailsPanel(e: ReactMouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    e.stopPropagation();
+    setDetailsOpen((currentOpen) => {
+      if (currentOpen) {
+        setShowSizeSelector(false);
+        setShowColorSelector(false);
+      }
+      return !currentOpen;
+    });
   }
 
   function onCardKeyDown(e: ReactKeyboardEvent<HTMLDivElement>) {
@@ -364,11 +377,13 @@ export default function ProductCard({
     e.stopPropagation();
     if (!product._id || outOfStock) return;
     if (sizes.length > 1 && !selectedSize) {
+      setDetailsOpen(true);
       setShowSizeSelector(true);
       setShowColorSelector(false);
       return;
     }
     if (normalizedColors.length > 1 && !selectedColor) {
+      setDetailsOpen(true);
       setShowColorSelector(true);
       setShowSizeSelector(false);
       return;
@@ -582,34 +597,7 @@ export default function ProductCard({
         <div className="absolute inset-x-0 top-0 h-px pointer-events-none"
           style={{ background: "linear-gradient(90deg, transparent 5%, rgba(255,255,255,0.10) 40%, rgba(255,255,255,0.10) 60%, transparent 95%)" }} />
 
-        <div className="flex items-center justify-between gap-3">
-          {product.category ? (
-            <motion.button
-              type="button"
-              onClick={openCategoryPage}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              className="inline-flex min-h-[44px] min-w-[44px] items-center rounded-full px-3.5 py-2 text-[9px] uppercase tracking-[0.26em] text-white/58 transition-colors hover:text-white"
-              style={{
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.08)",
-                fontFamily: "'Jost', sans-serif",
-              }}
-            >
-              {categoryLabel}
-            </motion.button>
-          ) : <span />}
-
-          <span
-            className="text-[9px] uppercase tracking-[0.3em] text-white/26"
-            style={{ fontFamily: "'Jost', sans-serif" }}
-          >
-            {imageCounterLabel}
-          </span>
-        </div>
-
-        {/* Name + Rating */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <h3 className="font-light leading-snug line-clamp-2"
             style={{
               fontFamily: "'Cormorant Garamond', serif",
@@ -620,211 +608,10 @@ export default function ProductCard({
             {product.name}
           </h3>
 
-          <p
-            className="line-clamp-2 text-[11px] leading-relaxed text-white/40 sm:text-[12px]"
-            style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.05em" }}
-          >
-            {descriptionPreview}
-          </p>
-
-          {/* Rating */}
-          {product.rating && (
-            <div className="flex items-center gap-1 mt-1">
-              <div className="flex gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} size={12} className="transition-colors"
-                    style={{
-                      fill: i < Math.floor(product.rating!) ? "#C6A962" : "transparent",
-                      color: "#C6A962",
-                      opacity: i < Math.floor(product.rating!) ? 1 : 0.3,
-                    }} />
-                ))}
-              </div>
-              {product.reviews && (
-                <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.5)" }}>
-                  ({product.reviews})
-                </span>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { label: "Sizing", value: sizeSummary },
-            { label: "Palette", value: colorSummary },
-            { label: "Status", value: availabilityLabel },
-          ].map((item) => (
-            <div
-              key={item.label}
-              className="rounded-2xl px-3 py-3"
-              style={{
-                background: "linear-gradient(145deg, rgba(255,255,255,0.055), rgba(255,255,255,0.02))",
-                border: "1px solid rgba(255,255,255,0.07)",
-              }}
-            >
-              <p
-                className="mb-1 text-[8px] uppercase tracking-[0.28em] text-white/22"
-                style={{ fontFamily: "'Jost', sans-serif" }}
-              >
-                {item.label}
-              </p>
-              <p
-                className="line-clamp-1 text-[10px] text-white/74 sm:text-[11px]"
-                style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.06em" }}
-              >
-                {item.value}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        {/* Size & Color Selector - Compact */}
-        <div className="flex flex-wrap gap-2.5">
-          {sizes && sizes.length > 0 && (
-            <motion.button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowSizeSelector(!showSizeSelector);
-                setShowColorSelector(false);
-              }}
-              className="inline-flex min-h-[44px] min-w-[44px] items-center rounded-2xl px-3.5 py-2 text-[11px] transition-all"
-              style={{
-                background: resolvedSize ? "rgba(198,169,98,0.16)" : "rgba(255,255,255,0.06)",
-                color: resolvedSize ? "#F1D79A" : "rgba(255,255,255,0.62)",
-                border: resolvedSize ? "1px solid rgba(198,169,98,0.34)" : "1px solid rgba(255,255,255,0.08)",
-                fontFamily: "'Jost', sans-serif",
-                fontWeight: 400,
-                letterSpacing: "0.08em",
-              }}
-              whileHover={{ scale: 1.05 }}
-            >
-              {resolvedSize ? `Size ${resolvedSize}` : "Select Size"}
-            </motion.button>
-          )}
-
-          {normalizedColors.length > 0 && (
-            <motion.button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowColorSelector(!showColorSelector);
-                setShowSizeSelector(false);
-              }}
-              className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-2xl px-3.5 py-2 transition-all"
-              style={{
-                background: displayColorOption ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.04)",
-                border: selectedColorOption ? "1px solid rgba(198,169,98,0.34)" : "1px solid rgba(255,255,255,0.08)",
-              }}
-              whileHover={{ scale: 1.1 }}
-              title={`Color: ${colorSummary}`}
-            >
-              {displayColorOption ? (
-                <>
-                  <span
-                    className="h-4 w-4 rounded-full border border-white/15"
-                    style={{ background: displayColorOption.hex }}
-                  />
-                  <span
-                    className="text-[11px] text-white/66"
-                    style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.08em" }}
-                  >
-                    {selectedColorOption ? selectedColorOption.name : "Choose Tone"}
-                  </span>
-                </>
-              ) : (
-                <span
-                  className="text-[11px] text-white/66"
-                  style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.08em" }}
-                >
-                  No Palette
-                </span>
-              )}
-            </motion.button>
-          )}
-        </div>
-
-        {/* Size Selector Modal */}
-        <AnimatePresence>
-          {showSizeSelector && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="flex flex-wrap gap-1.5 mt-1 rounded-2xl border border-white/8 bg-white/[0.03] p-2.5"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {sizes.map((size) => (
-                <button
-                  key={size}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedSize(size);
-                    setShowSizeSelector(false);
-                  }}
-                  className="min-h-[44px] min-w-[44px] rounded-xl px-3 py-2 text-[10px] uppercase tracking-[0.18em] transition-all"
-                  style={{
-                    background: selectedSize === size ? "rgba(198,169,98,0.16)" : "rgba(255,255,255,0.05)",
-                    color: selectedSize === size ? "#F3DEAB" : "rgba(255,255,255,0.62)",
-                    border: selectedSize === size ? "1px solid rgba(198,169,98,0.36)" : "1px solid rgba(255,255,255,0.08)",
-                    fontFamily: "'Jost', sans-serif",
-                  }}
-                >
-                  {size}
-                </button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Color Selector Modal */}
-        <AnimatePresence>
-          {showColorSelector && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="flex flex-wrap gap-2 mt-1 rounded-2xl border border-white/8 bg-white/[0.03] p-2.5"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {normalizedColors.map((color) => (
-                <motion.button
-                  key={color.hex}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedColor(color.hex);
-                    setShowColorSelector(false);
-                  }}
-                  className="flex h-10 min-w-[44px] items-center justify-center rounded-xl border-2 px-3 transition-all"
-                  style={{
-                    background: color.hex,
-                    borderColor: selectedColor === color.hex ? "#C6A962" : "transparent",
-                    opacity: 0.9,
-                  }}
-                  whileHover={{ scale: 1.15 }}
-                  title={color.name}
-                >
-                  <span className="sr-only">{color.name}</span>
-                </motion.button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Price + Actions */}
-        <div
-          className="rounded-[1.35rem] p-3.5"
-          style={{
-            background: "linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))",
-            border: "1px solid rgba(255,255,255,0.08)",
-            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
-          }}
-        >
-          <div className="mb-3 flex items-start justify-between gap-3">
+          <div className="flex items-end justify-between gap-3">
             <div>
               <p
-                className="mb-1 text-[8px] uppercase tracking-[0.32em] text-white/26"
+                className="mb-1 text-[8px] uppercase tracking-[0.32em] text-white/24"
                 style={{ fontFamily: "'Jost', sans-serif" }}
               >
                 Private Price
@@ -839,7 +626,11 @@ export default function ProductCard({
                   </p>
                   <p
                     className="mt-1 font-light text-[#C6A962]"
-                    style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.45rem", letterSpacing: "0.04em" }}
+                    style={{
+                      fontFamily: "'Cormorant Garamond', serif",
+                      fontSize: "1.45rem",
+                      letterSpacing: "0.04em",
+                    }}
                   >
                     EGP {(product.price ?? 0).toLocaleString()}
                   </p>
@@ -847,76 +638,351 @@ export default function ProductCard({
               ) : (
                 <p
                   className="font-light text-[#C6A962]"
-                  style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.45rem", letterSpacing: "0.04em" }}
+                  style={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontSize: "1.45rem",
+                    letterSpacing: "0.04em",
+                  }}
                 >
                   EGP {(product.price ?? 0).toLocaleString()}
                 </p>
               )}
             </div>
 
-            <div className="text-right">
-              <p
-                className="text-[8px] uppercase tracking-[0.3em] text-white/22"
-                style={{ fontFamily: "'Jost', sans-serif" }}
-              >
-                Selection
-              </p>
-              <p
-                className="mt-1 text-[10px] text-white/66"
-                style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.06em" }}
-              >
-                {resolvedSize ?? (sizes.length ? "Choose size" : "One fit")}
-              </p>
-              <p
-                className="mt-1 text-[10px] text-white/48"
-                style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.06em" }}
-              >
-                {selectedColorOption?.name ?? (displayColorOption ? `Tone ${displayColorOption.name}` : "Single tone")}
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
             <motion.button
               type="button"
-              onClick={handleViewDetails}
+              onClick={toggleDetailsPanel}
               whileTap={{ scale: 0.98 }}
               className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full border border-white/10 px-4 py-3 text-[10px] uppercase tracking-[0.22em] text-white/72 transition-colors hover:text-white"
               style={{ fontFamily: "'Jost', sans-serif", background: "rgba(255,255,255,0.04)" }}
             >
-              Details
-              <ArrowRight strokeWidth={1.2} className="h-3.5 w-3.5" />
-            </motion.button>
-
-            <motion.button
-              type="button"
-              onClick={handleAddToCart}
-              disabled={loading || outOfStock}
-              whileTap={{ scale: 0.98 }}
-              className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full px-4 py-3 text-[10px] uppercase tracking-[0.22em] transition-all disabled:opacity-35"
-              style={{
-                fontFamily: "'Jost', sans-serif",
-                background: added
-                  ? "linear-gradient(135deg, rgba(198,169,98,0.28), rgba(198,169,98,0.10))"
-                  : "linear-gradient(135deg, rgba(198,169,98,0.88), rgba(167,134,66,0.92))",
-                color: added ? "#F5E7BD" : "#0f0b05",
-                border: added
-                  ? "1px solid rgba(198,169,98,0.45)"
-                  : "1px solid rgba(198,169,98,0.65)",
-                boxShadow: added ? "0 0 20px rgba(198,169,98,0.22)" : "0 14px 30px rgba(198,169,98,0.18)",
-              }}
-              aria-label={added ? "Added" : "Add to cart"}
-            >
-              <motion.div
-                animate={{ rotate: loading ? 360 : 0 }}
-                transition={{ repeat: loading ? Infinity : 0, duration: 0.9, ease: "linear" }}
+              {detailsOpen ? "Less" : "More"}
+              <motion.span
+                animate={{ rotate: detailsOpen ? 180 : 0 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
               >
-                <ShoppingBag strokeWidth={1.25} className="h-4 w-4" />
-              </motion.div>
-              {added ? "Added" : "Add to Cart"}
+                <ChevronDown strokeWidth={1.2} className="h-3.5 w-3.5" />
+              </motion.span>
             </motion.button>
           </div>
         </div>
+
+        <AnimatePresence initial={false}>
+          {detailsOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className="overflow-hidden"
+            >
+              <div className="flex flex-col gap-4 pt-1">
+                <div className="flex items-center justify-between gap-3">
+                  {product.category ? (
+                    <motion.button
+                      type="button"
+                      onClick={openCategoryPage}
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="inline-flex min-h-[44px] min-w-[44px] items-center rounded-full px-3.5 py-2 text-[9px] uppercase tracking-[0.26em] text-white/58 transition-colors hover:text-white"
+                      style={{
+                        background: "rgba(255,255,255,0.06)",
+                        border: "1px solid rgba(255,255,255,0.08)",
+                        fontFamily: "'Jost', sans-serif",
+                      }}
+                    >
+                      {categoryLabel}
+                    </motion.button>
+                  ) : <span />}
+
+                  <span
+                    className="text-[9px] uppercase tracking-[0.3em] text-white/26"
+                    style={{ fontFamily: "'Jost', sans-serif" }}
+                  >
+                    {imageCounterLabel}
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  <p
+                    className="line-clamp-2 text-[11px] leading-relaxed text-white/40 sm:text-[12px]"
+                    style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.05em" }}
+                  >
+                    {descriptionPreview}
+                  </p>
+
+                  {product.rating && (
+                    <div className="flex items-center gap-1 mt-1">
+                      <div className="flex gap-0.5">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} size={12} className="transition-colors"
+                            style={{
+                              fill: i < Math.floor(product.rating!) ? "#C6A962" : "transparent",
+                              color: "#C6A962",
+                              opacity: i < Math.floor(product.rating!) ? 1 : 0.3,
+                            }} />
+                        ))}
+                      </div>
+                      {product.reviews && (
+                        <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.5)" }}>
+                          ({product.reviews})
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { label: "Sizing", value: sizeSummary },
+                    { label: "Palette", value: colorSummary },
+                    { label: "Status", value: availabilityLabel },
+                  ].map((item) => (
+                    <div
+                      key={item.label}
+                      className="rounded-2xl px-3 py-3"
+                      style={{
+                        background: "linear-gradient(145deg, rgba(255,255,255,0.055), rgba(255,255,255,0.02))",
+                        border: "1px solid rgba(255,255,255,0.07)",
+                      }}
+                    >
+                      <p
+                        className="mb-1 text-[8px] uppercase tracking-[0.28em] text-white/22"
+                        style={{ fontFamily: "'Jost', sans-serif" }}
+                      >
+                        {item.label}
+                      </p>
+                      <p
+                        className="line-clamp-1 text-[10px] text-white/74 sm:text-[11px]"
+                        style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.06em" }}
+                      >
+                        {item.value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex flex-wrap gap-2.5">
+                  {sizes && sizes.length > 0 && (
+                    <motion.button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowSizeSelector(!showSizeSelector);
+                        setShowColorSelector(false);
+                      }}
+                      className="inline-flex min-h-[44px] min-w-[44px] items-center rounded-2xl px-3.5 py-2 text-[11px] transition-all"
+                      style={{
+                        background: resolvedSize ? "rgba(198,169,98,0.16)" : "rgba(255,255,255,0.06)",
+                        color: resolvedSize ? "#F1D79A" : "rgba(255,255,255,0.62)",
+                        border: resolvedSize ? "1px solid rgba(198,169,98,0.34)" : "1px solid rgba(255,255,255,0.08)",
+                        fontFamily: "'Jost', sans-serif",
+                        fontWeight: 400,
+                        letterSpacing: "0.08em",
+                      }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      {resolvedSize ? `Size ${resolvedSize}` : "Select Size"}
+                    </motion.button>
+                  )}
+
+                  {normalizedColors.length > 0 && (
+                    <motion.button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowColorSelector(!showColorSelector);
+                        setShowSizeSelector(false);
+                      }}
+                      className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-2xl px-3.5 py-2 transition-all"
+                      style={{
+                        background: displayColorOption ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.04)",
+                        border: selectedColorOption ? "1px solid rgba(198,169,98,0.34)" : "1px solid rgba(255,255,255,0.08)",
+                      }}
+                      whileHover={{ scale: 1.1 }}
+                      title={`Color: ${colorSummary}`}
+                    >
+                      {displayColorOption ? (
+                        <>
+                          <span
+                            className="h-4 w-4 rounded-full border border-white/15"
+                            style={{ background: displayColorOption.hex }}
+                          />
+                          <span
+                            className="text-[11px] text-white/66"
+                            style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.08em" }}
+                          >
+                            {selectedColorOption ? selectedColorOption.name : "Choose Tone"}
+                          </span>
+                        </>
+                      ) : (
+                        <span
+                          className="text-[11px] text-white/66"
+                          style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.08em" }}
+                        >
+                          No Palette
+                        </span>
+                      )}
+                    </motion.button>
+                  )}
+                </div>
+
+                <AnimatePresence>
+                  {showSizeSelector && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="flex flex-wrap gap-1.5 mt-1 rounded-2xl border border-white/8 bg-white/[0.03] p-2.5"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {sizes.map((size) => (
+                        <button
+                          key={size}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedSize(size);
+                            setShowSizeSelector(false);
+                          }}
+                          className="min-h-[44px] min-w-[44px] rounded-xl px-3 py-2 text-[10px] uppercase tracking-[0.18em] transition-all"
+                          style={{
+                            background: selectedSize === size ? "rgba(198,169,98,0.16)" : "rgba(255,255,255,0.05)",
+                            color: selectedSize === size ? "#F3DEAB" : "rgba(255,255,255,0.62)",
+                            border: selectedSize === size ? "1px solid rgba(198,169,98,0.36)" : "1px solid rgba(255,255,255,0.08)",
+                            fontFamily: "'Jost', sans-serif",
+                          }}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <AnimatePresence>
+                  {showColorSelector && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="flex flex-wrap gap-2 mt-1 rounded-2xl border border-white/8 bg-white/[0.03] p-2.5"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {normalizedColors.map((color) => (
+                        <motion.button
+                          key={color.hex}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedColor(color.hex);
+                            setShowColorSelector(false);
+                          }}
+                          className="flex h-10 min-w-[44px] items-center justify-center rounded-xl border-2 px-3 transition-all"
+                          style={{
+                            background: color.hex,
+                            borderColor: selectedColor === color.hex ? "#C6A962" : "transparent",
+                            opacity: 0.9,
+                          }}
+                          whileHover={{ scale: 1.15 }}
+                          title={color.name}
+                        >
+                          <span className="sr-only">{color.name}</span>
+                        </motion.button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <div
+                  className="rounded-[1.35rem] p-3.5"
+                  style={{
+                    background: "linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.04)",
+                  }}
+                >
+                  <div className="mb-3 flex items-start justify-between gap-3">
+                    <div>
+                      <p
+                        className="text-[8px] uppercase tracking-[0.3em] text-white/22"
+                        style={{ fontFamily: "'Jost', sans-serif" }}
+                      >
+                        Selection
+                      </p>
+                      <p
+                        className="mt-1 text-[10px] text-white/66"
+                        style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.06em" }}
+                      >
+                        {resolvedSize ?? (sizes.length ? "Choose size" : "One fit")}
+                      </p>
+                      <p
+                        className="mt-1 text-[10px] text-white/48"
+                        style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.06em" }}
+                      >
+                        {selectedColorOption?.name ?? (displayColorOption ? `Tone ${displayColorOption.name}` : "Single tone")}
+                      </p>
+                    </div>
+
+                    <div className="text-right">
+                      <p
+                        className="text-[8px] uppercase tracking-[0.3em] text-white/22"
+                        style={{ fontFamily: "'Jost', sans-serif" }}
+                      >
+                        Availability
+                      </p>
+                      <p
+                        className="mt-1 text-[10px] text-white/66"
+                        style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.06em" }}
+                      >
+                        {availabilityLabel}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <motion.button
+                      type="button"
+                      onClick={handleViewDetails}
+                      whileTap={{ scale: 0.98 }}
+                      className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full border border-white/10 px-4 py-3 text-[10px] uppercase tracking-[0.22em] text-white/72 transition-colors hover:text-white"
+                      style={{ fontFamily: "'Jost', sans-serif", background: "rgba(255,255,255,0.04)" }}
+                    >
+                      Details
+                      <ArrowRight strokeWidth={1.2} className="h-3.5 w-3.5" />
+                    </motion.button>
+
+                    <motion.button
+                      type="button"
+                      onClick={handleAddToCart}
+                      disabled={loading || outOfStock}
+                      whileTap={{ scale: 0.98 }}
+                      className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full px-4 py-3 text-[10px] uppercase tracking-[0.22em] transition-all disabled:opacity-35"
+                      style={{
+                        fontFamily: "'Jost', sans-serif",
+                        background: added
+                          ? "linear-gradient(135deg, rgba(198,169,98,0.28), rgba(198,169,98,0.10))"
+                          : "linear-gradient(135deg, rgba(198,169,98,0.88), rgba(167,134,66,0.92))",
+                        color: added ? "#F5E7BD" : "#0f0b05",
+                        border: added
+                          ? "1px solid rgba(198,169,98,0.45)"
+                          : "1px solid rgba(198,169,98,0.65)",
+                        boxShadow: added ? "0 0 20px rgba(198,169,98,0.22)" : "0 14px 30px rgba(198,169,98,0.18)",
+                      }}
+                      aria-label={added ? "Added" : "Add to cart"}
+                    >
+                      <motion.div
+                        animate={{ rotate: loading ? 360 : 0 }}
+                        transition={{ repeat: loading ? Infinity : 0, duration: 0.9, ease: "linear" }}
+                      >
+                        <ShoppingBag strokeWidth={1.25} className="h-4 w-4" />
+                      </motion.div>
+                      {added ? "Added" : "Add to Cart"}
+                    </motion.button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Gold bottom accent line on hover */}
