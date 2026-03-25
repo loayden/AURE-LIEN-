@@ -1,38 +1,15 @@
 "use client";
 
 import ProductCard from "@/components/ProductCard";
-import type { Product } from "@/lib/types";
+import { searchCatalogProducts } from "@/lib/searchProducts";
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useMemo } from "react";
 
 function SearchContent() {
   const searchParams = useSearchParams();
   const q = searchParams.get("q") || "";
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!q) {
-      setProducts([]);
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    fetch(`/api/search?q=${encodeURIComponent(q)}`)
-      .then((r) => r.json())
-      .then((d) => setProducts(d.products || []))
-      .finally(() => setLoading(false));
-  }, [q]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black text-ivory flex items-center justify-center pt-24">
-        <p className="tracking-widest text-silver">Loading...</p>
-      </div>
-    );
-  }
+  const products = useMemo(() => (q ? searchCatalogProducts(q) : []), [q]);
 
   return (
     <main className="min-h-screen bg-black text-ivory pt-16 pb-16 px-4 sm:pt-24 sm:pb-20 sm:px-6 md:px-10">

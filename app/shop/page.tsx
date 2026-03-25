@@ -4,14 +4,15 @@ import ProductCard from "@/components/ProductCard";
 import products from "@/lib/productsData";
 import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
 import {
+  ArrowRight,
   ChevronDown,
   Grid,
-  Heart,
   List, Search,
   SlidersHorizontal,
   Sparkles,
   X
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useMemo, useRef, useState } from "react";
 
 const SORT_OPTIONS = [
@@ -59,6 +60,7 @@ interface FilterState {
 }
 
 export default function EnhancedShopPage() {
+  const router = useRouter();
   const [sort, setSort] = useState("default");
   const [sortOpen, setSortOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -67,7 +69,6 @@ export default function EnhancedShopPage() {
     search: "",
   });
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const [wishlist, setWishlist] = useState<string[]>([]);
   const heroRef = useRef<HTMLElement>(null);
 
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
@@ -103,9 +104,6 @@ export default function EnhancedShopPage() {
   }, [filteredProducts, sort]);
 
   const activeLabel = SORT_OPTIONS.find((o) => o.value === sort)?.label ?? "Featured";
-  const toggleWishlist = (id: string) => {
-    setWishlist((prev) => prev.includes(id) ? prev.filter((w) => w !== id) : [...prev, id]);
-  };
 
   return (
     <>
@@ -399,23 +397,19 @@ export default function EnhancedShopPage() {
                             </p>
                           </div>
                           <motion.button
-                            whileHover={{ scale: 1.15 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => toggleWishlist(String(product._id))}
-                            className="p-2.5 sm:p-3 rounded-full transition-all flex-shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                            type="button"
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => router.push(`/product/${encodeURIComponent(String(product._id))}`)}
+                            aria-label={`View details for ${product.name}`}
+                            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full border border-white/10 px-4 py-3 text-[10px] uppercase tracking-[0.22em] text-white/72 transition-colors hover:text-white"
                             style={{
-                              background: wishlist.includes(String(product._id))
-                                ? "rgba(255,80,80,0.15)"
-                                : "rgba(255,255,255,0.05)",
-                              border: wishlist.includes(String(product._id))
-                                ? "1px solid rgba(255,100,100,0.3)"
-                                : "1px solid rgba(255,255,255,0.1)",
+                              fontFamily: "'Jost', sans-serif",
+                              background: "rgba(255,255,255,0.04)",
                             }}
                           >
-                            <Heart
-                              size={18}
-                              className={wishlist.includes(String(product._id)) ? "fill-red-400 text-red-400" : "text-white/40"}
-                            />
+                            Details
+                            <ArrowRight strokeWidth={1.2} className="h-3.5 w-3.5" />
                           </motion.button>
                         </div>
                       )}

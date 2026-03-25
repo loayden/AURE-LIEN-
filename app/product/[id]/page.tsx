@@ -404,6 +404,10 @@ export default function PremiumProductPage() {
     setProduct(fallbackProduct);
     setLoadingProduct(!fallbackProduct);
 
+    if (fallbackProduct) {
+      return;
+    }
+
     let cancelled = false;
 
     (async () => {

@@ -236,9 +236,6 @@ export default function CollectionPage() {
     [products]
   );
 
-  console.log("✅ Products imported:", products.length, "items");
-  console.log("📦 Products organized by category:", PRODUCTS_ORGANIZED);
-
   return (
     <>
       <style>{`

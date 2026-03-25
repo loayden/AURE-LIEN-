@@ -7,7 +7,6 @@ import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion"
 import {
   ChevronDown,
   Grid,
-  Heart,
   List,
   Search,
   SlidersHorizontal,
@@ -208,7 +207,6 @@ export default function AureLienPlatform() {
     priceRange: null,
     search: "",
   });
-  const [wishlist, setWishlist] = useState<string[]>([]);
   const heroRef = useRef<HTMLElement>(null);
   const shopRef = useRef<HTMLElement>(null);
   const sortMenuRef = useRef<HTMLDivElement>(null);
@@ -244,12 +242,6 @@ export default function AureLienPlatform() {
   }, [filteredProducts, sort]);
 
   const activeLabel = SORT_OPTIONS.find((o) => o.value === sort)?.label ?? "Featured";
-
-  const toggleWishlist = (id: string) => {
-    setWishlist((prev) =>
-      prev.includes(id) ? prev.filter((w) => w !== id) : [...prev, id]
-    );
-  };
 
   useEffect(() => {
     if (!sortOpen) return;
@@ -1276,28 +1268,19 @@ export default function AureLienPlatform() {
                             </p>
                           </div>
                           <motion.button
-                            whileHover={{ scale: 1.12 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => toggleWishlist(String(product._id))}
-                            aria-label={`Toggle wishlist for ${product.name}`}
-                            className="p-2 sm:p-2.5 rounded-lg transition-all flex-shrink-0 min-h-[44px] min-w-[44px] flex items-center justify-center self-end sm:self-auto"
+                            type="button"
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => router.push(`/product/${encodeURIComponent(String(product._id))}`)}
+                            aria-label={`View details for ${product.name}`}
+                            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 self-end rounded-full border border-white/10 px-4 py-3 text-[10px] uppercase tracking-[0.22em] text-white/72 transition-colors hover:text-white sm:self-auto"
                             style={{
-                              background: wishlist.includes(String(product._id))
-                                ? "rgba(255,80,80,0.15)"
-                                : "rgba(255,255,255,0.05)",
-                              border: wishlist.includes(String(product._id))
-                                ? "1px solid rgba(255,100,100,0.3)"
-                                : "1px solid rgba(255,255,255,0.1)",
+                              fontFamily: "'Jost', sans-serif",
+                              background: "rgba(255,255,255,0.04)",
                             }}
                           >
-                            <Heart
-                              size={18}
-                              className={
-                                wishlist.includes(String(product._id))
-                                  ? "fill-red-400 text-red-400"
-                                  : "text-white/40"
-                              }
-                            />
+                            Details
+                            <ArrowRight strokeWidth={1.2} className="h-3.5 w-3.5" />
                           </motion.button>
                         </div>
                       )}

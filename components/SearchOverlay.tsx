@@ -1,10 +1,11 @@
 "use client";
 
+import { searchCatalogProducts } from "@/lib/searchProducts";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Search, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 
 interface SearchProduct {
   _id: string;
@@ -22,27 +23,13 @@ export default function SearchOverlay({
   onClose: () => void;
 }) {
   const [q, setQ] = useState("");
-  const [results, setResults] = useState<SearchProduct[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const search = useCallback(async () => {
-    if (!q.trim()) { setResults([]); return; }
-    setLoading(true);
-    try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
-      const data = await res.json();
-      setResults(data.products || []);
-    } catch {
-      setResults([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [q]);
-
-  useEffect(() => {
-    const t = setTimeout(search, 300);
-    return () => clearTimeout(t);
-  }, [q, search]);
+  const deferredQuery = useDeferredValue(q);
+  const trimmedQuery = deferredQuery.trim();
+  const loading = q.trim() !== trimmedQuery;
+  const results = useMemo<SearchProduct[]>(
+    () => (trimmedQuery ? searchCatalogProducts(trimmedQuery, { limit: 12 }) : []),
+    [trimmedQuery]
+  );
 
   useEffect(() => { if (!open) setQ(""); }, [open]);
 
