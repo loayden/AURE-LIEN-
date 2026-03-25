@@ -297,6 +297,20 @@ export default function AureLienPlatform() {
           border: 1px solid rgba(198,169,98,0.22);
           box-shadow: 0 8px 32px rgba(198,169,98,0.08), inset 0 1px 0 rgba(255,255,255,0.14);
         }
+        .home-hero-shell {
+          isolation: isolate;
+          background: #080808;
+        }
+        .home-hero-shell::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          z-index: 1;
+          background:
+            radial-gradient(ellipse at 50% 0%, rgba(198,169,98,0.08) 0%, transparent 55%),
+            linear-gradient(180deg, rgba(8,8,8,0.35) 0%, rgba(8,8,8,0.78) 100%);
+        }
 
         input::placeholder { font-size: 16px; }
         @media (min-width: 641px) {
@@ -319,7 +333,7 @@ export default function AureLienPlatform() {
         {/* ── MAIN HERO SECTION ── */}
         <section
           ref={heroRef}
-          className="relative flex min-h-[72vh] items-center overflow-hidden px-4 pb-12 pt-14 sm:min-h-[82vh] sm:px-6 sm:pb-20 sm:pt-[4.5rem] md:min-h-[92vh] md:px-10 md:pb-28 md:pt-24"
+          className="home-hero-shell relative flex min-h-[72vh] items-center overflow-hidden px-4 pb-12 pt-14 sm:min-h-[82vh] sm:px-6 sm:pb-20 sm:pt-[4.5rem] md:min-h-[92vh] md:px-10 md:pb-28 md:pt-24"
         >
           <video
             autoPlay
@@ -331,15 +345,6 @@ export default function AureLienPlatform() {
           >
             <source src="/uploads/0316 (3).mp4" type="video/mp4" />
           </video>
-
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                "radial-gradient(ellipse at 50% 0%, rgba(198,169,98,0.08) 0%, transparent 55%), linear-gradient(180deg, rgba(8,8,8,0.35) 0%, rgba(8,8,8,0.78) 100%)",
-              zIndex: 1,
-            }}
-          />
 
           <motion.div
             style={{ y: heroY, opacity: heroOpacity }}

@@ -34,7 +34,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-[#080808] text-white">
         <div id="app-shell" className="flex min-h-screen flex-col">
           <Navbar />
-          <div className="flex-1">{children}</div>
+          <div className="flex-1 min-h-[calc(100svh-54px)] sm:min-h-[calc(100svh-58px)]">
+            {children}
+          </div>
           <DeferredAIChatStylist />
           <Footer />
         </div>

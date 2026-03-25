@@ -11,19 +11,13 @@ export default function Loading() {
       `}</style>
 
       <div
-        className="relative flex min-h-[calc(100svh-64px)] items-center justify-center bg-[#080808]"
-        style={{ fontFamily:"'Jost', sans-serif" }}
+        className="relative flex min-h-[calc(100svh-54px)] items-center justify-center bg-[#080808] sm:min-h-[calc(100svh-58px)]"
+        style={{
+          fontFamily:"'Jost', sans-serif",
+          background:
+            "radial-gradient(circle at 50% 50%, rgba(198,169,98,0.06) 0%, rgba(8,8,8,0.98) 55%, #080808 100%)",
+        }}
       >
-        {/* Ambient glow */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div style={{
-            position:"absolute", width:340, height:340,
-            top:"50%", left:"50%", transform:"translate(-50%,-50%)",
-            background:"radial-gradient(circle, rgba(198,169,98,0.06) 0%, transparent 65%)",
-            filter:"blur(80px)",
-          }} />
-        </div>
-
         <div className="relative z-10 flex flex-col items-center gap-8">
 
           {/* Spinner — three concentric arcs */}
