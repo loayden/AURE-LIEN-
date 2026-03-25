@@ -160,7 +160,7 @@ export default function EnhancedShopPage() {
         <Orbs />
 
         {/* ── HERO HEADER (Mobile optimized) ── */}
-        <section ref={heroRef} className="relative overflow-hidden px-4 pb-10 pt-16 sm:px-6 sm:pb-14 sm:pt-24 md:px-10 md:pb-24 md:pt-32">
+        <section ref={heroRef} className="relative overflow-hidden px-4 pb-10 pt-10 sm:px-6 sm:pb-14 sm:pt-16 md:px-10 md:pb-24 md:pt-24">
           <div className="absolute inset-0 pointer-events-none"
                style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(198,169,98,0.06) 0%, transparent 60%)" }} />
 
@@ -215,6 +215,7 @@ export default function EnhancedShopPage() {
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => setFilters({ ...filters, search: "" })}
+                  aria-label="Clear search"
                   className="text-white/40 hover:text-white/70 transition-colors flex-shrink-0 p-2 min-h-[44px] min-w-[44px] flex items-center justify-center"
                 >
                   <X size={16} />
@@ -243,17 +244,21 @@ export default function EnhancedShopPage() {
                 </span>
                 <div className="flex items-center gap-2">
                   <motion.button
+                    type="button"
                     whileHover={{ scale: 1.08 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setViewMode("grid")}
+                    aria-label="Switch to grid view"
                     className={`luxury-icon-toggle ${viewMode === "grid" ? "is-active" : ""}`}
                   >
                     <Grid size={16} />
                   </motion.button>
                   <motion.button
+                    type="button"
                     whileHover={{ scale: 1.08 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setViewMode("list")}
+                    aria-label="Switch to list view"
                     className={`luxury-icon-toggle ${viewMode === "list" ? "is-active" : ""}`}
                   >
                     <List size={16} />
@@ -264,17 +269,21 @@ export default function EnhancedShopPage() {
               {/* Tablet+: View mode and Sort */}
               <div className="hidden sm:flex items-center gap-3">
                 <motion.button
+                  type="button"
                   whileHover={{ scale: 1.08 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setViewMode("grid")}
+                  aria-label="Switch to grid view"
                   className={`luxury-icon-toggle ${viewMode === "grid" ? "is-active" : ""}`}
                 >
                   <Grid size={16} />
                 </motion.button>
                 <motion.button
+                  type="button"
                   whileHover={{ scale: 1.08 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setViewMode("list")}
+                  aria-label="Switch to list view"
                   className={`luxury-icon-toggle ${viewMode === "list" ? "is-active" : ""}`}
                 >
                   <List size={16} />
@@ -284,7 +293,11 @@ export default function EnhancedShopPage() {
               {/* Sort dropdown */}
               <div className="relative w-full sm:w-auto">
                 <button
+                  type="button"
                   onClick={() => setSortOpen(!sortOpen)}
+                  aria-expanded={sortOpen}
+                  aria-haspopup="listbox"
+                  aria-label="Sort products"
                   className={`luxury-sort-trigger w-full sm:w-auto ${sortOpen ? "is-open" : ""}`}
                 >
                   <span className="luxury-sort-label">

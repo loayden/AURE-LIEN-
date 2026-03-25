@@ -12,7 +12,7 @@ function SearchContent() {
   const products = useMemo(() => (q ? searchCatalogProducts(q) : []), [q]);
 
   return (
-    <main className="min-h-screen bg-black text-ivory pt-16 pb-16 px-4 sm:pt-24 sm:pb-20 sm:px-6 md:px-10">
+    <main className="min-h-screen bg-black px-4 pb-16 pt-12 text-ivory sm:px-6 sm:pb-20 sm:pt-16 md:px-10">
       <div className="max-w-7xl mx-auto">
         <motion.h1
           initial={{ opacity: 0, y: 10 }}
@@ -47,7 +47,7 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-black pt-16 sm:pt-24 flex justify-center px-4 text-silver sm:px-6 md:px-10">Loading...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-black px-4 pt-12 text-silver sm:px-6 sm:pt-16 md:px-10 flex justify-center">Loading...</div>}>
       <SearchContent />
     </Suspense>
   );

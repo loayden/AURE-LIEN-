@@ -244,10 +244,12 @@ function MobileMenu({
               Navigation
             </span>
             <motion.button
+              type="button"
               onClick={closeMenu}
               whileTap={{ scale:0.85 }}
               className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-white/45 transition-all duration-300 hover:text-white/80"
               style={{ background:"rgba(255,255,255,0.07)", border:"1px solid rgba(255,255,255,0.08)" }}
+              aria-label="Close menu"
             >
               <X strokeWidth={1.3} className="w-3.5 h-3.5" />
             </motion.button>
@@ -291,6 +293,7 @@ function MobileMenu({
                       style={{ background:"rgba(255,255,255,0.05)" }}
                       animate={{ rotate: activeSubmenu === idx ? 180 : 0 }}
                       transition={{ duration:0.3 }}
+                      aria-label={activeSubmenu === idx ? `Hide ${item.title} links` : `Show ${item.title} links`}
                     >
                       <ChevronDown strokeWidth={1.3} className="w-3 h-3" />
                     </motion.button>
@@ -407,7 +410,7 @@ export default function Navbar() {
         initial={{ y:-60, opacity:0 }}
         animate={{ y:0, opacity:1 }}
         transition={{ duration:0.7, ease:[0.22,1,0.36,1], delay:0.1 }}
-        className="fixed top-0 w-full z-50 transition-all duration-500"
+        className="fixed inset-x-0 top-0 z-50 transition-all duration-500"
         style={scrolled ? {
           background:"linear-gradient(135deg, rgba(10,10,12,0.7) 0%, rgba(6,6,8,0.75) 100%)",
           backdropFilter:"blur(32px) saturate(180%)",
@@ -425,13 +428,13 @@ export default function Navbar() {
         <div className="absolute inset-x-0 top-0 h-px pointer-events-none"
              style={{ background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.08) 30%, rgba(255,255,255,0.08) 70%, transparent)" }} />
 
-        <div className="mx-auto flex h-[62px] max-w-[1440px] items-center justify-between px-4 sm:h-[64px] sm:px-6 md:px-10">
+        <div className="mx-auto flex h-[54px] max-w-[1440px] items-center justify-between px-3 sm:h-[58px] sm:px-5 md:px-8">
 
           {/* Logo */}
           <Link href="/" className="group relative flex-shrink-0">
             <span
               className="font-light text-white/80 group-hover:text-white transition-colors duration-500 tracking-[0.4em] uppercase"
-              style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(0.9rem, 3.2vw, 1rem)" }}
+              style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(0.78rem, 2.6vw, 0.92rem)" }}
             >
               AURÉLIEN
             </span>
@@ -494,6 +497,7 @@ export default function Navbar() {
               onClick={() => setSearchOpen(true)}
               whileTap={{ scale:0.88 }}
               className="relative group flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-white/50 transition-colors duration-300 hover:text-white/85"
+              aria-label="Open search"
             >
               <span className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     style={{ background:"rgba(255,255,255,0.06)" }} />
@@ -502,10 +506,11 @@ export default function Navbar() {
 
             {/* Hamburger */}
             <motion.button
+              type="button"
               onClick={() => setMobileOpen(!mobileOpen)}
               whileTap={{ scale:0.88 }}
               className="relative group ml-0.5 flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-white/50 transition-colors duration-300 hover:text-white/85"
-              aria-label="Toggle menu"
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
             >
               <span className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     style={{ background:"rgba(255,255,255,0.06)" }} />

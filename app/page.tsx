@@ -35,31 +35,31 @@ const BENEFITS = [
   {
     title: "Luxury Presence, Preserved",
     description:
-      "Your boutique is introduced inside a composed environment built to elevate perception rather than compete through marketplace noise.",
+      "Your boutique appears in a composed setting designed to elevate perception.",
     points: [
-      "Editorial presentation for premium discovery",
-      "A calmer context for high-value collections",
-      "Brand voice preserved across the experience",
+      "Editorial discovery",
+      "Calmer product context",
+      "Brand voice preserved",
     ],
   },
   {
     title: "Growth With Restraint",
     description:
-      "Reach a more relevant client without sacrificing the tone, selectivity, or pricing confidence that make your assortment distinctive.",
+      "Reach the right client without diluting tone, selectivity, or price confidence.",
     points: [
-      "Selective exposure instead of volume-driven traffic",
-      "Stronger alignment between audience and product",
-      "A platform rhythm designed for considered shopping",
+      "Selective exposure",
+      "Better audience fit",
+      "Considered shopping rhythm",
     ],
   },
   {
     title: "Operational Calm",
     description:
-      "The experience is structured to remove friction for both your team and your clients, from onboarding to order flow.",
+      "Reduce friction for both your team and your clients from onboarding to order flow.",
     points: [
       "Simpler partner onboarding",
-      "Clear merchandising and fulfilment flow",
-      "Less manual friction behind the scenes",
+      "Clear fulfilment flow",
+      "Less manual work",
     ],
   },
 ];
@@ -70,21 +70,21 @@ const STEPS = [
     title: "Align",
     subtitle: "Your point of view comes first.",
     description:
-      "We begin with your brand perspective, assortment priorities, and the type of client experience you want to create.",
+      "We define the brand direction, assortment focus, and client experience first.",
   },
   {
     number: "02",
     title: "Present",
     subtitle: "A cleaner digital expression of your boutique.",
     description:
-      "Your collection is translated into a more refined online environment with stronger hierarchy, better context, and premium pacing.",
+      "Your collection is translated into a cleaner, more refined digital presentation.",
   },
   {
     number: "03",
     title: "Grow",
     subtitle: "Reach expands without diluting identity.",
     description:
-      "Clients discover your pieces in a setting designed to feel elevated on mobile and desktop, then move through a clearer purchase journey.",
+      "Clients discover the collection in a clearer setting and move through a smoother purchase path.",
   },
 ];
 
@@ -93,19 +93,19 @@ const PLATFORM_PERSPECTIVES = [
     label: "Refined Discovery",
     title: "A calmer environment for premium product.",
     description:
-      "The visual rhythm is intentionally quieter, allowing product, material, and story to carry more weight than cluttered promotional mechanics.",
+      "A quieter product stage where material, cut, and story carry the weight.",
   },
   {
     label: "Selective Context",
     title: "Positioning that supports perceived value.",
     description:
-      "Every section is designed to feel aligned, coherent, and intentional so collections appear in the right company and within the right tone.",
+      "Collections sit in aligned company and within the right tone.",
   },
   {
     label: "Mobile Comfort",
     title: "Luxury browsing that still feels easy in the hand.",
     description:
-      "Spacing, hierarchy, and touch targets are structured to make smaller screens feel polished, readable, and relaxed rather than cramped.",
+      "Spacing and touch targets keep mobile browsing polished, readable, and relaxed.",
   },
 ];
 
@@ -113,17 +113,17 @@ const PLATFORM_EXPERIENCE_POINTS = [
   {
     title: "A more considered presence",
     description:
-      "Your collections are displayed in an environment designed to feel calm, structured, and visually confident, allowing each piece to stand on its own.",
+      "Collections appear in a calm, structured setting where each piece can stand on its own.",
   },
   {
     title: "Clarity in presentation",
     description:
-      "Product organization, descriptions, and layout are arranged to highlight value without overwhelming the viewer, supporting a more intentional browsing experience.",
+      "Product layout and copy highlight value without overwhelming the viewer.",
   },
   {
     title: "Consistency in positioning",
     description:
-      "From first discovery to final selection, your boutique is represented with a tone that reflects premium standards, maintaining the same level of perception your brand holds in-store.",
+      "From discovery to checkout, the tone stays aligned with your in-store standard.",
   },
 ];
 
@@ -132,25 +132,25 @@ const PARTNERSHIP_STANDARDS = [
     label: "Editorial Positioning",
     title: "A premium brand environment from the first impression.",
     description:
-      "Your collection is presented with refined storytelling, disciplined visual direction, and a merchandising approach that protects perceived value.",
+      "Your collection is shown with refined storytelling and disciplined visual direction.",
   },
   {
     label: "Selective Curation",
     title: "Every placement supports quality, coherence, and trust.",
     description:
-      "We focus on alignment over volume, ensuring each featured piece contributes to a clear luxury point of view rather than marketplace noise.",
+      "We focus on alignment over volume so every placement supports a clear luxury point of view.",
   },
   {
     label: "Operational Ease",
     title: "A lighter workflow for boutiques with higher expectations.",
     description:
-      "From onboarding to order flow, the system is structured to reduce manual friction so your team can focus on product and client relationships.",
+      "The system reduces manual friction so your team can focus on product and client relationships.",
   },
   {
     label: "Client Experience",
     title: "Service that feels consistent with the products you sell.",
     description:
-      "Customers discover collections in a calm, elevated environment designed to build confidence, encourage intent, and support repeat engagement.",
+      "Customers browse in a calm environment built to support confidence and intent.",
   },
 ];
 
@@ -319,7 +319,7 @@ export default function AureLienPlatform() {
         {/* ── MAIN HERO SECTION ── */}
         <section
           ref={heroRef}
-          className="relative min-h-[72vh] sm:min-h-[82vh] md:min-h-[92vh] flex items-center pt-20 sm:pt-28 md:pt-36 pb-12 sm:pb-20 md:pb-28 px-4 sm:px-6 md:px-10 overflow-hidden"
+          className="relative flex min-h-[72vh] items-center overflow-hidden px-4 pb-12 pt-14 sm:min-h-[82vh] sm:px-6 sm:pb-20 sm:pt-[4.5rem] md:min-h-[92vh] md:px-10 md:pb-28 md:pt-24"
         >
           <video
             autoPlay
@@ -369,16 +369,14 @@ export default function AureLienPlatform() {
               </h1>
 
               <p
-                className="sh3 mx-auto max-w-2xl font-light leading-relaxed text-white/62"
+                className="sh3 mx-auto max-w-xl font-light leading-relaxed text-white/62"
                 style={{
-                  fontSize: "clamp(12px, 3vw, 17px)",
+                  fontSize: "clamp(10px, 2.5vw, 14px)",
                   letterSpacing: "0.03em",
                 }}
               >
-                AURE-LIEN gives independent boutiques a more composed digital presence:
-                stronger brand presentation, more selective visibility, and a shopping
-                experience that feels calm, elevated, and comfortable on mobile from the
-                first touch.
+                AURE-LIEN gives independent boutiques a calmer, more selective digital
+                presence built for stronger presentation and easier mobile discovery.
               </p>
 
               <motion.div
@@ -443,31 +441,26 @@ export default function AureLienPlatform() {
                   lineHeight: 0.98,
                 }}
               >
-                For boutiques that want digital growth to feel as considered as the
-                in-store experience.
+                Digital growth should feel as refined as the in-store experience.
               </h2>
               <p
                 className="text-white/62 leading-relaxed mb-4 sm:mb-5"
                 style={{
-                  fontSize: "clamp(12px, 2.5vw, 15px)",
+                  fontSize: "clamp(11px, 2.2vw, 14px)",
                   letterSpacing: "0.025em",
                 }}
               >
-                AURE-LIEN is built for brands that care about atmosphere, restraint, and
-                perception. Instead of placing product inside a generic retail shell, the
-                platform creates a quieter stage for your assortment, materials, and
-                point of view.
+                AURE-LIEN gives premium boutiques a quieter digital stage for product,
+                material, and brand point of view.
               </p>
               <p
                 className="text-white/58 leading-relaxed"
                 style={{
-                  fontSize: "clamp(11px, 2.3vw, 14px)",
+                  fontSize: "clamp(10px, 2vw, 13px)",
                   letterSpacing: "0.025em",
                 }}
               >
-                That matters most on mobile, where clients increasingly discover premium
-                brands first. The experience should feel readable, spacious, and
-                intentional in the hand, not dense, hurried, or over-designed.
+                On mobile, the experience stays readable, spacious, and intentional.
               </p>
             </motion.div>
 
@@ -502,9 +495,9 @@ export default function AureLienPlatform() {
                     {item.title}
                   </h3>
                   <p
-                    className="text-white/42 leading-relaxed"
+                    className="text-white/58 leading-relaxed"
                     style={{
-                      fontSize: "clamp(11px, 2vw, 13px)",
+                      fontSize: "clamp(10px, 1.9vw, 12px)",
                       letterSpacing: "0.025em",
                     }}
                   >
@@ -547,15 +540,14 @@ export default function AureLienPlatform() {
               To <span style={{ color: "#C6A962" }}>Expand Your Reach</span>
             </h2>
             <p
-              className="text-white/35 font-light max-w-2xl mx-auto"
+              className="text-white/58 font-light max-w-xl mx-auto"
               style={{
-                fontSize: "clamp(11px, 2.4vw, 14px)",
+                fontSize: "clamp(10px, 2vw, 12px)",
                 letterSpacing: "0.04em",
               }}
             >
-              The goal is not simply more visibility. It is stronger positioning,
-              cleaner presentation, and an experience that supports premium commerce
-              without asking your brand to behave like a mass-market storefront.
+              More visibility matters only when it comes with stronger positioning and a
+              cleaner premium experience.
             </p>
           </motion.div>
 
@@ -634,15 +626,13 @@ export default function AureLienPlatform() {
               <em style={{ color: "#C6A962", fontStyle: "italic" }}>Unfolds</em>
             </h2>
             <p
-              className="text-white/35 font-light max-w-2xl mx-auto"
+              className="text-white/58 font-light max-w-xl mx-auto"
               style={{
-                fontSize: "clamp(11px, 2.4vw, 14px)",
+                fontSize: "clamp(10px, 2vw, 12px)",
                 letterSpacing: "0.04em",
               }}
             >
-              The process is intentionally straightforward: align on the brand, shape
-              the presentation, and create a commerce experience that supports both
-              elegance and conversion.
+              The path is simple: align the brand, shape the presentation, and support conversion cleanly.
             </p>
           </motion.div>
 
@@ -732,25 +722,21 @@ export default function AureLienPlatform() {
               <p
                 className="text-white/62 leading-relaxed mb-4 sm:mb-5"
                 style={{
-                  fontSize: "clamp(12px, 2.5vw, 15px)",
+                  fontSize: "clamp(11px, 2.2vw, 14px)",
                   letterSpacing: "0.025em",
                 }}
               >
-                Premium commerce no longer lives only in physical spaces. The platform is
-                built to translate the presence of your boutique into a refined digital
-                experience, where your collections are presented with clarity, structure,
-                and intention.
+                The platform translates the presence of your boutique into a refined
+                digital experience with clarity, structure, and intention.
               </p>
               <p
-                className="text-white/36 leading-relaxed"
+                className="text-white/58 leading-relaxed"
                 style={{
-                  fontSize: "clamp(11px, 2.2vw, 13px)",
+                  fontSize: "clamp(10px, 2vw, 12px)",
                   letterSpacing: "0.02em",
                 }}
               >
-                Visibility should not come at the cost of identity. The objective is to
-                provide a space where your products are discovered in a way that feels
-                aligned with the quality and positioning you have built offline.
+                Visibility should support identity, not weaken it.
               </p>
             </motion.div>
 
@@ -826,14 +812,13 @@ export default function AureLienPlatform() {
               <em style={{ color: "#C6A962", fontStyle: "italic" }}>Standard</em>
             </h2>
             <p
-              className="mt-3 text-white/35 font-light max-w-2xl mx-auto"
+              className="mt-3 max-w-xl mx-auto text-white/58 font-light"
               style={{
-                fontSize: "clamp(11px, 2.5vw, 14px)",
+                fontSize: "clamp(10px, 2vw, 12px)",
                 letterSpacing: "0.04em",
               }}
             >
-              From brand presentation to fulfilment rhythm, each layer is shaped to keep
-              the partnership elevated, consistent, and commercially credible.
+              Each layer is shaped to keep the partnership elevated, consistent, and commercially credible.
             </p>
             <div
               className="mt-3 sm:mt-4 mx-auto w-8 h-px"
@@ -947,15 +932,13 @@ export default function AureLienPlatform() {
               </em>
             </h2>
             <p
-              className="text-white/35 font-light max-w-2xl mx-auto"
+              className="text-white/58 font-light max-w-xl mx-auto"
               style={{
-                fontSize: "clamp(11px, 2.5vw, 14px)",
+                fontSize: "clamp(10px, 2vw, 12px)",
                 letterSpacing: "0.04em",
               }}
             >
-              A live preview of how product is discovered inside the platform: calmer
-              browsing, cleaner controls, and a presentation style designed to keep
-              quality at the center.
+              A preview of calmer browsing, cleaner controls, and product-led presentation.
             </p>
           </motion.div>
 

@@ -359,7 +359,7 @@ export default function CollectionPage() {
         </section>
 
         {/* ── STICKY NAV (Mobile optimized) ── */}
-        <div className="sticky top-20 sm:top-24 z-40 sticky-nav py-4 px-4 sm:px-6 md:px-10 flex justify-center overflow-x-auto">
+        <div className="sticky top-14 z-40 flex justify-center overflow-x-auto px-4 py-4 sticky-nav sm:top-16 sm:px-6 md:px-10">
           <GlassNav active={activeSection} onChange={setActiveSection} />
         </div>
 

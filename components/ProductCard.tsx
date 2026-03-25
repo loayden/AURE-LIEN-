@@ -451,6 +451,7 @@ export default function ProductCard({
       onMouseLeave={onMouseLeave}
       role={productHref ? "link" : undefined}
       tabIndex={productHref ? 0 : -1}
+      aria-label={productHref ? `Open ${product.name}` : undefined}
       style={{
         rotateX: rX, rotateY: rY,
         transformStyle: "preserve-3d",
@@ -563,6 +564,7 @@ export default function ProductCard({
                 key={i}
                 type="button"
                 onClick={e => { e.stopPropagation(); goTo(i, i > current ? 1 : -1); setPaused(true); setTimeout(() => setPaused(false), 4000); }}
+                aria-label={`Show image ${i + 1} of ${count} for ${product.name}`}
                 className="relative flex-1 overflow-hidden"
                 style={{ height: 1.5, borderRadius: 9999, background: "rgba(255,255,255,0.15)" }}
               >
