@@ -1,5 +1,6 @@
 "use client";
 
+import { useOverlayIsolation } from "@/components/useOverlayIsolation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
@@ -21,6 +22,7 @@ import {
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 const SearchOverlay = dynamic(() => import("./SearchOverlay"));
 
@@ -179,13 +181,27 @@ function MobileMenu({
   setActiveSubmenu: (i: number | null) => void;
   closeMenu: () => void;
 }) {
-  return (
+  const [portalReady, setPortalReady] = useState(false);
+
+  useOverlayIsolation(true);
+
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
+
+  if (!portalReady) return null;
+
+  return createPortal(
     <motion.div
       initial={{ opacity:0 }}
       animate={{ opacity:1 }}
       exit={{ opacity:0 }}
       transition={{ duration:0.3 }}
       className="fixed inset-0 z-[60] md:hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Navigation menu"
+      data-overlay-root="true"
     >
       {/* Backdrop */}
       <motion.div
@@ -362,6 +378,7 @@ function MobileMenu({
         </div>
       </motion.div>
     </motion.div>
+    , document.body
   );
 }
 

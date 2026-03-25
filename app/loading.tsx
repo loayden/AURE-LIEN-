@@ -11,11 +11,11 @@ export default function Loading() {
       `}</style>
 
       <div
-        className="min-h-screen bg-[#080808] flex items-center justify-center"
+        className="relative flex min-h-[calc(100svh-64px)] items-center justify-center bg-[#080808]"
         style={{ fontFamily:"'Jost', sans-serif" }}
       >
         {/* Ambient glow */}
-        <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div style={{
             position:"absolute", width:340, height:340,
             top:"50%", left:"50%", transform:"translate(-50%,-50%)",

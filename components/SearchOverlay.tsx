@@ -1,11 +1,13 @@
 "use client";
 
+import { useOverlayIsolation } from "@/components/useOverlayIsolation";
 import { searchCatalogProducts } from "@/lib/searchProducts";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Search, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 
 interface SearchProduct {
   _id: string;
@@ -23,6 +25,7 @@ export default function SearchOverlay({
   onClose: () => void;
 }) {
   const [q, setQ] = useState("");
+  const [portalReady, setPortalReady] = useState(false);
   const deferredQuery = useDeferredValue(q);
   const trimmedQuery = deferredQuery.trim();
   const loading = q.trim() !== trimmedQuery;
@@ -30,6 +33,12 @@ export default function SearchOverlay({
     () => (trimmedQuery ? searchCatalogProducts(trimmedQuery, { limit: 12 }) : []),
     [trimmedQuery]
   );
+
+  useOverlayIsolation(open);
+
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
 
   useEffect(() => { if (!open) setQ(""); }, [open]);
 
@@ -45,7 +54,9 @@ export default function SearchOverlay({
     };
   }, [open, onClose]);
 
-  return (
+  if (!portalReady) return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
@@ -55,6 +66,10 @@ export default function SearchOverlay({
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
           className="fixed inset-0 z-[100] flex flex-col"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Search"
+          data-overlay-root="true"
           style={{
             background: "rgba(4,4,5,0.88)",
             backdropFilter: "blur(36px) saturate(160%)",
@@ -313,5 +328,6 @@ export default function SearchOverlay({
         </motion.div>
       )}
     </AnimatePresence>
+    , document.body
   );
 }

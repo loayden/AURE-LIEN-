@@ -75,7 +75,7 @@ export default function LuxuryFooter() {
             </Link>
             <div className="w-10 h-px"
                  style={{ background:"linear-gradient(90deg, rgba(198,169,98,0.7), transparent)" }} />
-            <p className="max-w-none text-[11px] font-light leading-relaxed tracking-[0.08em] text-white/30 sm:max-w-[220px] sm:text-sm">
+            <p className="max-w-none text-[11px] font-light leading-relaxed tracking-[0.08em] text-white/55 sm:max-w-[220px] sm:text-sm">
               Crafted in silence. Designed with discipline. A study in structure, presence, and restraint.
             </p>
 
@@ -107,14 +107,14 @@ export default function LuxuryFooter() {
 
           {/* Collections nav */}
           <div className="flex flex-col gap-5">
-            <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase">Collections</p>
+            <p className="text-white/55 text-[9px] tracking-[0.45em] uppercase">Collections</p>
             <div className="w-6 h-px" style={{ background:"rgba(198,169,98,0.4)" }} />
             <ul className="flex flex-col gap-3">
               {NAV_COLLECTIONS.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="group flex min-h-[44px] min-w-[44px] items-center gap-2 text-white/40 transition-all duration-300 hover:text-white/80"
+                    className="group flex min-h-[44px] min-w-[44px] items-center gap-2 text-white/72 transition-all duration-300 hover:text-white"
                     style={{ fontSize:"0.75rem", letterSpacing:"0.08em" }}
                   >
                     <span className="w-3 h-px transition-all duration-300 group-hover:w-5"
@@ -128,14 +128,14 @@ export default function LuxuryFooter() {
 
           {/* Service nav */}
           <div className="flex flex-col gap-5">
-            <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase">Customer Service</p>
+            <p className="text-white/55 text-[9px] tracking-[0.45em] uppercase">Customer Service</p>
             <div className="w-6 h-px" style={{ background:"rgba(198,169,98,0.4)" }} />
             <ul className="flex flex-col gap-3">
               {NAV_SERVICE.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="group flex min-h-[44px] min-w-[44px] items-center gap-2 text-white/40 transition-all duration-300 hover:text-white/80"
+                    className="group flex min-h-[44px] min-w-[44px] items-center gap-2 text-white/72 transition-all duration-300 hover:text-white"
                     style={{ fontSize:"0.75rem", letterSpacing:"0.08em" }}
                   >
                     <span className="w-3 h-px transition-all duration-300 group-hover:w-5"
@@ -149,9 +149,9 @@ export default function LuxuryFooter() {
 
           {/* Newsletter */}
           <div className="flex flex-col gap-5">
-            <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase">Private Access</p>
+            <p className="text-white/55 text-[9px] tracking-[0.45em] uppercase">Private Access</p>
             <div className="w-6 h-px" style={{ background:"rgba(198,169,98,0.4)" }} />
-            <p className="text-[11px] font-light leading-relaxed tracking-[0.08em] text-white/30 sm:text-sm">
+            <p className="text-[11px] font-light leading-relaxed tracking-[0.08em] text-white/55 sm:text-sm">
               Join the Maison.<br />Receive exclusive releases.
             </p>
 
@@ -182,7 +182,7 @@ export default function LuxuryFooter() {
                   onChange={(e) => setEmail(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleJoin()}
                   placeholder="Your email"
-                  className="flex-1 bg-transparent px-4 py-3 text-base tracking-[0.12em] text-white/60 outline-none placeholder:text-white/20 sm:text-sm"
+                  className="flex-1 bg-transparent px-4 py-3 text-base tracking-[0.12em] text-white/80 outline-none placeholder:text-white/45 sm:text-sm"
                   style={{ fontFamily:"'Jost', sans-serif" }}
                 />
                 <motion.button
@@ -191,16 +191,16 @@ export default function LuxuryFooter() {
                   whileTap={{ scale:0.95 }}
                   className="flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 border-t border-white/10 px-4 py-3 transition-all duration-300 sm:border-l sm:border-t-0 sm:gap-3"
                 >
-                  <span className="text-[9px] tracking-[0.3em] uppercase font-light text-white/30 hover:text-[#C6A962] transition-colors">
+                  <span className="text-[9px] tracking-[0.3em] uppercase font-light text-white/70 hover:text-[#C6A962] transition-colors">
                     Join
                   </span>
-                  <ArrowRight strokeWidth={1.3} className="w-3 h-3 text-white/25" />
+                  <ArrowRight strokeWidth={1.3} className="w-3 h-3 text-white/55" />
                 </motion.button>
               </div>
             )}
 
             {/* Privacy note */}
-            <p className="text-white/15 text-[9px] tracking-[0.2em] leading-relaxed">
+            <p className="text-white/40 text-[9px] tracking-[0.2em] leading-relaxed">
               No spam. Unsubscribe any time.
             </p>
           </div>
@@ -223,7 +223,7 @@ export default function LuxuryFooter() {
             className="flex flex-col items-center sm:items-start gap-1 cursor-pointer select-none"
             style={{ opacity:0.6, transition:"opacity 0.3s" }}
           >
-            <span className="text-white/30 text-[8px] tracking-[0.35em] uppercase font-light">Instagram</span>
+            <span className="text-white/45 text-[8px] tracking-[0.35em] uppercase font-light">Instagram</span>
             <span className="tracking-[0.24em] text-[10px] font-light uppercase text-[#C6A962] sm:text-xs">
               @AURELIEN.CLOTHES
             </span>
@@ -238,7 +238,7 @@ export default function LuxuryFooter() {
           <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5">
             {LEGAL_LINKS.map((item) => (
               <Link key={item.label} href={item.href}
-                className="inline-flex min-h-[44px] min-w-[44px] items-center text-white/20 text-[9px] tracking-[0.25em] uppercase transition-colors duration-300 hover:text-white/50">
+                className="inline-flex min-h-[44px] min-w-[44px] items-center text-white/60 text-[9px] tracking-[0.25em] uppercase transition-colors duration-300 hover:text-white/85">
                 {item.label}
               </Link>
             ))}

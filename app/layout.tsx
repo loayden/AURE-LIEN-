@@ -31,11 +31,13 @@ const inter = Inter({
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
-      <body>
-        <Navbar />
-        {children}
-        <DeferredAIChatStylist />
-        <Footer />
+      <body className="bg-[#080808] text-white">
+        <div id="app-shell" className="flex min-h-screen flex-col">
+          <Navbar />
+          <div className="flex-1">{children}</div>
+          <DeferredAIChatStylist />
+          <Footer />
+        </div>
       </body>
     </html>
   )
