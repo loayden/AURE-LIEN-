@@ -417,7 +417,6 @@ export default function ProductCard({
   return (
     <motion.div
       ref={cardRef}
-      layout
       initial={false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
@@ -649,41 +648,33 @@ export default function ProductCard({
               )}
             </div>
 
-            <motion.button
+            <button
               type="button"
               onClick={toggleDetailsPanel}
-              whileTap={{ scale: 0.98 }}
+              aria-expanded={detailsOpen}
               className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full border border-white/10 px-4 py-3 text-[10px] uppercase tracking-[0.22em] text-white/72 transition-colors hover:text-white"
               style={{ fontFamily: "'Jost', sans-serif", background: "rgba(255,255,255,0.04)" }}
             >
               {detailsOpen ? "Less" : "More"}
-              <motion.span
-                animate={{ rotate: detailsOpen ? 180 : 0 }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
+              <span
+                style={{
+                  transform: `rotate(${detailsOpen ? 180 : 0}deg)`,
+                  transition: "transform 0.25s ease-out",
+                }}
               >
                 <ChevronDown strokeWidth={1.2} className="h-3.5 w-3.5" />
-              </motion.span>
-            </motion.button>
+              </span>
+            </button>
           </div>
         </div>
 
-        <AnimatePresence initial={false}>
-          {detailsOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="overflow-hidden"
-            >
-              <div className="flex flex-col gap-4 pt-1">
+        {detailsOpen ? (
+          <div className="flex flex-col gap-4 pt-1">
                 <div className="flex items-center justify-between gap-3">
                   {product.category ? (
-                    <motion.button
+                    <button
                       type="button"
                       onClick={openCategoryPage}
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.98 }}
                       className="inline-flex min-h-[44px] min-w-[44px] items-center rounded-full px-3.5 py-2 text-[9px] uppercase tracking-[0.26em] text-white/58 transition-colors hover:text-white"
                       style={{
                         background: "rgba(255,255,255,0.06)",
@@ -692,7 +683,7 @@ export default function ProductCard({
                       }}
                     >
                       {categoryLabel}
-                    </motion.button>
+                    </button>
                   ) : <span />}
 
                   <span
@@ -764,7 +755,7 @@ export default function ProductCard({
 
                 <div className="flex flex-wrap gap-2.5">
                   {sizes && sizes.length > 0 && (
-                    <motion.button
+                    <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -780,14 +771,13 @@ export default function ProductCard({
                         fontWeight: 400,
                         letterSpacing: "0.08em",
                       }}
-                      whileHover={{ scale: 1.05 }}
                     >
                       {resolvedSize ? `Size ${resolvedSize}` : "Select Size"}
-                    </motion.button>
+                    </button>
                   )}
 
                   {normalizedColors.length > 0 && (
-                    <motion.button
+                    <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -799,7 +789,6 @@ export default function ProductCard({
                         background: displayColorOption ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.04)",
                         border: selectedColorOption ? "1px solid rgba(198,169,98,0.34)" : "1px solid rgba(255,255,255,0.08)",
                       }}
-                      whileHover={{ scale: 1.1 }}
                       title={`Color: ${colorSummary}`}
                     >
                       {displayColorOption ? (
@@ -823,7 +812,7 @@ export default function ProductCard({
                           No Palette
                         </span>
                       )}
-                    </motion.button>
+                    </button>
                   )}
                 </div>
 
@@ -838,6 +827,7 @@ export default function ProductCard({
                     >
                       {sizes.map((size) => (
                         <button
+                          type="button"
                           key={size}
                           onClick={(e) => {
                             e.stopPropagation();
@@ -869,7 +859,8 @@ export default function ProductCard({
                       onClick={(e) => e.stopPropagation()}
                     >
                       {normalizedColors.map((color) => (
-                        <motion.button
+                        <button
+                          type="button"
                           key={color.hex}
                           onClick={(e) => {
                             e.stopPropagation();
@@ -882,11 +873,10 @@ export default function ProductCard({
                             borderColor: selectedColor === color.hex ? "#C6A962" : "transparent",
                             opacity: 0.9,
                           }}
-                          whileHover={{ scale: 1.15 }}
                           title={color.name}
                         >
                           <span className="sr-only">{color.name}</span>
-                        </motion.button>
+                        </button>
                       ))}
                     </motion.div>
                   )}
@@ -939,22 +929,20 @@ export default function ProductCard({
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">
-                    <motion.button
+                    <button
                       type="button"
                       onClick={handleViewDetails}
-                      whileTap={{ scale: 0.98 }}
                       className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full border border-white/10 px-4 py-3 text-[10px] uppercase tracking-[0.22em] text-white/72 transition-colors hover:text-white"
                       style={{ fontFamily: "'Jost', sans-serif", background: "rgba(255,255,255,0.04)" }}
                     >
                       Details
                       <ArrowRight strokeWidth={1.2} className="h-3.5 w-3.5" />
-                    </motion.button>
+                    </button>
 
-                    <motion.button
+                    <button
                       type="button"
                       onClick={handleAddToCart}
                       disabled={loading || outOfStock}
-                      whileTap={{ scale: 0.98 }}
                       className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full px-4 py-3 text-[10px] uppercase tracking-[0.22em] transition-all disabled:opacity-35"
                       style={{
                         fontFamily: "'Jost', sans-serif",
@@ -969,20 +957,13 @@ export default function ProductCard({
                       }}
                       aria-label={added ? "Added" : "Add to cart"}
                     >
-                      <motion.div
-                        animate={{ rotate: loading ? 360 : 0 }}
-                        transition={{ repeat: loading ? Infinity : 0, duration: 0.9, ease: "linear" }}
-                      >
-                        <ShoppingBag strokeWidth={1.25} className="h-4 w-4" />
-                      </motion.div>
+                      <ShoppingBag strokeWidth={1.25} className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
                       {added ? "Added" : "Add to Cart"}
-                    </motion.button>
+                    </button>
                   </div>
                 </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+          </div>
+        ) : null}
       </div>
 
       {/* Gold bottom accent line on hover */}
