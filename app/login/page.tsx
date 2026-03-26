@@ -6,27 +6,6 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-function Orbs() {
-  return (
-    <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-      <div style={{
-        position: "absolute", width: 380, height: 380, top: "-15%", right: "-10%",
-        background: "radial-gradient(circle, rgba(198,169,98,0.08) 0%, transparent 65%)",
-        filter: "blur(90px)", animation: "lgOA 22s ease-in-out infinite",
-      }} />
-      <div style={{
-        position: "absolute", width: 320, height: 320, bottom: "-10%", left: "-8%",
-        background: "radial-gradient(circle, rgba(150,140,220,0.06) 0%, transparent 65%)",
-        filter: "blur(80px)", animation: "lgOB 28s ease-in-out infinite",
-      }} />
-      <style>{`
-        @keyframes lgOA { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,25px)} }
-        @keyframes lgOB { 0%,100%{transform:translate(0,0)} 50%{transform:translate(35px,-20px)} }
-      `}</style>
-    </div>
-  );
-}
-
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -63,7 +42,6 @@ export default function LoginPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap');
         body { background: #080808; }
         ::selection { background: #C6A962; color: #080808; }
       `}</style>
@@ -72,7 +50,6 @@ export default function LoginPage() {
         className="relative min-h-screen bg-[#080808] flex items-center justify-center px-4 py-16 sm:px-6 sm:py-24 md:px-10"
         style={{ fontFamily: "'Jost', sans-serif" }}
       >
-        <Orbs />
 
         {/* Card */}
         <motion.div

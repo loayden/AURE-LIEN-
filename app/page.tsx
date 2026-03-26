@@ -154,39 +154,6 @@ const PARTNERSHIP_STANDARDS = [
   },
 ];
 
-function Orbs() {
-  return (
-    <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-      <motion.div
-        animate={{ opacity: [0.04, 0.08, 0.04] }}
-        transition={{ duration: 8, repeat: Infinity }}
-        style={{
-          position: "absolute",
-          width: "min(340px, 78vw)",
-          height: "min(340px, 78vw)",
-          top: "-18%",
-          right: "-15%",
-          background: "radial-gradient(circle, rgba(198,169,98,0.07) 0%, transparent 65%)",
-          filter: "blur(90px)",
-        }}
-      />
-      <motion.div
-        animate={{ opacity: [0.03, 0.06, 0.03] }}
-        transition={{ duration: 10, repeat: Infinity }}
-        style={{
-          position: "absolute",
-          width: "min(260px, 55vw)",
-          height: "min(260px, 55vw)",
-          bottom: "5%",
-          left: "-15%",
-          background: "radial-gradient(circle, rgba(150,140,220,0.05) 0%, transparent 65%)",
-          filter: "blur(80px)",
-        }}
-      />
-    </div>
-  );
-}
-
 interface FilterState {
   priceRange: number | null;
   search: string;
@@ -328,7 +295,6 @@ export default function AureLienPlatform() {
         className="relative bg-[#080808] text-white min-h-screen"
         style={{ fontFamily: "'Jost', sans-serif" }}
       >
-        <Orbs />
 
         {/* ── MAIN HERO SECTION ── */}
         <section

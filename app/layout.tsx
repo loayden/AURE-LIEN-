@@ -1,7 +1,9 @@
+import AmbientBackdrop from '@/components/AmbientBackdrop'
+import Cursor from '@/components/Cursor'
 import DeferredAIChatStylist from '@/components/DeferredAIChatStylist'
 import Footer from '@/components/Footer'
 import Navbar from '@/components/Navbar'
-import { Inter, Playfair_Display } from 'next/font/google'
+import { Cormorant_Garamond, Jost } from 'next/font/google'
 import './globals.css'
 
 export const metadata = {
@@ -16,23 +18,26 @@ export const metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'),
 }
 
-const playfair = Playfair_Display({
+const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
-  weight: ['400', '600', '700'],
-  variable: '--font-playfair',
+  weight: ['300', '400'],
+  style: ['normal', 'italic'],
+  variable: '--font-cormorant',
 })
 
-const inter = Inter({
+const jost = Jost({
   subsets: ['latin'],
-  weight: ['300', '400', '500'],
-  variable: '--font-inter',
+  weight: ['200', '300', '400'],
+  variable: '--font-jost',
 })
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
+    <html lang="en" className={`${cormorant.variable} ${jost.variable}`}>
       <body className="bg-[#080808] text-white">
-        <div id="app-shell" className="flex min-h-screen flex-col">
+        <AmbientBackdrop />
+        <Cursor />
+        <div id="app-shell" className="relative z-10 flex min-h-screen flex-col">
           <Navbar />
           <div className="flex-1 min-h-[calc(100svh-54px)] sm:min-h-[calc(100svh-58px)]">
             {children}

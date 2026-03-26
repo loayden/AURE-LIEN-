@@ -29,31 +29,6 @@ const PRICE_RANGES = [
   { label: "10,000+ EGP", mobileLabel: "10k+", min: 10000, max: Infinity },
 ];
 
-function Orbs() {
-  return (
-    <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-      <motion.div
-        animate={{ opacity: [0.04, 0.08, 0.04] }}
-        transition={{ duration: 8, repeat: Infinity }}
-        style={{
-          position: "absolute", width: 400, height: 400, top: "-18%", right: "-15%",
-          background: "radial-gradient(circle, rgba(198,169,98,0.07) 0%, transparent 65%)",
-          filter: "blur(100px)",
-        }}
-      />
-      <motion.div
-        animate={{ opacity: [0.03, 0.06, 0.03] }}
-        transition={{ duration: 10, repeat: Infinity }}
-        style={{
-          position: "absolute", width: 300, height: 300, bottom: "5%", left: "-15%",
-          background: "radial-gradient(circle, rgba(150,140,220,0.05) 0%, transparent 65%)",
-          filter: "blur(90px)",
-        }}
-      />
-    </div>
-  );
-}
-
 interface FilterState {
   priceRange: number | null;
   search: string;
@@ -157,7 +132,6 @@ export default function EnhancedShopPage() {
         className="relative bg-[#080808] text-white min-h-screen"
         style={{ fontFamily: "'Jost', sans-serif" }}
       >
-        <Orbs />
 
         {/* ── HERO HEADER (Mobile optimized) ── */}
         <section ref={heroRef} className="relative overflow-hidden px-4 pb-10 pt-10 sm:px-6 sm:pb-14 sm:pt-16 md:px-10 md:pb-24 md:pt-24">

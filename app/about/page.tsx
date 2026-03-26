@@ -6,32 +6,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
 
-function Orbs() {
-  return (
-    <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-      <div style={{
-        position:"absolute", width:380, height:380, top:"-15%", right:"-10%",
-        background:"radial-gradient(circle, rgba(198,169,98,0.07) 0%, transparent 65%)",
-        filter:"blur(90px)", animation:"abOA 26s ease-in-out infinite",
-      }} />
-      <div style={{
-        position:"absolute", width:320, height:320, bottom:"5%", left:"-8%",
-        background:"radial-gradient(circle, rgba(150,140,220,0.05) 0%, transparent 65%)",
-        filter:"blur(80px)", animation:"abOB 33s ease-in-out infinite",
-      }} />
-      <div style={{
-        position:"absolute", width:400, height:400, top:"40%", left:"45%",
-        background:"radial-gradient(circle, rgba(198,169,98,0.04) 0%, transparent 65%)",
-        filter:"blur(70px)", animation:"abOA 20s ease-in-out infinite reverse",
-      }} />
-      <style>{`
-        @keyframes abOA { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-28px,22px)} }
-        @keyframes abOB { 0%,100%{transform:translate(0,0)} 50%{transform:translate(32px,-18px)} }
-      `}</style>
-    </div>
-  );
-}
-
 /* ── Stat card ── */
 function Stat({ value, label }: { value: string; label: string }) {
   return (
@@ -101,14 +75,12 @@ export default function AboutPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap');
         body { background: #080808; }
         ::selection { background: #C6A962; color: #080808; }
       `}</style>
 
       <main className="relative bg-[#080808] text-white min-h-screen overflow-x-hidden"
             style={{ fontFamily:"'Jost', sans-serif" }}>
-        <Orbs />
 
         {/* ══════════════════════════════════════
             HERO

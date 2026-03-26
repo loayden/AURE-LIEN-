@@ -539,18 +539,19 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$
 ;
 ;
 const dataFilePath = __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$lib$2f$dataPaths$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["paths"].cart;
-let cart = [];
-// Load cart data from file if exists
-try {
-    if (__TURBOPACK__imported__module__$5b$externals$5d2f$fs__$5b$external$5d$__$28$fs$2c$__cjs$29$__["default"].existsSync(dataFilePath)) {
+function readCart() {
+    try {
+        if (!__TURBOPACK__imported__module__$5b$externals$5d2f$fs__$5b$external$5d$__$28$fs$2c$__cjs$29$__["default"].existsSync(dataFilePath)) {
+            return [];
+        }
         const fileData = __TURBOPACK__imported__module__$5b$externals$5d2f$fs__$5b$external$5d$__$28$fs$2c$__cjs$29$__["default"].readFileSync(dataFilePath, 'utf-8');
-        cart = JSON.parse(fileData);
+        const parsed = JSON.parse(fileData);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch  {
+        return [];
     }
-} catch  {
-    cart = [];
 }
-// Helper to save cart to file
-function saveCart() {
+function saveCart(cart) {
     try {
         __TURBOPACK__imported__module__$5b$externals$5d2f$fs__$5b$external$5d$__$28$fs$2c$__cjs$29$__["default"].writeFileSync(dataFilePath, JSON.stringify(cart, null, 2), 'utf-8');
     } catch  {
@@ -559,6 +560,7 @@ function saveCart() {
 }
 async function GET(req) {
     const { userId, isNew } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$lib$2f$userSession$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["getOrCreateUserId"])(req);
+    const cart = readCart();
     let items = cart.filter((item)=>item.userId === userId);
     // Ensure all items have _id and basic product data
     items = items.map((item)=>{
@@ -571,7 +573,10 @@ async function GET(req) {
     const res = __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
         items
     }, {
-        status: 200
+        status: 200,
+        headers: {
+            "Cache-Control": "no-store, max-age=0"
+        }
     });
     if (isNew) (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$lib$2f$userSession$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["attachUserCookie"])(res, userId);
     return res;
@@ -579,6 +584,7 @@ async function GET(req) {
 async function POST(req) {
     const body = await req.json();
     const { userId, isNew } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$lib$2f$userSession$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["getOrCreateUserId"])(req);
+    const cart = readCart();
     const { productId, quantity, size, color } = body;
     if (!productId || typeof productId !== "string" || typeof quantity !== 'number') {
         return __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
@@ -591,7 +597,7 @@ async function POST(req) {
     const index = cart.findIndex((item)=>item.userId === userId && item.productId === productId && (item.size || null) === (size || null) && (item.color || null) === (color || null));
     if (index !== -1) {
         cart[index].quantity += quantity;
-        saveCart();
+        saveCart(cart);
         const res = __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             item: cart[index]
         }, {
@@ -610,7 +616,7 @@ async function POST(req) {
             color: color || null
         };
         cart.push(newItem);
-        saveCart();
+        saveCart(cart);
         const res = __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
             item: newItem
         }, {
@@ -623,6 +629,7 @@ async function POST(req) {
 async function PUT(req) {
     const body = await req.json();
     const { userId, isNew } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$lib$2f$userSession$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["getOrCreateUserId"])(req);
+    const cart = readCart();
     const { productId, quantity, size, color } = body;
     if (!productId || typeof productId !== "string" || typeof quantity !== "number") {
         return __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
@@ -638,7 +645,7 @@ async function PUT(req) {
         status: 404
     });
     cart[index].quantity = quantity;
-    saveCart();
+    saveCart(cart);
     const res = __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
         item: cart[index]
     }, {
@@ -649,6 +656,7 @@ async function PUT(req) {
 }
 async function DELETE(req) {
     const { userId, isNew } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$lib$2f$userSession$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["getOrCreateUserId"])(req);
+    let cart = readCart();
     const body = await req.json().catch(()=>({}));
     const { productId, size, color } = body ?? {};
     if (productId) {
@@ -663,7 +671,7 @@ async function DELETE(req) {
         // delete all items for the user
         cart = cart.filter((item)=>item.userId !== userId);
     }
-    saveCart();
+    saveCart(cart);
     const res = __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
         success: true
     }, {

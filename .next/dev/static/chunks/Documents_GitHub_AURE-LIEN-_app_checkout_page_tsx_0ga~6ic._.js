@@ -229,6 +229,7 @@ function CheckoutPage() {
                 "CheckoutPage.useEffect": async ()=>{
                     setLoading(true);
                     try {
+                        // Try draft first
                         const draftRes = await fetch("/api/checkout-draft");
                         const draftData = await draftRes.json();
                         const draft = draftData.draft;
@@ -255,6 +256,7 @@ function CheckoutPage() {
                             setLoading(false);
                             return;
                         }
+                        // Try sessionStorage checkoutItems
                         const checkoutJson = ("TURBOPACK compile-time truthy", 1) ? sessionStorage.getItem("checkoutItems") : "TURBOPACK unreachable";
                         if (checkoutJson) {
                             const items = JSON.parse(checkoutJson);
@@ -276,6 +278,7 @@ function CheckoutPage() {
                                 return;
                             }
                         }
+                        // Try sessionStorage selectedOrder
                         const selectedJson = ("TURBOPACK compile-time truthy", 1) ? sessionStorage.getItem("selectedOrder") : "TURBOPACK unreachable";
                         if (selectedJson) {
                             const sel = JSON.parse(selectedJson);
@@ -310,8 +313,14 @@ function CheckoutPage() {
                                 return;
                             }
                         }
+                        // Finally try the cart API, which resolves anonymous users from the server cookie.
                         setFromCart(true);
-                        const res = await fetch("/api/cart");
+                        const res = await fetch("/api/cart", {
+                            cache: "no-store"
+                        });
+                        if (!res.ok) {
+                            throw new Error(`Cart request failed with status ${res.status}`);
+                        }
                         const cartData = await res.json();
                         const items = cartData.items || [];
                         if (!Array.isArray(items) || items.length === 0) {
@@ -320,10 +329,11 @@ function CheckoutPage() {
                             setLoading(false);
                             return;
                         }
+                        // ✅ MAP ITEMS TO FULL PRODUCT DETAILS (IMPORTANT!)
                         setCart(items.map({
                             "CheckoutPage.useEffect": (i)=>{
                                 const p = __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$lib$2f$productsData$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].find({
-                                    "CheckoutPage.useEffect.p": (p)=>p._id === i.productId
+                                    "CheckoutPage.useEffect.p": (p)=>String(p._id) === String(i.productId)
                                 }["CheckoutPage.useEffect.p"]);
                                 return {
                                     _id: i.productId,
@@ -337,7 +347,8 @@ function CheckoutPage() {
                                 };
                             }
                         }["CheckoutPage.useEffect"]));
-                    } catch  {
+                    } catch (err) {
+                        console.error("Failed to load checkout:", err);
                         setError("Failed to load checkout data.");
                     } finally{
                         setLoading(false);
@@ -386,7 +397,7 @@ function CheckoutPage() {
                 method: "DELETE"
             });
         } catch  {
-        // swallow cancel errors – this is a best-effort cleanup
+        // swallow cancel errors
         } finally{
             router.push("/cart");
         }
@@ -396,11 +407,13 @@ function CheckoutPage() {
         setError("");
         setSuccess("");
         setSubmitting(true);
+        // ✅ Validate cart
         if (!cart.length) {
             setError("No products to order.");
             setSubmitting(false);
             return;
         }
+        // ✅ Validate form fields
         const required = [
             [
                 "email",
@@ -434,22 +447,32 @@ function CheckoutPage() {
                 return;
             }
         }
-        // preserve variants (size/color) in order payload
-        const products = cart.map((item)=>{
-            const id = item.productId || item._id;
-            if (!id || (item.quantity ?? 0) <= 0) return null;
-            return {
-                _id: id,
+        // ✅ BUILD ITEMS ARRAY WITH FULL DETAILS (NOT JUST _id!)
+        const items = cart.filter((item)=>item.productId && (item.quantity ?? 0) > 0).map((item)=>({
+                productId: item.productId || item._id,
+                name: item.name,
+                price: item.price,
                 quantity: item.quantity,
-                size: item.size ?? null,
-                color: item.color ?? null
-            };
-        }).filter(Boolean);
-        if (!products.length) {
-            setError("No valid items.");
+                size: item.size || "One Size",
+                color: item.color || "Default",
+                image: item.image || "/images/placeholder.svg"
+            }));
+        if (!items.length) {
+            setError("No valid items in cart.");
             setSubmitting(false);
             return;
         }
+        console.log("📤 Sending order payload:", {
+            items,
+            total,
+            customerInfo: {
+                email: form.email,
+                name: `${form.firstName} ${form.lastName}`,
+                address: form.address,
+                city: form.city,
+                phone: form.phone
+            }
+        });
         try {
             const res = await fetch("/api/saveorder", {
                 method: "POST",
@@ -457,10 +480,13 @@ function CheckoutPage() {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    customer: {
+                    items,
+                    total,
+                    customerInfo: {
                         email: form.email,
                         firstName: form.firstName,
                         lastName: form.lastName,
+                        name: `${form.firstName} ${form.lastName}`,
                         address: form.address,
                         apartment: form.apartment || undefined,
                         city: form.city,
@@ -470,19 +496,17 @@ function CheckoutPage() {
                         newsletter: form.newsletter,
                         shippingMethod: form.shippingMethod,
                         shippingCost
-                    },
-                    products,
-                    total,
-                    status: "Completed",
-                    createdAt: new Date().toISOString()
+                    }
                 })
             });
+            const data = await res.json();
+            console.log("📥 Server response:", data);
             if (!res.ok) {
-                const d = await res.json().catch(()=>({}));
-                throw new Error(d?.error || "Failed to place order");
+                throw new Error(data?.error || "Failed to place order");
             }
             setSuccess("Order placed successfully.");
             setCart([]);
+            // ✅ Clear cart data
             if ("TURBOPACK compile-time truthy", 1) {
                 sessionStorage.removeItem("checkoutItems");
                 sessionStorage.removeItem("selectedOrder");
@@ -491,14 +515,15 @@ function CheckoutPage() {
                 method: "DELETE"
             });
             if (fromCart) await fetch("/api/cart", {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({})
+                method: "DELETE"
             });
-            setTimeout(()=>router.push("/orders"), 1800);
+            const placedOrderId = typeof data?.orderId === "string" ? data.orderId : "";
+            // Redirect to the freshly placed order
+            setTimeout(()=>{
+                router.push(placedOrderId ? `/orders?orderId=${encodeURIComponent(placedOrderId)}` : "/orders");
+            }, 1800);
         } catch (err) {
+            console.error("❌ Order error:", err);
             setError(err.message || "Failed to place order.");
         } finally{
             setSubmitting(false);
@@ -525,12 +550,12 @@ function CheckoutPage() {
             children: "Loading Checkout…"
         }, void 0, false, {
             fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-            lineNumber: 293,
+            lineNumber: 397,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-        lineNumber: 292,
+        lineNumber: 396,
         columnNumber: 5
     }, this);
     /* ── Success overlay ── */ if (success) return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -576,17 +601,17 @@ function CheckoutPage() {
                             }
                         }, void 0, false, {
                             fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                            lineNumber: 314,
+                            lineNumber: 418,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                        lineNumber: 312,
+                        lineNumber: 416,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                    lineNumber: 311,
+                    lineNumber: 415,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -605,13 +630,13 @@ function CheckoutPage() {
                             children: "Confirmed"
                         }, void 0, false, {
                             fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                            lineNumber: 318,
+                            lineNumber: 422,
                             columnNumber: 17
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                    lineNumber: 317,
+                    lineNumber: 421,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -619,18 +644,18 @@ function CheckoutPage() {
                     children: "Redirecting to your orders…"
                 }, void 0, false, {
                     fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                    lineNumber: 320,
+                    lineNumber: 424,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-            lineNumber: 304,
+            lineNumber: 408,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-        lineNumber: 303,
+        lineNumber: 407,
         columnNumber: 5
     }, this);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
@@ -677,7 +702,7 @@ function CheckoutPage() {
       `
             }, void 0, false, {
                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                lineNumber: 327,
+                lineNumber: 431,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -688,7 +713,7 @@ function CheckoutPage() {
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(Orbs, {}, void 0, false, {
                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                        lineNumber: 368,
+                        lineNumber: 472,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -713,7 +738,7 @@ function CheckoutPage() {
                                         children: "Final Step"
                                     }, void 0, false, {
                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                        lineNumber: 374,
+                                        lineNumber: 478,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
@@ -733,13 +758,13 @@ function CheckoutPage() {
                                                 children: "out"
                                             }, void 0, false, {
                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                lineNumber: 377,
+                                                lineNumber: 481,
                                                 columnNumber: 20
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                        lineNumber: 375,
+                                        lineNumber: 479,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -749,13 +774,13 @@ function CheckoutPage() {
                                         }
                                     }, void 0, false, {
                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                        lineNumber: 379,
+                                        lineNumber: 483,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                lineNumber: 373,
+                                lineNumber: 477,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$components$2f$AnimatePresence$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AnimatePresence"], {
@@ -782,17 +807,17 @@ function CheckoutPage() {
                                         children: error
                                     }, void 0, false, {
                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                        lineNumber: 388,
+                                        lineNumber: 492,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                    lineNumber: 385,
+                                    lineNumber: 489,
                                     columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                lineNumber: 383,
+                                lineNumber: 487,
                                 columnNumber: 11
                             }, this),
                             cart.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -821,7 +846,7 @@ function CheckoutPage() {
                                                         className: "w-4 h-4"
                                                     }, void 0, false, {
                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                        lineNumber: 401,
+                                                        lineNumber: 505,
                                                         columnNumber: 39
                                                     }, this),
                                                     title: "Contact",
@@ -839,13 +864,13 @@ function CheckoutPage() {
                                                                         children: "Sign in"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                        lineNumber: 405,
+                                                                        lineNumber: 509,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                lineNumber: 403,
+                                                                lineNumber: 507,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -857,7 +882,7 @@ function CheckoutPage() {
                                                                 required: true
                                                             }, void 0, false, {
                                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                lineNumber: 407,
+                                                                lineNumber: 511,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -869,7 +894,7 @@ function CheckoutPage() {
                                                                         onChange: (e)=>update("newsletter", e.target.checked)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                        lineNumber: 409,
+                                                                        lineNumber: 513,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -877,29 +902,29 @@ function CheckoutPage() {
                                                                         children: "Email me with news and offers"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                        lineNumber: 410,
+                                                                        lineNumber: 514,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                lineNumber: 408,
+                                                                lineNumber: 512,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                        lineNumber: 402,
+                                                        lineNumber: 506,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                    lineNumber: 401,
+                                                    lineNumber: 505,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                lineNumber: 400,
+                                                lineNumber: 504,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["motion"].div, {
@@ -921,7 +946,7 @@ function CheckoutPage() {
                                                         className: "w-4 h-4"
                                                     }, void 0, false, {
                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                        lineNumber: 420,
+                                                        lineNumber: 524,
                                                         columnNumber: 39
                                                     }, this),
                                                     title: "Delivery",
@@ -937,12 +962,12 @@ function CheckoutPage() {
                                                                     children: "Egypt"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                    lineNumber: 423,
+                                                                    lineNumber: 527,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                lineNumber: 422,
+                                                                lineNumber: 526,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -957,7 +982,7 @@ function CheckoutPage() {
                                                                         required: true
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                        lineNumber: 426,
+                                                                        lineNumber: 530,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -969,13 +994,13 @@ function CheckoutPage() {
                                                                         required: true
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                        lineNumber: 427,
+                                                                        lineNumber: 531,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                lineNumber: 425,
+                                                                lineNumber: 529,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -987,7 +1012,7 @@ function CheckoutPage() {
                                                                 required: true
                                                             }, void 0, false, {
                                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                lineNumber: 429,
+                                                                lineNumber: 533,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -997,7 +1022,7 @@ function CheckoutPage() {
                                                                 onChange: (e)=>update("apartment", e.target.value)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                lineNumber: 430,
+                                                                lineNumber: 534,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1012,7 +1037,7 @@ function CheckoutPage() {
                                                                         required: true
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                        lineNumber: 432,
+                                                                        lineNumber: 536,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1022,13 +1047,13 @@ function CheckoutPage() {
                                                                         onChange: (e)=>update("postalCode", e.target.value)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                        lineNumber: 433,
+                                                                        lineNumber: 537,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                lineNumber: 431,
+                                                                lineNumber: 535,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1040,23 +1065,23 @@ function CheckoutPage() {
                                                                 required: true
                                                             }, void 0, false, {
                                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                lineNumber: 435,
+                                                                lineNumber: 539,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                        lineNumber: 421,
+                                                        lineNumber: 525,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                    lineNumber: 420,
+                                                    lineNumber: 524,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                lineNumber: 419,
+                                                lineNumber: 523,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["motion"].div, {
@@ -1078,7 +1103,7 @@ function CheckoutPage() {
                                                         className: "w-4 h-4"
                                                     }, void 0, false, {
                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                        lineNumber: 442,
+                                                        lineNumber: 546,
                                                         columnNumber: 39
                                                     }, this),
                                                     title: "Shipping Method",
@@ -1105,7 +1130,7 @@ function CheckoutPage() {
                                                                             onChange: ()=>update("shippingMethod", "within_egypt")
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                            lineNumber: 455,
+                                                                            lineNumber: 559,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1115,7 +1140,7 @@ function CheckoutPage() {
                                                                                     children: "Within egypt"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                                    lineNumber: 459,
+                                                                                    lineNumber: 563,
                                                                                     columnNumber: 29
                                                                                 }, this),
                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1123,19 +1148,19 @@ function CheckoutPage() {
                                                                                     children: "Standard Delivery · 2–3 days"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                                    lineNumber: 460,
+                                                                                    lineNumber: 564,
                                                                                     columnNumber: 29
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                            lineNumber: 458,
+                                                                            lineNumber: 562,
                                                                             columnNumber: 27
                                                                         }, this)
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                    lineNumber: 454,
+                                                                    lineNumber: 558,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1148,28 +1173,28 @@ function CheckoutPage() {
                                                                     children: "EGP 75"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                    lineNumber: 463,
+                                                                    lineNumber: 567,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                            lineNumber: 444,
+                                                            lineNumber: 548,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                        lineNumber: 443,
+                                                        lineNumber: 547,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                    lineNumber: 442,
+                                                    lineNumber: 546,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                lineNumber: 441,
+                                                lineNumber: 545,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["motion"].div, {
@@ -1210,7 +1235,7 @@ function CheckoutPage() {
                                                                     children: submitting ? "Placing Order…" : "Place Order"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                    lineNumber: 487,
+                                                                    lineNumber: 591,
                                                                     columnNumber: 23
                                                                 }, this),
                                                                 !submitting && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$chevron$2d$right$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ChevronRight$3e$__["ChevronRight"], {
@@ -1218,13 +1243,13 @@ function CheckoutPage() {
                                                                     className: "w-4 h-4 text-[#C6A962]"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                    lineNumber: 490,
+                                                                    lineNumber: 594,
                                                                     columnNumber: 39
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                            lineNumber: 474,
+                                                            lineNumber: 578,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1234,24 +1259,24 @@ function CheckoutPage() {
                                                             children: "Cancel Checkout"
                                                         }, void 0, false, {
                                                             fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                            lineNumber: 492,
+                                                            lineNumber: 596,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                    lineNumber: 473,
+                                                    lineNumber: 577,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                lineNumber: 472,
+                                                lineNumber: 576,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                        lineNumber: 397,
+                                        lineNumber: 501,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["motion"].div, {
@@ -1286,7 +1311,7 @@ function CheckoutPage() {
                                                         }
                                                     }, void 0, false, {
                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                        lineNumber: 510,
+                                                        lineNumber: 614,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1294,7 +1319,7 @@ function CheckoutPage() {
                                                         children: "Your Order"
                                                     }, void 0, false, {
                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                        lineNumber: 513,
+                                                        lineNumber: 617,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -1313,13 +1338,13 @@ function CheckoutPage() {
                                                                 children: "Summary"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                lineNumber: 515,
+                                                                lineNumber: 619,
                                                                 columnNumber: 27
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                        lineNumber: 514,
+                                                        lineNumber: 618,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1341,7 +1366,7 @@ function CheckoutPage() {
                                                                                 sizes: "56px"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                                lineNumber: 524,
+                                                                                lineNumber: 628,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1353,13 +1378,13 @@ function CheckoutPage() {
                                                                                 children: item.quantity
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                                lineNumber: 526,
+                                                                                lineNumber: 630,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                        lineNumber: 522,
+                                                                        lineNumber: 626,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1374,7 +1399,7 @@ function CheckoutPage() {
                                                                                 children: item.name
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                                lineNumber: 532,
+                                                                                lineNumber: 636,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             (item.size || item.color) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1395,13 +1420,13 @@ function CheckoutPage() {
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                                lineNumber: 537,
+                                                                                lineNumber: 641,
                                                                                 columnNumber: 29
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                        lineNumber: 531,
+                                                                        lineNumber: 635,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1412,18 +1437,18 @@ function CheckoutPage() {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                        lineNumber: 543,
+                                                                        lineNumber: 647,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, `${item._id}-${item.size || "nosize"}-${item.color || "nocolor"}-${i}`, true, {
                                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                lineNumber: 521,
+                                                                lineNumber: 625,
                                                                 columnNumber: 23
                                                             }, this))
                                                     }, void 0, false, {
                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                        lineNumber: 519,
+                                                        lineNumber: 623,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1433,7 +1458,7 @@ function CheckoutPage() {
                                                         }
                                                     }, void 0, false, {
                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                        lineNumber: 551,
+                                                        lineNumber: 655,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1447,7 +1472,7 @@ function CheckoutPage() {
                                                                         children: "Subtotal"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                        lineNumber: 556,
+                                                                        lineNumber: 660,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1458,13 +1483,13 @@ function CheckoutPage() {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                        lineNumber: 557,
+                                                                        lineNumber: 661,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                lineNumber: 555,
+                                                                lineNumber: 659,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1475,7 +1500,7 @@ function CheckoutPage() {
                                                                         children: "Shipping"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                        lineNumber: 560,
+                                                                        lineNumber: 664,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1486,19 +1511,19 @@ function CheckoutPage() {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                        lineNumber: 561,
+                                                                        lineNumber: 665,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                lineNumber: 559,
+                                                                lineNumber: 663,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                        lineNumber: 554,
+                                                        lineNumber: 658,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1513,7 +1538,7 @@ function CheckoutPage() {
                                                                 children: "Total"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                lineNumber: 568,
+                                                                lineNumber: 672,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1530,19 +1555,19 @@ function CheckoutPage() {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                lineNumber: 569,
+                                                                lineNumber: 673,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                        lineNumber: 566,
+                                                        lineNumber: 670,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                lineNumber: 508,
+                                                lineNumber: 612,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1554,7 +1579,7 @@ function CheckoutPage() {
                                                             className: "w-3.5 h-3.5"
                                                         }, void 0, false, {
                                                             fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                            lineNumber: 578,
+                                                            lineNumber: 682,
                                                             columnNumber: 28
                                                         }, this),
                                                         text: "Secure checkout"
@@ -1565,7 +1590,7 @@ function CheckoutPage() {
                                                             className: "w-3.5 h-3.5"
                                                         }, void 0, false, {
                                                             fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                            lineNumber: 579,
+                                                            lineNumber: 683,
                                                             columnNumber: 28
                                                         }, this),
                                                         text: "Free returns on all orders"
@@ -1576,7 +1601,7 @@ function CheckoutPage() {
                                                             className: "w-3.5 h-3.5"
                                                         }, void 0, false, {
                                                             fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                            lineNumber: 580,
+                                                            lineNumber: 684,
                                                             columnNumber: 28
                                                         }, this),
                                                         text: "Authentic pieces, guaranteed"
@@ -1589,7 +1614,7 @@ function CheckoutPage() {
                                                                 children: b.icon
                                                             }, void 0, false, {
                                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                lineNumber: 583,
+                                                                lineNumber: 687,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1597,30 +1622,30 @@ function CheckoutPage() {
                                                                 children: b.text
                                                             }, void 0, false, {
                                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                                lineNumber: 584,
+                                                                lineNumber: 688,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, i, true, {
                                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                        lineNumber: 582,
+                                                        lineNumber: 686,
                                                         columnNumber: 21
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                lineNumber: 576,
+                                                lineNumber: 680,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                        lineNumber: 504,
+                                        lineNumber: 608,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                lineNumber: 394,
+                                lineNumber: 498,
                                 columnNumber: 13
                             }, this) : /* ── Empty ── */ /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["motion"].div, {
                                 initial: {
@@ -1647,12 +1672,12 @@ function CheckoutPage() {
                                             className: "w-7 h-7 text-white/20"
                                         }, void 0, false, {
                                             fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                            lineNumber: 596,
+                                            lineNumber: 700,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                        lineNumber: 594,
+                                        lineNumber: 698,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -1671,13 +1696,13 @@ function CheckoutPage() {
                                                 children: "checkout"
                                             }, void 0, false, {
                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                                lineNumber: 600,
+                                                lineNumber: 704,
                                                 columnNumber: 28
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                        lineNumber: 598,
+                                        lineNumber: 702,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1685,7 +1710,7 @@ function CheckoutPage() {
                                         children: "Add items to your cart first."
                                     }, void 0, false, {
                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                        lineNumber: 602,
+                                        lineNumber: 706,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
@@ -1699,25 +1724,25 @@ function CheckoutPage() {
                                         children: "Continue Shopping"
                                     }, void 0, false, {
                                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                        lineNumber: 603,
+                                        lineNumber: 707,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                                lineNumber: 592,
+                                lineNumber: 696,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                        lineNumber: 370,
+                        lineNumber: 474,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/checkout/page.tsx",
-                lineNumber: 367,
+                lineNumber: 471,
                 columnNumber: 7
             }, this)
         ]

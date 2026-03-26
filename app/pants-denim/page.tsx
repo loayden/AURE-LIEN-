@@ -17,27 +17,6 @@ const MATERIALS = [
   { label: "Balanced Proportions", detail: "Engineered for movement and posture" },
 ];
 
-function Orbs() {
-  return (
-    <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-      <div style={{
-        position: "absolute", width: 380, height: 380, top: "-12%", right: "-12%",
-        background: "radial-gradient(circle, rgba(198,169,98,0.07) 0%, transparent 65%)",
-        filter: "blur(90px)", animation: "pOA 22s ease-in-out infinite",
-      }} />
-      <div style={{
-        position: "absolute", width: 320, height: 320, bottom: "8%", left: "-8%",
-        background: "radial-gradient(circle, rgba(150,140,210,0.05) 0%, transparent 65%)",
-        filter: "blur(80px)", animation: "pOB 29s ease-in-out infinite",
-      }} />
-      <style>{`
-        @keyframes pOA { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-35px,28px)} }
-        @keyframes pOB { 0%,100%{transform:translate(0,0)} 50%{transform:translate(42px,-22px)} }
-      `}</style>
-    </div>
-  );
-}
-
 export default function PantsPage() {
   const heroRef = useRef<HTMLElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -52,7 +31,6 @@ export default function PantsPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap');
         body { background: #080808; }
 
         @keyframes fadeUp {
@@ -91,7 +69,6 @@ export default function PantsPage() {
         className="relative bg-[#080808] text-white min-h-screen"
         style={{ fontFamily: "'Jost', sans-serif" }}
       >
-        <Orbs />
 
         {/* ── HERO ── */}
         <section ref={heroRef} className="relative mobile-safe-hero w-full overflow-hidden flex items-center justify-center text-center">

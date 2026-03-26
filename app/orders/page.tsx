@@ -6,23 +6,6 @@ import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-function Orbs() {
-  return (
-    <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-      <div style={{ position:"absolute", width:380, height:380, top:"-12%", right:"-10%",
-        background:"radial-gradient(circle, rgba(198,169,98,0.07) 0%, transparent 65%)",
-        filter:"blur(90px)", animation:"orOA 25s ease-in-out infinite" }} />
-      <div style={{ position:"absolute", width:320, height:320, bottom:"8%", left:"-8%",
-        background:"radial-gradient(circle, rgba(150,140,220,0.05) 0%, transparent 65%)",
-        filter:"blur(80px)", animation:"orOB 31s ease-in-out infinite" }} />
-      <style>{`
-        @keyframes orOA { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,25px)} }
-        @keyframes orOB { 0%,100%{transform:translate(0,0)} 50%{transform:translate(35px,-20px)} }
-      `}</style>
-    </div>
-  );
-}
-
 /* ── Status badge ── */
 function StatusBadge({ status }: { status: string }) {
   const isPending = status === "pending";
@@ -286,13 +269,11 @@ export default function OrdersPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap');
         body { background: #080808; }
         ::selection { background: #C6A962; color: #080808; }
       `}</style>
 
       <div className="relative min-h-screen bg-[#080808] text-white" style={{ fontFamily:"'Jost', sans-serif" }}>
-        <Orbs />
 
         <div className="relative z-10 mx-auto max-w-4xl px-4 pt-16 pb-16 sm:px-6 sm:pt-24 sm:pb-24 md:px-10 md:pb-32">
 

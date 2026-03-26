@@ -1,25 +1,38 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+
+const HOVER_SELECTOR =
+  "a,button,input,select,textarea,label,[role='button'],[data-cursor='hover']"
 
 export default function Cursor() {
-  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const cursorRef = useRef<HTMLDivElement>(null)
+  const [hoverActive, setHoverActive] = useState(false)
 
   useEffect(() => {
-    const move = (e: MouseEvent) => {
-      setPosition({ x: e.clientX, y: e.clientY })
+    if (window.matchMedia('(pointer: coarse)').matches) return
+
+    const move = (event: MouseEvent) => {
+      if (cursorRef.current) {
+        cursorRef.current.style.transform = `translate3d(${event.clientX - 7}px, ${event.clientY - 7}px, 0)`
+      }
+
+      const nextHover =
+        event.target instanceof Element && Boolean(event.target.closest(HOVER_SELECTOR))
+
+      setHoverActive((current) => (current === nextHover ? current : nextHover))
     }
-    window.addEventListener('mousemove', move)
-    return () => window.removeEventListener('mousemove', move)
+
+    const leave = () => setHoverActive(false)
+
+    window.addEventListener('mousemove', move, { passive: true })
+    window.addEventListener('mouseleave', leave)
+
+    return () => {
+      window.removeEventListener('mousemove', move)
+      window.removeEventListener('mouseleave', leave)
+    }
   }, [])
 
-  return (
-    <div
-      className="luxury-cursor"
-      style={{
-        left: position.x - 7,
-        top: position.y - 7,
-      }}
-    />
-  )
+  return <div ref={cursorRef} className={`luxury-cursor${hoverActive ? ' hover-active' : ''}`} />
 }

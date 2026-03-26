@@ -20,9 +20,9 @@ const config: Config = {
         champagne: "#F7E7CE",
       },
       fontFamily: {
-        serif: ["var(--font-playfair)", "Playfair Display", "Georgia", "serif"],
-        sans: ["var(--font-inter)", "Inter", "Helvetica Neue", "sans-serif"],
-        editorial: ["var(--font-playfair)", "Canela", "serif"],
+        serif: ["var(--font-cormorant)", "Cormorant Garamond", "Georgia", "serif"],
+        sans: ["var(--font-jost)", "Jost", "Helvetica Neue", "sans-serif"],
+        editorial: ["var(--font-cormorant)", "Cormorant Garamond", "Georgia", "serif"],
       },
       fontSize: {
         "display-xl": ["clamp(3rem, 6vw, 5rem)", { lineHeight: "1.1", letterSpacing: "0.12em" }],

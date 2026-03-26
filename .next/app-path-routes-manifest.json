@@ -48,6 +48,7 @@
   "/cart/page": "/cart",
   "/checkout/page": "/checkout",
   "/collection/page": "/collection",
+  "/cookies/page": "/cookies",
   "/denim/page": "/denim",
   "/footwear/page": "/footwear",
   "/jackets-coats/page": "/jackets-coats",
@@ -62,6 +63,7 @@
   "/outfit-generator/page": "/outfit-generator",
   "/page": "/",
   "/pants-denim/page": "/pants-denim",
+  "/privacy/page": "/privacy",
   "/product/[id]/page": "/product/[id]",
   "/product/products/page": "/product/products",
   "/robots.txt/route": "/robots.txt",
@@ -73,5 +75,6 @@
   "/sneakers/page": "/sneakers",
   "/suits/page": "/suits",
   "/sunglasses/page": "/sunglasses",
+  "/terms/page": "/terms",
   "/wishlist/page": "/wishlist"
 }

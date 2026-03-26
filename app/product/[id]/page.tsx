@@ -532,7 +532,6 @@ export default function PremiumProductPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap');
         
         * {
           --gold: #C6A75E;
@@ -551,11 +550,6 @@ export default function PremiumProductPage() {
           to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes shimmer {
-          0% { transform: translateX(-100%) skewX(-12deg); }
-          100% { transform: translateX(250%) skewX(-12deg); }
-        }
-
         @keyframes float {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-8px); }
@@ -564,8 +558,6 @@ export default function PremiumProductPage() {
         .anim-hero { animation: fadeSlideUp 1s cubic-bezier(0.22,1,0.36,1) 0.1s both; }
         .anim-content { animation: fadeSlideUp 1s cubic-bezier(0.22,1,0.36,1) 0.3s both; }
         .anim-gallery { animation: fadeSlideUp 1.1s cubic-bezier(0.22,1,0.36,1) 0.5s both; }
-
-        .shimmer-btn:hover .shimmer-sweep { animation: shimmer 2.5s ease-in-out infinite; }
 
         .float-animation { animation: float 3s ease-in-out infinite; }
 
@@ -832,7 +824,7 @@ export default function PremiumProductPage() {
                   disabled={loading}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="shimmer-btn relative flex-1 overflow-hidden rounded-full py-5 px-8 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed font-light tracking-[0.15em] uppercase text-[11px]"
+                  className="relative flex-1 overflow-hidden rounded-full px-8 py-5 text-[11px] font-light uppercase tracking-[0.15em] disabled:cursor-not-allowed disabled:opacity-50"
                   style={added ? {
                     ...goldGlass,
                     transition: "all 0.5s cubic-bezier(0.22,1,0.36,1)",
@@ -841,13 +833,11 @@ export default function PremiumProductPage() {
                     transition: "all 0.5s cubic-bezier(0.22,1,0.36,1)",
                   }}
                 >
-                  <div
-                    className="shimmer-sweep absolute inset-0 pointer-events-none"
-                    style={{ background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.09) 50%, transparent 60%)" }}
-                  />
+                  <div className="shimmer absolute inset-0 pointer-events-none opacity-70" />
+                  <div className="relative z-10 flex items-center justify-center gap-3">
                   <ShoppingBag
                     strokeWidth={1.3}
-                    className="w-5 h-5 relative z-10"
+                    className="relative z-10 h-5 w-5"
                     style={{ color: added ? "#C6A962" : "rgba(255,255,255,0.7)" }}
                   />
                   <span
@@ -856,6 +846,7 @@ export default function PremiumProductPage() {
                   >
                     {loading ? "Adding…" : added ? "Added" : "Add to Cart"}
                   </span>
+                  </div>
                 </motion.button>
 
                 {/* Buy Now */}
@@ -863,17 +854,16 @@ export default function PremiumProductPage() {
                   onClick={handleBuyNow}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="shimmer-btn relative flex-1 overflow-hidden rounded-full py-5 px-8 flex items-center justify-center gap-3 font-light tracking-[0.15em] uppercase text-[11px]"
+                  className="relative flex-1 overflow-hidden rounded-full px-8 py-5 text-[11px] font-light uppercase tracking-[0.15em]"
                   style={goldGlass}
                 >
-                  <div
-                    className="shimmer-sweep absolute inset-0 pointer-events-none"
-                    style={{ background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.12) 50%, transparent 60%)" }}
-                  />
-                  <Zap strokeWidth={1.3} className="w-5 h-5 relative z-10" style={{ color: "#C6A962" }} />
-                  <span className="relative z-10" style={{ color: "#C6A962" }}>
-                    Buy Now
-                  </span>
+                  <div className="shimmer absolute inset-0 pointer-events-none opacity-80" />
+                  <div className="relative z-10 flex items-center justify-center gap-3">
+                    <Zap strokeWidth={1.3} className="relative z-10 h-5 w-5" style={{ color: "#C6A962" }} />
+                    <span className="relative z-10" style={{ color: "#C6A962" }}>
+                      Buy Now
+                    </span>
+                  </div>
                 </motion.button>
 
                 {/* Wishlist */}

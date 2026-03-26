@@ -1,6 +1,6 @@
 var R=require("../../../chunks/[turbopack]_runtime.js")("server/app/api/lookbooks/route.js")
-R.c("server/chunks/[root-of-the-server]__063a1d0a._.js")
-R.c("server/chunks/[root-of-the-server]__e9922dab._.js")
-R.c("server/chunks/7889e_AURE-LIEN-__next-internal_server_app_api_lookbooks_route_actions_fca52864.js")
-R.m(83611)
-module.exports=R.m(83611).exports
+R.c("server/chunks/[root-of-the-server]__0258lsy._.js")
+R.c("server/chunks/[root-of-the-server]__0j8-xkl._.js")
+R.c("server/chunks/_next-internal_server_app_api_lookbooks_route_actions_0r6gk40.js")
+R.m(75528)
+module.exports=R.m(75528).exports

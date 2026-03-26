@@ -303,7 +303,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
             rotateY: rY,
             transformStyle: "preserve-3d",
             perspective: 900,
-            borderRadius: 16,
+            borderRadius: 18,
             boxShadow: "0 1px 0 rgba(255,255,255,0.07), 0 24px 60px rgba(0,0,0,0.50)",
             border: "1px solid rgba(255,255,255,0.07)"
         },
@@ -355,7 +355,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                                 src: images[current],
                                 alt: `${product.name} — ${current + 1}`,
                                 fill: true,
-                                sizes: "(max-width:640px) 50vw, 25vw",
+                                sizes: "(max-width:640px) 46vw, (max-width:1024px) 33vw, 25vw",
                                 className: "object-cover",
                                 draggable: false,
                                 priority: current === 0
@@ -529,10 +529,10 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["motion"].button, {
                         type: "button",
                         onClick: toggleWishlist,
-                        className: "absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-30 flex items-center justify-center rounded-full",
+                        className: "absolute bottom-2.5 right-2.5 sm:bottom-4 sm:right-4 z-30 flex items-center justify-center rounded-full",
                         style: {
-                            width: 38,
-                            height: 38,
+                            width: 42,
+                            height: 42,
                             background: inWishlist ? "rgba(180,40,40,0.75)" : "rgba(0,0,0,0.42)",
                             backdropFilter: "blur(20px)",
                             border: inWishlist ? "1px solid rgba(255,80,80,0.35)" : "1px solid rgba(255,255,255,0.10)",
@@ -567,7 +567,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "relative z-10 px-4 pt-3.5 pb-3 flex flex-col gap-2",
+                className: "relative z-10 px-4 pt-4 pb-4 flex flex-col gap-2.5",
                 style: {
                     background: "linear-gradient(170deg, rgba(18,16,12,0.82) 0%, rgba(10,9,8,0.94) 100%)",
                     backdropFilter: "blur(36px) saturate(140%)",
@@ -591,7 +591,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                                 className: "font-light leading-snug line-clamp-1",
                                 style: {
                                     fontFamily: "'Cormorant Garamond', serif",
-                                    fontSize: "1.0rem",
+                                    fontSize: "clamp(1rem, 4vw, 1.08rem)",
                                     letterSpacing: "0.055em",
                                     color: "rgba(255,255,255,0.88)"
                                 },
@@ -654,7 +654,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                         columnNumber: 9
                     }, this),
                     product.category && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                        className: "text-[7px] tracking-[0.35em] uppercase",
+                        className: "text-[8px] tracking-[0.28em] uppercase",
                         style: {
                             fontFamily: "'Jost', sans-serif",
                             color: "rgba(255,255,255,0.22)"
@@ -673,7 +673,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                                     e.stopPropagation();
                                     setShowSizeSelector(!showSizeSelector);
                                 },
-                                className: "text-[10px] px-2 py-1 rounded-md transition-all",
+                                className: "text-[11px] px-2.5 py-1.5 rounded-lg transition-all",
                                 style: {
                                     background: selectedSize ? "rgba(198,169,98,0.3)" : "rgba(255,255,255,0.08)",
                                     color: selectedSize ? "#C6A962" : "rgba(255,255,255,0.6)",
@@ -696,7 +696,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                                     e.stopPropagation();
                                     setShowColorSelector(!showColorSelector);
                                 },
-                                className: "w-7 h-7 rounded-md transition-all border",
+                                className: "w-8 h-8 rounded-lg transition-all border",
                                 style: {
                                     background: selectedColor || normalizedColors[0].hex,
                                     border: selectedColor ? "2px solid #C6A962" : "1px solid rgba(255,255,255,0.2)",
@@ -739,7 +739,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                                         setSelectedSize(size);
                                         setShowSizeSelector(false);
                                     },
-                                    className: "text-[9px] px-2 py-1 rounded-md transition-all font-semibold uppercase tracking-wider",
+                                    className: "text-[10px] px-2.5 py-1.5 rounded-md transition-all font-semibold uppercase tracking-wider",
                                     style: {
                                         background: selectedSize === size ? "rgba(198,169,98,0.6)" : "rgba(255,255,255,0.08)",
                                         color: selectedSize === size ? "#fff" : "rgba(255,255,255,0.6)",
@@ -783,7 +783,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                                         setSelectedColor(color.hex);
                                         setShowColorSelector(false);
                                     },
-                                    className: "w-6 h-6 rounded-md transition-all border-2",
+                                    className: "w-7 h-7 rounded-md transition-all border-2",
                                     style: {
                                         background: color.hex,
                                         borderColor: selectedColor === color.hex ? "#C6A962" : "transparent",
@@ -809,7 +809,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "flex items-center justify-between gap-3 pt-2 border-t border-white/10",
+                        className: "flex items-center justify-between gap-3.5 pt-2.5 border-t border-white/10",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 children: product.discount ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
@@ -834,7 +834,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                                             className: "font-semibold leading-none mt-0.5",
                                             style: {
                                                 fontFamily: "'Cormorant Garamond', serif",
-                                                fontSize: "0.95rem",
+                                                fontSize: "1rem",
                                                 color: "#C6A962",
                                                 letterSpacing: "0.04em"
                                             },
@@ -867,7 +867,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                                             className: "font-light leading-none mt-0.5",
                                             style: {
                                                 fontFamily: "'Cormorant Garamond', serif",
-                                                fontSize: "1.05rem",
+                                                fontSize: "1.1rem",
                                                 color: "#C6A962",
                                                 letterSpacing: "0.04em"
                                             },
@@ -902,8 +902,8 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                                 },
                                 className: "flex items-center justify-center rounded-full transition-all duration-500 disabled:opacity-35",
                                 style: {
-                                    width: 36,
-                                    height: 36,
+                                    width: 42,
+                                    height: 42,
                                     background: added ? "linear-gradient(135deg, rgba(198,169,98,0.28), rgba(198,169,98,0.10))" : "rgba(255,255,255,0.07)",
                                     border: added ? "1px solid rgba(198,169,98,0.45)" : "1px solid rgba(255,255,255,0.10)",
                                     backdropFilter: "blur(12px)",
@@ -921,7 +921,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                                     },
                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$shopping$2d$bag$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__ShoppingBag$3e$__["ShoppingBag"], {
                                         strokeWidth: 1.25,
-                                        className: "w-3.5 h-3.5 transition-colors duration-400",
+                                        className: "w-4 h-4 transition-colors duration-400",
                                         style: {
                                             color: added ? "#C6A962" : "rgba(255,255,255,0.45)"
                                         }
@@ -1099,7 +1099,9 @@ function CartPage() {
             ({
                 "CartPage.useEffect": async ()=>{
                     try {
-                        const res = await fetch("/api/cart");
+                        const res = await fetch("/api/cart", {
+                            cache: "no-store"
+                        });
                         const cartItems = await res.json();
                         if (!cartItems.items || !Array.isArray(cartItems.items)) {
                             setItems([]);

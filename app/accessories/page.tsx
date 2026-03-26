@@ -18,29 +18,6 @@ const DETAILS = [
 ];
 
 /* ── Floating ambient orbs ── */
-function Orbs() {
-  return (
-    <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-      <div style={{
-        position: "absolute", width: 380, height: 380, top: "-10%", right: "-10%",
-        background: "radial-gradient(circle, rgba(198,169,98,0.07) 0%, transparent 65%)",
-        filter: "blur(90px)",
-        animation: "orbA 24s ease-in-out infinite",
-      }} />
-      <div style={{
-        position: "absolute", width: 320, height: 320, bottom: "15%", left: "-8%",
-        background: "radial-gradient(circle, rgba(160,140,220,0.05) 0%, transparent 65%)",
-        filter: "blur(80px)",
-        animation: "orbB 30s ease-in-out infinite",
-      }} />
-      <style>{`
-        @keyframes orbA { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,30px)} }
-        @keyframes orbB { 0%,100%{transform:translate(0,0)} 50%{transform:translate(50px,-25px)} }
-      `}</style>
-    </div>
-  );
-}
-
 export default function AccessoriesPage() {
   const parallaxRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
@@ -55,7 +32,6 @@ export default function AccessoriesPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap');
         body { background: #080808; }
 
         @keyframes fadeUp {
@@ -95,7 +71,6 @@ export default function AccessoriesPage() {
         className="relative bg-[#080808] text-white min-h-screen"
         style={{ fontFamily: "'Jost', sans-serif" }}
       >
-        <Orbs />
 
         {/* ── HERO ── */}
         <section ref={heroRef} className="relative mobile-safe-hero w-full overflow-hidden flex items-center justify-center text-center">

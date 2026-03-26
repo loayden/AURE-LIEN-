@@ -13,13 +13,9 @@ export default function GlobalError({
   return (
     <html lang="en">
       <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap"
-          rel="stylesheet"
-        />
         <style>{`
-          *, *::before, *::after { box-sizing: border-box; cursor: none; }
-          body { margin: 0; background: #080808; color: #fff; font-family: 'Jost', sans-serif; font-weight: 300; -webkit-font-smoothing: antialiased; }
+          *, *::before, *::after { box-sizing: border-box; }
+          body { margin: 0; background: #080808; color: #fff; font-family: 'Jost', 'Helvetica Neue', sans-serif; font-weight: 300; -webkit-font-smoothing: antialiased; }
           ::selection { background: #C6A962; color: #080808; }
 
           @keyframes errOA { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-28px,22px)} }
@@ -174,7 +170,7 @@ export default function GlobalError({
                     onClick={reset}
                     style={{
                       display:"inline-flex", alignItems:"center", gap:10,
-                      padding:"12px 32px", borderRadius:9999, cursor:"none",
+                      padding:"12px 32px", borderRadius:9999,
                       background:"linear-gradient(135deg, rgba(198,169,98,0.20), rgba(198,169,98,0.07))",
                       backdropFilter:"blur(16px)",
                       border:"1px solid rgba(198,169,98,0.32)",

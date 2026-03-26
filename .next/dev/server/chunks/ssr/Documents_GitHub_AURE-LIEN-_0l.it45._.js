@@ -279,7 +279,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
             rotateY: rY,
             transformStyle: "preserve-3d",
             perspective: 900,
-            borderRadius: 16,
+            borderRadius: 18,
             boxShadow: "0 1px 0 rgba(255,255,255,0.07), 0 24px 60px rgba(0,0,0,0.50)",
             border: "1px solid rgba(255,255,255,0.07)"
         },
@@ -331,7 +331,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                                 src: images[current],
                                 alt: `${product.name} — ${current + 1}`,
                                 fill: true,
-                                sizes: "(max-width:640px) 50vw, 25vw",
+                                sizes: "(max-width:640px) 46vw, (max-width:1024px) 33vw, 25vw",
                                 className: "object-cover",
                                 draggable: false,
                                 priority: current === 0
@@ -505,10 +505,10 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].button, {
                         type: "button",
                         onClick: toggleWishlist,
-                        className: "absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-30 flex items-center justify-center rounded-full",
+                        className: "absolute bottom-2.5 right-2.5 sm:bottom-4 sm:right-4 z-30 flex items-center justify-center rounded-full",
                         style: {
-                            width: 38,
-                            height: 38,
+                            width: 42,
+                            height: 42,
                             background: inWishlist ? "rgba(180,40,40,0.75)" : "rgba(0,0,0,0.42)",
                             backdropFilter: "blur(20px)",
                             border: inWishlist ? "1px solid rgba(255,80,80,0.35)" : "1px solid rgba(255,255,255,0.10)",
@@ -543,7 +543,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "relative z-10 px-4 pt-3.5 pb-3 flex flex-col gap-2",
+                className: "relative z-10 px-4 pt-4 pb-4 flex flex-col gap-2.5",
                 style: {
                     background: "linear-gradient(170deg, rgba(18,16,12,0.82) 0%, rgba(10,9,8,0.94) 100%)",
                     backdropFilter: "blur(36px) saturate(140%)",
@@ -567,7 +567,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                                 className: "font-light leading-snug line-clamp-1",
                                 style: {
                                     fontFamily: "'Cormorant Garamond', serif",
-                                    fontSize: "1.0rem",
+                                    fontSize: "clamp(1rem, 4vw, 1.08rem)",
                                     letterSpacing: "0.055em",
                                     color: "rgba(255,255,255,0.88)"
                                 },
@@ -630,7 +630,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                         columnNumber: 9
                     }, this),
                     product.category && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                        className: "text-[7px] tracking-[0.35em] uppercase",
+                        className: "text-[8px] tracking-[0.28em] uppercase",
                         style: {
                             fontFamily: "'Jost', sans-serif",
                             color: "rgba(255,255,255,0.22)"
@@ -649,7 +649,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                                     e.stopPropagation();
                                     setShowSizeSelector(!showSizeSelector);
                                 },
-                                className: "text-[10px] px-2 py-1 rounded-md transition-all",
+                                className: "text-[11px] px-2.5 py-1.5 rounded-lg transition-all",
                                 style: {
                                     background: selectedSize ? "rgba(198,169,98,0.3)" : "rgba(255,255,255,0.08)",
                                     color: selectedSize ? "#C6A962" : "rgba(255,255,255,0.6)",
@@ -672,7 +672,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                                     e.stopPropagation();
                                     setShowColorSelector(!showColorSelector);
                                 },
-                                className: "w-7 h-7 rounded-md transition-all border",
+                                className: "w-8 h-8 rounded-lg transition-all border",
                                 style: {
                                     background: selectedColor || normalizedColors[0].hex,
                                     border: selectedColor ? "2px solid #C6A962" : "1px solid rgba(255,255,255,0.2)",
@@ -715,7 +715,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                                         setSelectedSize(size);
                                         setShowSizeSelector(false);
                                     },
-                                    className: "text-[9px] px-2 py-1 rounded-md transition-all font-semibold uppercase tracking-wider",
+                                    className: "text-[10px] px-2.5 py-1.5 rounded-md transition-all font-semibold uppercase tracking-wider",
                                     style: {
                                         background: selectedSize === size ? "rgba(198,169,98,0.6)" : "rgba(255,255,255,0.08)",
                                         color: selectedSize === size ? "#fff" : "rgba(255,255,255,0.6)",
@@ -759,7 +759,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                                         setSelectedColor(color.hex);
                                         setShowColorSelector(false);
                                     },
-                                    className: "w-6 h-6 rounded-md transition-all border-2",
+                                    className: "w-7 h-7 rounded-md transition-all border-2",
                                     style: {
                                         background: color.hex,
                                         borderColor: selectedColor === color.hex ? "#C6A962" : "transparent",
@@ -785,7 +785,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                        className: "flex items-center justify-between gap-3 pt-2 border-t border-white/10",
+                        className: "flex items-center justify-between gap-3.5 pt-2.5 border-t border-white/10",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 children: product.discount ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
@@ -810,7 +810,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                                             className: "font-semibold leading-none mt-0.5",
                                             style: {
                                                 fontFamily: "'Cormorant Garamond', serif",
-                                                fontSize: "0.95rem",
+                                                fontSize: "1rem",
                                                 color: "#C6A962",
                                                 letterSpacing: "0.04em"
                                             },
@@ -843,7 +843,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                                             className: "font-light leading-none mt-0.5",
                                             style: {
                                                 fontFamily: "'Cormorant Garamond', serif",
-                                                fontSize: "1.05rem",
+                                                fontSize: "1.1rem",
                                                 color: "#C6A962",
                                                 letterSpacing: "0.04em"
                                             },
@@ -878,8 +878,8 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                                 },
                                 className: "flex items-center justify-center rounded-full transition-all duration-500 disabled:opacity-35",
                                 style: {
-                                    width: 36,
-                                    height: 36,
+                                    width: 42,
+                                    height: 42,
                                     background: added ? "linear-gradient(135deg, rgba(198,169,98,0.28), rgba(198,169,98,0.10))" : "rgba(255,255,255,0.07)",
                                     border: added ? "1px solid rgba(198,169,98,0.45)" : "1px solid rgba(255,255,255,0.10)",
                                     backdropFilter: "blur(12px)",
@@ -897,7 +897,7 @@ function ProductCard({ product, className = "", onWishlistUpdate, showRemoveFrom
                                     },
                                     children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$shopping$2d$bag$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ShoppingBag$3e$__["ShoppingBag"], {
                                         strokeWidth: 1.25,
-                                        className: "w-3.5 h-3.5 transition-colors duration-400",
+                                        className: "w-4 h-4 transition-colors duration-400",
                                         style: {
                                             color: added ? "#C6A962" : "rgba(255,255,255,0.45)"
                                         }
@@ -1014,17 +1014,17 @@ const COLLECTION_HIGHLIGHTS = [
 ];
 const LOOKBOOK_CHAPTERS = [
     {
-        image: "/uploads/Look1.jpg",
+        image: "/uploads/look1.jpg",
         chapter: "I",
         subtitle: "Autumn"
     },
     {
-        image: "/uploads/Look2.jpg",
+        image: "/uploads/look2.jpg",
         chapter: "II",
         subtitle: "Structure"
     },
     {
-        image: "/uploads/Look3.jpg",
+        image: "/uploads/look3.jpg",
         chapter: "III",
         subtitle: "Evening"
     }
@@ -1086,7 +1086,7 @@ function Home() {
                 children: [
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
                         ref: heroRef,
-                        className: "relative h-screen w-full overflow-hidden flex items-center justify-center",
+                        className: "relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].div, {
                                 style: {
@@ -1147,7 +1147,7 @@ function Home() {
                                 style: {
                                     opacity: heroOpacity
                                 },
-                                className: "relative z-10 flex flex-col items-center text-center px-6",
+                                className: "relative z-10 flex flex-col items-center text-center px-5 sm:px-6",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].span, {
                                         initial: {
@@ -1162,7 +1162,7 @@ function Home() {
                                             duration: 0.9,
                                             delay: 0.3
                                         },
-                                        className: "inline-block mb-8 px-5 py-2 rounded-full text-white/35 text-[9px] tracking-[0.45em] uppercase font-light",
+                                        className: "inline-block mb-6 sm:mb-8 px-4 sm:px-5 py-2 rounded-full text-white/35 text-[9px] tracking-[0.38em] uppercase font-light",
                                         style: {
                                             background: "linear-gradient(135deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03))",
                                             backdropFilter: "blur(20px)",
@@ -1197,7 +1197,7 @@ function Home() {
                                         className: "font-light text-white leading-none mb-6",
                                         style: {
                                             fontFamily: "'Cormorant Garamond', serif",
-                                            fontSize: "clamp(3.5rem, 9vw, 8rem)",
+                                            fontSize: "clamp(2.9rem, 14vw, 8rem)",
                                             letterSpacing: "0.04em",
                                             textShadow: "0 4px 48px rgba(0,0,0,0.35)"
                                         },
@@ -1238,10 +1238,10 @@ function Home() {
                                             duration: 0.9,
                                             delay: 0.7
                                         },
-                                        className: "text-white/35 font-light mb-10 max-w-xs leading-relaxed",
+                                        className: "text-white/35 font-light mb-8 sm:mb-10 max-w-sm leading-relaxed",
                                         style: {
-                                            fontSize: "0.85rem",
-                                            letterSpacing: "0.12em"
+                                            fontSize: "0.92rem",
+                                            letterSpacing: "0.08em"
                                         },
                                         children: "Refined menswear for those who speak through presence."
                                     }, void 0, false, {
@@ -1262,11 +1262,11 @@ function Home() {
                                             duration: 0.9,
                                             delay: 0.9
                                         },
-                                        className: "flex items-center gap-4",
+                                        className: "flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full sm:w-auto max-w-xs sm:max-w-none",
                                         children: [
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                                                 href: "/collection",
-                                                className: "inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full text-white text-[10px] font-light tracking-[0.28em] uppercase transition-all duration-500 hover:scale-[1.02]",
+                                                className: "inline-flex items-center justify-center gap-2.5 w-full sm:w-auto px-7 sm:px-8 py-3.5 rounded-full text-white text-[10px] font-light tracking-[0.24em] uppercase transition-all duration-500 hover:scale-[1.02]",
                                                 style: {
                                                     background: "linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.06))",
                                                     backdropFilter: "blur(20px) saturate(180%)",
@@ -1291,7 +1291,7 @@ function Home() {
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
                                                 href: "shop",
-                                                className: "px-6 py-3.5 rounded-full text-white/40 text-[10px] font-light tracking-[0.28em] uppercase border border-white/10 hover:border-white/22 hover:text-white/65 transition-all duration-400",
+                                                className: "w-full sm:w-auto text-center px-6 py-3.5 rounded-full text-white/40 text-[10px] font-light tracking-[0.24em] uppercase border border-white/10 hover:border-white/22 hover:text-white/65 transition-all duration-400",
                                                 children: "SHOP"
                                             }, void 0, false, {
                                                 fileName: "[project]/Documents/GitHub/AURE-LIEN-/app/page.tsx",
@@ -1311,7 +1311,7 @@ function Home() {
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-25 z-10",
+                                className: "absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-2 opacity-25 z-10",
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                         className: "text-white text-[8px] tracking-[0.4em] uppercase",
@@ -1342,7 +1342,7 @@ function Home() {
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
                         ref: stmtRef,
-                        className: "relative py-36 overflow-hidden",
+                        className: "relative py-24 sm:py-36 overflow-hidden",
                         style: {
                             background: "linear-gradient(180deg, #080808 0%, #0d0d0d 100%)"
                         },
@@ -1481,7 +1481,7 @@ function Home() {
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "relative z-10 mt-20 flex items-center justify-center gap-3 sm:gap-6 flex-wrap px-6",
+                                className: "relative z-10 mt-14 sm:mt-20 flex items-center justify-center gap-3 sm:gap-6 flex-wrap px-5 sm:px-6",
                                 children: [
                                     {
                                         value: "2025",
@@ -1511,7 +1511,7 @@ function Home() {
                                             delay: i * 0.1,
                                             duration: 0.75
                                         },
-                                        className: "px-7 py-4 rounded-2xl text-center",
+                                        className: "px-6 sm:px-7 py-4 rounded-2xl text-center",
                                         style: {
                                             background: "linear-gradient(135deg, rgba(198,169,98,0.10), rgba(198,169,98,0.03))",
                                             backdropFilter: "blur(18px)",
@@ -1558,7 +1558,7 @@ function Home() {
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
-                        className: "py-28 px-6 sm:px-12 bg-[#080808]",
+                        className: "py-20 sm:py-28 px-5 sm:px-12 bg-[#080808]",
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].div, {
                                 initial: {
@@ -1627,7 +1627,7 @@ function Home() {
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                className: "grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto",
+                                className: "grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-7xl mx-auto",
                                 children: COLLECTION_HIGHLIGHTS.map((item, i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$framer$2d$motion$2f$dist$2f$es$2f$render$2f$components$2f$motion$2f$proxy$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["motion"].div, {
                                         initial: {
                                             opacity: 0,
@@ -1654,7 +1654,7 @@ function Home() {
                                             href: item.link,
                                             className: "group block relative overflow-hidden",
                                             style: {
-                                                borderRadius: 24,
+                                                borderRadius: 20,
                                                 boxShadow: "0 20px 50px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.06)"
                                             },
                                             children: [
@@ -1696,7 +1696,7 @@ function Home() {
                                                     columnNumber: 19
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                    className: "absolute bottom-3 left-3 right-3 px-4 py-3 rounded-xl",
+                                                    className: "absolute bottom-3 left-3 right-3 px-3.5 sm:px-4 py-3 rounded-xl",
                                                     style: {
                                                         background: "linear-gradient(135deg, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.03) 100%)",
                                                         backdropFilter: "blur(16px)",
@@ -1704,7 +1704,7 @@ function Home() {
                                                     },
                                                     children: [
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                            className: "text-white/80 text-sm font-light tracking-[0.12em]",
+                                                            className: "text-white/80 text-[0.95rem] sm:text-sm font-light tracking-[0.08em]",
                                                             style: {
                                                                 fontFamily: "'Cormorant Garamond', serif"
                                                             },

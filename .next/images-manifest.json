@@ -43,15 +43,27 @@
     ],
     "remotePatterns": [
       {
+        "protocol": "http",
+        "hostname": "^(?:^(?:localhost)$)$",
+        "port": "3000",
+        "pathname": "^(?:(?!(?:^|\\/)\\.{1,2}(?:\\/|$))(?:(?:(?!(?:^|\\/)\\.{1,2}(?:\\/|$)).)*?)\\/?)$"
+      },
+      {
         "protocol": "https",
-        "hostname": "^(?:^(?:images\\.unsplash\\.com)$)$",
-        "pathname": "^(?:\\/(?!\\.{1,2}(?:\\/|$))(?:(?:(?!(?:^|\\/)\\.{1,2}(?:\\/|$)).)*?))$"
+        "hostname": "^(?:^(?:aurelien\\-eta\\.vercel\\.app)$)$",
+        "pathname": "^(?:(?!(?:^|\\/)\\.{1,2}(?:\\/|$))(?:(?:(?!(?:^|\\/)\\.{1,2}(?:\\/|$)).)*?)\\/?)$"
+      },
+      {
+        "protocol": "https",
+        "hostname": "^(?:(?!\\.)(?=.)[^/]*?\\.vercel\\.app\\/?)$",
+        "pathname": "^(?:(?!(?:^|\\/)\\.{1,2}(?:\\/|$))(?:(?:(?!(?:^|\\/)\\.{1,2}(?:\\/|$)).)*?)\\/?)$"
       }
     ],
     "qualities": [
       75
     ],
-    "unoptimized": false,
+    "unoptimized": true,
+    "customCacheHandler": false,
     "sizes": [
       640,
       750,

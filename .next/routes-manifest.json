@@ -15,6 +15,7 @@
     }
   ],
   "headers": [],
+  "onMatchHeaders": [],
   "rewrites": {
     "beforeFiles": [],
     "afterFiles": [],
@@ -340,6 +341,12 @@
       "namedRegex": "^/collection(?:/)?$"
     },
     {
+      "page": "/cookies",
+      "regex": "^/cookies(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/cookies(?:/)?$"
+    },
+    {
       "page": "/denim",
       "regex": "^/denim(?:/)?$",
       "routeKeys": {},
@@ -418,6 +425,12 @@
       "namedRegex": "^/pants\\-denim(?:/)?$"
     },
     {
+      "page": "/privacy",
+      "regex": "^/privacy(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/privacy(?:/)?$"
+    },
+    {
       "page": "/product/products",
       "regex": "^/product/products(?:/)?$",
       "routeKeys": {},
@@ -476,6 +489,12 @@
       "regex": "^/sunglasses(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/sunglasses(?:/)?$"
+    },
+    {
+      "page": "/terms",
+      "regex": "^/terms(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/terms(?:/)?$"
     },
     {
       "page": "/wishlist",

@@ -65,15 +65,24 @@ self.__SERVER_FILES_MANIFEST={
       ],
       "remotePatterns": [
         {
+          "protocol": "http",
+          "hostname": "localhost",
+          "port": "3000"
+        },
+        {
           "protocol": "https",
-          "hostname": "images.unsplash.com",
-          "pathname": "/**"
+          "hostname": "aurelien-eta.vercel.app"
+        },
+        {
+          "protocol": "https",
+          "hostname": "*.vercel.app"
         }
       ],
       "qualities": [
         75
       ],
-      "unoptimized": false
+      "unoptimized": true,
+      "customCacheHandler": false
     },
     "devIndicators": {
       "position": "bottom-left"
@@ -89,12 +98,15 @@ self.__SERVER_FILES_MANIFEST={
     "productionBrowserSourceMaps": false,
     "excludeDefaultMomentLocales": true,
     "reactProductionProfiling": false,
-    "reactStrictMode": true,
+    "reactStrictMode": null,
     "reactMaxHeadersLength": 6000,
     "httpAgentOptions": {
       "keepAlive": true
     },
-    "logging": {},
+    "logging": {
+      "serverFunctions": true,
+      "browserToTerminal": "warn"
+    },
     "compiler": {},
     "expireTime": 31536000,
     "staticPageGenerationTimeout": 60,
@@ -106,7 +118,7 @@ self.__SERVER_FILES_MANIFEST={
         "transform": "lodash/{{member}}"
       }
     },
-    "outputFileTracingRoot": "/Users/shereenmagdy",
+    "outputFileTracingRoot": "/Users/shereenmagdy/Documents/GitHub/AURE-LIEN-",
     "cacheComponents": false,
     "cacheLife": {
       "default": {
@@ -147,6 +159,7 @@ self.__SERVER_FILES_MANIFEST={
     },
     "cacheHandlers": {},
     "experimental": {
+      "appNewScrollHandler": false,
       "useSkewCookie": false,
       "cssChunking": true,
       "multiZoneDraftMode": false,
@@ -155,7 +168,11 @@ self.__SERVER_FILES_MANIFEST={
       "serverMinification": true,
       "linkNoTouchStart": false,
       "caseSensitiveRoutes": false,
+      "cachedNavigations": false,
+      "partialFallbacks": false,
       "dynamicOnHover": false,
+      "varyParams": false,
+      "prefetchInlining": false,
       "preloadEntriesOnStart": true,
       "clientRouterFilter": true,
       "clientRouterFilterRedirects": false,
@@ -191,6 +208,7 @@ self.__SERVER_FILES_MANIFEST={
       "authInterrupts": false,
       "webpackMemoryOptimizations": false,
       "optimizeServerReact": true,
+      "strictRouteTypes": false,
       "viewTransition": false,
       "removeUncaughtErrorAndRejectionListeners": false,
       "validateRSCRequestHeaders": false,
@@ -198,23 +216,24 @@ self.__SERVER_FILES_MANIFEST={
         "dynamic": 0,
         "static": 300
       },
-      "reactDebugChannel": false,
+      "reactDebugChannel": true,
       "serverComponentsHmrCache": true,
       "staticGenerationMaxConcurrency": 8,
       "staticGenerationMinPagesPerWorker": 25,
       "transitionIndicator": false,
+      "gestureTransition": false,
       "inlineCss": false,
       "useCache": false,
       "globalNotFound": false,
-      "browserDebugInfoInTerminal": false,
+      "browserDebugInfoInTerminal": "warn",
       "lockDistDir": true,
-      "isolatedDevBuild": true,
       "proxyClientMaxBodySize": 10485760,
       "hideLogsAfterAbort": false,
       "mcpServer": true,
       "turbopackFileSystemCacheForDev": true,
       "turbopackFileSystemCacheForBuild": false,
-      "turbopackInferModuleSideEffects": false,
+      "turbopackInferModuleSideEffects": true,
+      "turbopackPluginRuntimeStrategy": "childProcesses",
       "optimizePackageImports": [
         "lucide-react",
         "date-fns",
@@ -299,12 +318,12 @@ self.__SERVER_FILES_MANIFEST={
     "bundlePagesRouterDependencies": false,
     "configFileName": "next.config.js",
     "turbopack": {
-      "root": "/Users/shereenmagdy"
+      "root": "/Users/shereenmagdy/Documents/GitHub/AURE-LIEN-"
     },
     "distDirRoot": ".next"
   },
   "appDir": "/Users/shereenmagdy/Documents/GitHub/AURE-LIEN-",
-  "relativeAppDir": "Documents/GitHub/AURE-LIEN-",
+  "relativeAppDir": "",
   "files": [
     ".next/routes-manifest.json",
     ".next/server/pages-manifest.json",
@@ -317,6 +336,7 @@ self.__SERVER_FILES_MANIFEST={
     ".next/app-path-routes-manifest.json",
     ".next/server/server-reference-manifest.js",
     ".next/server/server-reference-manifest.json",
+    ".next/server/prefetch-hints.json",
     ".next/BUILD_ID",
     ".next/server/next-font-manifest.js",
     ".next/server/next-font-manifest.json",

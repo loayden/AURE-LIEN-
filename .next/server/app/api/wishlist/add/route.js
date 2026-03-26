@@ -1,7 +1,8 @@
 var R=require("../../../../chunks/[turbopack]_runtime.js")("server/app/api/wishlist/add/route.js")
-R.c("server/chunks/[root-of-the-server]__c80b769f._.js")
-R.c("server/chunks/[root-of-the-server]__e9922dab._.js")
-R.c("server/chunks/[root-of-the-server]__728c5ab0._.js")
-R.c("server/chunks/7889e_AURE-LIEN-__next-internal_server_app_api_wishlist_add_route_actions_5f3294d0.js")
-R.m(54075)
-module.exports=R.m(54075).exports
+R.c("server/chunks/[root-of-the-server]__0xyvis~._.js")
+R.c("server/chunks/lib_redisStorage_ts_12d-15v._.js")
+R.c("server/chunks/[root-of-the-server]__0j8-xkl._.js")
+R.c("server/chunks/[root-of-the-server]__0aw~uc2._.js")
+R.c("server/chunks/_next-internal_server_app_api_wishlist_add_route_actions_0~_gy_v.js")
+R.m(88144)
+module.exports=R.m(88144).exports

@@ -142,20 +142,35 @@ if (!cached) {
 const opts = {
     bufferCommands: false
 };
+const LOCAL_MONGODB_URI = "mongodb://127.0.0.1:27017/luxuryshop";
+function getMongoUri() {
+    const configuredUri = process.env.MONGO_URI?.trim() || process.env.MONGODB_URI?.trim();
+    if (configuredUri) {
+        if (configuredUri.startsWith("mongodb://") || configuredUri.startsWith("mongodb+srv://")) {
+            return configuredUri;
+        }
+        throw new Error('Invalid MongoDB connection string. Expected it to start with "mongodb://" or "mongodb+srv://".');
+    }
+    if ("TURBOPACK compile-time truthy", 1) {
+        return LOCAL_MONGODB_URI;
+    }
+    //TURBOPACK unreachable
+    ;
+}
 async function connectDB() {
     if (cached.conn) {
         return cached.conn;
     }
-    // Use MONGO_URI in .env (not MONGODB_URI) for consistency with this codebase
     if (!cached.promise) {
-        cached.promise = __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$2c$__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$mongoose$29$__["default"].connect(process.env.MONGO_URI || process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/luxuryshop", opts).then((mongooseInstance)=>{
+        const mongoUri = getMongoUri();
+        cached.promise = __TURBOPACK__imported__module__$5b$externals$5d2f$mongoose__$5b$external$5d$__$28$mongoose$2c$__cjs$2c$__$5b$project$5d2f$Documents$2f$GitHub$2f$AURE$2d$LIEN$2d2f$node_modules$2f$mongoose$29$__["default"].connect(mongoUri, opts).then((mongooseInstance)=>{
             console.log("MongoDB connected");
             return mongooseInstance.connection;
         }).catch((error)=>{
             console.error("MongoDB connection error:", error);
             cached.conn = null;
             cached.promise = null;
-            throw new Error("Failed to connect to MongoDB");
+            throw error;
         });
     }
     try {

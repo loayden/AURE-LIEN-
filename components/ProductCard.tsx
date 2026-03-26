@@ -514,7 +514,7 @@ export default function ProductCard({
                 priority={current === 0}
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center bg-[#0f0f0f]">
+              <div className="flex h-full w-full items-center justify-center" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015))" }}>
                 <span className="text-white/10 text-[9px] tracking-[0.4em] uppercase" style={{ fontFamily: "'Jost',sans-serif" }}>No Image</span>
               </div>
             )}
@@ -530,7 +530,7 @@ export default function ProductCard({
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="absolute top-3 left-3 z-30 px-3 py-1.5 rounded-full text-[11px] font-semibold uppercase tracking-wider sm:text-xs"
+            className="absolute top-3 left-3 z-30 rounded-full px-3 py-1.5 text-[10px] font-light uppercase tracking-[0.28em] sm:text-[11px]"
             style={{
               background: product.badge
                 ? badgeStyles[product.badge].bg
@@ -550,7 +550,7 @@ export default function ProductCard({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="absolute top-3 right-3 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-semibold uppercase tracking-wider sm:text-xs"
+            className="absolute top-3 right-3 z-30 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-light uppercase tracking-[0.28em] sm:text-[11px]"
             style={{
               background: "rgba(255, 179, 71, 0.85)",
               color: "#fff",
@@ -564,9 +564,9 @@ export default function ProductCard({
 
         {/* ── Out of Stock ── */}
         {outOfStock && (
-          <div className="absolute inset-0 z-40 bg-black/40 backdrop-blur-sm flex items-center justify-center">
-            <div className="px-6 py-3 rounded-full font-semibold uppercase tracking-wider text-sm"
-              style={{ background: "rgba(100, 100, 100, 0.9)", color: "#fff" }}>
+          <div className="absolute inset-0 z-40 flex items-center justify-center" style={{ background: "linear-gradient(180deg, rgba(8,8,10,0.35), rgba(8,8,10,0.68))", backdropFilter: "blur(12px)" }}>
+            <div className="rounded-full px-6 py-3 text-[10px] font-light uppercase tracking-[0.3em]"
+              style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.06))", border: "1px solid rgba(255,255,255,0.16)", color: "rgba(255,255,255,0.82)" }}>
               Out of Stock
             </div>
           </div>
@@ -606,7 +606,9 @@ export default function ProductCard({
           style={{
             width: 44,
             height: 44,
-            background: inWishlist ? "rgba(180,40,40,0.75)" : "rgba(0,0,0,0.42)",
+            background: inWishlist
+              ? "linear-gradient(135deg, rgba(220,80,80,0.42), rgba(160,30,30,0.2))"
+              : "linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04))",
             backdropFilter: "blur(20px)",
             border: inWishlist ? "1px solid rgba(255,80,80,0.35)" : "1px solid rgba(255,255,255,0.10)",
             boxShadow: inWishlist ? "0 0 18px rgba(255,60,60,0.20)" : "none",
@@ -812,7 +814,7 @@ export default function ProductCard({
                         color: resolvedSize ? "#F1D79A" : "rgba(255,255,255,0.62)",
                         border: resolvedSize ? "1px solid rgba(198,169,98,0.34)" : "1px solid rgba(255,255,255,0.12)",
                         fontFamily: "'Jost', sans-serif",
-                        fontWeight: 400,
+                        fontWeight: 300,
                         letterSpacing: "0.08em",
                       }}
                     >

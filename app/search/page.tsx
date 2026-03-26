@@ -3,6 +3,7 @@
 import ProductCard from "@/components/ProductCard";
 import { searchCatalogProducts } from "@/lib/searchProducts";
 import { motion } from "framer-motion";
+import { Search, Sparkles } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useMemo } from "react";
 
@@ -10,22 +11,59 @@ function SearchContent() {
   const searchParams = useSearchParams();
   const q = searchParams.get("q") || "";
   const products = useMemo(() => (q ? searchCatalogProducts(q) : []), [q]);
+  const words = q.trim().split(/\s+/).filter(Boolean);
+  const accent = words.length > 1 ? words.pop() : q ? "Results" : "Search";
 
   return (
-    <main className="min-h-screen bg-black px-4 pb-16 pt-12 text-ivory sm:px-6 sm:pb-20 sm:pt-16 md:px-10">
-      <div className="max-w-7xl mx-auto">
-        <motion.h1
+    <main className="liquid-page px-4 pb-16 pt-16 sm:px-6 sm:pb-20 sm:pt-20 md:px-10">
+      <div className="page-wrap max-w-7xl">
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="font-serif text-display-md tracking-luxury-wide border-b border-brass/30 pb-4 sm:pb-6 mb-6 sm:mb-8 md:mb-10"
+          className="mb-8 sm:mb-10"
         >
-          Search {q ? `"${q}"` : ""}
-        </motion.h1>
+          <p className="eyebrow mb-4">Search</p>
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <h1 className="title-display" style={{ fontSize: "clamp(2.2rem, 6vw, 4.6rem)" }}>
+              {q ? (
+                <>
+                  {words.join(" ") || "Search"} <em className="gold-italic">{accent}</em>
+                </>
+              ) : (
+                <>
+                  Search <em className="gold-italic">Archive</em>
+                </>
+              )}
+            </h1>
+            {q ? <span className="count-pill">{products.length} Matches</span> : null}
+          </div>
+          <div className="page-header-divider mt-6" />
+        </motion.div>
 
         {!q ? (
-          <p className="text-silver">Enter a search term above or use the search icon in the header.</p>
+          <div className="glass-panel flex flex-col items-center px-6 py-16 text-center">
+            <div className="empty-icon-panel mb-6">
+              <Search strokeWidth={1} className="h-7 w-7 text-white/20" />
+            </div>
+            <h2 className="title-display text-[1.8rem]">
+              Begin Your <em className="gold-italic">Search</em>
+            </h2>
+            <p className="body-copy mt-3 max-w-md text-center">
+              Enter a search term above or open the header search overlay to browse the collection with the same glass-driven layout.
+            </p>
+          </div>
         ) : products.length === 0 ? (
-          <p className="text-silver">No products found. Try different keywords.</p>
+          <div className="glass-panel flex flex-col items-center px-6 py-16 text-center">
+            <div className="empty-icon-panel mb-6">
+              <Sparkles strokeWidth={1} className="h-7 w-7 text-white/20" />
+            </div>
+            <h2 className="title-display text-[1.8rem]">
+              Nothing <em className="gold-italic">Found</em>
+            </h2>
+            <p className="body-copy mt-3 max-w-md text-center">
+              No pieces matched your search. Try a broader term, a category name, or a material keyword.
+            </p>
+          </div>
         ) : (
           <div className="product-grid-shell lg:grid-cols-4">
             {products.map((product, i) => (
@@ -47,7 +85,7 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-black px-4 pt-12 text-silver sm:px-6 sm:pt-16 md:px-10 flex justify-center">Loading...</div>}>
+    <Suspense fallback={<div className="liquid-page flex min-h-screen items-center justify-center px-4 pt-12 text-white/35 sm:px-6 sm:pt-16 md:px-10"><p className="eyebrow">Loading Search</p></div>}>
       <SearchContent />
     </Suspense>
   );

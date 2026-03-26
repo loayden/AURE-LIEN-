@@ -21,23 +21,6 @@ interface Section {
   hotspots: { productId: string; x: number; y: number }[];
 }
 
-function Orbs() {
-  return (
-    <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-      <div style={{ position:"absolute", width:380, height:380, top:"-15%", right:"-10%",
-        background:"radial-gradient(circle, rgba(198,169,98,0.06) 0%, transparent 65%)",
-        filter:"blur(90px)", animation:"lbOA 26s ease-in-out infinite" }} />
-      <div style={{ position:"absolute", width:320, height:320, bottom:"10%", left:"-8%",
-        background:"radial-gradient(circle, rgba(150,140,220,0.05) 0%, transparent 65%)",
-        filter:"blur(80px)", animation:"lbOB 32s ease-in-out infinite" }} />
-      <style>{`
-        @keyframes lbOA { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-30px,25px)} }
-        @keyframes lbOB { 0%,100%{transform:translate(0,0)} 50%{transform:translate(35px,-20px)} }
-      `}</style>
-    </div>
-  );
-}
-
 /* ── Single lookbook section ── */
 function LookbookSection({ section, index }: { section: Section; index: number }) {
   const ref = useRef<HTMLElement>(null);
@@ -233,12 +216,10 @@ export default function LookbookPage() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap');
         body { background: #080808; }
       `}</style>
 
       <main className="relative min-h-screen bg-[#080808] text-white" style={{ fontFamily:"'Jost', sans-serif" }}>
-        <Orbs />
 
         {/* ── HERO ── */}
         <section ref={heroRef} className="relative flex h-[60vh] w-full items-end justify-center overflow-hidden px-4 pb-10 sm:h-[75vh] sm:px-6 sm:pb-20 md:h-[85vh] md:px-10">

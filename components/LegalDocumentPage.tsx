@@ -16,26 +16,29 @@ export default function LegalDocumentPage({
   intro,
   sections,
 }: LegalDocumentPageProps) {
+  const words = title.trim().split(/\s+/).filter(Boolean);
+  const accent = words.length > 1 ? words.pop() : null;
+
   return (
-    <main className="min-h-screen bg-[#080808] px-4 pb-16 pt-20 text-white sm:px-6 sm:pb-24 sm:pt-24 md:px-10 md:pb-28">
-      <section className="mx-auto max-w-4xl">
-        <div className="mb-10 rounded-[2rem] border border-white/8 bg-white/[0.03] px-5 py-8 shadow-[0_30px_80px_rgba(0,0,0,0.35)] sm:px-8 sm:py-10">
-          <p
-            className="mb-4 text-[9px] uppercase tracking-[0.42em] text-white/28"
-            style={{ fontFamily: "'Jost', sans-serif" }}
-          >
+    <main className="liquid-page px-4 pb-16 pt-20 text-white sm:px-6 sm:pb-24 sm:pt-24 md:px-10 md:pb-28">
+      <section className="page-wrap max-w-4xl">
+        <div className="glass-panel mb-10 px-5 py-8 sm:px-8 sm:py-10">
+          <p className="eyebrow mb-4">
             {eyebrow}
           </p>
           <h1
             className="mb-5 font-light leading-none text-white"
             style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(2.3rem, 6vw, 4.6rem)", letterSpacing: "0.05em" }}
           >
-            {title}
+            {words.join(" ")}
+            {accent ? (
+              <>
+                {" "}
+                <em className="gold-italic">{accent}</em>
+              </>
+            ) : null}
           </h1>
-          <p
-            className="max-w-2xl text-[12px] leading-relaxed text-white/42 sm:text-sm"
-            style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.05em" }}
-          >
+          <p className="body-copy max-w-2xl">
             {intro}
           </p>
         </div>
@@ -44,7 +47,7 @@ export default function LegalDocumentPage({
           {sections.map((section) => (
             <article
               key={section.heading}
-              className="rounded-[1.8rem] border border-white/8 bg-white/[0.025] px-5 py-6 shadow-[0_20px_50px_rgba(0,0,0,0.24)] sm:px-7 sm:py-7"
+              className="glass-panel px-5 py-6 sm:px-7 sm:py-7"
             >
               <h2
                 className="mb-4 font-light text-white"
@@ -54,11 +57,7 @@ export default function LegalDocumentPage({
               </h2>
               <div className="space-y-3">
                 {section.body.map((paragraph) => (
-                  <p
-                    key={paragraph}
-                    className="text-[12px] leading-relaxed text-white/44 sm:text-sm"
-                    style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.04em" }}
-                  >
+                  <p key={paragraph} className="body-copy">
                     {paragraph}
                   </p>
                 ))}

@@ -4,21 +4,15 @@ import { motion } from "framer-motion";
 
 export default function Loading() {
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap');
-        body { background: #080808; }
-      `}</style>
-
-      <div
-        className="relative flex min-h-[calc(100svh-54px)] items-center justify-center bg-[#080808] sm:min-h-[calc(100svh-58px)]"
-        style={{
-          fontFamily:"'Jost', sans-serif",
-          background:
-            "radial-gradient(circle at 50% 50%, rgba(198,169,98,0.06) 0%, rgba(8,8,8,0.98) 55%, #080808 100%)",
-        }}
-      >
-        <div className="relative z-10 flex flex-col items-center gap-8">
+    <div
+      className="relative flex min-h-[calc(100svh-54px)] items-center justify-center bg-[#080808] sm:min-h-[calc(100svh-58px)]"
+      style={{
+        fontFamily:"'Jost', sans-serif",
+        background:
+          "radial-gradient(circle at 50% 50%, rgba(198,169,98,0.06) 0%, rgba(8,8,8,0.98) 55%, #080808 100%)",
+      }}
+    >
+      <div className="relative z-10 flex flex-col items-center gap-8">
 
           {/* Spinner — three concentric arcs */}
           <div className="relative w-16 h-16">
@@ -55,8 +49,7 @@ export default function Loading() {
             AURÉLIEN
           </motion.p>
 
-        </div>
       </div>
-    </>
+    </div>
   );
 }

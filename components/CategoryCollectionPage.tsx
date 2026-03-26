@@ -18,18 +18,26 @@ export default function CategoryCollectionPage({
 }: CategoryCollectionPageProps) {
   const products = productsData.filter((product) => product.category === category);
   const pieceLabel = products.length === 1 ? "Piece" : "Pieces";
+  const words = title.trim().split(/\s+/).filter(Boolean);
+  const accent = words.length > 1 ? words.pop() : null;
 
   return (
-    <main className="min-h-screen bg-[#0b0b0b] text-white">
-      <section className="catalog-shell">
+    <main className="liquid-page">
+      <section className="catalog-shell relative z-10 pt-20 sm:pt-24">
         <div className="mx-auto mb-6 max-w-3xl text-center sm:mb-8 md:mb-10">
-          <p className="mb-4 text-[9px] font-light uppercase tracking-[0.4em] text-white/28">
+          <p className="eyebrow mb-4">
             {eyebrow}
           </p>
           <h1 className="luxury-title mb-5 text-white">
-            {title}
+            {words.join(" ")}
+            {accent ? (
+              <>
+                {" "}
+                <em className="gold-italic">{accent}</em>
+              </>
+            ) : null}
           </h1>
-          <p className="mx-auto max-w-2xl text-[11px] font-light leading-relaxed tracking-[0.08em] text-white/40 sm:text-sm md:text-base">
+          <p className="body-copy mx-auto max-w-2xl">
             {description}
           </p>
 
@@ -38,7 +46,7 @@ export default function CategoryCollectionPage({
               className="h-px w-8 sm:w-10"
               style={{ background: "linear-gradient(90deg, transparent, rgba(198,169,98,0.72), transparent)" }}
             />
-            <span className="inline-flex min-h-[44px] min-w-[44px] items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[9px] uppercase tracking-[0.3em] text-white/45">
+            <span className="count-pill">
               {products.length} {pieceLabel}
             </span>
             <span
@@ -55,8 +63,8 @@ export default function CategoryCollectionPage({
             ))}
           </div>
         ) : (
-          <div className="mx-auto max-w-2xl rounded-[1.75rem] border border-white/8 bg-white/[0.03] px-4 py-8 text-center shadow-[0_18px_44px_rgba(0,0,0,0.28)] sm:px-6 sm:py-10">
-            <p className="text-[11px] font-light tracking-[0.08em] text-white/46 sm:text-sm md:text-lg">
+          <div className="glass-panel mx-auto max-w-2xl px-4 py-8 text-center sm:px-6 sm:py-10">
+            <p className="body-copy mx-auto max-w-xl text-center body-copy-strong">
               {emptyMessage}
             </p>
           </div>

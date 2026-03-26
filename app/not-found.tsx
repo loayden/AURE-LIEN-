@@ -4,47 +4,18 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-function Orbs() {
-  return (
-    <div className="pointer-events-none fixed inset-0 overflow-hidden z-0">
-      <div style={{
-        position:"absolute", width:380, height:380, top:"-15%", right:"-10%",
-        background:"radial-gradient(circle, rgba(198,169,98,0.07) 0%, transparent 65%)",
-        filter:"blur(100px)", animation:"nfOA 26s ease-in-out infinite",
-      }} />
-      <div style={{
-        position:"absolute", width:320, height:320, bottom:"-10%", left:"-8%",
-        background:"radial-gradient(circle, rgba(150,140,220,0.05) 0%, transparent 65%)",
-        filter:"blur(80px)", animation:"nfOB 32s ease-in-out infinite",
-      }} />
-      <style>{`
-        @keyframes nfOA { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-28px,22px)} }
-        @keyframes nfOB { 0%,100%{transform:translate(0,0)} 50%{transform:translate(32px,-18px)} }
-      `}</style>
-    </div>
-  );
-}
-
 export default function NotFound() {
   return (
-    <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap');
-        body { background: #080808; }
-        ::selection { background: #C6A962; color: #080808; }
-      `}</style>
+    <main
+      className="relative flex min-h-screen items-center justify-center bg-[#080808] px-4 sm:px-6 md:px-10"
+      style={{ fontFamily:"'Jost', sans-serif" }}
+    >
 
-      <main
-        className="relative flex min-h-screen items-center justify-center bg-[#080808] px-4 sm:px-6 md:px-10"
-        style={{ fontFamily:"'Jost', sans-serif" }}
-      >
-        <Orbs />
+      {/* Radial gold glow behind content */}
+      <div className="absolute inset-0 pointer-events-none"
+           style={{ background:"radial-gradient(ellipse at 50% 55%, rgba(198,169,98,0.06) 0%, transparent 60%)" }} />
 
-        {/* Radial gold glow behind content */}
-        <div className="absolute inset-0 pointer-events-none"
-             style={{ background:"radial-gradient(ellipse at 50% 55%, rgba(198,169,98,0.06) 0%, transparent 60%)" }} />
-
-        <div className="relative z-10 flex flex-col items-center text-center">
+      <div className="relative z-10 flex flex-col items-center text-center">
 
           {/* 404 numeral */}
           <motion.div
@@ -135,8 +106,7 @@ export default function NotFound() {
             </Link>
 
           </motion.div>
-        </div>
-      </main>
-    </>
+      </div>
+    </main>
   );
 }

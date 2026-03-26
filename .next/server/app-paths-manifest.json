@@ -48,6 +48,7 @@
   "/cart/page": "app/cart/page.js",
   "/checkout/page": "app/checkout/page.js",
   "/collection/page": "app/collection/page.js",
+  "/cookies/page": "app/cookies/page.js",
   "/denim/page": "app/denim/page.js",
   "/footwear/page": "app/footwear/page.js",
   "/jackets-coats/page": "app/jackets-coats/page.js",
@@ -62,6 +63,7 @@
   "/outfit-generator/page": "app/outfit-generator/page.js",
   "/page": "app/page.js",
   "/pants-denim/page": "app/pants-denim/page.js",
+  "/privacy/page": "app/privacy/page.js",
   "/product/[id]/page": "app/product/[id]/page.js",
   "/product/products/page": "app/product/products/page.js",
   "/robots.txt/route": "app/robots.txt/route.js",
@@ -73,5 +75,6 @@
   "/sneakers/page": "app/sneakers/page.js",
   "/suits/page": "app/suits/page.js",
   "/sunglasses/page": "app/sunglasses/page.js",
+  "/terms/page": "app/terms/page.js",
   "/wishlist/page": "app/wishlist/page.js"
 }
