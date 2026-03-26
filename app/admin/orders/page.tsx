@@ -1,8 +1,13 @@
 "use client";
 
+import AdminBanner from "@/components/admin/AdminBanner";
+import AdminEmptyState from "@/components/admin/AdminEmptyState";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import AdminPanel from "@/components/admin/AdminPanel";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, Download } from "lucide-react";
+import Image from "next/image";
+import { ArrowLeft, Download, ShoppingBag } from "lucide-react";
 
 interface OrderItem {
   productId: string;
@@ -54,6 +59,7 @@ export default function AdminOrdersPage() {
   const [error, setError] = useState("");
 
   const handleExportJson = async () => {
+    setError("");
     setExporting(true);
     try {
       const res = await fetch("/api/admin/export-orders");
@@ -65,8 +71,8 @@ export default function AdminOrdersPage() {
       a.download = res.headers.get("Content-Disposition")?.match(/filename="([^"]+)"/)?.[1] ?? "orders-export.json";
       a.click();
       URL.revokeObjectURL(url);
-    } catch {
-      alert("Failed to download orders.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to download orders.");
     } finally {
       setExporting(false);
     }
@@ -133,168 +139,165 @@ export default function AdminOrdersPage() {
     <div className="space-y-8">
       <Link
         href="/admin"
-        className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 text-[11px] tracking-wide text-brass transition-colors hover:text-brass/80 sm:text-sm"
+        className="btn-ghost inline-flex"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Admin
       </Link>
 
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-brass/30 pb-4">
-        <div>
-          <h1 className="text-xl font-serif font-light tracking-luxury-wide sm:text-2xl">
-            All Orders
-          </h1>
-          <p className="text-ivory-muted text-sm mt-1">
-            Every order (with or without an account)
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={handleExportJson}
-          disabled={exporting || orders.length === 0}
-          className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-lg border border-brass/30 px-4 py-2 text-[11px] tracking-wide text-brass transition-colors hover:bg-brass/10 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm"
-        >
-          <Download className="w-4 h-4" />
-          {exporting ? "Exporting…" : "Download all orders (JSON)"}
-        </button>
-      </div>
+      <AdminPageHeader
+        title="All Orders"
+        description="Every transaction, whether it came from a registered account or a guest checkout."
+        action={
+          <button
+            type="button"
+            onClick={handleExportJson}
+            disabled={exporting || orders.length === 0}
+            className="btn-gold disabled:opacity-50"
+          >
+            <Download className="h-4 w-4" />
+            {exporting ? "Exporting" : "Download Orders"}
+          </button>
+        }
+      />
 
       {!loading && orders.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="p-4 rounded-xl border border-brass/20 bg-charcoal-light/30">
-            <p className="text-ivory-muted text-xs uppercase tracking-widest mb-1">Total Orders</p>
-            <p className="text-xl font-serif font-light text-brass">{orders.length}</p>
+          <div className="admin-stat-card p-4">
+            <p className="eyebrow mb-3">Total Orders</p>
+            <p className="font-light text-[#C6A962]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.7rem" }}>{orders.length}</p>
           </div>
-          <div className="p-4 rounded-xl border border-brass/20 bg-charcoal-light/30">
-            <p className="text-ivory-muted text-xs uppercase tracking-widest mb-1">Total Revenue</p>
-            <p className="text-xl font-serif font-light text-brass">EGP {totalRevenue.toLocaleString()}</p>
+          <div className="admin-stat-card p-4">
+            <p className="eyebrow mb-3">Total Revenue</p>
+            <p className="font-light text-[#C6A962]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.7rem" }}>EGP {totalRevenue.toLocaleString()}</p>
           </div>
         </div>
       )}
 
-      {error && (
-        <div className="rounded-xl border border-red-400/20 bg-red-500/5 p-4 text-sm text-red-100">
-          {error}
-        </div>
-      )}
+      {error ? <AdminBanner message={error} /> : null}
 
       {loading ? (
-        <p className="text-ivory-muted">Loading...</p>
+        <p className="eyebrow">Loading Orders</p>
       ) : orders.length === 0 ? (
-        <div className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-12 text-center text-ivory-muted">
-          No orders found
-        </div>
+        <AdminPanel className="p-6 sm:p-8">
+          <AdminEmptyState
+            title="No Orders Yet"
+            description="Completed and pending order records will be listed here once transactions begin moving through the store."
+            icon={ShoppingBag}
+          />
+        </AdminPanel>
       ) : (
         <div className="space-y-8">
           {orders.map((order) => (
-            <div
-              key={order._id}
-              className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-6 shadow-lg"
-            >
+            <AdminPanel key={order._id} className="p-6">
               <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
                 <div>
-                  <p className="text-ivory-muted text-sm">{formatDate(order.createdAt)}</p>
-                  <p className="text-brass font-light mt-1">
-                    Order <span className="text-ivory font-mono">#{order._id.slice(0, 8)}</span>
+                  <p className="body-copy">{formatDate(order.createdAt)}</p>
+                  <p className="body-copy body-copy-strong mt-2">
+                    Order <span className="text-white/84 font-mono">#{order._id.slice(0, 8)}</span>
                     {" · "}
-                    Status: <span className="text-ivory">{order.status}</span>
+                    Status: <span className="text-white/84">{order.status}</span>
                   </p>
-                  <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-ivory-muted">
-                    <span className="rounded-full border border-brass/20 px-2.5 py-1 text-brass/90">
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <span className="admin-chip admin-chip-gold">
                       {formatSource(order.customer)}
                     </span>
-                    <span className="truncate">Ref: {resolveCustomerReference(order)}</span>
+                    <span className="admin-chip truncate">Ref: {resolveCustomerReference(order)}</span>
                   </div>
                 </div>
-                <p className="text-brass text-lg font-light">
+                <p className="font-light text-[#C6A962]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.5rem" }}>
                   EGP {Number(order.totalPrice).toLocaleString()}
                 </p>
               </div>
 
               {order.customer && (
-                <div className="mb-6 p-4 rounded-lg bg-charcoal/50 border border-brass/10">
-                  <h3 className="text-brass text-sm font-medium mb-3 uppercase tracking-wide">Customer & delivery</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                    <p>
-                      <span className="text-ivory-muted">Profile:</span> {formatSource(order.customer)}
+                <div className="mb-6 rounded-[1.15rem] border border-white/10 bg-white/[0.03] p-4">
+                  <h3 className="eyebrow mb-4" style={{ color: "rgba(198,169,98,0.85)" }}>Customer & Delivery</h3>
+                  <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+                    <p className="body-copy">
+                      <span className="text-white/20">Profile:</span> {formatSource(order.customer)}
                     </p>
                     {order.customer.accountId && (
-                      <p>
-                        <span className="text-ivory-muted">Account ID:</span> {order.customer.accountId}
+                      <p className="body-copy">
+                        <span className="text-white/20">Account ID:</span> {order.customer.accountId}
                       </p>
                     )}
                     {order.customer.totalOrders != null && (
-                      <p>
-                        <span className="text-ivory-muted">Customer orders:</span> {order.customer.totalOrders}
+                      <p className="body-copy">
+                        <span className="text-white/20">Customer orders:</span> {order.customer.totalOrders}
                       </p>
                     )}
                     {order.customer.totalSpent != null && (
-                      <p>
-                        <span className="text-ivory-muted">Lifetime spend:</span> EGP {Number(order.customer.totalSpent).toLocaleString()}
+                      <p className="body-copy">
+                        <span className="text-white/20">Lifetime spend:</span> EGP {Number(order.customer.totalSpent).toLocaleString()}
                       </p>
                     )}
                     {order.customer.joinedAt && (
-                      <p>
-                        <span className="text-ivory-muted">First seen:</span> {formatDate(order.customer.joinedAt)}
+                      <p className="body-copy">
+                        <span className="text-white/20">First seen:</span> {formatDate(order.customer.joinedAt)}
                       </p>
                     )}
                     {order.customer.email != null && order.customer.email !== "" && (
-                      <p><span className="text-ivory-muted">Email:</span> {order.customer.email}</p>
+                      <p className="body-copy"><span className="text-white/20">Email:</span> {order.customer.email}</p>
                     )}
                     {order.customer.phone != null && order.customer.phone !== "" && (
-                      <p><span className="text-ivory-muted">Phone:</span> {order.customer.phone}</p>
+                      <p className="body-copy"><span className="text-white/20">Phone:</span> {order.customer.phone}</p>
                     )}
-                    <p><span className="text-ivory-muted">Name:</span> {order.customer.name || `${order.customer.firstName || ""} ${order.customer.lastName || ""}`.trim() || "—"}</p>
+                    <p className="body-copy"><span className="text-white/20">Name:</span> {order.customer.name || `${order.customer.firstName || ""} ${order.customer.lastName || ""}`.trim() || "—"}</p>
                     {((order.customer.fullAddress ?? "") !== "" || (order.customer.address ?? "") !== "" || (order.customer.apartment ?? "") !== "") && (
-                      <p><span className="text-ivory-muted">Address:</span> {order.customer.fullAddress || [order.customer.address, order.customer.apartment].filter(Boolean).join(", ") || "—"}</p>
+                      <p className="body-copy"><span className="text-white/20">Address:</span> {order.customer.fullAddress || [order.customer.address, order.customer.apartment].filter(Boolean).join(", ") || "—"}</p>
                     )}
                     {order.customer.city != null && order.customer.city !== "" && (
-                      <p><span className="text-ivory-muted">City:</span> {order.customer.city}</p>
+                      <p className="body-copy"><span className="text-white/20">City:</span> {order.customer.city}</p>
                     )}
                     {order.customer.country != null && order.customer.country !== "" && (
-                      <p><span className="text-ivory-muted">Country:</span> {order.customer.country}</p>
+                      <p className="body-copy"><span className="text-white/20">Country:</span> {order.customer.country}</p>
                     )}
                     {order.customer.postalCode != null && order.customer.postalCode !== "" && (
-                      <p><span className="text-ivory-muted">Postal:</span> {order.customer.postalCode}</p>
+                      <p className="body-copy"><span className="text-white/20">Postal:</span> {order.customer.postalCode}</p>
                     )}
                     {((order.customer.shippingMethod ?? "") !== "" || order.customer.shippingCost != null) && (
-                      <p><span className="text-ivory-muted">Shipping:</span> {order.customer.shippingMethod || "—"}{order.customer.shippingCost != null ? ` · EGP ${order.customer.shippingCost}` : ""}</p>
+                      <p className="body-copy"><span className="text-white/20">Shipping:</span> {order.customer.shippingMethod || "—"}{order.customer.shippingCost != null ? ` · EGP ${order.customer.shippingCost}` : ""}</p>
                     )}
                     {order.customer.newsletter && (
-                      <p><span className="text-ivory-muted">Newsletter:</span> Yes</p>
+                      <p className="body-copy"><span className="text-white/20">Newsletter:</span> Yes</p>
                     )}
                   </div>
                 </div>
               )}
 
               <div className="space-y-3">
-                <h3 className="text-brass text-sm font-medium uppercase tracking-wide">Items</h3>
+                <h3 className="eyebrow" style={{ color: "rgba(198,169,98,0.85)" }}>Items</h3>
                 {(order.items && order.items.length > 0) ? order.items.map((item, i) => (
                   <div
                     key={`${order._id}-${i}`}
-                    className="flex items-center gap-4 py-3 border-t border-brass/10 first:border-t-0"
+                    className="flex items-center gap-4 rounded-[1rem] border border-white/8 bg-white/[0.03] px-4 py-3"
                   >
-                    <img
-                      src={item.image || "/images/placeholder.svg"}
-                      alt={item.name || "Item"}
-                      className="w-14 h-14 object-cover rounded-lg flex-shrink-0"
-                    />
+                    <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-[0.9rem]">
+                      <Image
+                        src={item.image || "/images/placeholder.svg"}
+                        alt={item.name || "Item"}
+                        fill
+                        className="object-cover"
+                        sizes="56px"
+                      />
+                    </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-ivory">{item.name || "Unknown"}</p>
-                      <p className="text-ivory-muted text-sm">
+                      <p className="body-copy body-copy-strong">{item.name || "Unknown"}</p>
+                      <p className="body-copy text-sm">
                         Qty: {item.quantity ?? 1}
                         {(item.size ?? item.color) && (
                           <> · {item.size && <>Size {item.size}</>}{item.size && item.color && " · "}{item.color && <>Color {item.color}</>}</>
                         )}
                       </p>
                     </div>
-                    <p className="text-brass flex-shrink-0">EGP {((Number(item.price) || 0) * (item.quantity ?? 1)).toLocaleString()}</p>
+                    <p className="flex-shrink-0 text-[#C6A962]">EGP {((Number(item.price) || 0) * (item.quantity ?? 1)).toLocaleString()}</p>
                   </div>
                 )) : (
-                  <p className="text-ivory-muted text-sm py-2">No items</p>
+                  <p className="body-copy py-2">No items</p>
                 )}
               </div>
-            </div>
+            </AdminPanel>
           ))}
         </div>
       )}

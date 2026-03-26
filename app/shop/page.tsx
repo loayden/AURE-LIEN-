@@ -13,7 +13,7 @@ import {
   X
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMemo, useRef, useState } from "react";
+import { useDeferredValue, useMemo, useRef, useState } from "react";
 
 const SORT_OPTIONS = [
   { value: "default", label: "Featured" },
@@ -45,6 +45,7 @@ export default function EnhancedShopPage() {
   });
   const [filtersOpen, setFiltersOpen] = useState(false);
   const heroRef = useRef<HTMLElement>(null);
+  const deferredSearch = useDeferredValue(filters.search);
 
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
@@ -61,15 +62,16 @@ export default function EnhancedShopPage() {
     }
 
     // Search filter
-    if (filters.search) {
+    if (deferredSearch) {
+      const normalizedSearch = deferredSearch.toLowerCase();
       result = result.filter((p) =>
-        p.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-        p.description?.toLowerCase().includes(filters.search.toLowerCase())
+        p.name.toLowerCase().includes(normalizedSearch) ||
+        p.description?.toLowerCase().includes(normalizedSearch)
       );
     }
 
     return result;
-  }, [filters]);
+  }, [deferredSearch, filters.priceRange]);
 
   const sortedProducts = useMemo(() => {
     const arr = [...filteredProducts];

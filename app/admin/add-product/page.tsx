@@ -1,5 +1,8 @@
 "use client";
 
+import AdminBanner from "@/components/admin/AdminBanner";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import AdminPanel from "@/components/admin/AdminPanel";
 import { useState } from "react";
 
 const CATEGORIES = [
@@ -62,17 +65,16 @@ export default function AdminAddProductPage() {
   };
 
   return (
-    <div className="space-y-8 max-w-2xl">
-      <h1 className="border-b border-brass/30 pb-4 text-xl font-serif font-light tracking-luxury-wide sm:text-2xl">
-        Add Product
-      </h1>
+    <div className="max-w-3xl space-y-8">
+      <AdminPageHeader
+        title="Add Product"
+        description="Create a new catalogue entry without leaving the Liquid Glass control surface."
+      />
 
-      <form
-        onSubmit={handleSubmit}
-        className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-8 shadow-lg space-y-6"
-      >
+      <AdminPanel className="p-6 sm:p-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-xs uppercase tracking-widest text-brass mb-2">Product Name</label>
+          <label className="eyebrow mb-3 block">Product Name</label>
           <input
             type="text"
             required
@@ -82,12 +84,12 @@ export default function AdminAddProductPage() {
           />
         </div>
         <div>
-          <label className="block text-xs uppercase tracking-widest text-brass mb-2">Category</label>
+          <label className="eyebrow mb-3 block">Category</label>
           <select
             required
             value={form.category}
             onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
-            className="luxury-select min-h-[44px] min-w-[44px] w-full rounded-lg border border-brass/30 bg-charcoal px-4 py-2.5 text-base text-ivory focus:border-brass focus:outline-none sm:text-sm"
+            className="luxury-select"
           >
             <option value="">Select category</option>
             {CATEGORIES.map((c) => (
@@ -96,68 +98,57 @@ export default function AdminAddProductPage() {
           </select>
         </div>
         <div>
-          <label className="block text-xs uppercase tracking-widest text-brass mb-2">Price (EGP)</label>
+          <label className="eyebrow mb-3 block">Price (EGP)</label>
           <input
             type="number"
             required
             min={0}
             value={form.price}
             onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
-            className="min-h-[44px] min-w-[44px] w-full rounded-lg border border-brass/30 bg-charcoal px-4 py-2.5 text-base text-ivory focus:border-brass focus:outline-none sm:text-sm"
           />
         </div>
         <div>
-          <label className="block text-xs uppercase tracking-widest text-brass mb-2">Description</label>
+          <label className="eyebrow mb-3 block">Description</label>
           <textarea
             rows={3}
             value={form.description}
             onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-            className="min-h-[44px] min-w-[44px] w-full resize-none rounded-lg border border-brass/30 bg-charcoal px-4 py-2.5 text-base text-ivory focus:border-brass focus:outline-none sm:text-sm"
+            className="min-h-[120px] resize-none"
           />
         </div>
         <div>
-          <label className="block text-xs uppercase tracking-widest text-brass mb-2">Images (comma-separated URLs)</label>
+          <label className="eyebrow mb-3 block">Images (comma-separated URLs)</label>
           <input
             type="text"
             placeholder="/uploads/product.jpg"
             value={form.images}
             onChange={(e) => setForm((f) => ({ ...f, images: e.target.value }))}
-            className="w-full px-4 py-2.5 bg-charcoal border border-brass/30 rounded-lg text-ivory placeholder:text-ivory-muted/50 focus:outline-none focus:border-brass"
           />
         </div>
         <div>
-          <label className="block text-xs uppercase tracking-widest text-brass mb-2">Sizes (comma-separated)</label>
+          <label className="eyebrow mb-3 block">Sizes (comma-separated)</label>
           <input
             type="text"
             placeholder="S, M, L, XL"
             value={form.size}
             onChange={(e) => setForm((f) => ({ ...f, size: e.target.value }))}
-            className="w-full px-4 py-2.5 bg-charcoal border border-brass/30 rounded-lg text-ivory placeholder:text-ivory-muted/50 focus:outline-none focus:border-brass"
           />
         </div>
         <div>
-          <label className="block text-xs uppercase tracking-widest text-brass mb-2">Colors (comma-separated)</label>
+          <label className="eyebrow mb-3 block">Colors (comma-separated)</label>
           <input
             type="text"
             placeholder="black, navy, gray"
             value={form.colors}
             onChange={(e) => setForm((f) => ({ ...f, colors: e.target.value }))}
-            className="w-full px-4 py-2.5 bg-charcoal border border-brass/30 rounded-lg text-ivory placeholder:text-ivory-muted/50 focus:outline-none focus:border-brass"
           />
         </div>
-        {message && (
-          <p className={`text-sm ${message.type === "success" ? "text-brass" : "text-red-400"}`}>
-            {message.text}
-          </p>
-        )}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full py-3 border border-brass text-brass font-serif tracking-widest uppercase text-sm hover:bg-brass hover:text-black transition-colors disabled:opacity-50"
-        >
-          {submitting ? "Adding..." : "Add Product"}
-        </button>
-      </form>
+          {message ? <AdminBanner message={message.text} tone={message.type} /> : null}
+          <button type="submit" disabled={submitting} className="btn-gold w-full justify-center">
+            {submitting ? "Adding Product" : "Add Product"}
+          </button>
+        </form>
+      </AdminPanel>
     </div>
   );
 }

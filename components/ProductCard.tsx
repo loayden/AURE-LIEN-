@@ -1,10 +1,11 @@
 "use client";
 
+import { usePerformanceProfile } from "@/hooks/usePerformanceProfile";
+import { useTimeoutRegistry } from "@/hooks/useTimeoutRegistry";
 import type { Product } from "@/lib/types";
 import {
   AnimatePresence,
   motion,
-  useMotionValue, useSpring, useTransform,
 } from "framer-motion";
 import { ArrowRight, ChevronDown, Heart, ShoppingBag, Star, Zap } from "lucide-react";
 import Image from "next/image";
@@ -13,7 +14,12 @@ import {
   MouseEvent as ReactMouseEvent,
   KeyboardEvent as ReactKeyboardEvent,
   TouchEvent as ReactTouchEvent,
-  useCallback, useEffect, useRef, useState,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
 } from "react";
 
 interface ColorOption {
@@ -54,6 +60,12 @@ const badgeStyles = {
   sale: { bg: "rgba(255, 102, 102, 0.85)", text: "#fff", label: "Sale" },
   bestseller: { bg: "rgba(198, 169, 98, 0.85)", text: "#fff", label: "Best Seller" },
   trending: { bg: "rgba(255, 179, 71, 0.85)", text: "#fff", label: "Trending" },
+};
+
+const slideVariants = {
+  enter: (direction: number) => ({ x: direction * 24, opacity: 0 }),
+  center: { x: 0, opacity: 1 },
+  exit: (direction: number) => ({ x: direction * -24, opacity: 0 }),
 };
 
 // Color name to hex mapping
@@ -164,7 +176,7 @@ if (typeof window !== "undefined" && !wishlistInvalidationBound) {
   wishlistInvalidationBound = true;
 }
 
-export default function ProductCard({
+function ProductCardComponent({
   product,
   className = "",
   onWishlistUpdate,
@@ -172,6 +184,10 @@ export default function ProductCard({
 }: ProductCardProps) {
   const router = useRouter();
   const cardRef = useRef<HTMLDivElement>(null);
+  const resumeTimeoutRef = useRef<number | null>(null);
+  const mountedRef = useRef(true);
+  const { finePointer, lowEndDevice, prefersReducedMotion } = usePerformanceProfile();
+  const { registerTimeout } = useTimeoutRegistry();
 
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -186,30 +202,32 @@ export default function ProductCard({
   const [showColorSelector, setShowColorSelector] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [isMobileViewport, setIsMobileViewport] = useState(false);
+  const [isInViewport, setIsInViewport] = useState(false);
+  const [feedbackError, setFeedbackError] = useState<string | null>(null);
   const productHref = product._id
     ? `/product/${encodeURIComponent(String(product._id))}`
     : null;
 
-
-  const images: string[] = (product.images || [])
-    .filter((img): img is string => typeof img === "string" && img.trim() !== "");
+  const images = useMemo(
+    () =>
+      (product.images || []).filter(
+        (img): img is string => typeof img === "string" && img.trim() !== ""
+      ),
+    [product.images]
+  );
   const count = images.length;
-
-  // Get sizes (handle both size and sizes fields)
-  const sizes = product.sizes || product.size || [];
-
-  // Normalize colors to ColorOption[]
-  const normalizedColors: ColorOption[] = (() => {
+  const sizes = useMemo(() => product.sizes || product.size || [], [product.size, product.sizes]);
+  const normalizedColors = useMemo<ColorOption[]>(() => {
     const colorData = product.colors;
     if (!colorData || !Array.isArray(colorData)) return [];
-    
+
     return colorData.map((color) => {
       if (typeof color === "string") {
         return { name: color, hex: getColorHex(color) };
       }
       return color as ColorOption;
     });
-  })();
+  }, [product.colors]);
 
   const isLowStock = (product.stock ?? 10) < 5;
   const outOfStock = (product.stock ?? 1) === 0;
@@ -228,6 +246,14 @@ export default function ProductCard({
   const imageCounterLabel = count > 1
     ? `${String(current + 1).padStart(2, "0")} / ${String(count).padStart(2, "0")}`
     : "Single View";
+  const tiltEnabled = finePointer && !isMobileViewport && !lowEndDevice && !prefersReducedMotion;
+  const autoplayEnabled =
+    count > 1 &&
+    isInViewport &&
+    !paused &&
+    !isMobileViewport &&
+    !lowEndDevice &&
+    !prefersReducedMotion;
 
   const isInteractiveTarget = useCallback((target: EventTarget | null) => {
     if (!(target instanceof Element)) return false;
@@ -241,6 +267,29 @@ export default function ProductCard({
     if (!productHref) return;
     router.push(productHref);
   }, [productHref, router]);
+
+  const clearResumeTimeout = useCallback(() => {
+    if (resumeTimeoutRef.current !== null) {
+      window.clearTimeout(resumeTimeoutRef.current);
+      resumeTimeoutRef.current = null;
+    }
+  }, []);
+
+  const scheduleResumeAutoplay = useCallback(() => {
+    clearResumeTimeout();
+    resumeTimeoutRef.current = registerTimeout(() => {
+      resumeTimeoutRef.current = null;
+      setPaused(false);
+    }, 4000);
+  }, [clearResumeTimeout, registerTimeout]);
+
+  const showTransientError = useCallback(
+    (message: string) => {
+      setFeedbackError(message);
+      registerTimeout(() => setFeedbackError(null), 2800);
+    },
+    [registerTimeout]
+  );
 
   function openCategoryPage(e: ReactMouseEvent<HTMLButtonElement>) {
     e.preventDefault();
@@ -277,16 +326,19 @@ export default function ProductCard({
 
   /* ── Auto-advance ── */
   const goTo = useCallback((idx: number, dir?: number) => {
+    if (count === 0) return;
     const next = (idx + count) % count;
-    setDirection(dir ?? (next > current ? 1 : -1));
-    setCurrent(next);
-  }, [count, current]);
+    setCurrent((previous) => {
+      setDirection(dir ?? (next > previous ? 1 : -1));
+      return next;
+    });
+  }, [count]);
 
   useEffect(() => {
-    if (count < 2 || paused) return;
+    if (!autoplayEnabled) return;
     const t = setTimeout(() => goTo(current + 1, 1), AUTO_MS);
     return () => clearTimeout(t);
-  }, [current, paused, count, goTo]);
+  }, [autoplayEnabled, current, goTo]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -305,8 +357,49 @@ export default function ProductCard({
       syncViewport(event.matches);
     };
 
-    mediaQuery.addEventListener("change", handleViewportChange);
-    return () => mediaQuery.removeEventListener("change", handleViewportChange);
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", handleViewportChange);
+      return () => mediaQuery.removeEventListener("change", handleViewportChange);
+    }
+
+    mediaQuery.addListener(handleViewportChange);
+    return () => mediaQuery.removeListener(handleViewportChange);
+  }, []);
+
+  useEffect(() => {
+    mountedRef.current = true;
+
+    return () => {
+      mountedRef.current = false;
+      clearResumeTimeout();
+    };
+  }, [clearResumeTimeout]);
+
+  useEffect(() => {
+    if (count === 0) {
+      setCurrent(0);
+      return;
+    }
+
+    setCurrent((previous) => (previous >= count ? 0 : previous));
+  }, [count]);
+
+  useEffect(() => {
+    const node = cardRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") {
+      setIsInViewport(true);
+      return;
+    }
+
+    // Pause carousels and progress animations while cards are offscreen.
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsInViewport(entry.isIntersecting),
+      { threshold: 0.2 }
+    );
+
+    observer.observe(node);
+
+    return () => observer.disconnect();
   }, []);
 
   /* ── Touch ── */
@@ -321,7 +414,7 @@ export default function ProductCard({
     } else if (!isInteractiveTarget(e.target)) {
       openProductPage();
     }
-    setTimeout(() => setPaused(false), 4000);
+    scheduleResumeAutoplay();
   }
 
   /* ── Mouse drag ── */
@@ -332,19 +425,10 @@ export default function ProductCard({
     if (Math.abs(d) > 36) {
       goTo(current + (d < 0 ? 1 : -1), d < 0 ? 1 : -1);
       setDragging(true);
-      setTimeout(() => setDragging(false), DRAG_SUPPRESS_MS);
+      registerTimeout(() => setDragging(false), DRAG_SUPPRESS_MS);
     }
-    setTimeout(() => setPaused(false), 4000);
+    scheduleResumeAutoplay();
   }
-
-  /* ── Tilt ── */
-  const mx = useMotionValue(0), my = useMotionValue(0);
-  const sx = useSpring(mx, { stiffness: 90, damping: 20 });
-  const sy = useSpring(my, { stiffness: 90, damping: 20 });
-  const rX = useTransform(sy, v => ((v / (cardRef.current?.offsetHeight ?? 400)) - 0.5) * -3);
-  const rY = useTransform(sx, v => ((v / (cardRef.current?.offsetWidth ?? 300)) - 0.5) * 3);
-  function onMouseMove({ currentTarget, clientX, clientY }: ReactMouseEvent) { const { left, top } = currentTarget.getBoundingClientRect(); mx.set(clientX - left); my.set(clientY - top); }
-  function onMouseLeave() { mx.set(0); my.set(0); setPaused(false); }
 
   /* ── Wishlist ── */
   useEffect(() => {
@@ -412,6 +496,7 @@ export default function ProductCard({
     }
     try {
       setLoading(true);
+      setFeedbackError(null);
       const res = await fetch("/api/cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -423,18 +508,19 @@ export default function ProductCard({
         }),
       });
       if (!res.ok) throw new Error();
+      if (!mountedRef.current) return;
       setAdded(true);
-      setTimeout(() => setAdded(false), 2200);
-    } catch { alert("Failed to add to cart."); }
-    finally { setLoading(false); }
+      registerTimeout(() => setAdded(false), 2200);
+    } catch {
+      if (!mountedRef.current) return;
+      showTransientError("Unable to add this piece right now.");
+    }
+    finally {
+      if (mountedRef.current) {
+        setLoading(false);
+      }
+    }
   }
-
-
-  const variants = {
-    enter: (d: number) => ({ x: d * 24, opacity: 0 }),
-    center: { x: 0, opacity: 1 },
-    exit: (d: number) => ({ x: d * -24, opacity: 0 }),
-  };
 
   return (
     <motion.div
@@ -447,15 +533,14 @@ export default function ProductCard({
         openProductPage();
       }}
       onKeyDown={onCardKeyDown}
-      onMouseMove={onMouseMove}
-      onMouseLeave={onMouseLeave}
+      onMouseLeave={() => {
+        clearResumeTimeout();
+        setPaused(false);
+      }}
       role={productHref ? "link" : undefined}
       tabIndex={productHref ? 0 : -1}
       aria-label={productHref ? `Open ${product.name}` : undefined}
       style={{
-        rotateX: rX, rotateY: rY,
-        transformStyle: "preserve-3d",
-        perspective: 900,
         borderRadius: 24,
         background:
           "linear-gradient(145deg, rgba(255,255,255,0.11) 0%, rgba(255,255,255,0.05) 42%, rgba(255,255,255,0.03) 100%)",
@@ -464,12 +549,16 @@ export default function ProductCard({
         boxShadow: "0 24px 72px rgba(0,0,0,0.44), inset 0 1px 0 rgba(255,255,255,0.16)",
         border: "1px solid rgba(255,255,255,0.12)",
       }}
-      whileHover={{
-        y: -5,
-        boxShadow:
-          "0 30px 88px rgba(0,0,0,0.52), inset 0 1px 0 rgba(255,255,255,0.18), 0 0 0 1px rgba(198,169,98,0.12)",
-        transition: { type: "spring", stiffness: 260, damping: 26 },
-      }}
+      whileHover={
+        tiltEnabled
+          ? {
+              y: -5,
+              boxShadow:
+                "0 30px 88px rgba(0,0,0,0.52), inset 0 1px 0 rgba(255,255,255,0.18), 0 0 0 1px rgba(198,169,98,0.12)",
+              transition: { type: "spring", stiffness: 260, damping: 26 },
+            }
+          : undefined
+      }
       className={`group relative w-full flex flex-col overflow-hidden cursor-pointer select-none ${className}`}
     >
       <div
@@ -489,14 +578,18 @@ export default function ProductCard({
         onTouchEnd={onTouchEnd}
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
-        onMouseEnter={() => setPaused(true)}
+        onMouseEnter={() => {
+          if (!autoplayEnabled) return;
+          clearResumeTimeout();
+          setPaused(true);
+        }}
       >
         {/* Slides */}
         <AnimatePresence initial={false} custom={direction} mode="sync">
           <motion.div
             key={current}
             custom={direction}
-            variants={variants}
+            variants={slideVariants}
             initial="enter"
             animate="center"
             exit="exit"
@@ -511,7 +604,6 @@ export default function ProductCard({
                 sizes="(max-width:640px) 92vw, (max-width:1024px) 46vw, 25vw"
                 className="object-cover"
                 draggable={false}
-                priority={current === 0}
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.015))" }}>
@@ -579,12 +671,17 @@ export default function ProductCard({
               <button
                 key={i}
                 type="button"
-                onClick={e => { e.stopPropagation(); goTo(i, i > current ? 1 : -1); setPaused(true); setTimeout(() => setPaused(false), 4000); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goTo(i, i > current ? 1 : -1);
+                  setPaused(true);
+                  scheduleResumeAutoplay();
+                }}
                 aria-label={`Show image ${i + 1} of ${count} for ${product.name}`}
                 className="relative flex-1 overflow-hidden"
                 style={{ height: 1.5, borderRadius: 9999, background: "rgba(255,255,255,0.15)" }}
               >
-                {i === current && !paused ? (
+                {i === current && autoplayEnabled ? (
                   <motion.div key={`p-${current}`} className="absolute inset-y-0 left-0 rounded-full"
                     style={{ background: "rgba(198,169,98,0.85)" }}
                     initial={{ width: "0%" }} animate={{ width: "100%" }}
@@ -640,6 +737,28 @@ export default function ProductCard({
           style={{ background: "linear-gradient(90deg, transparent 5%, rgba(255,255,255,0.10) 40%, rgba(255,255,255,0.10) 60%, transparent 95%)" }} />
 
         <div className="space-y-3">
+          <AnimatePresence>
+            {feedbackError ? (
+              <motion.div
+                initial={{ opacity: 0, y: -6, height: 0 }}
+                animate={{ opacity: 1, y: 0, height: "auto" }}
+                exit={{ opacity: 0, y: -6, height: 0 }}
+                className="overflow-hidden rounded-2xl px-3 py-2"
+                style={{
+                  background: "rgba(255,60,60,0.07)",
+                  border: "1px solid rgba(255,80,80,0.18)",
+                }}
+              >
+                <p
+                  className="text-[9px] uppercase tracking-[0.22em]"
+                  style={{ color: "rgba(255,120,120,0.78)", fontFamily: "'Jost', sans-serif" }}
+                >
+                  {feedbackError}
+                </p>
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+
           <h3 className="font-light leading-snug line-clamp-2"
             style={{
               fontFamily: "'Cormorant Garamond', serif",
@@ -1027,3 +1146,14 @@ export default function ProductCard({
     </motion.div>
   );
 }
+
+const ProductCard = memo(
+  ProductCardComponent,
+  (previousProps, nextProps) =>
+    previousProps.product === nextProps.product &&
+    previousProps.className === nextProps.className &&
+    previousProps.showRemoveFromWishlist === nextProps.showRemoveFromWishlist &&
+    previousProps.onWishlistUpdate === nextProps.onWishlistUpdate
+);
+
+export default ProductCard;

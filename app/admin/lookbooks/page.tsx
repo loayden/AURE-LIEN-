@@ -1,6 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
+import AdminBanner from "@/components/admin/AdminBanner";
+import AdminEmptyState from "@/components/admin/AdminEmptyState";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import AdminPanel from "@/components/admin/AdminPanel";
+import { BookOpen } from "lucide-react";
 import { useEffect, useState } from "react";
 import productsData from "@/lib/productsData";
 
@@ -29,14 +33,44 @@ export default function AdminLookbooksPage() {
   const [lookbooks, setLookbooks] = useState<Lookbook[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Lookbook | null>(null);
+  const [error, setError] = useState("");
   const [form, setForm] = useState({ title: "", slug: "", sections: [] as Section[] });
 
   useEffect(() => {
-    fetch("/api/lookbooks")
-      .then((r) => r.json())
-      .then(setLookbooks)
-      .catch(() => setLookbooks([]))
-      .finally(() => setLoading(false));
+    const controller = new AbortController();
+
+    async function loadLookbooks() {
+      setLoading(true);
+      setError("");
+
+      try {
+        const response = await fetch("/api/lookbooks", { signal: controller.signal });
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error("Unable to load lookbooks");
+        }
+
+        setLookbooks(Array.isArray(data) ? data : []);
+      } catch (err) {
+        if ((err as Error).name === "AbortError") {
+          return;
+        }
+
+        setLookbooks([]);
+        setError("Unable to load lookbooks");
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void loadLookbooks();
+
+    return () => {
+      controller.abort();
+    };
   }, []);
 
   async function addSection() {
@@ -65,6 +99,9 @@ export default function AdminLookbooksPage() {
       const lb = await res.json();
       setLookbooks((prev) => [lb, ...prev]);
       setForm({ title: "", slug: "", sections: [] });
+      setError("");
+    } else {
+      setError("Unable to create lookbook");
     }
   }
 
@@ -78,47 +115,56 @@ export default function AdminLookbooksPage() {
       const lb = await res.json();
       setLookbooks((prev) => prev.map((l) => (l._id === id ? lb : l)));
       setEditing(null);
+      setError("");
+    } else {
+      setError("Unable to update lookbook");
     }
   }
 
   async function deleteLookbook(id: string) {
     if (!confirm("Delete this lookbook?")) return;
-    await fetch(`/api/lookbooks/${id}`, { method: "DELETE" });
-    setLookbooks((prev) => prev.filter((l) => l._id !== id));
-    setEditing(null);
+    const res = await fetch(`/api/lookbooks/${id}`, { method: "DELETE" });
+    if (res.ok) {
+      setLookbooks((prev) => prev.filter((l) => l._id !== id));
+      setEditing(null);
+      setError("");
+    } else {
+      setError("Unable to delete lookbook");
+    }
   }
 
   if (loading) {
-    return <p className="text-ivory-muted">Loading...</p>;
+    return <p className="eyebrow">Loading Lookbooks</p>;
   }
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-serif font-light tracking-luxury-wide sm:mb-8 md:mb-10 sm:text-3xl">
-        Lookbooks
-      </h1>
+      <AdminPageHeader
+        title="Editorial Lookbooks"
+        description="Compose campaign narratives, assign imagery, and control publishing without leaving the shared glass environment."
+      />
 
-      <div className="mb-6 rounded-xl border border-brass/20 bg-charcoal-light/30 p-4 sm:mb-8 sm:p-6 md:mb-10">
-        <h2 className="text-lg font-serif mb-4">Create Lookbook</h2>
+      {error ? <AdminBanner message={error} /> : null}
+
+      <AdminPanel className="mb-6 p-4 sm:mb-8 sm:p-6 md:mb-10">
+        <h2 className="title-display mb-6 text-[2rem]">Create <em className="gold-italic">Lookbook</em></h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <input
             type="text"
             placeholder="Title"
             value={form.title}
             onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-            className="min-h-[44px] min-w-[44px] rounded border border-brass/40 bg-charcoal px-4 py-2 text-base text-ivory sm:text-sm"
           />
           <input
             type="text"
             placeholder="Slug (e.g. autumn-2025)"
             value={form.slug}
             onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
-            className="min-h-[44px] min-w-[44px] rounded border border-brass/40 bg-charcoal px-4 py-2 text-base text-ivory sm:text-sm"
           />
         </div>
         <div className="space-y-4 mb-4">
           {form.sections.map((s, i) => (
-            <div key={i} className="p-4 border border-brass/20 rounded-lg space-y-2">
+            <div key={i} className="rounded-[1.2rem] border border-white/10 bg-white/[0.03] p-4 space-y-3">
               <input
                 type="text"
                 placeholder="Section title"
@@ -128,7 +174,6 @@ export default function AdminLookbooksPage() {
                   s2[i] = { ...s, title: e.target.value };
                   setForm((f) => ({ ...f, sections: s2 }));
                 }}
-                className="w-full bg-charcoal border border-brass/40 text-ivory px-3 py-2 rounded text-sm"
               />
               <input
                 type="text"
@@ -139,7 +184,6 @@ export default function AdminLookbooksPage() {
                   s2[i] = { ...s, image: e.target.value };
                   setForm((f) => ({ ...f, sections: s2 }));
                 }}
-                className="w-full bg-charcoal border border-brass/40 text-ivory px-3 py-2 rounded text-sm"
               />
               <select
                 value={s.hotspots[0]?.productId || ""}
@@ -152,7 +196,7 @@ export default function AdminLookbooksPage() {
                   };
                   setForm((f) => ({ ...f, sections: s2 }));
                 }}
-                className="luxury-select bg-charcoal border border-brass/40 text-ivory px-3 py-2 rounded text-sm"
+                className="luxury-select"
               >
                 <option value="">No product hotspot</option>
                 {productsData.map((p) => (
@@ -168,32 +212,30 @@ export default function AdminLookbooksPage() {
           <button
             type="button"
             onClick={addSection}
-            className="px-4 py-2 border border-brass/50 text-brass text-sm hover:bg-brass/10 rounded"
+            className="btn-ghost"
           >
-            Add section
+            Add Section
           </button>
           <button
             type="button"
             onClick={saveNew}
-            className="px-4 py-2 bg-brass text-black text-sm hover:opacity-90 rounded"
+            className="btn-gold"
           >
-            Create lookbook
+            Create Lookbook
           </button>
         </div>
-      </div>
+      </AdminPanel>
 
       <div className="space-y-6">
         {lookbooks.map((lb) => (
-          <motion.div
+          <div
             key={lb._id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="p-6 border border-brass/20 rounded-xl bg-charcoal-light/30 flex justify-between items-center"
+            className="glass-panel flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between"
           >
             <div>
-              <h3 className="font-serif text-lg">{lb.title}</h3>
-              <p className="text-silver text-sm">{lb.slug} • {lb.sections.length} sections</p>
-              <span className={`text-xs ${lb.published ? "text-green-400" : "text-silver"}`}>
+              <h3 className="title-display text-[1.65rem]">{lb.title}</h3>
+              <p className="body-copy mt-2">{lb.slug} • {lb.sections.length} sections</p>
+              <span className={`eyebrow mt-3 inline-block ${lb.published ? "text-[#C6A962]" : "text-white/35"}`}>
                 {lb.published ? "Published" : "Draft"}
               </span>
             </div>
@@ -201,7 +243,7 @@ export default function AdminLookbooksPage() {
               <button
                 type="button"
                 onClick={() => setEditing((e) => (e?._id === lb._id ? null : lb))}
-                className="px-3 py-1 border border-brass/50 text-brass text-sm rounded"
+                className="btn-ghost px-4"
               >
                 {editing?._id === lb._id ? "Cancel" : "Edit"}
               </button>
@@ -209,7 +251,7 @@ export default function AdminLookbooksPage() {
                 <button
                   type="button"
                   onClick={() => updateLookbook(lb._id, { published: !lb.published })}
-                  className="px-3 py-1 bg-brass text-black text-sm rounded"
+                  className="btn-gold px-4"
                 >
                   {lb.published ? "Unpublish" : "Publish"}
                 </button>
@@ -217,17 +259,24 @@ export default function AdminLookbooksPage() {
               <button
                 type="button"
                 onClick={() => deleteLookbook(lb._id)}
-                className="px-3 py-1 border border-red-500/50 text-red-400 text-sm rounded"
+                className="btn-ghost px-4"
+                style={{ color: "rgba(255,120,120,0.78)", borderColor: "rgba(255,80,80,0.18)" }}
               >
                 Delete
               </button>
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
 
       {lookbooks.length === 0 && (
-        <p className="text-silver">No lookbooks yet. Create one above.</p>
+        <AdminPanel className="p-6 sm:p-8">
+          <AdminEmptyState
+            title="No Lookbooks Yet"
+            description="Create the first editorial sequence above and it will appear here with publish controls."
+            icon={BookOpen}
+          />
+        </AdminPanel>
       )}
     </div>
   );

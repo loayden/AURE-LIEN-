@@ -1,6 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
+import AdminBanner from "@/components/admin/AdminBanner";
+import AdminEmptyState from "@/components/admin/AdminEmptyState";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import AdminPanel from "@/components/admin/AdminPanel";
 import {
   BarChart,
   Bar,
@@ -11,6 +14,7 @@ import {
   LineChart,
   Line,
 } from "recharts";
+import { Package } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface Stats {
@@ -75,8 +79,8 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <p className="text-ivory-muted">Loading...</p>
+      <div className="flex h-64 items-center justify-center">
+        <p className="eyebrow">Loading Dashboard</p>
       </div>
     );
   }
@@ -101,144 +105,129 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-serif font-light tracking-luxury-wide sm:mb-8 md:mb-10 sm:text-3xl">
-        Dashboard
-      </h1>
+      <AdminPageHeader
+        title="Admin Dashboard"
+        description="Performance, client activity, and order movement inside the same liquid glass system."
+      />
 
-      {error && (
-        <div className="mb-6 rounded-xl border border-red-400/20 bg-red-500/5 p-4 text-sm text-red-100 sm:mb-8">
-          {error}
-        </div>
-      )}
+      {error ? <AdminBanner message={error} /> : null}
 
       <div className="mb-6 grid grid-cols-1 gap-4 sm:mb-8 sm:grid-cols-2 sm:gap-5 md:mb-10 lg:grid-cols-4 lg:gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-6 border border-brass/20 rounded-xl bg-charcoal-light/50"
-        >
-          <p className="text-ivory-muted text-sm tracking-wide mb-1">Total Revenue</p>
-          <p className="text-3xl font-serif font-light text-brass">
+        <div className="admin-stat-card p-6">
+          <p className="eyebrow mb-3">Total Revenue</p>
+          <p className="font-light text-[#C6A962]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}>
             EGP {s.totalRevenue.toLocaleString()}
           </p>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="p-6 border border-brass/20 rounded-xl bg-charcoal-light/50"
-        >
-          <p className="text-ivory-muted text-sm tracking-wide mb-1">Orders Today</p>
-          <p className="text-3xl font-serif font-light text-brass">{s.ordersToday}</p>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="p-6 border border-brass/20 rounded-xl bg-charcoal-light/50"
-        >
-          <p className="text-ivory-muted text-sm tracking-wide mb-1">Total Orders</p>
-          <p className="text-3xl font-serif font-light text-brass">{s.totalOrders}</p>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="p-6 border border-brass/20 rounded-xl bg-charcoal-light/50"
-        >
-          <p className="text-ivory-muted text-sm tracking-wide mb-1">Total Customers</p>
-          <p className="text-3xl font-serif font-light text-brass">{s.totalCustomers}</p>
-        </motion.div>
+        </div>
+        <div className="admin-stat-card p-6">
+          <p className="eyebrow mb-3">Orders Today</p>
+          <p className="font-light text-[#C6A962]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}>{s.ordersToday}</p>
+        </div>
+        <div className="admin-stat-card p-6">
+          <p className="eyebrow mb-3">Total Orders</p>
+          <p className="font-light text-[#C6A962]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}>{s.totalOrders}</p>
+        </div>
+        <div className="admin-stat-card p-6">
+          <p className="eyebrow mb-3">Total Customers</p>
+          <p className="font-light text-[#C6A962]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}>{s.totalCustomers}</p>
+        </div>
       </div>
 
       {s.revenueByMonth.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mb-6 rounded-xl border border-brass/20 bg-charcoal-light/30 p-4 sm:mb-8 sm:p-6 md:mb-10"
-        >
-          <h2 className="text-lg font-serif mb-6">Revenue by Month</h2>
-          <div className="h-64">
+        <div className="mb-6 sm:mb-8 md:mb-10">
+          <AdminPanel className="p-4 sm:p-6">
+            <h2 className="title-display mb-6 text-[2rem]">Revenue <em className="gold-italic">Flow</em></h2>
+            <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={s.revenueByMonth}>
-                <XAxis dataKey="month" stroke="#B0B0B0" fontSize={12} />
-                <YAxis stroke="#B0B0B0" fontSize={12} tickFormatter={(v) => `EGP ${v}`} />
+                <XAxis dataKey="month" stroke="rgba(255,255,255,0.35)" fontSize={12} />
+                <YAxis stroke="rgba(255,255,255,0.35)" fontSize={12} tickFormatter={(v) => `EGP ${v}`} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: "#1A1A1A", border: "1px solid rgba(198,167,94,0.3)" }}
+                  contentStyle={{
+                    backgroundColor: "rgba(10,10,12,0.94)",
+                    border: "1px solid rgba(255,255,255,0.09)",
+                    borderRadius: 16,
+                  }}
                   formatter={(value: number) => [`EGP ${value.toLocaleString()}`, "Revenue"]}
                 />
                 <Line type="monotone" dataKey="revenue" stroke="#C6A75E" strokeWidth={2} dot={{ fill: "#C6A75E" }} />
               </LineChart>
             </ResponsiveContainer>
-          </div>
-        </motion.div>
+            </div>
+          </AdminPanel>
+        </div>
       )}
 
       {s.recentCustomers.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.22 }}
-          className="mb-6 rounded-xl border border-brass/20 bg-charcoal-light/30 p-4 sm:mb-8 sm:p-6 md:mb-10"
-        >
-          <h2 className="text-lg font-serif mb-6">Recent Customers</h2>
-          <div className="space-y-4">
+        <div className="mb-6 sm:mb-8 md:mb-10">
+          <AdminPanel className="p-4 sm:p-6">
+            <h2 className="title-display mb-6 text-[2rem]">Recent <em className="gold-italic">Clients</em></h2>
+            <div className="space-y-4">
             {s.recentCustomers.map((customer) => (
               <div
                 key={customer._id}
-                className="flex flex-col gap-3 rounded-xl border border-brass/10 bg-black/10 p-4 sm:flex-row sm:items-center sm:justify-between"
+                className="liquid-row-link flex-col items-start sm:flex-row sm:items-center"
               >
                 <div>
-                  <p className="text-ivory font-light">{customer.name}</p>
-                  <p className="text-sm text-ivory-muted">
+                  <p className="body-copy body-copy-strong">{customer.name}</p>
+                  <p className="body-copy mt-1">
                     {customer.email || "No email"}
                   </p>
-                  <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-brass/80">
+                  <p className="eyebrow mt-2" style={{ color: "rgba(198,169,98,0.85)" }}>
                     {customer.source === "account" ? "Account" : "Guest"}
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-3 text-sm sm:flex sm:items-center sm:gap-6">
                   <div>
-                    <p className="text-ivory-muted">Orders</p>
-                    <p className="text-ivory">{customer.orders}</p>
+                    <p className="eyebrow mb-2">Orders</p>
+                    <p className="body-copy body-copy-strong">{customer.orders}</p>
                   </div>
                   <div>
-                    <p className="text-ivory-muted">Spend</p>
-                    <p className="text-brass">EGP {customer.totalSpent.toLocaleString()}</p>
+                    <p className="eyebrow mb-2">Spend</p>
+                    <p className="body-copy body-copy-strong text-[#C6A962]">EGP {customer.totalSpent.toLocaleString()}</p>
                   </div>
                   <div className="col-span-2 sm:col-span-1">
-                    <p className="text-ivory-muted">Last activity</p>
-                    <p className="text-ivory">{formatDate(customer.lastOrderAt)}</p>
+                    <p className="eyebrow mb-2">Last Activity</p>
+                    <p className="body-copy body-copy-strong">{formatDate(customer.lastOrderAt)}</p>
                   </div>
                 </div>
               </div>
             ))}
-          </div>
-        </motion.div>
+            </div>
+          </AdminPanel>
+        </div>
       )}
 
-      {s.bestSellingProducts.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-4 sm:p-6"
-        >
-          <h2 className="text-lg font-serif mb-6">Best Selling Products</h2>
-          <div className="h-64">
+      {s.bestSellingProducts.length > 0 ? (
+        <div className="rounded-xl">
+          <AdminPanel className="p-4 sm:p-6">
+            <h2 className="title-display mb-6 text-[2rem]">Best Selling <em className="gold-italic">Products</em></h2>
+            <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={s.bestSellingProducts} layout="vertical" margin={{ left: 120 }}>
-                <XAxis type="number" stroke="#B0B0B0" fontSize={12} />
-                <YAxis type="category" dataKey="name" stroke="#B0B0B0" fontSize={11} width={110} />
+                <XAxis type="number" stroke="rgba(255,255,255,0.35)" fontSize={12} />
+                <YAxis type="category" dataKey="name" stroke="rgba(255,255,255,0.35)" fontSize={11} width={110} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: "#1A1A1A", border: "1px solid rgba(198,167,94,0.3)" }}
+                  contentStyle={{
+                    backgroundColor: "rgba(10,10,12,0.94)",
+                    border: "1px solid rgba(255,255,255,0.09)",
+                    borderRadius: 16,
+                  }}
                 />
                 <Bar dataKey="quantity" fill="#C6A75E" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
-          </div>
-        </motion.div>
+            </div>
+          </AdminPanel>
+        </div>
+      ) : (
+        <AdminPanel className="p-6 sm:p-8">
+          <AdminEmptyState
+            title="No Product Metrics"
+            description="Best seller tracking will appear here once orders begin moving through the catalogue."
+            icon={Package}
+          />
+        </AdminPanel>
       )}
     </div>
   );

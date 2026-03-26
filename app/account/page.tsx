@@ -19,20 +19,37 @@ export default function AccountPage() {
     country?: string;
   } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/users/me")
+    const controller = new AbortController();
+
+    fetch("/api/users/me", { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error("Unauthorized");
         return res.json();
       })
       .then(setUser)
-      .catch(() => router.push("/login"))
-      .finally(() => setLoading(false));
+      .catch((requestError) => {
+        if (controller.signal.aborted) return;
+        if (requestError instanceof Error && requestError.message === "Unauthorized") {
+          router.push("/login");
+          return;
+        }
+        setError(requestError instanceof Error ? requestError.message : "Unable to load account");
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      });
+    return () => controller.abort();
   }, [router]);
 
   async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {}
     window.dispatchEvent(new Event("wishlist:invalidate"));
     router.push("/");
     router.refresh();
@@ -48,11 +65,44 @@ export default function AccountPage() {
     );
   }
 
-  if (!user) return null;
+  if (!user) {
+    return (
+      <main className="liquid-page px-4 pb-16 pt-16 sm:px-6 sm:pb-20 sm:pt-24 md:px-10">
+        <div className="page-wrap max-w-3xl">
+          <div className="glass-panel p-6 sm:p-8">
+            <p className="eyebrow mb-4">Private Account</p>
+            <h1 className="title-display text-[2.4rem]">
+              Account <em className="gold-italic">Unavailable</em>
+            </h1>
+            <div className="page-header-divider mt-6" />
+            <p className="body-copy mt-6">
+              {error || "We could not load your account details right now. Please refresh or sign in again."}
+            </p>
+            <div className="mt-6">
+              <Link href="/login" className="btn-gold">
+                Sign In Again
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="liquid-page px-4 pb-16 pt-16 sm:px-6 sm:pb-20 sm:pt-24 md:px-10">
       <div className="page-wrap max-w-5xl">
+        {error ? (
+          <div
+            className="mb-5 rounded-2xl px-4 py-3"
+            style={{ background: "rgba(255,60,60,0.07)", border: "1px solid rgba(255,80,80,0.18)" }}
+          >
+            <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: "rgba(255,120,120,0.75)" }}>
+              {error}
+            </p>
+          </div>
+        ) : null}
+
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}

@@ -5,22 +5,39 @@ import type { Product } from "@/lib/types";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Heart } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function WishlistPage() {
   const [items, setItems] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/wishlist/list")
-      .then((r) => r.json())
+    const controller = new AbortController();
+
+    fetch("/api/wishlist/list", { signal: controller.signal })
+      .then((r) => {
+        if (!r.ok) throw new Error("Unable to load wishlist");
+        return r.json();
+      })
       .then((d) => setItems(d.items || []))
-      .finally(() => setLoading(false));
+      .catch((requestError) => {
+        if (controller.signal.aborted) return;
+        setItems([]);
+        setError(requestError instanceof Error ? requestError.message : "Unable to load wishlist");
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      });
+
+    return () => controller.abort();
   }, []);
 
-  function removeFromList(productId: string) {
+  const removeFromList = useCallback((productId: string) => {
     setItems((prev) => prev.filter((p) => p._id !== productId));
-  }
+  }, []);
 
   /* ── Loading ── */
   if (loading) return (
@@ -49,6 +66,16 @@ export default function WishlistPage() {
       >
 
         <div className="relative z-10 max-w-7xl mx-auto">
+          {error ? (
+            <div
+              className="mb-5 rounded-2xl px-4 py-3"
+              style={{ background: "rgba(255,60,60,0.07)", border: "1px solid rgba(255,80,80,0.18)" }}
+            >
+              <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: "rgba(255,120,120,0.75)" }}>
+                {error}
+              </p>
+            </div>
+          ) : null}
 
           {/* ── HEADER ── */}
           <motion.div

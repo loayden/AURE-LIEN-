@@ -1,5 +1,8 @@
 "use client";
 
+import AdminBanner from "@/components/admin/AdminBanner";
+import AdminEmptyState from "@/components/admin/AdminEmptyState";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import { Eye, Search } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -88,31 +91,27 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-8">
-      <div className="border-b border-brass/30 pb-4">
-        <h1 className="text-xl font-serif font-light tracking-luxury-wide sm:text-2xl">
-          Users
-        </h1>
-        <p className="text-ivory-muted text-sm mt-1">
-          Unified customer records across registered accounts and guest checkouts
-        </p>
-      </div>
+      <AdminPageHeader
+        title="Customer Records"
+        description="Unified client profiles across registered accounts and guest checkouts."
+      />
 
       <div className="flex flex-col sm:flex-row gap-4 justify-between">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ivory-muted" />
+          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
           <input
             type="text"
             placeholder="Search by name, email, phone, or city..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full min-h-[44px] min-w-[44px] rounded-lg border border-brass/30 bg-charcoal py-2.5 pl-10 pr-4 text-base text-ivory placeholder:text-ivory-muted/60 focus:border-brass focus:outline-none sm:w-72 sm:text-sm"
+            className="w-full py-3 pl-11 pr-4 sm:w-72"
           />
         </div>
         <div className="relative">
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value)}
-            className="luxury-select min-h-[44px] min-w-[44px] w-full rounded-lg border border-brass/30 bg-charcoal py-2.5 pl-4 pr-10 text-base text-ivory focus:border-brass focus:outline-none sm:w-48 sm:text-sm"
+            className="luxury-select w-full py-3 pl-4 pr-10 sm:w-48"
           >
             <option value="newest">Newest first</option>
             <option value="orders">Most orders</option>
@@ -121,60 +120,61 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      {error && (
-        <div className="rounded-xl border border-red-400/20 bg-red-500/5 p-4 text-sm text-red-100">
-          {error}
-        </div>
-      )}
+      {error ? <AdminBanner message={error} /> : null}
 
-      <div className="rounded-xl border border-brass/20 bg-charcoal-light/30 shadow-lg overflow-hidden">
+      <div className="admin-table-shell">
         {loading ? (
-          <div className="p-12 text-center text-ivory-muted tracking-wide">Loading...</div>
+          <div className="p-12 text-center"><p className="eyebrow">Loading Users</p></div>
         ) : users.length === 0 ? (
-          <div className="p-12 text-center text-ivory-muted tracking-wide">No users found</div>
+          <div className="p-6 sm:p-8">
+            <AdminEmptyState
+              title="No User Records"
+              description="Customer records will appear here once account creation or checkout activity begins."
+              icon={Eye}
+            />
+          </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="admin-table">
               <thead>
-                <tr className="border-b border-brass/20 bg-black/20">
-                  <th className="text-left py-4 px-6 text-xs uppercase tracking-widest text-brass font-light">Name</th>
-                  <th className="text-left py-4 px-6 text-xs uppercase tracking-widest text-brass font-light">Email</th>
-                  <th className="text-left py-4 px-6 text-xs uppercase tracking-widest text-brass font-light">Phone</th>
-                  <th className="text-left py-4 px-6 text-xs uppercase tracking-widest text-brass font-light">Address</th>
-                  <th className="text-center py-4 px-6 text-xs uppercase tracking-widest text-brass font-light">Orders</th>
-                  <th className="text-right py-4 px-6 text-xs uppercase tracking-widest text-brass font-light">Total Spent</th>
-                  <th className="text-left py-4 px-6 text-xs uppercase tracking-widest text-brass font-light">Last Activity</th>
-                  <th className="text-center py-4 px-6 text-xs uppercase tracking-widest text-brass font-light">Action</th>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Address</th>
+                  <th className="text-center">Orders</th>
+                  <th className="text-right">Total Spent</th>
+                  <th>Last Activity</th>
+                  <th className="text-center">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((u) => (
                   <tr
                     key={u._id}
-                    className="border-b border-brass/10 hover:bg-brass/5 transition-colors"
-                    >
-                      <td className="py-4 px-6">
-                        <p className="text-ivory font-light">{u.name}</p>
-                        <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-brass/80">
+                  >
+                      <td>
+                        <p className="body-copy body-copy-strong">{u.name}</p>
+                        <p className="eyebrow mt-2" style={{ color: "rgba(198,169,98,0.85)" }}>
                           {formatSource(u)}
                         </p>
                       </td>
-                      <td className="py-4 px-6 text-ivory-muted text-sm">
+                      <td className="text-sm">
                         {u.email || <span className="text-ivory-muted/60">No email</span>}
                       </td>
-                      <td className="py-4 px-6 text-ivory-muted text-sm">{u.phone || "-"}</td>
-                      <td className="py-4 px-6 text-ivory-muted text-sm min-w-[240px]">
+                      <td className="text-sm">{u.phone || "-"}</td>
+                      <td className="min-w-[240px] text-sm">
                         {formatLocation(u)}
                       </td>
-                    <td className="py-4 px-6 text-center text-ivory">{u.orders}</td>
-                    <td className="py-4 px-6 text-right text-brass font-light">EGP {u.totalSpent.toLocaleString()}</td>
-                    <td className="py-4 px-6 text-ivory-muted text-sm">
+                    <td className="text-center text-white/78">{u.orders}</td>
+                    <td className="text-right text-[#C6A962]">EGP {u.totalSpent.toLocaleString()}</td>
+                    <td className="text-sm">
                       {formatDate(u.lastOrderAt || u.createdAt)}
                     </td>
-                    <td className="py-4 px-6 text-center">
+                    <td className="text-center">
                       <Link
                         href={`/admin/users/${u._id}/orders`}
-                        className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-lg border border-brass/50 px-4 py-2 text-[11px] tracking-wide text-brass transition-colors hover:bg-brass/10 sm:text-sm"
+                        className="btn-ghost inline-flex justify-center px-4"
                       >
                         <Eye className="w-4 h-4" />
                         View

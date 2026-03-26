@@ -1,9 +1,14 @@
 "use client";
 
+import AdminBanner from "@/components/admin/AdminBanner";
+import AdminEmptyState from "@/components/admin/AdminEmptyState";
+import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import AdminPanel from "@/components/admin/AdminPanel";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useParams } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Receipt } from "lucide-react";
 
 interface OrderItem {
   productId: string;
@@ -102,78 +107,76 @@ export default function AdminUserOrdersPage() {
     <div className="space-y-8">
       <Link
         href="/admin/users"
-        className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 text-[11px] tracking-wide text-brass transition-colors hover:text-brass/80 sm:text-sm"
+        className="btn-ghost inline-flex"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Users
       </Link>
 
-      <h1 className="border-b border-brass/30 pb-4 text-xl font-serif font-light tracking-luxury-wide sm:text-2xl">
-        Orders — {user ? `${user.name} (${user.email})` : "Loading..."}
-      </h1>
+      <AdminPageHeader
+        title={user ? `${user.name} Orders` : "Client Orders"}
+        description={user ? `Order history for ${user.email || "this client profile"}.` : "Loading client history."}
+      />
 
-      {error && (
-        <div className="rounded-xl border border-red-400/20 bg-red-500/5 p-4 text-sm text-red-100">
-          {error}
-        </div>
-      )}
+      {error ? <AdminBanner message={error} /> : null}
 
       {user && (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-4">
-            <p className="text-xs uppercase tracking-widest text-brass/80 mb-2">Profile</p>
-            <p className="text-ivory">{user.source === "account" ? "Registered account" : "Guest checkout"}</p>
+          <div className="admin-stat-card p-4">
+            <p className="eyebrow mb-3">Profile</p>
+            <p className="body-copy body-copy-strong">{user.source === "account" ? "Registered account" : "Guest checkout"}</p>
           </div>
-          <div className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-4">
-            <p className="text-xs uppercase tracking-widest text-brass/80 mb-2">Phone</p>
-            <p className="text-ivory">{user.phone || "-"}</p>
+          <div className="admin-stat-card p-4">
+            <p className="eyebrow mb-3">Phone</p>
+            <p className="body-copy body-copy-strong">{user.phone || "-"}</p>
           </div>
-          <div className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-4 sm:col-span-2">
-            <p className="text-xs uppercase tracking-widest text-brass/80 mb-2">Address</p>
-            <p className="text-ivory">{user.address || "-"}</p>
+          <div className="admin-stat-card p-4 sm:col-span-2">
+            <p className="eyebrow mb-3">Address</p>
+            <p className="body-copy body-copy-strong">{user.address || "-"}</p>
           </div>
-          <div className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-4">
-            <p className="text-xs uppercase tracking-widest text-brass/80 mb-2">Orders</p>
-            <p className="text-ivory">{user.orders ?? orders.length}</p>
+          <div className="admin-stat-card p-4">
+            <p className="eyebrow mb-3">Orders</p>
+            <p className="font-light text-[#C6A962]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.6rem" }}>{user.orders ?? orders.length}</p>
           </div>
-          <div className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-4">
-            <p className="text-xs uppercase tracking-widest text-brass/80 mb-2">Total Spent</p>
-            <p className="text-brass">EGP {Number(user.totalSpent ?? totalSpent).toLocaleString()}</p>
+          <div className="admin-stat-card p-4">
+            <p className="eyebrow mb-3">Total Spent</p>
+            <p className="font-light text-[#C6A962]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.6rem" }}>EGP {Number(user.totalSpent ?? totalSpent).toLocaleString()}</p>
           </div>
-          <div className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-4">
-            <p className="text-xs uppercase tracking-widest text-brass/80 mb-2">Location</p>
-            <p className="text-ivory">
+          <div className="admin-stat-card p-4">
+            <p className="eyebrow mb-3">Location</p>
+            <p className="body-copy body-copy-strong">
               {[user.city, user.postalCode, user.country].filter(Boolean).join(", ") || "-"}
             </p>
           </div>
-          <div className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-4">
-            <p className="text-xs uppercase tracking-widest text-brass/80 mb-2">Last Activity</p>
-            <p className="text-ivory">{formatDate(user.lastOrderAt || user.createdAt || "")}</p>
+          <div className="admin-stat-card p-4">
+            <p className="eyebrow mb-3">Last Activity</p>
+            <p className="body-copy body-copy-strong">{formatDate(user.lastOrderAt || user.createdAt || "")}</p>
           </div>
         </div>
       )}
 
       {loading ? (
-        <p className="text-ivory-muted">Loading...</p>
+        <p className="eyebrow">Loading Order History</p>
       ) : orders.length === 0 ? (
-        <div className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-12 text-center text-ivory-muted">
-          No orders found for this user
-        </div>
+        <AdminPanel className="p-6 sm:p-8">
+          <AdminEmptyState
+            title="No Orders Found"
+            description="Once this client completes a purchase, their history will appear here inside the shared admin shell."
+            icon={Receipt}
+          />
+        </AdminPanel>
       ) : (
         <div className="space-y-6">
           {orders.map((order) => (
-            <div
-              key={order._id}
-              className="rounded-xl border border-brass/20 bg-charcoal-light/30 p-6 shadow-lg"
-            >
+            <AdminPanel key={order._id} className="p-6">
               <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
                 <div>
-                  <p className="text-ivory-muted text-sm">{formatDate(order.createdAt)}</p>
-                  <p className="text-brass font-light mt-1">
-                    Status: <span className="text-ivory">{order.status}</span>
+                  <p className="body-copy">{formatDate(order.createdAt)}</p>
+                  <p className="body-copy body-copy-strong mt-2">
+                    Status: <span className="text-white/84">{order.status}</span>
                   </p>
                 </div>
-                <p className="text-brass text-lg font-light">
+                <p className="font-light text-[#C6A962]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.4rem" }}>
                   EGP {Number(order.totalPrice).toLocaleString()}
                 </p>
               </div>
@@ -181,24 +184,28 @@ export default function AdminUserOrdersPage() {
                 {order.items.map((item, i) => (
                   <div
                     key={`${order._id}-${i}`}
-                    className="flex items-center gap-4 py-3 border-t border-brass/10 first:border-t-0"
+                    className="flex items-center gap-4 rounded-[1rem] border border-white/8 bg-white/[0.03] px-4 py-3"
                   >
                     {item.image && (
-                      <img
+                      <div className="relative h-14 w-14 overflow-hidden rounded-[0.9rem]">
+                        <Image
                         src={item.image}
                         alt={item.name}
-                        className="w-14 h-14 object-cover rounded-lg"
-                      />
+                        fill
+                        className="object-cover"
+                        sizes="56px"
+                        />
+                      </div>
                     )}
                     <div className="flex-1">
-                      <p className="text-ivory">{item.name}</p>
-                      <p className="text-ivory-muted text-sm">Qty: {item.quantity}</p>
+                      <p className="body-copy body-copy-strong">{item.name}</p>
+                      <p className="body-copy text-sm">Qty: {item.quantity}</p>
                     </div>
-                    <p className="text-brass">EGP {(item.price * item.quantity).toLocaleString()}</p>
+                    <p className="text-[#C6A962]">EGP {(item.price * item.quantity).toLocaleString()}</p>
                   </div>
                 ))}
               </div>
-            </div>
+            </AdminPanel>
           ))}
         </div>
       )}

@@ -1,10 +1,12 @@
 "use client";
 
 import ProductCard from "@/components/ProductCard";
+import { usePerformanceProfile } from "@/hooks/usePerformanceProfile";
+import { useTimeoutRegistry } from "@/hooks/useTimeoutRegistry";
 import { getProductPageContent, type ProductPageSpecification } from "@/lib/productPageContent";
 import products from "@/lib/productsData";
 import type { Product } from "@/lib/types";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import {
   Award,
   Box,
@@ -12,7 +14,6 @@ import {
   ChevronRight,
   Copy,
   Facebook,
-  Heart,
   Linkedin,
   ShoppingBag,
   Star,
@@ -21,7 +22,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 /* ────────────────────────────────────────────────────────────────── */
 /* DESIGN TOKENS */
@@ -73,7 +74,7 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
+  const [canScrollRight, setCanScrollRight] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   const handleScroll = (direction: "left" | "right") => {
@@ -98,7 +99,7 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
     };
 
     checkScroll();
-    container.addEventListener("scroll", checkScroll);
+    container.addEventListener("scroll", checkScroll, { passive: true });
     window.addEventListener("resize", checkScroll);
 
     return () => {
@@ -285,14 +286,16 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
 
 function ShareButtons({ product }: { product: Product }) {
   const [copied, setCopied] = useState(false);
+  const { registerTimeout } = useTimeoutRegistry();
 
   const shareUrl = typeof window !== "undefined" ? window.location.href : "";
   const shareText = `Check out ${product.name}`;
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(shareUrl);
+    if (!navigator.clipboard?.writeText) return;
+    void navigator.clipboard.writeText(shareUrl);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    registerTimeout(() => setCopied(false), 2000);
   };
 
   return (
@@ -370,6 +373,7 @@ function SpecificationsTab({ specs }: { specs: ProductPageSpecification[] }) {
 /* ────────────────────────────────────────────────────────────────── */
 
 export default function PremiumProductPage() {
+  const { shouldReduceDecorativeMotion } = usePerformanceProfile();
   const params = useParams();
   const idParam = params?.id;
   const id = Array.isArray(idParam) ? idParam[0] : String(idParam ?? "");
@@ -384,10 +388,19 @@ export default function PremiumProductPage() {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [wishlisted, setWishlisted] = useState(false);
   const [activeTab, setActiveTab] = useState<"specs" | "details">("specs");
+  const [actionError, setActionError] = useState<string | null>(null);
+  const { registerTimeout } = useTimeoutRegistry();
   const p = product;
-  const allMedia = p ? [...(p.images || []), ...(p.media360 || [])] : [];
+  const allMedia = useMemo(() => {
+    if (!p) return [];
+
+    const media = [...(p.images || []), ...(p.media360 || [])].filter(
+      (item): item is string => typeof item === "string" && item.trim() !== ""
+    );
+
+    return media.length > 0 ? media : ["/images/placeholder.svg"];
+  }, [p]);
 
   useEffect(() => {
     if (!id) {
@@ -408,38 +421,39 @@ export default function PremiumProductPage() {
       return;
     }
 
-    let cancelled = false;
+    const controller = new AbortController();
 
     (async () => {
       try {
         const res = await fetch(`/api/products/${encodeURIComponent(id)}`, {
           cache: "no-store",
+          signal: controller.signal,
         });
 
         if (!res.ok) {
-          if (!cancelled && !fallbackProduct) {
+          if (!controller.signal.aborted && !fallbackProduct) {
             setProduct(null);
           }
           return;
         }
 
         const data = await res.json();
-        if (!cancelled) {
+        if (!controller.signal.aborted) {
           setProduct(data);
         }
       } catch {
-        if (!cancelled && !fallbackProduct) {
+        if (!controller.signal.aborted && !fallbackProduct) {
           setProduct(null);
         }
       } finally {
-        if (!cancelled) {
+        if (!controller.signal.aborted) {
           setLoadingProduct(false);
         }
       }
     })();
 
     return () => {
-      cancelled = true;
+      controller.abort();
     };
   }, [id]);
 
@@ -463,27 +477,34 @@ export default function PremiumProductPage() {
     );
   }
 
-  const relatedProducts = products
-    .filter((r) => r.category === product.category && r._id !== product._id)
-    .slice(0, 4) as Product[];
-  const pageContent = getProductPageContent(product);
-  const highlightIcons = [Award, Star, Check, Box];
+  const relatedProducts = useMemo(
+    () =>
+      products.filter((r) => r.category === product.category && r._id !== product._id).slice(0, 4) as Product[],
+    [product.category, product._id]
+  );
+  const pageContent = useMemo(() => getProductPageContent(product), [product]);
+  const highlightIcons = useMemo(() => [Award, Star, Check, Box], []);
 
   const sizes = product.size || [];
   const colors = product.colors || [];
   const originalPrice = getOriginalPrice(product.price, product.discount);
+  const showActionError = (message: string) => {
+    setActionError(message);
+    registerTimeout(() => setActionError(null), 2500);
+  };
 
   const handleAddToCart = async () => {
     if (sizes.length > 0 && !selectedSize) {
-      alert("Please select a size first.");
+      showActionError("Please select a size first.");
       return;
     }
     if (colors.length > 0 && !selectedColor) {
-      alert("Please select a color first.");
+      showActionError("Please select a color first.");
       return;
     }
     try {
       setLoading(true);
+      setActionError(null);
       const res = await fetch("/api/cart", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -497,9 +518,9 @@ export default function PremiumProductPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed");
       setAdded(true);
-      setTimeout(() => setAdded(false), 2500);
+      registerTimeout(() => setAdded(false), 2500);
     } catch {
-      alert("Failed to add to cart.");
+      showActionError("Failed to add this piece to the cart.");
     } finally {
       setLoading(false);
     }
@@ -507,11 +528,11 @@ export default function PremiumProductPage() {
 
   const handleBuyNow = () => {
     if (sizes.length > 0 && !selectedSize) {
-      alert("Please select a size first.");
+      showActionError("Please select a size first.");
       return;
     }
     if (colors.length > 0 && !selectedColor) {
-      alert("Please select a color first.");
+      showActionError("Please select a color first.");
       return;
     }
     const checkoutItems = [{
@@ -530,6 +551,7 @@ export default function PremiumProductPage() {
   };
 
   return (
+    <MotionConfig reducedMotion={shouldReduceDecorativeMotion ? "always" : "never"}>
     <>
       <style>{`
         
@@ -568,32 +590,58 @@ export default function PremiumProductPage() {
         html { scroll-behavior: smooth; }
       `}</style>
 
+      <AnimatePresence>
+        {actionError ? (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="fixed inset-x-4 top-20 z-[70] flex justify-center sm:top-24"
+          >
+            <div
+              className="rounded-2xl px-4 py-3"
+              style={{
+                background: "rgba(255,60,60,0.07)",
+                border: "1px solid rgba(255,80,80,0.18)",
+                backdropFilter: "blur(16px)",
+              }}
+            >
+              <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: "rgba(255,120,120,0.75)" }}>
+                {actionError}
+              </p>
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
       <div
         className="min-h-screen bg-[#080808] text-white overflow-hidden"
         style={{ fontFamily: "'Jost', sans-serif" }}
       >
         {/* Ambient background glows */}
         <div className="pointer-events-none fixed inset-0 overflow-hidden">
-          {/* Gold glow - top right */}
-          <motion.div
-            animate={{ opacity: [0.04, 0.08, 0.04] }}
-            transition={{ duration: 8, repeat: Infinity }}
+          <div
             style={{
-              position: "absolute", width: 1000, height: 1000,
-              top: "-30%", right: "-20%",
+              position: "absolute",
+              width: shouldReduceDecorativeMotion ? 620 : 1000,
+              height: shouldReduceDecorativeMotion ? 620 : 1000,
+              top: "-30%",
+              right: "-20%",
               background: "radial-gradient(circle, rgba(198,169,98,0.08) 0%, transparent 60%)",
-              filter: "blur(100px)",
+              filter: shouldReduceDecorativeMotion ? "blur(72px)" : "blur(100px)",
+              opacity: shouldReduceDecorativeMotion ? 0.05 : undefined,
             }}
           />
-          {/* Blue glow - bottom left */}
-          <motion.div
-            animate={{ opacity: [0.03, 0.06, 0.03] }}
-            transition={{ duration: 10, repeat: Infinity }}
+          <div
             style={{
-              position: "absolute", width: 800, height: 800,
-              bottom: "-10%", left: "-15%",
+              position: "absolute",
+              width: shouldReduceDecorativeMotion ? 520 : 800,
+              height: shouldReduceDecorativeMotion ? 520 : 800,
+              bottom: "-10%",
+              left: "-15%",
               background: "radial-gradient(circle, rgba(160,160,220,0.06) 0%, transparent 65%)",
-              filter: "blur(80px)",
+              filter: shouldReduceDecorativeMotion ? "blur(60px)" : "blur(80px)",
+              opacity: shouldReduceDecorativeMotion ? 0.04 : undefined,
             }}
           />
         </div>
@@ -865,25 +913,6 @@ export default function PremiumProductPage() {
                     </span>
                   </div>
                 </motion.button>
-
-                {/* Wishlist */}
-                <motion.button
-                  onClick={() => setWishlisted(!wishlisted)}
-                  whileHover={{ scale: 1.08 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="p-5 rounded-full"
-                  style={wishlisted ? {
-                    background: "linear-gradient(135deg, rgba(255,80,80,0.18), rgba(255,80,80,0.06))",
-                    border: "1px solid rgba(255,100,100,0.3)",
-                    backdropFilter: "blur(16px)",
-                    boxShadow: "0 0 16px rgba(255,80,80,0.08)",
-                  } : glass}
-                >
-                  <Heart
-                    strokeWidth={1.5}
-                    className={`w-5 h-5 transition-all ${wishlisted ? "fill-red-400 text-red-400" : "text-white/60"}`}
-                  />
-                </motion.button>
               </motion.div>
 
               {/* Share buttons */}
@@ -1056,5 +1085,6 @@ export default function PremiumProductPage() {
         <div className="h-10" />
       </div>
     </>
+    </MotionConfig>
   );
 }

@@ -15,33 +15,44 @@ export default function ProductsFromAPIPage() {
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-[#111111] px-4 pt-16 text-[#EFEFEF] tracking-wide sm:px-6 sm:pt-24 md:px-10">
-        <p className="text-lg">Loading products...</p>
+      <main className="liquid-page pt-24">
+        <div className="page-wrap flex min-h-[55vh] items-center justify-center">
+          <p className="eyebrow">Loading Products</p>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#111111] px-4 pb-24 pt-16 text-[#EFEFEF] tracking-wide sm:px-6 sm:pb-32 sm:pt-24 md:px-10 md:pb-40">
-      <section className="mb-10 text-center sm:mb-16 md:mb-24">
-        <h1 className="mb-4 text-3xl font-serif font-light tracking-[0.25em] sm:text-4xl md:text-5xl">
-          Products
-        </h1>
-        <p className="mx-auto max-w-xl text-[11px] leading-relaxed tracking-wide text-[#EFEFEF]/60 sm:text-sm md:text-base">
-          All products from the catalog.
-        </p>
-      </section>
+    <main className="liquid-page px-4 pb-24 pt-16 sm:px-6 sm:pb-32 sm:pt-24 md:px-10 md:pb-40">
+      <section className="page-wrap pt-2">
+        <div className="mb-10 text-center sm:mb-16 md:mb-24">
+          <p className="eyebrow mb-4">Catalogue Mirror</p>
+          <h1 className="title-display mb-5">
+            Product <em className="gold-italic">Index</em>
+          </h1>
+          <p className="body-copy mx-auto max-w-xl">
+            A full catalogue view rendered inside the same liquid glass shell as the rest of the storefront.
+          </p>
+          <div className="mt-6 flex items-center justify-center gap-3">
+            <span className="h-px w-10" style={{ background: "linear-gradient(90deg, transparent, rgba(198,169,98,0.7), transparent)" }} />
+            <span className="count-pill">{products.length} Pieces</span>
+            <span className="h-px w-10" style={{ background: "linear-gradient(90deg, transparent, rgba(198,169,98,0.7), transparent)" }} />
+          </div>
+        </div>
+
       {products.length > 0 ? (
-        <section className="product-grid-shell mx-auto max-w-7xl lg:grid-cols-4">
+        <section className="catalog-grid mx-auto max-w-7xl">
           {products.map((product) => (
             <ProductCard key={product._id} product={product} />
           ))}
         </section>
       ) : (
-        <p className="text-center text-[#EFEFEF]/60 text-lg">
-          No products found.
-        </p>
+        <div className="glass-panel mx-auto max-w-2xl px-5 py-10 text-center">
+          <p className="body-copy body-copy-strong">No products found.</p>
+        </div>
       )}
+      </section>
     </main>
   );
 }

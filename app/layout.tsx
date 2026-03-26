@@ -1,4 +1,5 @@
 import AmbientBackdrop from '@/components/AmbientBackdrop'
+import ClientErrorBoundary from '@/components/ClientErrorBoundary'
 import Cursor from '@/components/Cursor'
 import DeferredAIChatStylist from '@/components/DeferredAIChatStylist'
 import Footer from '@/components/Footer'
@@ -36,13 +37,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${cormorant.variable} ${jost.variable}`}>
       <body className="bg-[#080808] text-white">
         <AmbientBackdrop />
-        <Cursor />
+        <ClientErrorBoundary fallback={null}>
+          <Cursor />
+        </ClientErrorBoundary>
         <div id="app-shell" className="relative z-10 flex min-h-screen flex-col">
-          <Navbar />
+          <ClientErrorBoundary fallback={<div aria-hidden className="h-[54px] sm:h-[58px]" />}>
+            <Navbar />
+          </ClientErrorBoundary>
           <div className="flex-1 min-h-[calc(100svh-54px)] sm:min-h-[calc(100svh-58px)]">
             {children}
           </div>
-          <DeferredAIChatStylist />
+          <ClientErrorBoundary fallback={null}>
+            <DeferredAIChatStylist />
+          </ClientErrorBoundary>
           <Footer />
         </div>
       </body>

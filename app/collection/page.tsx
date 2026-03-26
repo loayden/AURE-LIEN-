@@ -1,5 +1,6 @@
 "use client";
 
+import AdaptiveHeroMedia from "@/components/AdaptiveHeroMedia";
 import ProductCard from "@/components/ProductCard";
 import products from "@/lib/productsData";
 import type { Product } from "@/lib/types";
@@ -149,41 +150,6 @@ function SubcategorySection({
   );
 }
 
-function FloatingOrbs() {
-  return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      <div
-        className="absolute rounded-full"
-        style={{
-          width: 400,
-          height: 400,
-          top: "-20%",
-          right: "-15%",
-          background: "radial-gradient(circle, rgba(198,169,98,0.08) 0%, transparent 70%)",
-          filter: "blur(80px)",
-          animation: "orbA 22s ease-in-out infinite",
-        }}
-      />
-      <div
-        className="absolute rounded-full"
-        style={{
-          width: 300,
-          height: 300,
-          bottom: "5%",
-          left: "-10%",
-          background: "radial-gradient(circle, rgba(160,160,210,0.07) 0%, transparent 70%)",
-          filter: "blur(70px)",
-          animation: "orbB 28s ease-in-out infinite",
-        }}
-      />
-      <style>{`
-        @keyframes orbA { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-40px,30px) scale(1.07)} }
-        @keyframes orbB { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(50px,-30px) scale(1.05)} }
-      `}</style>
-    </div>
-  );
-}
-
 function GlassNav({ active, onChange }: { active: string; onChange: (id: string) => void }) {
   return (
     <div
@@ -290,14 +256,13 @@ export default function CollectionPage() {
           className="relative h-[60vh] sm:h-[75vh] md:h-[85vh] w-full overflow-hidden flex items-end justify-center pb-10 sm:pb-20"
         >
           <motion.div style={{ y: heroY }} className="absolute inset-0 scale-110">
-            <video
-              src="/uploads/Goldmaa.mp4"
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover"
+            <AdaptiveHeroMedia
+              alt="Collection campaign"
+              className="absolute inset-0 h-full w-full object-cover"
+              imagePriority
+              posterSrc="/uploads/collections.jpg"
               style={{ filter: "brightness(0.5) saturate(0.85)" }}
+              videoSrc="/uploads/Goldmaa.mp4"
             />
           </motion.div>
 

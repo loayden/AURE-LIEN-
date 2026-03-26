@@ -1,6 +1,7 @@
 "use client";
 
 import { useOverlayIsolation } from "@/components/useOverlayIsolation";
+import { usePerformanceProfile } from "@/hooks/usePerformanceProfile";
 import { searchCatalogProducts } from "@/lib/searchProducts";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Search, X } from "lucide-react";
@@ -26,8 +27,10 @@ export default function SearchOverlay({
 }) {
   const [q, setQ] = useState("");
   const [portalReady, setPortalReady] = useState(false);
+  const { lowEndDevice, prefersReducedMotion } = usePerformanceProfile();
   const deferredQuery = useDeferredValue(q);
   const trimmedQuery = deferredQuery.trim();
+  const shouldReduceDecorativeEffects = lowEndDevice || prefersReducedMotion;
   const loading = q.trim() !== trimmedQuery;
   const results = useMemo<SearchProduct[]>(
     () => (trimmedQuery ? searchCatalogProducts(trimmedQuery, { limit: 12 }) : []),
@@ -44,13 +47,14 @@ export default function SearchOverlay({
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const previousOverflow = document.body.style.overflow;
     if (open) {
       document.addEventListener("keydown", onKey);
       document.body.style.overflow = "hidden";
     }
     return () => {
       document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
+      document.body.style.overflow = previousOverflow;
     };
   }, [open, onClose]);
 
@@ -72,8 +76,8 @@ export default function SearchOverlay({
           data-overlay-root="true"
           style={{
             background: "rgba(4,4,5,0.88)",
-            backdropFilter: "blur(36px) saturate(160%)",
-            WebkitBackdropFilter: "blur(36px) saturate(160%)",
+            backdropFilter: shouldReduceDecorativeEffects ? "blur(18px) saturate(135%)" : "blur(36px) saturate(160%)",
+            WebkitBackdropFilter: shouldReduceDecorativeEffects ? "blur(18px) saturate(135%)" : "blur(36px) saturate(160%)",
           }}
         >
           {/* ── HEADER ── */}
@@ -88,7 +92,7 @@ export default function SearchOverlay({
               className="relative flex items-center gap-2 overflow-hidden rounded-2xl px-4 py-3.5 sm:gap-3 sm:px-5 sm:py-4"
               style={{
                 background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.025) 100%)",
-                backdropFilter: "blur(20px)",
+                backdropFilter: shouldReduceDecorativeEffects ? "blur(12px)" : "blur(20px)",
                 border: "1px solid rgba(255,255,255,0.10)",
                 boxShadow: "0 16px 48px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.14)",
               }}
@@ -155,12 +159,19 @@ export default function SearchOverlay({
                   {[0, 1, 2, 3].map((i) => (
                     <div key={i} className="flex gap-4 p-3 rounded-2xl overflow-hidden relative"
                          style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", height: 88 }}>
-                      <motion.div
-                        animate={{ x: ["-100%", "100%"] }}
-                        transition={{ repeat: Infinity, duration: 1.6, delay: i * 0.12, ease: "easeInOut" }}
-                        className="absolute inset-0"
-                        style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent)" }}
-                      />
+                      {shouldReduceDecorativeEffects ? (
+                        <div
+                          className="absolute inset-0"
+                          style={{ background: "rgba(255,255,255,0.03)" }}
+                        />
+                      ) : (
+                        <motion.div
+                          animate={{ x: ["-100%", "100%"] }}
+                          transition={{ repeat: Infinity, duration: 1.6, delay: i * 0.12, ease: "easeInOut" }}
+                          className="absolute inset-0"
+                          style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent)" }}
+                        />
+                      )}
                     </div>
                   ))}
                 </motion.div>

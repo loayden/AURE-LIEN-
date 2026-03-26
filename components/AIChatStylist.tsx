@@ -1,6 +1,7 @@
 "use client";
 
 import { useOverlayIsolation } from "@/components/useOverlayIsolation";
+import { useTimeoutRegistry } from "@/hooks/useTimeoutRegistry";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -24,14 +25,24 @@ export default function AIChatStylist() {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [portalReady, setPortalReady] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const messagesRef = useRef(messages);
+  const { registerTimeout } = useTimeoutRegistry();
 
   useOverlayIsolation(open);
 
   useEffect(() => {
     setPortalReady(true);
   }, []);
+
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
+
+  useEffect(() => () => abortRef.current?.abort(), []);
 
   const scrollToBottom = useCallback(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -40,36 +51,49 @@ export default function AIChatStylist() {
   const send = useCallback(async () => {
     const text = input.trim();
     if (!text || loading) return;
+
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setInput("");
+    setError(null);
     setMessages((prev) => [...prev, { role: "user", content: text }]);
     setLoading(true);
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
-          messages: [...messages, { role: "user", content: text }].map((m) => ({
+          messages: [...messagesRef.current, { role: "user", content: text }].map((m) => ({
             role: m.role,
             content: m.content,
           })),
         }),
       });
+      if (!res.ok) throw new Error("Stylist service unavailable");
       const data = await res.json();
       const reply = data.reply || "I couldn't help with that. Try asking for outfit ideas or product recommendations.";
       const ids: string[] = [];
       const idMatches = reply.matchAll(/id:([a-zA-Z0-9-_]+)/g);
       for (const m of idMatches) ids.push(m[1]);
       setMessages((prev) => [...prev, { role: "assistant", content: reply, productIds: ids.length ? ids : undefined }]);
-    } catch {
+    } catch (error) {
+      if (controller.signal.aborted) return;
       setMessages((prev) => [
         ...prev,
         { role: "assistant", content: "Something went wrong. Please try again." },
       ]);
+      setError(error instanceof Error ? error.message : "Unable to reach the stylist");
     } finally {
+      if (abortRef.current === controller) {
+        abortRef.current = null;
+      }
       setLoading(false);
-      setTimeout(scrollToBottom, 100);
+      registerTimeout(scrollToBottom, 100);
     }
-  }, [input, loading, messages, scrollToBottom]);
+  }, [input, loading, registerTimeout, scrollToBottom]);
 
   return (
     <>
@@ -128,6 +152,18 @@ export default function AIChatStylist() {
                 </button>
               </div>
               <div className="min-h-[160px] flex-1 space-y-4 overflow-y-auto p-3.5 sm:min-h-[200px] sm:p-4">
+                {error ? (
+                  <div
+                    className="rounded-2xl px-3 py-2"
+                    style={{
+                      background: "rgba(255,60,60,0.07)",
+                      border: "1px solid rgba(255,80,80,0.18)",
+                      color: "rgba(255,120,120,0.75)",
+                    }}
+                  >
+                    <p className="text-[10px] tracking-[0.16em] uppercase">{error}</p>
+                  </div>
+                ) : null}
                 {messages.map((m, i) => (
                   <div
                     key={i}
@@ -167,7 +203,7 @@ export default function AIChatStylist() {
                               >
                                 {p.images?.[0] && (
                                   <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded">
-                                    <Image src={p.images[0]} alt="" fill className="object-cover" />
+                                    <Image src={p.images[0]} alt="" fill className="object-cover" sizes="40px" />
                                   </div>
                                 )}
                                 <span className="max-w-[132px] truncate text-xs text-ivory sm:max-w-[100px]">{p.name}</span>
@@ -193,7 +229,7 @@ export default function AIChatStylist() {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && send()}
+                  onKeyDown={(e) => e.key === "Enter" && void send()}
                   placeholder="Ask for outfit ideas..."
                   className="glass-input flex-1 px-4 py-3 text-base sm:text-sm"
                 />

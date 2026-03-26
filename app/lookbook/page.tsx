@@ -198,19 +198,30 @@ function LookbookSection({ section, index }: { section: Section; index: number }
 
 export default function LookbookPage() {
   const [sections, setSections] = useState<Section[]>(STATIC_SECTIONS);
+  const [error, setError] = useState<string | null>(null);
   const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress: heroScroll } = useScroll({ target:heroRef, offset:["start start","end start"] });
   const heroOpacity = useTransform(heroScroll, [0,0.8], [1,0]);
   const heroY = useTransform(heroScroll, [0,1], ["0%","20%"]);
 
   useEffect(() => {
-    fetch("/api/lookbooks?published=true")
-      .then((r) => r.json())
+    const controller = new AbortController();
+
+    fetch("/api/lookbooks?published=true", { signal: controller.signal })
+      .then((r) => {
+        if (!r.ok) throw new Error("Unable to load lookbook");
+        return r.json();
+      })
       .then((lookbooks: { sections: Section[] }[]) => {
         if (lookbooks?.length > 0 && lookbooks[0].sections?.length > 0)
           setSections(lookbooks[0].sections);
       })
-      .catch(() => {});
+      .catch((requestError) => {
+        if (controller.signal.aborted) return;
+        setError(requestError instanceof Error ? requestError.message : "Unable to load lookbook");
+      });
+
+    return () => controller.abort();
   }, []);
 
   return (
@@ -220,6 +231,18 @@ export default function LookbookPage() {
       `}</style>
 
       <main className="relative min-h-screen bg-[#080808] text-white" style={{ fontFamily:"'Jost', sans-serif" }}>
+        {error ? (
+          <div className="relative z-20 mx-auto max-w-6xl px-4 pt-20 sm:px-6 md:px-10">
+            <div
+              className="rounded-2xl px-4 py-3"
+              style={{ background: "rgba(255,60,60,0.07)", border: "1px solid rgba(255,80,80,0.18)" }}
+            >
+              <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: "rgba(255,120,120,0.75)" }}>
+                {error}
+              </p>
+            </div>
+          </div>
+        ) : null}
 
         {/* ── HERO ── */}
         <section ref={heroRef} className="relative flex h-[60vh] w-full items-end justify-center overflow-hidden px-4 pb-10 sm:h-[75vh] sm:px-6 sm:pb-20 md:h-[85vh] md:px-10">

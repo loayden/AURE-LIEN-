@@ -86,6 +86,12 @@ function DesktopMenuItem({ item }: { item: MenuItem }) {
   const enter = () => { if (timer.current) clearTimeout(timer.current); setOpen(true); };
   const leave = () => { timer.current = setTimeout(() => setOpen(false), 180); };
 
+  useEffect(() => {
+    return () => {
+      if (timer.current) clearTimeout(timer.current);
+    };
+  }, []);
+
   return (
     <li className="relative flex items-center" onMouseEnter={enter} onMouseLeave={leave}>
       <Link
@@ -400,8 +406,9 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = mobileOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => { document.body.style.overflow = previousOverflow; };
   }, [mobileOpen]);
 
   return (

@@ -1,16 +1,17 @@
 "use client";
 
+import AdminBanner from "@/components/admin/AdminBanner";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, Download } from "lucide-react";
+import { Download, LayoutDashboard, Package, Plus, ShoppingBag, Users } from "lucide-react";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/users", label: "Users" },
-  { href: "/admin/products", label: "Products" },
-  { href: "/admin/orders", label: "Orders" },
-  { href: "/admin/add-product", label: "Add Product" },
+  { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin/products", label: "Products", icon: Package },
+  { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
+  { href: "/admin/add-product", label: "Add Product", icon: Plus },
 ];
 
 export default function AdminLayout({
@@ -20,8 +21,10 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const [exporting, setExporting] = useState(false);
+  const [error, setError] = useState("");
 
   const handleExportOrders = async () => {
+    setError("");
     setExporting(true);
     try {
       const res = await fetch("/api/admin/export-orders");
@@ -33,20 +36,31 @@ export default function AdminLayout({
       a.download = res.headers.get("Content-Disposition")?.match(/filename="([^"]+)"/)?.[1] ?? "orders-export.json";
       a.click();
       URL.revokeObjectURL(url);
-    } catch {
-      alert("Failed to download orders.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to download orders.");
     } finally {
       setExporting(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-charcoal text-ivory lg:flex-row">
-      <aside className="flex w-full flex-col border-b border-brass/20 p-4 sm:p-6 lg:w-64 lg:border-b-0 lg:border-r">
-        <h2 className="mb-6 text-xl font-serif font-light tracking-luxury-wide sm:mb-8">
-          Admin
-        </h2>
-        <nav className="flex-1 space-y-2">
+    <main className="admin-shell liquid-page px-4 pb-16 pt-16 sm:px-6 sm:pb-20 sm:pt-24 md:px-10">
+      <div className="page-wrap max-w-[90rem]">
+        <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
+          <aside className="dark-panel flex flex-col gap-5 p-5 sm:p-6">
+            <div>
+              <p className="eyebrow mb-4">Maison Control</p>
+              <h2 className="title-display text-[2.15rem]">
+                Admin <em className="gold-italic">Suite</em>
+              </h2>
+              <p className="body-copy mt-4">
+                Every operational route now sits inside the same liquid shell as the storefront.
+              </p>
+            </div>
+
+            <div className="page-header-divider" />
+
+            <nav className="flex-1 space-y-2">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -54,29 +68,37 @@ export default function AdminLayout({
                 key={item.href}
                 href={item.href}
                 prefetch={false}
-                className={`flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-lg px-4 py-3 text-[11px] tracking-wide transition-colors sm:gap-3 sm:text-sm ${
+                className={`liquid-row-link ${
                   pathname === item.href
-                    ? "bg-brass/20 text-brass border border-brass/30"
-                    : "text-ivory-muted hover:text-ivory hover:bg-charcoal-light"
+                    ? "border-[rgba(198,169,98,0.24)] text-[#C6A962]"
+                    : ""
                 }`}
               >
-                {Icon && <Icon className="w-4 h-4 shrink-0" />}
-                {item.label}
+                <span className="inline-flex items-center gap-3">
+                  {Icon && <Icon className="h-4 w-4 shrink-0 text-[#C6A962]" />}
+                  <span className="text-[0.76rem] uppercase tracking-[0.24em]">{item.label}</span>
+                </span>
               </Link>
             );
           })}
-        </nav>
-        <button
-          type="button"
-          onClick={handleExportOrders}
-          disabled={exporting}
-          className="mt-4 flex min-h-[44px] min-w-[44px] w-full items-center gap-2 rounded-lg border border-brass/30 px-4 py-3 text-[11px] tracking-wide text-brass transition-colors hover:bg-brass/10 disabled:cursor-not-allowed disabled:opacity-50 sm:gap-3 sm:text-sm"
-        >
-          <Download className="w-4 h-4 shrink-0" />
-          {exporting ? "Exporting…" : "Download orders (JSON)"}
-        </button>
-      </aside>
-      <main className="flex-1 px-4 py-6 sm:px-6 sm:py-8 md:px-10">{children}</main>
-    </div>
+            </nav>
+
+            {error ? <AdminBanner message={error} /> : null}
+
+            <button
+              type="button"
+              onClick={handleExportOrders}
+              disabled={exporting}
+              className="btn-gold w-full justify-center"
+            >
+              <Download className="h-4 w-4 shrink-0" />
+              {exporting ? "Exporting" : "Download Orders"}
+            </button>
+          </aside>
+
+          <section className="glass-panel p-5 sm:p-7 md:p-8">{children}</section>
+        </div>
+      </div>
+    </main>
   );
 }

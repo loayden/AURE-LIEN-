@@ -1,10 +1,26 @@
-const baseUrl = typeof window === "undefined" ? (process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000") : window.location.origin;
+function getBaseUrl() {
+  if (typeof window !== "undefined") {
+    return window.location.origin;
+  }
 
-// lib/fetchProducts.ts
+  const configuredBaseUrl =
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    process.env.VERCEL_URL ||
+    "";
+
+  if (!configuredBaseUrl) {
+    return "";
+  }
+
+  return configuredBaseUrl.startsWith("http")
+    ? configuredBaseUrl
+    : `https://${configuredBaseUrl}`;
+}
 
 export async function fetchProducts(category?: string) {
   try {
     const normalizedCategory = category ? encodeURIComponent(category.trim().toLowerCase()) : "";
+    const baseUrl = getBaseUrl();
 
     const url = normalizedCategory
       ? `${baseUrl}/api/products?category=${normalizedCategory}`

@@ -1,5 +1,6 @@
 "use client";
 
+import AdaptiveHeroMedia from "@/components/AdaptiveHeroMedia";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -73,11 +74,13 @@ export default function FootwearPage() {
         {/* ── HERO ── */}
         <section ref={heroRef} className="relative mobile-safe-hero w-full overflow-hidden flex items-center justify-center text-center">
           <motion.div style={{ y: heroY }} className="absolute inset-0 scale-110">
-            <video
-              src="/uploads/footwear.mp4"
-              autoPlay loop muted playsInline
-              className="absolute inset-0 w-full h-full object-cover"
+            <AdaptiveHeroMedia
+              alt="Footwear campaign"
+              className="absolute inset-0 h-full w-full object-cover"
+              imagePriority
+              posterSrc="/uploads/footwear.jpg"
               style={{ filter: "brightness(0.42) saturate(0.8)" }}
+              videoSrc="/uploads/footwear.mp4"
             />
           </motion.div>
 

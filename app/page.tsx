@@ -1,5 +1,6 @@
 "use client";
 
+import AdaptiveHeroMedia from "@/components/AdaptiveHeroMedia";
 import ProductCard from "@/components/ProductCard";
 import products from "@/lib/productsData";
 import { useRouter } from "next/navigation";
@@ -15,7 +16,7 @@ import {
   ArrowRight,
   Check,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 
 const SORT_OPTIONS = [
   { value: "default", label: "Featured" },
@@ -178,6 +179,7 @@ export default function AureLienPlatform() {
   });
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
+  const deferredSearch = useDeferredValue(filters.search);
 
   const filteredProducts = useMemo(() => {
     let result = [...products];
@@ -185,15 +187,16 @@ export default function AureLienPlatform() {
       const range = PRICE_RANGES[filters.priceRange];
       result = result.filter((p) => p.price >= range.min && p.price <= range.max);
     }
-    if (filters.search) {
+    if (deferredSearch) {
+      const normalizedSearch = deferredSearch.toLowerCase();
       result = result.filter(
         (p) =>
-          p.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-          p.description?.toLowerCase().includes(filters.search.toLowerCase())
+          p.name.toLowerCase().includes(normalizedSearch) ||
+          p.description?.toLowerCase().includes(normalizedSearch)
       );
     }
     return result;
-  }, [filters]);
+  }, [deferredSearch, filters.priceRange]);
 
   const sortedProducts = useMemo(() => {
     const arr = [...filteredProducts];
@@ -301,16 +304,14 @@ export default function AureLienPlatform() {
           ref={heroRef}
           className="home-hero-shell relative flex min-h-[72vh] items-center overflow-hidden px-4 pb-12 pt-14 sm:min-h-[82vh] sm:px-6 sm:pb-20 sm:pt-[4.5rem] md:min-h-[92vh] md:px-10 md:pb-28 md:pt-24"
         >
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover"
+          <AdaptiveHeroMedia
+            alt="AURE-LIEN campaign"
+            className="absolute inset-0 h-full w-full object-cover"
+            imagePriority
+            posterSrc="/uploads/main.jpg"
             style={{ zIndex: 0 }}
-          >
-            <source src="/uploads/0316 (3).mp4" type="video/mp4" />
-          </video>
+            videoSrc="/uploads/0316 (3).mp4"
+          />
 
           <motion.div
             style={{ y: heroY, opacity: heroOpacity }}

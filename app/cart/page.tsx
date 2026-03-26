@@ -12,12 +12,16 @@ export default function CartPage() {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [removing, setRemoving] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
+    const controller = new AbortController();
+
     (async () => {
       try {
-        const res = await fetch("/api/cart", { cache: "no-store" });
+        const res = await fetch("/api/cart", { cache: "no-store", signal: controller.signal });
+        if (!res.ok) throw new Error("Unable to load cart");
         const cartItems = await res.json();
         if (!cartItems.items || !Array.isArray(cartItems.items)) { setItems([]); return; }
         const sanitized = cartItems.items.map((item: any) => {
@@ -34,19 +38,30 @@ export default function CartPage() {
           };
         });
         setItems(sanitized);
-      } catch { setItems([]); }
-      finally { setLoading(false); }
+      } catch (requestError) {
+        if (controller.signal.aborted) return;
+        setItems([]);
+        setError(requestError instanceof Error ? requestError.message : "Unable to load cart");
+      }
+      finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
     })();
+    return () => controller.abort();
   }, []);
 
   const removeFromCart = async (productId: string, size?: string | null, color?: string | null) => {
     setRemoving(productId);
     try {
-      await fetch("/api/cart", {
+      const res = await fetch("/api/cart", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId, size, color }),
       });
+      if (!res.ok) throw new Error("Unable to remove this item");
+      setError(null);
       setItems((prev) =>
         prev.filter(
           (i) =>
@@ -57,7 +72,9 @@ export default function CartPage() {
             )
         )
       );
-    } catch { console.error("Remove failed"); }
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Unable to remove this item");
+    }
     finally { setRemoving(null); }
   };
 
@@ -67,11 +84,13 @@ export default function CartPage() {
       return;
     }
     try {
-      await fetch("/api/cart", {
+      const res = await fetch("/api/cart", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId, quantity, size, color }),
       });
+      if (!res.ok) throw new Error("Unable to update quantity");
+      setError(null);
       setItems((prev) =>
         prev.map((i) =>
           i.productId === productId &&
@@ -81,8 +100,8 @@ export default function CartPage() {
             : i
         )
       );
-    } catch {
-      console.error("Update quantity failed");
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Unable to update quantity");
     }
   };
 
@@ -134,6 +153,16 @@ export default function CartPage() {
       >
 
         <div className="relative z-10 mx-auto max-w-6xl px-4 pt-16 pb-16 sm:px-6 sm:pt-24 sm:pb-24 md:px-10 md:pb-32">
+          {error ? (
+            <div
+              className="mb-5 rounded-2xl px-4 py-3"
+              style={{ background: "rgba(255,60,60,0.07)", border: "1px solid rgba(255,80,80,0.18)" }}
+            >
+              <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: "rgba(255,120,120,0.75)" }}>
+                {error}
+              </p>
+            </div>
+          ) : null}
 
           {/* ── PAGE HEADER ── */}
           <motion.div
@@ -205,7 +234,7 @@ export default function CartPage() {
                 <AnimatePresence mode="popLayout">
                   {items.map((item, i) => (
                     <motion.div
-                      key={i}
+                      key={`${item.productId}-${item.size ?? "na"}-${item.color ?? "na"}`}
                       layout
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}

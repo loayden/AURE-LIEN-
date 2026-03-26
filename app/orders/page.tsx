@@ -232,20 +232,33 @@ function OrderCard({ order, index, onPending }: { order: any; index: number; onP
 export default function OrdersPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
 
   useEffect(() => {
+    const controller = new AbortController();
+
     (async () => {
       try {
         const query = orderId ? `?orderId=${encodeURIComponent(orderId)}` : "";
-        const res = await fetch(`/api/orders${query}`, { cache: "no-store" });
+        const res = await fetch(`/api/orders${query}`, { cache: "no-store", signal: controller.signal });
+        if (!res.ok) throw new Error("Unable to load orders");
         const data = await res.json();
         setOrders(data.orders || []);
-      } catch { setOrders([]); }
-      finally { setLoading(false); }
+      } catch (requestError) {
+        if (controller.signal.aborted) return;
+        setOrders([]);
+        setError(requestError instanceof Error ? requestError.message : "Unable to load orders");
+      }
+      finally {
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
+      }
     })();
+    return () => controller.abort();
   }, [orderId]);
 
   async function handlePending(order: any) {
@@ -276,6 +289,16 @@ export default function OrdersPage() {
       <div className="relative min-h-screen bg-[#080808] text-white" style={{ fontFamily:"'Jost', sans-serif" }}>
 
         <div className="relative z-10 mx-auto max-w-4xl px-4 pt-16 pb-16 sm:px-6 sm:pt-24 sm:pb-24 md:px-10 md:pb-32">
+          {error ? (
+            <div
+              className="mb-5 rounded-2xl px-4 py-3"
+              style={{ background: "rgba(255,60,60,0.07)", border: "1px solid rgba(255,80,80,0.18)" }}
+            >
+              <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: "rgba(255,120,120,0.75)" }}>
+                {error}
+              </p>
+            </div>
+          ) : null}
 
           {/* ── HEADER ── */}
           <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.8 }} className="mb-6 sm:mb-8 md:mb-10">

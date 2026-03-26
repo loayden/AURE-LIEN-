@@ -859,6 +859,102 @@ select:-webkit-autofill:focus {
   -webkit-backdrop-filter: blur(16px);
 }
 
+.admin-stat-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.35rem;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.025) 100%);
+  border: 1px solid rgba(255,255,255,0.09);
+  box-shadow: 0 16px 42px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.12);
+}
+
+.admin-stat-card::before {
+  content: "";
+  position: absolute;
+  inset-inline: 1.25rem;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+  pointer-events: none;
+}
+
+.admin-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.25rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.025));
+  border: 1px solid rgba(255,255,255,0.09);
+  color: rgba(255,255,255,0.62);
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.admin-chip-gold {
+  background: linear-gradient(135deg, rgba(198,169,98,0.16), rgba(198,169,98,0.05));
+  border-color: rgba(198,169,98,0.24);
+  color: rgba(198,169,98,0.95);
+}
+
+.admin-table-shell {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.4rem;
+  background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.025) 100%);
+  border: 1px solid rgba(255,255,255,0.09);
+  box-shadow: 0 20px 56px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.14);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+}
+
+.admin-table-shell::before {
+  content: "";
+  position: absolute;
+  inset-inline: 1.25rem;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+  pointer-events: none;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-table thead tr {
+  background: rgba(255,255,255,0.03);
+}
+
+.admin-table th {
+  padding: 1rem 1.25rem;
+  text-align: left;
+  font-size: 0.62rem;
+  font-weight: 300;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(198,169,98,0.92);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.admin-table td {
+  padding: 1rem 1.25rem;
+  color: rgba(255,255,255,0.72);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  vertical-align: top;
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.admin-table tbody tr:hover {
+  background: rgba(255,255,255,0.03);
+}
+
 .empty-icon-panel {
   display: flex;
   align-items: center;
@@ -1350,6 +1446,14 @@ button:active,
   .grain-overlay {
     display: none !important;
   }
+
+  .admin-shell .glass-panel,
+  .admin-shell .dark-panel,
+  .admin-shell .admin-table-shell,
+  .admin-shell .count-pill {
+    backdrop-filter: blur(12px) saturate(135%);
+    -webkit-backdrop-filter: blur(12px) saturate(135%);
+  }
 }
 
 @media (pointer: fine) {
@@ -1357,6 +1461,26 @@ button:active,
   body,
   body * {
     cursor: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .orb,
+  .shimmer,
+  .luxury-cursor {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .card-hover,
+  .card-img,
+  .card-cta,
+  .card-bar {
+    transition: none !important;
   }
 }
 
