@@ -113,7 +113,7 @@ export default function CartPage() {
 
   /* ── Loading ── */
   if (loading) return (
-    <div className="min-h-screen bg-[#080808] flex items-center justify-center">
+    <div className="min-h-screen bg-[#0A0908] flex items-center justify-center">
       <motion.div
         animate={{ opacity: [0.3, 0.7, 0.3] }}
         transition={{ repeat: Infinity, duration: 1.8 }}
@@ -128,27 +128,27 @@ export default function CartPage() {
   return (
     <>
       <style>{`
-        body { background: #080808; }
-        ::selection { background: #C6A962; color: #080808; }
+        body { background: #0A0908; }
+        ::selection { background: #C9A86A; color: #0A0908; }
 
         .glass {
-          background: linear-gradient(135deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%);
+          background: linear-gradient(135deg, rgba(255,248,236,0.09) 0%, rgba(255,248,236,0.03) 100%);
           backdrop-filter: blur(24px) saturate(160%);
           -webkit-backdrop-filter: blur(24px) saturate(160%);
-          border: 1px solid rgba(255,255,255,0.10);
-          box-shadow: 0 16px 48px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+          border: 1px solid rgba(255,248,236,0.10);
+          box-shadow: 0 16px 48px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,248,236,0.15);
         }
         .gold-glass {
-          background: linear-gradient(135deg, rgba(198,169,98,0.16) 0%, rgba(198,169,98,0.05) 100%);
+          background: linear-gradient(135deg, rgba(201,168,106,0.16) 0%, rgba(201,168,106,0.05) 100%);
           backdrop-filter: blur(20px) saturate(150%);
           -webkit-backdrop-filter: blur(20px) saturate(150%);
-          border: 1px solid rgba(198,169,98,0.25);
-          box-shadow: 0 8px 32px rgba(198,169,98,0.10), inset 0 1px 0 rgba(255,255,255,0.14);
+          border: 1px solid rgba(201,168,106,0.25);
+          box-shadow: 0 8px 32px rgba(201,168,106,0.10), inset 0 1px 0 rgba(255,248,236,0.14);
         }
       `}</style>
 
       <div
-        className="relative min-h-screen bg-[#080808] text-white"
+        className="relative min-h-screen bg-[#0A0908] text-white"
         style={{ fontFamily: "'Jost', sans-serif" }}
       >
 
@@ -181,17 +181,17 @@ export default function CartPage() {
                   letterSpacing: "0.04em",
                 }}
               >
-                Your <em style={{ color: "#C6A962", fontStyle: "italic" }}>Cart</em>
+                Your <em style={{ color: "#C9A86A", fontStyle: "italic" }}>Cart</em>
               </h1>
               {items.length > 0 && (
-                <span className="gold-glass inline-flex min-h-[44px] min-w-[44px] items-center rounded-full px-4 py-2 text-[10px] font-light uppercase tracking-[0.3em] text-[#C6A962]">
+                <span className="gold-glass inline-flex min-h-[44px] min-w-[44px] items-center rounded-full px-4 py-2 text-[10px] font-light uppercase tracking-[0.3em] text-[#C9A86A]">
                   {totalItems} {totalItems === 1 ? "Piece" : "Pieces"}
                 </span>
               )}
             </div>
             {/* Gold divider */}
             <div className="mt-6 h-px"
-                 style={{ background: "linear-gradient(90deg, rgba(198,169,98,0.4), transparent)" }} />
+                 style={{ background: "linear-gradient(90deg, rgba(201,168,106,0.4), transparent)" }} />
           </motion.div>
 
           {/* ── EMPTY STATE ── */}
@@ -211,7 +211,7 @@ export default function CartPage() {
                 className="font-light text-white mb-3"
                 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2.2rem", letterSpacing: "0.06em" }}
               >
-                Your cart is <em style={{ color: "#C6A962" }}>empty</em>
+                Your cart is <em style={{ color: "#C9A86A" }}>empty</em>
               </h2>
               <p className="text-white/30 text-sm font-light tracking-widest mb-10 max-w-xs">
                 Explore the collection and find your next defining piece.
@@ -219,7 +219,7 @@ export default function CartPage() {
               <button
                 onClick={() => router.push("/shop")}
                 className="gold-glass inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-full px-6 py-3.5
-                           text-[#C6A962] text-[10px] tracking-[0.3em] uppercase font-light
+                           text-[#C9A86A] text-[10px] tracking-[0.3em] uppercase font-light
                            hover:scale-[1.02] transition-all duration-500 sm:gap-3 sm:px-8"
               >
                 Browse Collection
@@ -244,7 +244,7 @@ export default function CartPage() {
                     >
                       {/* Specular top line */}
                       <div className="absolute inset-x-4 top-0 h-px pointer-events-none"
-                           style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent)" }} />
+                           style={{ background: "linear-gradient(90deg, transparent, rgba(255,248,236,0.18), transparent)" }} />
 
                       {/* Product image */}
                       <div className="relative w-20 h-24 flex-shrink-0 overflow-hidden rounded-xl"
@@ -269,7 +269,7 @@ export default function CartPage() {
                         >
                           {item.name}
                         </h2>
-                        <p className="font-light" style={{ color: "#C6A962", fontSize: "0.95rem", letterSpacing: "0.06em" }}>
+                        <p className="font-light" style={{ color: "#C9A86A", fontSize: "0.95rem", letterSpacing: "0.06em" }}>
                           EGP {item.price.toLocaleString()}
                         </p>
                         <div className="mt-2 flex items-center gap-3 flex-wrap">
@@ -338,7 +338,7 @@ export default function CartPage() {
               >
                 {/* Specular */}
                 <div className="absolute inset-x-4 top-0 h-px pointer-events-none"
-                     style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent)" }} />
+                     style={{ background: "linear-gradient(90deg, transparent, rgba(255,248,236,0.18), transparent)" }} />
 
                 <div>
                   <p className="text-white/20 text-[9px] tracking-[0.4em] uppercase mb-4">Summary</p>
@@ -346,10 +346,10 @@ export default function CartPage() {
                     className="font-light text-white leading-none mb-5"
                     style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.6rem", letterSpacing: "0.06em" }}
                   >
-                    Order <em style={{ color: "#C6A962" }}>Overview</em>
+                    Order <em style={{ color: "#C9A86A" }}>Overview</em>
                   </h3>
                   <div className="h-px mb-5"
-                       style={{ background: "linear-gradient(90deg, rgba(198,169,98,0.3), transparent)" }} />
+                       style={{ background: "linear-gradient(90deg, rgba(201,168,106,0.3), transparent)" }} />
                 </div>
 
                 {/* Line items */}
@@ -376,7 +376,7 @@ export default function CartPage() {
 
                 {/* Divider */}
                 <div className="h-px"
-                     style={{ background: "rgba(255,255,255,0.06)" }} />
+                     style={{ background: "rgba(255,248,236,0.06)" }} />
 
                 {/* Totals */}
                 <div className="flex flex-col gap-2">
@@ -394,10 +394,10 @@ export default function CartPage() {
                 <div
                   className="gold-glass rounded-xl px-5 py-4 flex justify-between items-center"
                 >
-                  <p className="text-[#C6A962] text-[9px] tracking-[0.35em] uppercase font-light">Total</p>
+                  <p className="text-[#C9A86A] text-[9px] tracking-[0.35em] uppercase font-light">Total</p>
                   <p
                     className="font-light"
-                    style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.4rem", color: "#C6A962", letterSpacing: "0.06em" }}
+                    style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.4rem", color: "#C9A86A", letterSpacing: "0.06em" }}
                   >
                     EGP {totalPrice.toLocaleString()}
                   </p>
@@ -410,16 +410,16 @@ export default function CartPage() {
                   whileTap={{ scale: 0.985 }}
                   className="relative flex min-h-[44px] min-w-[44px] w-full items-center justify-center gap-2 overflow-hidden rounded-full py-4 sm:gap-3"
                   style={{
-                    background: "linear-gradient(135deg, rgba(198,169,98,0.22), rgba(178,149,78,0.10))",
-                    border: "1px solid rgba(198,169,98,0.35)",
+                    background: "linear-gradient(135deg, rgba(201,168,106,0.22), rgba(178,149,78,0.10))",
+                    border: "1px solid rgba(201,168,106,0.35)",
                     backdropFilter: "blur(16px)",
-                    boxShadow: "0 0 28px rgba(198,169,98,0.12), inset 0 1px 0 rgba(255,255,255,0.14)",
+                    boxShadow: "0 0 28px rgba(201,168,106,0.12), inset 0 1px 0 rgba(255,248,236,0.14)",
                   }}
                 >
-                  <span className="text-[#C6A962] text-[10px] tracking-[0.3em] uppercase font-light">
+                  <span className="text-[#C9A86A] text-[10px] tracking-[0.3em] uppercase font-light">
                     Proceed to Checkout
                   </span>
-                  <ArrowRight strokeWidth={1.3} className="w-3.5 h-3.5 text-[#C6A962]" />
+                  <ArrowRight strokeWidth={1.3} className="w-3.5 h-3.5 text-[#C9A86A]" />
                 </motion.button>
 
                 {/* Trust note */}
@@ -449,18 +449,18 @@ export default function CartPage() {
                       fontFamily: "'Cormorant Garamond', serif",
                       fontSize: "clamp(1.6rem, 3vw, 2.6rem)",
                       letterSpacing: "0.06em",
-                      color: "#C6A962",
+                      color: "#C9A86A",
                     }}
                   >
                     You May Also Like
                   </h2>
                 </div>
                 <div className="hidden sm:block flex-1 mx-8 h-px"
-                     style={{ background: "linear-gradient(90deg, rgba(198,169,98,0.2), transparent)" }} />
+                     style={{ background: "linear-gradient(90deg, rgba(201,168,106,0.2), transparent)" }} />
               </div>
 
               <div className="mb-6 h-px sm:mb-8 md:mb-10"
-                   style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent)" }} />
+                   style={{ background: "linear-gradient(90deg, transparent, rgba(255,248,236,0.05), transparent)" }} />
 
               <div className="product-grid-shell lg:grid-cols-4">
                 {recommended.map((product, i) => (

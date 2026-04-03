@@ -36,6 +36,7 @@
   "/api/saveorder/route": "app/api/saveorder/route.js",
   "/api/search/route": "app/api/search/route.js",
   "/api/session/route": "app/api/session/route.js",
+  "/api/upload/route": "app/api/upload/route.js",
   "/api/user/route": "app/api/user/route.js",
   "/api/users/me/route": "app/api/users/me/route.js",
   "/api/webhooks/stripe/route": "app/api/webhooks/stripe/route.js",

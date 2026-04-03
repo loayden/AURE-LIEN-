@@ -165,11 +165,11 @@ export default function AdminOrdersPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="admin-stat-card p-4">
             <p className="eyebrow mb-3">Total Orders</p>
-            <p className="font-light text-[#C6A962]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.7rem" }}>{orders.length}</p>
+            <p className="font-light text-[#C9A86A]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.7rem" }}>{orders.length}</p>
           </div>
           <div className="admin-stat-card p-4">
             <p className="eyebrow mb-3">Total Revenue</p>
-            <p className="font-light text-[#C6A962]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.7rem" }}>EGP {totalRevenue.toLocaleString()}</p>
+            <p className="font-light text-[#C9A86A]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.7rem" }}>EGP {totalRevenue.toLocaleString()}</p>
           </div>
         </div>
       )}
@@ -205,14 +205,14 @@ export default function AdminOrdersPage() {
                     <span className="admin-chip truncate">Ref: {resolveCustomerReference(order)}</span>
                   </div>
                 </div>
-                <p className="font-light text-[#C6A962]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.5rem" }}>
+                <p className="font-light text-[#C9A86A]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.5rem" }}>
                   EGP {Number(order.totalPrice).toLocaleString()}
                 </p>
               </div>
 
               {order.customer && (
                 <div className="mb-6 rounded-[1.15rem] border border-white/10 bg-white/[0.03] p-4">
-                  <h3 className="eyebrow mb-4" style={{ color: "rgba(198,169,98,0.85)" }}>Customer & Delivery</h3>
+                  <h3 className="eyebrow mb-4" style={{ color: "rgba(201,168,106,0.85)" }}>Customer & Delivery</h3>
                   <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                     <p className="body-copy">
                       <span className="text-white/20">Profile:</span> {formatSource(order.customer)}
@@ -267,7 +267,7 @@ export default function AdminOrdersPage() {
               )}
 
               <div className="space-y-3">
-                <h3 className="eyebrow" style={{ color: "rgba(198,169,98,0.85)" }}>Items</h3>
+                <h3 className="eyebrow" style={{ color: "rgba(201,168,106,0.85)" }}>Items</h3>
                 {(order.items && order.items.length > 0) ? order.items.map((item, i) => (
                   <div
                     key={`${order._id}-${i}`}
@@ -291,7 +291,7 @@ export default function AdminOrdersPage() {
                         )}
                       </p>
                     </div>
-                    <p className="flex-shrink-0 text-[#C6A962]">EGP {((Number(item.price) || 0) * (item.quantity ?? 1)).toLocaleString()}</p>
+                    <p className="flex-shrink-0 text-[#C9A86A]">EGP {((Number(item.price) || 0) * (item.quantity ?? 1)).toLocaleString()}</p>
                   </div>
                 )) : (
                   <p className="body-copy py-2">No items</p>

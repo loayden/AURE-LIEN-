@@ -5,7 +5,7 @@ export default function TermsPage() {
     <LegalDocumentPage
       eyebrow="Legal"
       title="Terms"
-      intro="Use of the AURELIEN storefront is subject to the operating terms below, including purchase flow, availability, and account responsibilities."
+      intro="Use of the BOUT storefront is subject to the operating terms below, including purchase flow, availability, and account responsibilities."
       sections={[
         {
           heading: "Store Access",

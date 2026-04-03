@@ -85,7 +85,7 @@ export default function EnhancedShopPage() {
   return (
     <>
       <style>{`
-        * { --gold: #C6A962; --dark: #080808; }
+        * { --gold: #C9A86A; --dark: #0A0908; }
         body { background: var(--dark); }
 
         @keyframes fadeUp {
@@ -102,25 +102,25 @@ export default function EnhancedShopPage() {
         .sh3 { animation: fadeUp 1s cubic-bezier(0.22,1,0.36,1) 0.55s both; }
 
         .glass {
-          background: linear-gradient(135deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%);
+          background: linear-gradient(135deg, rgba(255,248,236,0.09) 0%, rgba(255,248,236,0.03) 100%);
           backdrop-filter: blur(24px) saturate(160%);
           -webkit-backdrop-filter: blur(24px) saturate(160%);
-          border: 1px solid rgba(255,255,255,0.10);
-          box-shadow: 0 16px 48px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.16);
+          border: 1px solid rgba(255,248,236,0.10);
+          box-shadow: 0 16px 48px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,248,236,0.16);
         }
         .glass-md {
-          background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+          background: linear-gradient(135deg, rgba(255,248,236,0.08) 0%, rgba(255,248,236,0.02) 100%);
           backdrop-filter: blur(20px) saturate(150%);
           -webkit-backdrop-filter: blur(20px) saturate(150%);
-          border: 1px solid rgba(255,255,255,0.08);
-          box-shadow: 0 12px 36px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.10);
+          border: 1px solid rgba(255,248,236,0.08);
+          box-shadow: 0 12px 36px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,248,236,0.10);
         }
         .gold-glass {
-          background: linear-gradient(135deg, rgba(198,169,98,0.14) 0%, rgba(198,169,98,0.04) 100%);
+          background: linear-gradient(135deg, rgba(201,168,106,0.14) 0%, rgba(201,168,106,0.04) 100%);
           backdrop-filter: blur(20px) saturate(150%);
           -webkit-backdrop-filter: blur(20px) saturate(150%);
-          border: 1px solid rgba(198,169,98,0.22);
-          box-shadow: 0 8px 32px rgba(198,169,98,0.08), inset 0 1px 0 rgba(255,255,255,0.14);
+          border: 1px solid rgba(201,168,106,0.22);
+          box-shadow: 0 8px 32px rgba(201,168,106,0.08), inset 0 1px 0 rgba(255,248,236,0.14);
         }
 
         .scrollbar-hide { scrollbar-width: none; }
@@ -131,14 +131,14 @@ export default function EnhancedShopPage() {
         initial={false}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.9 }}
-        className="relative bg-[#080808] text-white min-h-screen"
+        className="relative bg-[#0A0908] text-white min-h-screen"
         style={{ fontFamily: "'Jost', sans-serif" }}
       >
 
         {/* ── HERO HEADER (Mobile optimized) ── */}
         <section ref={heroRef} className="relative overflow-hidden px-4 pb-10 pt-10 sm:px-6 sm:pb-14 sm:pt-16 md:px-10 md:pb-24 md:pt-24">
           <div className="absolute inset-0 pointer-events-none"
-               style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(198,169,98,0.06) 0%, transparent 60%)" }} />
+               style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(201,168,106,0.06) 0%, transparent 60%)" }} />
 
           <motion.div style={{ y: heroY, opacity: heroOpacity }} className="relative z-10 text-center max-w-3xl mx-auto">
             <div className="sh1 mb-3 sm:mb-5 md:mb-7 flex justify-center">
@@ -157,7 +157,7 @@ export default function EnhancedShopPage() {
               }}
             >
               The Quiet<br />
-              <em style={{ color: "#C6A962", fontStyle: "italic" }}>Luxury Edit</em>
+              <em style={{ color: "#C9A86A", fontStyle: "italic" }}>Luxury Edit</em>
             </h1>
 
             <p className="sh3 text-white/35 font-light max-w-md mx-auto leading-relaxed text-[11px] sm:text-sm"
@@ -207,7 +207,7 @@ export default function EnhancedShopPage() {
               {/* Left — count (Hidden on mobile) */}
               <div className="hidden sm:flex items-center gap-4">
                 <SlidersHorizontal strokeWidth={1.3} className="w-4 h-4 text-white/25" />
-                <div className="w-px h-5" style={{ background: "rgba(255,255,255,0.08)" }} />
+                <div className="w-px h-5" style={{ background: "rgba(255,248,236,0.08)" }} />
                 <span className="text-white/30 text-[10px] tracking-[0.35em] uppercase">
                   {sortedProducts.length} Results
                 </span>
@@ -345,7 +345,7 @@ export default function EnhancedShopPage() {
         {/* ── PRODUCT GRID / LIST (Mobile optimized) ── */}
         <section className="relative z-10 mx-auto max-w-7xl px-4 pb-24 sm:px-6 sm:pb-32 md:px-10">
           <div className="mb-6 sm:mb-8 md:mb-10 h-px"
-               style={{ background: "linear-gradient(90deg, transparent, rgba(198,169,98,0.18), transparent)" }} />
+               style={{ background: "linear-gradient(90deg, transparent, rgba(201,168,106,0.18), transparent)" }} />
 
           <AnimatePresence mode="wait">
             {sortedProducts.length > 0 ? (
@@ -381,7 +381,7 @@ export default function EnhancedShopPage() {
                         <div className="mt-3 sm:mt-4 flex items-end sm:items-center justify-between gap-3">
                           <div className="flex-1 min-w-0">
                             <p className="text-white/70 text-[10px] sm:text-[11px] leading-relaxed line-clamp-2">{product.description}</p>
-                            <p className="text-white font-light mt-2 text-sm sm:text-base" style={{ fontFamily: "'Cormorant Garamond', serif", color: "#C6A962" }}>
+                            <p className="text-white font-light mt-2 text-sm sm:text-base" style={{ fontFamily: "'Cormorant Garamond', serif", color: "#C9A86A" }}>
                               EGP {product.price.toLocaleString()}
                             </p>
                           </div>
@@ -394,7 +394,7 @@ export default function EnhancedShopPage() {
                             className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full border border-white/10 px-4 py-3 text-[10px] uppercase tracking-[0.22em] text-white/72 transition-colors hover:text-white"
                             style={{
                               fontFamily: "'Jost', sans-serif",
-                              background: "rgba(255,255,255,0.04)",
+                              background: "rgba(255,248,236,0.04)",
                             }}
                           >
                             Details

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
+import { withPublicAssetVersion } from "@/lib/publicAsset";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,16 +13,16 @@ function Stat({ value, label }: { value: string; label: string }) {
     <div
       className="flex flex-col items-center gap-2 px-8 py-6 rounded-2xl relative overflow-hidden"
       style={{
-        background:"linear-gradient(135deg, rgba(198,169,98,0.12) 0%, rgba(198,169,98,0.03) 100%)",
+        background:"linear-gradient(135deg, rgba(201,168,106,0.12) 0%, rgba(201,168,106,0.03) 100%)",
         backdropFilter:"blur(20px) saturate(150%)",
-        border:"1px solid rgba(198,169,98,0.20)",
-        boxShadow:"0 8px 32px rgba(198,169,98,0.08), inset 0 1px 0 rgba(255,255,255,0.12)",
+        border:"1px solid rgba(201,168,106,0.20)",
+        boxShadow:"0 8px 32px rgba(201,168,106,0.08), inset 0 1px 0 rgba(255,248,236,0.12)",
       }}
     >
       <div className="absolute inset-x-4 top-0 h-px"
-           style={{ background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent)" }} />
+           style={{ background:"linear-gradient(90deg, transparent, rgba(255,248,236,0.18), transparent)" }} />
       <p className="font-light text-white leading-none"
-         style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"2.6rem", color:"#C6A962", letterSpacing:"0.04em" }}>
+         style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"2.6rem", color:"#C9A86A", letterSpacing:"0.04em" }}>
         {value}
       </p>
       <p className="text-white/35 text-[9px] tracking-[0.35em] uppercase"
@@ -42,22 +43,22 @@ function Pillar({ number, title, body }: { number: string; title: string; body: 
       transition={{ duration:0.85, ease:[0.22,1,0.36,1] }}
       className="relative overflow-hidden rounded-2xl p-8 flex flex-col gap-4"
       style={{
-        background:"linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)",
+        background:"linear-gradient(135deg, rgba(255,248,236,0.07) 0%, rgba(255,248,236,0.02) 100%)",
         backdropFilter:"blur(24px) saturate(160%)",
-        border:"1px solid rgba(255,255,255,0.09)",
-        boxShadow:"0 16px 48px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.13)",
+        border:"1px solid rgba(255,248,236,0.09)",
+        boxShadow:"0 16px 48px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,248,236,0.13)",
       }}
     >
       <div className="absolute inset-x-5 top-0 h-px pointer-events-none"
-           style={{ background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent)" }} />
-      <p className="font-light" style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"3rem", color:"rgba(198,169,98,0.25)", lineHeight:1 }}>
+           style={{ background:"linear-gradient(90deg, transparent, rgba(255,248,236,0.16), transparent)" }} />
+      <p className="font-light" style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"3rem", color:"rgba(201,168,106,0.25)", lineHeight:1 }}>
         {number}
       </p>
       <h3 className="font-light text-white"
           style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"1.5rem", letterSpacing:"0.06em" }}>
         {title}
       </h3>
-      <div className="w-8 h-px" style={{ background:"rgba(198,169,98,0.5)" }} />
+      <div className="w-8 h-px" style={{ background:"rgba(201,168,106,0.5)" }} />
       <p className="text-white/35 font-light leading-relaxed text-sm"
          style={{ fontFamily:"'Jost', sans-serif", letterSpacing:"0.05em" }}>
         {body}
@@ -75,11 +76,11 @@ export default function AboutPage() {
   return (
     <>
       <style>{`
-        body { background: #080808; }
-        ::selection { background: #C6A962; color: #080808; }
+        body { background: #0A0908; }
+        ::selection { background: #C9A86A; color: #0A0908; }
       `}</style>
 
-      <main className="relative bg-[#080808] text-white min-h-screen overflow-x-hidden"
+      <main className="relative bg-[#0A0908] text-white min-h-screen overflow-x-hidden"
             style={{ fontFamily:"'Jost', sans-serif" }}>
 
         {/* ══════════════════════════════════════
@@ -88,9 +89,9 @@ export default function AboutPage() {
         <section ref={heroRef} className="relative mobile-safe-hero flex items-center justify-center overflow-hidden">
           {/* BG gradient only — no image needed for About */}
           <div className="absolute inset-0"
-               style={{ background:"radial-gradient(ellipse at 50% 60%, rgba(198,169,98,0.07) 0%, transparent 60%)" }} />
+               style={{ background:"radial-gradient(ellipse at 50% 60%, rgba(201,168,106,0.07) 0%, transparent 60%)" }} />
           <div className="absolute inset-x-0 bottom-0 h-64"
-               style={{ background:"linear-gradient(to top, #080808, transparent)" }} />
+               style={{ background:"linear-gradient(to top, #0A0908, transparent)" }} />
 
           <motion.div style={{ opacity:heroOpacity, y:heroY }}
                       className="relative z-10 flex flex-col items-center px-4 text-center sm:px-6 md:px-10">
@@ -103,10 +104,10 @@ export default function AboutPage() {
               <span
                 className="inline-block px-5 py-2 rounded-full text-white/35 text-[9px] tracking-[0.45em] uppercase font-light"
                 style={{
-                  background:"linear-gradient(135deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03))",
+                  background:"linear-gradient(135deg, rgba(255,248,236,0.09), rgba(255,248,236,0.03))",
                   backdropFilter:"blur(20px)",
-                  border:"1px solid rgba(255,255,255,0.10)",
-                  boxShadow:"inset 0 1px 0 rgba(255,255,255,0.14)",
+                  border:"1px solid rgba(255,248,236,0.10)",
+                  boxShadow:"inset 0 1px 0 rgba(255,248,236,0.14)",
                 }}
               >
                 Est. 2025 — Cairo
@@ -125,7 +126,7 @@ export default function AboutPage() {
                 textShadow:"0 4px 60px rgba(0,0,0,0.4)",
               }}
             >
-              AURÉ<em style={{ color:"#C6A962", fontStyle:"italic" }}>LIEN</em>
+              AURÉ<em style={{ color:"#C9A86A", fontStyle:"italic" }}>LIEN</em>
             </motion.h1>
 
             <motion.div
@@ -133,7 +134,7 @@ export default function AboutPage() {
               animate={{ scaleX:1 }}
               transition={{ duration:1, delay:0.4, ease:[0.22,1,0.36,1] }}
               className="mb-8 h-px w-24 origin-left"
-              style={{ background:"linear-gradient(90deg, rgba(198,169,98,0.7), transparent)" }}
+              style={{ background:"linear-gradient(90deg, rgba(201,168,106,0.7), transparent)" }}
             />
 
             <motion.p
@@ -180,7 +181,7 @@ export default function AboutPage() {
               style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(2rem,5vw,4rem)", letterSpacing:"0.05em" }}
             >
               Born at the intersection of<br />
-              <em style={{ color:"#C6A962" }}>craftsmanship</em> and identity.
+              <em style={{ color:"#C9A86A" }}>craftsmanship</em> and identity.
             </motion.h2>
 
             <motion.p
@@ -200,7 +201,7 @@ export default function AboutPage() {
             STATS
         ══════════════════════════════════════ */}
         <section className="relative z-10 px-4 py-12 sm:px-6 sm:py-16 md:px-10"
-                 style={{ borderTop:"1px solid rgba(255,255,255,0.05)", borderBottom:"1px solid rgba(255,255,255,0.05)" }}>
+                 style={{ borderTop:"1px solid rgba(255,248,236,0.05)", borderBottom:"1px solid rgba(255,248,236,0.05)" }}>
           <motion.div
             initial={{ opacity:0, y:20 }}
             whileInView={{ opacity:1, y:0 }}
@@ -232,7 +233,7 @@ export default function AboutPage() {
                 className="font-light text-white"
                 style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(2rem,5vw,3.5rem)", letterSpacing:"0.05em" }}
               >
-                Precision. Power. <em style={{ color:"#C6A962" }}>Permanence.</em>
+                Precision. Power. <em style={{ color:"#C9A86A" }}>Permanence.</em>
               </h2>
             </motion.div>
 
@@ -260,7 +261,7 @@ export default function AboutPage() {
             STORY — TWO COL
         ══════════════════════════════════════ */}
         <section className="relative z-10 px-4 py-16 sm:px-6 sm:py-24 md:px-10"
-                 style={{ background:"#060606", borderTop:"1px solid rgba(255,255,255,0.05)" }}>
+                 style={{ background:"#14110F", borderTop:"1px solid rgba(255,248,236,0.05)" }}>
           <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
 
             {/* Image */}
@@ -273,13 +274,13 @@ export default function AboutPage() {
               style={{
                 borderRadius:28,
                 aspectRatio:"4/5",
-                boxShadow:"0 32px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.07)",
+                boxShadow:"0 32px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,248,236,0.07)",
               }}
             >
               <div className="absolute inset-x-5 top-0 h-px z-10 pointer-events-none"
-                   style={{ background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.20), transparent)" }} />
+                   style={{ background:"linear-gradient(90deg, transparent, rgba(255,248,236,0.20), transparent)" }} />
               <Image
-                src="/uploads/Suits.jpg"
+                src={withPublicAssetVersion("/uploads/Suits.jpg")}
                 alt="The Atelier"
                 fill
                 className="object-cover"
@@ -292,9 +293,9 @@ export default function AboutPage() {
               <div
                 className="absolute bottom-5 left-5 px-4 py-3 rounded-xl"
                 style={{
-                  background:"linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04))",
+                  background:"linear-gradient(135deg, rgba(255,248,236,0.12), rgba(255,248,236,0.04))",
                   backdropFilter:"blur(20px)",
-                  border:"1px solid rgba(255,255,255,0.12)",
+                  border:"1px solid rgba(255,248,236,0.12)",
                 }}
               >
                 <p className="text-white/30 text-[8px] tracking-[0.35em] uppercase mb-0.5"
@@ -320,9 +321,9 @@ export default function AboutPage() {
                 style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.8rem,4vw,3rem)", letterSpacing:"0.05em" }}
               >
                 Built in Cairo.<br />
-                Worn <em style={{ color:"#C6A962" }}>everywhere.</em>
+                Worn <em style={{ color:"#C9A86A" }}>everywhere.</em>
               </h2>
-              <div className="w-10 h-px" style={{ background:"linear-gradient(90deg, rgba(198,169,98,0.6), transparent)" }} />
+              <div className="w-10 h-px" style={{ background:"linear-gradient(90deg, rgba(201,168,106,0.6), transparent)" }} />
               <p className="text-white/35 font-light leading-relaxed text-sm"
                  style={{ letterSpacing:"0.05em" }}>
                 AURÉLIEN was founded in Cairo by designers who grew up between two worlds — the ancient craft traditions of the Middle East and the sharp minimalism of European tailoring. The result is a language all its own: structured but fluid, rich but restrained.
@@ -356,7 +357,7 @@ export default function AboutPage() {
                 className="font-light text-white"
                 style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.8rem,4.5vw,3.2rem)", letterSpacing:"0.05em" }}
               >
-                Nothing synthetic. Nothing <em style={{ color:"#C6A962" }}>accidental.</em>
+                Nothing synthetic. Nothing <em style={{ color:"#C9A86A" }}>accidental.</em>
               </h2>
             </motion.div>
 
@@ -374,14 +375,14 @@ export default function AboutPage() {
                   transition={{ duration:0.8, delay: i * 0.1, ease:[0.22,1,0.36,1] }}
                   className="relative overflow-hidden rounded-2xl p-6 flex flex-col gap-3"
                   style={{
-                    background:"linear-gradient(135deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02))",
+                    background:"linear-gradient(135deg, rgba(255,248,236,0.07), rgba(255,248,236,0.02))",
                     backdropFilter:"blur(20px) saturate(150%)",
-                    border:"1px solid rgba(255,255,255,0.08)",
-                    boxShadow:"0 12px 40px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.12)",
+                    border:"1px solid rgba(255,248,236,0.08)",
+                    boxShadow:"0 12px 40px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,248,236,0.12)",
                   }}
                 >
                   <div className="absolute left-0 top-4 bottom-4 w-px"
-                       style={{ background:"linear-gradient(to bottom, transparent, rgba(198,169,98,0.45), transparent)" }} />
+                       style={{ background:"linear-gradient(to bottom, transparent, rgba(201,168,106,0.45), transparent)" }} />
                   <p className="text-white/20 text-[8px] tracking-[0.4em] uppercase pl-4"
                      style={{ fontFamily:"'Jost', sans-serif" }}>
                     {m.origin}
@@ -405,12 +406,12 @@ export default function AboutPage() {
         ══════════════════════════════════════ */}
         <section
           className="relative z-10 py-32 px-6 text-center overflow-hidden"
-          style={{ background:"#060606", borderTop:"1px solid rgba(255,255,255,0.05)" }}
+          style={{ background:"#14110F", borderTop:"1px solid rgba(255,248,236,0.05)" }}
         >
           <div className="absolute inset-0 pointer-events-none"
-               style={{ background:"radial-gradient(ellipse at 50% 100%, rgba(198,169,98,0.06) 0%, transparent 60%)" }} />
+               style={{ background:"radial-gradient(ellipse at 50% 100%, rgba(201,168,106,0.06) 0%, transparent 60%)" }} />
           <div className="absolute inset-x-0 top-0 h-px"
-               style={{ background:"linear-gradient(90deg, transparent, rgba(198,169,98,0.2), transparent)" }} />
+               style={{ background:"linear-gradient(90deg, transparent, rgba(201,168,106,0.2), transparent)" }} />
 
           <motion.div
             initial={{ opacity:0, y:24 }}
@@ -424,7 +425,7 @@ export default function AboutPage() {
               className="font-light text-white mb-4 leading-tight"
               style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(2rem,5vw,4rem)", letterSpacing:"0.05em" }}
             >
-              Wear what <em style={{ color:"#C6A962" }}>lasts.</em>
+              Wear what <em style={{ color:"#C9A86A" }}>lasts.</em>
             </h2>
             <p className="text-white/30 font-light leading-relaxed mb-10 max-w-sm mx-auto text-sm"
                style={{ letterSpacing:"0.07em" }}>
@@ -434,11 +435,11 @@ export default function AboutPage() {
               href="/shop"
               className="inline-flex items-center gap-3 px-9 py-4 rounded-full font-light transition-all duration-500 hover:scale-[1.02]"
               style={{
-                background:"linear-gradient(135deg, rgba(198,169,98,0.20), rgba(198,169,98,0.07))",
+                background:"linear-gradient(135deg, rgba(201,168,106,0.20), rgba(201,168,106,0.07))",
                 backdropFilter:"blur(16px)",
-                border:"1px solid rgba(198,169,98,0.30)",
-                boxShadow:"0 0 32px rgba(198,169,98,0.12), inset 0 1px 0 rgba(255,255,255,0.14)",
-                color:"#C6A962",
+                border:"1px solid rgba(201,168,106,0.30)",
+                boxShadow:"0 0 32px rgba(201,168,106,0.12), inset 0 1px 0 rgba(255,248,236,0.14)",
+                color:"#C9A86A",
                 fontSize:"10px",
                 letterSpacing:"0.32em",
                 fontFamily:"'Jost', sans-serif",

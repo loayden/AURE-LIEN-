@@ -115,21 +115,21 @@ export default function AdminDashboard() {
       <div className="mb-6 grid grid-cols-1 gap-4 sm:mb-8 sm:grid-cols-2 sm:gap-5 md:mb-10 lg:grid-cols-4 lg:gap-6">
         <div className="admin-stat-card p-6">
           <p className="eyebrow mb-3">Total Revenue</p>
-          <p className="font-light text-[#C6A962]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}>
+          <p className="font-light text-[#C9A86A]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}>
             EGP {s.totalRevenue.toLocaleString()}
           </p>
         </div>
         <div className="admin-stat-card p-6">
           <p className="eyebrow mb-3">Orders Today</p>
-          <p className="font-light text-[#C6A962]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}>{s.ordersToday}</p>
+          <p className="font-light text-[#C9A86A]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}>{s.ordersToday}</p>
         </div>
         <div className="admin-stat-card p-6">
           <p className="eyebrow mb-3">Total Orders</p>
-          <p className="font-light text-[#C6A962]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}>{s.totalOrders}</p>
+          <p className="font-light text-[#C9A86A]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}>{s.totalOrders}</p>
         </div>
         <div className="admin-stat-card p-6">
           <p className="eyebrow mb-3">Total Customers</p>
-          <p className="font-light text-[#C6A962]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}>{s.totalCustomers}</p>
+          <p className="font-light text-[#C9A86A]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}>{s.totalCustomers}</p>
         </div>
       </div>
 
@@ -140,17 +140,17 @@ export default function AdminDashboard() {
             <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={s.revenueByMonth}>
-                <XAxis dataKey="month" stroke="rgba(255,255,255,0.35)" fontSize={12} />
-                <YAxis stroke="rgba(255,255,255,0.35)" fontSize={12} tickFormatter={(v) => `EGP ${v}`} />
+                <XAxis dataKey="month" stroke="rgba(255,248,236,0.35)" fontSize={12} />
+                <YAxis stroke="rgba(255,248,236,0.35)" fontSize={12} tickFormatter={(v) => `EGP ${v}`} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "rgba(10,10,12,0.94)",
-                    border: "1px solid rgba(255,255,255,0.09)",
+                    backgroundColor: "rgba(20,17,15,0.94)",
+                    border: "1px solid rgba(255,248,236,0.09)",
                     borderRadius: 16,
                   }}
                   formatter={(value: number) => [`EGP ${value.toLocaleString()}`, "Revenue"]}
                 />
-                <Line type="monotone" dataKey="revenue" stroke="#C6A75E" strokeWidth={2} dot={{ fill: "#C6A75E" }} />
+                <Line type="monotone" dataKey="revenue" stroke="#C9A86A" strokeWidth={2} dot={{ fill: "#C9A86A" }} />
               </LineChart>
             </ResponsiveContainer>
             </div>
@@ -173,7 +173,7 @@ export default function AdminDashboard() {
                   <p className="body-copy mt-1">
                     {customer.email || "No email"}
                   </p>
-                  <p className="eyebrow mt-2" style={{ color: "rgba(198,169,98,0.85)" }}>
+                  <p className="eyebrow mt-2" style={{ color: "rgba(201,168,106,0.85)" }}>
                     {customer.source === "account" ? "Account" : "Guest"}
                   </p>
                 </div>
@@ -184,7 +184,7 @@ export default function AdminDashboard() {
                   </div>
                   <div>
                     <p className="eyebrow mb-2">Spend</p>
-                    <p className="body-copy body-copy-strong text-[#C6A962]">EGP {customer.totalSpent.toLocaleString()}</p>
+                    <p className="body-copy body-copy-strong text-[#C9A86A]">EGP {customer.totalSpent.toLocaleString()}</p>
                   </div>
                   <div className="col-span-2 sm:col-span-1">
                     <p className="eyebrow mb-2">Last Activity</p>
@@ -205,16 +205,16 @@ export default function AdminDashboard() {
             <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={s.bestSellingProducts} layout="vertical" margin={{ left: 120 }}>
-                <XAxis type="number" stroke="rgba(255,255,255,0.35)" fontSize={12} />
-                <YAxis type="category" dataKey="name" stroke="rgba(255,255,255,0.35)" fontSize={11} width={110} />
+                <XAxis type="number" stroke="rgba(255,248,236,0.35)" fontSize={12} />
+                <YAxis type="category" dataKey="name" stroke="rgba(255,248,236,0.35)" fontSize={11} width={110} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "rgba(10,10,12,0.94)",
-                    border: "1px solid rgba(255,255,255,0.09)",
+                    backgroundColor: "rgba(20,17,15,0.94)",
+                    border: "1px solid rgba(255,248,236,0.09)",
                     borderRadius: 16,
                   }}
                 />
-                <Bar dataKey="quantity" fill="#C6A75E" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="quantity" fill="#C9A86A" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
             </div>

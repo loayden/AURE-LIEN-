@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
 
     sendEmailAsync({
       to: user.email,
-      subject: "Welcome to Luxury Aurelien",
+      subject: "Welcome to Luxury Bout",
       html: getWelcomeEmailHtml({ userName: user.name }),
     });
 

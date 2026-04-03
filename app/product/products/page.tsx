@@ -35,9 +35,9 @@ export default function ProductsFromAPIPage() {
             A full catalogue view rendered inside the same liquid glass shell as the rest of the storefront.
           </p>
           <div className="mt-6 flex items-center justify-center gap-3">
-            <span className="h-px w-10" style={{ background: "linear-gradient(90deg, transparent, rgba(198,169,98,0.7), transparent)" }} />
+            <span className="h-px w-10" style={{ background: "linear-gradient(90deg, transparent, rgba(201,168,106,0.7), transparent)" }} />
             <span className="count-pill">{products.length} Pieces</span>
-            <span className="h-px w-10" style={{ background: "linear-gradient(90deg, transparent, rgba(198,169,98,0.7), transparent)" }} />
+            <span className="h-px w-10" style={{ background: "linear-gradient(90deg, transparent, rgba(201,168,106,0.7), transparent)" }} />
           </div>
         </div>
 

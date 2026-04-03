@@ -35,17 +35,17 @@ export default function Hero() {
         className="relative max-w-4xl text-center"
       >
         <h1
-          className="hero-title-fluid mb-6 font-light tracking-[0.16em] text-[#F2EFE8] sm:mb-8"
+          className="hero-title-fluid mb-6 font-light tracking-[0.16em] text-[#FFF8EC] sm:mb-8"
           style={{ fontFamily: "'Cormorant Garamond', serif" }}
         >
           Enduring by Design.
         </h1>
 
-        <p className="hero-body-copy mb-8 text-[#F2EFE8]/70 sm:mb-12">
+        <p className="hero-body-copy mb-8 text-[#FFF8EC]/70 sm:mb-12">
           Founded in restraint. Refined without display.
         </p>
 
-        <button className="min-h-[44px] min-w-[44px] border border-[#F2EFE8]/60 px-5 py-3 text-[11px] tracking-[0.35em] uppercase text-[#F2EFE8] transition-all duration-700 hover:bg-[#F2EFE8] hover:text-[#111111] sm:px-14 sm:py-4 sm:text-xs">
+        <button className="min-h-[44px] min-w-[44px] border border-[#FFF8EC]/60 px-5 py-3 text-[11px] tracking-[0.35em] uppercase text-[#FFF8EC] transition-all duration-700 hover:bg-[#FFF8EC] hover:text-[#14110F] sm:px-14 sm:py-4 sm:text-xs">
           EXPLORE COLLECTION
         </button>
       </motion.div>

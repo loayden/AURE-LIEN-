@@ -8,10 +8,10 @@ import { Cormorant_Garamond, Jost } from 'next/font/google'
 import './globals.css'
 
 export const metadata = {
-  title: 'AURÉLIEN — Luxury Menswear & Accessories',
+  title: 'BOUT — Luxury Menswear & Accessories',
   description: 'Crafted in silence. Designed for presence. Explore refined tailoring, footwear, and accessories for the modern man.',
   openGraph: {
-    title: 'AURÉLIEN — Luxury Menswear',
+    title: 'BOUT — Luxury Menswear',
     description: 'Refined silhouettes and timeless design. Shop the collection.',
     type: 'website',
   },
@@ -35,7 +35,7 @@ const jost = Jost({
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${cormorant.variable} ${jost.variable}`}>
-      <body className="bg-[#080808] text-white">
+      <body className="bg-[#0A0908] text-white">
         <AmbientBackdrop />
         <ClientErrorBoundary fallback={null}>
           <Cursor />

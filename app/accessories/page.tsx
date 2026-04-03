@@ -1,14 +1,15 @@
 "use client";
 
 import { motion, useScroll, useTransform } from "framer-motion";
+import { withPublicAssetVersion } from "@/lib/publicAsset";
 import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
 
 const ITEMS = [
-  { title: "Sunglasses", subtitle: "Precision-cut lenses", image: "/uploads/sunglasses.jpg", link: "/sunglasses" },
-  { title: "Bags & Wallets", subtitle: "Hand-stitched leather", image: "/uploads/Bags & Wallets.jpg", link: "/bags-wallets" },
-  { title: "Belts", subtitle: "Sculpted metal accents", image: "/uploads/Belts.jpg", link: "/belts" },
+  { title: "Sunglasses", subtitle: "Precision-cut lenses", image: withPublicAssetVersion("/uploads/sunglasses.jpg"), link: "/sunglasses" },
+  { title: "Bags & Wallets", subtitle: "Hand-stitched leather", image: withPublicAssetVersion("/uploads/Bags & Wallets.jpg"), link: "/bags-wallets" },
+  { title: "Belts", subtitle: "Sculpted metal accents", image: withPublicAssetVersion("/uploads/Belts.jpg"), link: "/belts" },
 ];
 
 const DETAILS = [
@@ -32,7 +33,7 @@ export default function AccessoriesPage() {
   return (
     <>
       <style>{`
-        body { background: #080808; }
+        body { background: #0A0908; }
 
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(22px); }
@@ -43,19 +44,19 @@ export default function AccessoriesPage() {
         .au-3 { animation: fadeUp 1s cubic-bezier(0.22,1,0.36,1) 0.65s both; }
 
         .glass {
-          background: linear-gradient(135deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%);
+          background: linear-gradient(135deg, rgba(255,248,236,0.09) 0%, rgba(255,248,236,0.03) 100%);
           backdrop-filter: blur(24px) saturate(160%);
           -webkit-backdrop-filter: blur(24px) saturate(160%);
-          border: 1px solid rgba(255,255,255,0.10);
-          box-shadow: 0 16px 48px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.16);
+          border: 1px solid rgba(255,248,236,0.10);
+          box-shadow: 0 16px 48px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,248,236,0.16);
         }
 
         .gold-glass {
-          background: linear-gradient(135deg, rgba(198,169,98,0.14) 0%, rgba(198,169,98,0.04) 100%);
+          background: linear-gradient(135deg, rgba(201,168,106,0.14) 0%, rgba(201,168,106,0.04) 100%);
           backdrop-filter: blur(20px) saturate(150%);
           -webkit-backdrop-filter: blur(20px) saturate(150%);
-          border: 1px solid rgba(198,169,98,0.22);
-          box-shadow: 0 8px 32px rgba(198,169,98,0.08), inset 0 1px 0 rgba(255,255,255,0.14);
+          border: 1px solid rgba(201,168,106,0.22);
+          box-shadow: 0 8px 32px rgba(201,168,106,0.08), inset 0 1px 0 rgba(255,248,236,0.14);
         }
 
         .card-hover:hover .card-img { transform: scale(1.05); }
@@ -68,7 +69,7 @@ export default function AccessoriesPage() {
         initial={false}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.9 }}
-        className="relative bg-[#080808] text-white min-h-screen"
+        className="relative bg-[#0A0908] text-white min-h-screen"
         style={{ fontFamily: "'Jost', sans-serif" }}
       >
 
@@ -77,7 +78,7 @@ export default function AccessoriesPage() {
           {/* Parallax image */}
           <motion.div style={{ y: heroY }} className="absolute inset-0 scale-110">
             <Image
-              src="/uploads/accessories.jpg"
+              src={withPublicAssetVersion("/uploads/accessories.jpg")}
               alt="Accessories"
               fill
               className="object-cover"
@@ -91,7 +92,7 @@ export default function AccessoriesPage() {
           <div className="absolute inset-0"
                style={{ background: "radial-gradient(ellipse at 50% 60%, transparent 25%, rgba(0,0,0,0.65) 100%)" }} />
           <div className="absolute inset-x-0 bottom-0 h-56"
-               style={{ background: "linear-gradient(to top, #080808, transparent)" }} />
+               style={{ background: "linear-gradient(to top, #0A0908, transparent)" }} />
           <div className="absolute inset-x-0 top-0 h-28"
                style={{ background: "linear-gradient(to bottom, rgba(8,8,8,0.55), transparent)" }} />
 
@@ -114,7 +115,7 @@ export default function AccessoriesPage() {
                 textShadow: "0 4px 48px rgba(0,0,0,0.5)",
               }}
             >
-              Acces<em style={{ color: "#C6A962", fontStyle: "italic" }}>sories</em>
+              Acces<em style={{ color: "#C9A86A", fontStyle: "italic" }}>sories</em>
             </h1>
 
             {/* Sub */}
@@ -151,7 +152,7 @@ export default function AccessoriesPage() {
               Defined by Detail
             </h2>
             <div className="mx-auto mb-7 w-10 h-px"
-                 style={{ background: "linear-gradient(90deg, transparent, rgba(198,169,98,0.7), transparent)" }} />
+                 style={{ background: "linear-gradient(90deg, transparent, rgba(201,168,106,0.7), transparent)" }} />
             <p className="text-white/35 font-light leading-relaxed" style={{ fontSize: "0.88rem", letterSpacing: "0.06em" }}>
               Accessories are not additions —<br />
               they are extensions of character.<br />
@@ -171,7 +172,7 @@ export default function AccessoriesPage() {
                 className="gold-glass px-5 py-3 rounded-2xl text-center"
               >
                 <p className="font-light mb-0.5"
-                   style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.1rem", color: "#C6A962", letterSpacing: "0.06em" }}>
+                   style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.1rem", color: "#C9A86A", letterSpacing: "0.06em" }}>
                   {d.value}
                 </p>
                 <p className="text-white/30 text-[9px] tracking-[0.3em] uppercase">{d.label}</p>
@@ -190,7 +191,7 @@ export default function AccessoriesPage() {
                 fontFamily: "'Cormorant Garamond', serif",
                 fontSize: "clamp(2.2rem, 5vw, 4rem)",
                 letterSpacing: "0.06em",
-                color: "#C6A962",
+                color: "#C9A86A",
               }}
             >
               The Atelier Selection
@@ -211,11 +212,11 @@ export default function AccessoriesPage() {
                 <Link href={item.link} className="card-hover group block relative overflow-hidden"
                       style={{
                         borderRadius: 28,
-                        boxShadow: "0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.07)",
+                        boxShadow: "0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,248,236,0.07)",
                       }}>
                   {/* Specular top line */}
                   <div className="absolute inset-x-6 top-0 h-px z-20 pointer-events-none"
-                       style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent)" }} />
+                       style={{ background: "linear-gradient(90deg, transparent, rgba(255,248,236,0.22), transparent)" }} />
 
                   {/* Image */}
                   <div className={`relative overflow-hidden ${i === 1 ? "aspect-[16/7]" : "aspect-[4/5]"}`}>
@@ -235,9 +236,9 @@ export default function AccessoriesPage() {
                   <div
                     className="absolute bottom-5 left-5 right-5 px-5 py-4 rounded-2xl"
                     style={{
-                      background: "linear-gradient(135deg, rgba(255,255,255,0.13) 0%, rgba(255,255,255,0.04) 100%)",
+                      background: "linear-gradient(135deg, rgba(255,248,236,0.13) 0%, rgba(255,248,236,0.04) 100%)",
                       backdropFilter: "blur(20px) saturate(150%)",
-                      border: "1px solid rgba(255,255,255,0.13)",
+                      border: "1px solid rgba(255,248,236,0.13)",
                     }}
                   >
                     <div className="flex items-end justify-between gap-4">
@@ -259,9 +260,9 @@ export default function AccessoriesPage() {
                       <div className="flex flex-col items-end gap-1.5 shrink-0">
                         {/* Expanding underline bar */}
                         <div className="card-bar h-px transition-all duration-500 w-10"
-                             style={{ background: "rgba(198,169,98,0.7)" }} />
+                             style={{ background: "rgba(201,168,106,0.7)" }} />
                         {/* Arrow */}
-                        <p className="card-arrow text-[#C6A962] text-[10px] tracking-[0.25em] uppercase opacity-0 translate-x-2 transition-all duration-500">
+                        <p className="card-arrow text-[#C9A86A] text-[10px] tracking-[0.25em] uppercase opacity-0 translate-x-2 transition-all duration-500">
                           Shop →
                         </p>
                       </div>
@@ -275,11 +276,11 @@ export default function AccessoriesPage() {
 
         {/* ── CRAFT STORY ── */}
         <section className="relative z-10 overflow-hidden px-4 py-16 sm:px-6 sm:py-24 md:px-10"
-                 style={{ background: "#060606" }}>
+                 style={{ background: "#14110F" }}>
           <div className="absolute inset-0 pointer-events-none"
-               style={{ background: "radial-gradient(ellipse at 50% 100%, rgba(198,169,98,0.05) 0%, transparent 60%)" }} />
+               style={{ background: "radial-gradient(ellipse at 50% 100%, rgba(201,168,106,0.05) 0%, transparent 60%)" }} />
           <div className="absolute inset-x-0 top-0 h-px"
-               style={{ background: "linear-gradient(90deg, transparent, rgba(198,169,98,0.2), transparent)" }} />
+               style={{ background: "linear-gradient(90deg, transparent, rgba(201,168,106,0.2), transparent)" }} />
 
           <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -298,10 +299,10 @@ export default function AccessoriesPage() {
                 }}
               >
                 The Art of<br />
-                <em style={{ color: "#C6A962" }}>Finishing.</em>
+                <em style={{ color: "#C9A86A" }}>Finishing.</em>
               </h2>
               <div className="w-8 h-px mb-6"
-                   style={{ background: "linear-gradient(90deg, rgba(198,169,98,0.6), transparent)" }} />
+                   style={{ background: "linear-gradient(90deg, rgba(201,168,106,0.6), transparent)" }} />
               <p className="text-white/35 font-light leading-relaxed" style={{ fontSize: "0.88rem", letterSpacing: "0.05em" }}>
                 Hand-stitched leather. Precision-cut lenses.<br />
                 Sculpted metal accents.<br />
@@ -331,7 +332,7 @@ export default function AccessoriesPage() {
                   className="glass px-5 py-4 rounded-2xl flex items-center gap-4"
                 >
                   <div className="w-1.5 h-8 rounded-full shrink-0"
-                       style={{ background: "linear-gradient(to bottom, rgba(198,169,98,0.8), rgba(198,169,98,0.2))" }} />
+                       style={{ background: "linear-gradient(to bottom, rgba(201,168,106,0.8), rgba(201,168,106,0.2))" }} />
                   <div>
                     <p className="text-white/75 text-sm font-light"
                        style={{ fontFamily: "'Cormorant Garamond', serif", letterSpacing: "0.08em" }}>

@@ -29,11 +29,11 @@ self.__SERVER_FILES_MANIFEST={
         828,
         1080,
         1200,
-        1920,
-        2048,
-        3840
+        1440,
+        1920
       ],
       "imageSizes": [
+        16,
         32,
         48,
         64,
@@ -47,8 +47,9 @@ self.__SERVER_FILES_MANIFEST={
       "loaderFile": "",
       "domains": [],
       "disableStaticImages": false,
-      "minimumCacheTTL": 14400,
+      "minimumCacheTTL": 60,
       "formats": [
+        "image/avif",
         "image/webp"
       ],
       "maximumRedirects": 3,
@@ -59,7 +60,13 @@ self.__SERVER_FILES_MANIFEST={
       "contentDispositionType": "attachment",
       "localPatterns": [
         {
-          "pathname": "**",
+          "pathname": "/uploads/**"
+        },
+        {
+          "pathname": "/images/**"
+        },
+        {
+          "pathname": "/_next/static/media/**",
           "search": ""
         }
       ],
@@ -76,12 +83,16 @@ self.__SERVER_FILES_MANIFEST={
         {
           "protocol": "https",
           "hostname": "*.vercel.app"
+        },
+        {
+          "protocol": "https",
+          "hostname": "images.unsplash.com"
         }
       ],
       "qualities": [
         75
       ],
-      "unoptimized": true,
+      "unoptimized": false,
       "customCacheHandler": false
     },
     "devIndicators": {

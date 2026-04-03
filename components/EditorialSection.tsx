@@ -2,9 +2,9 @@ import Image from "next/image";
 
 export default function EditorialSection() {
   return (
-    <section className="section-padding luxury-container grid items-center gap-8 bg-[#111111] tracking-wide text-[#EFEFEF] md:grid-cols-2 lg:gap-16">
+    <section className="section-padding luxury-container grid items-center gap-8 bg-[#14110F] tracking-wide text-[#FFF8EC] md:grid-cols-2 lg:gap-16">
 
-      <div className="relative h-[320px] overflow-hidden rounded-3xl border border-[#EFEFEF]/10 shadow-lg sm:h-[440px] lg:h-[600px]">
+      <div className="relative h-[320px] overflow-hidden rounded-3xl border border-[#FFF8EC]/10 shadow-lg sm:h-[440px] lg:h-[600px]">
         <Image
           src="https://images.unsplash.com/photo-1520975928316-7b3e5b7c1c06?q=80&w=1600"
           alt="Craftsmanship"
@@ -16,10 +16,10 @@ export default function EditorialSection() {
 
       <div>
         <h2 className="mb-6 text-3xl font-light tracking-[0.12em] sm:mb-8 sm:text-4xl">
-          Craftsmanship <span className="text-[#C6A962]">Beyond Time</span>
+          Craftsmanship <span className="text-[#C9A86A]">Beyond Time</span>
         </h2>
 
-        <p className="max-w-xl text-base leading-relaxed text-[#EFEFEF]/70 sm:text-lg">
+        <p className="max-w-xl text-base leading-relaxed text-[#FFF8EC]/70 sm:text-lg">
           Every silhouette is precision. Every stitch is intention.
           Designed for presence. Built for permanence.
         </p>

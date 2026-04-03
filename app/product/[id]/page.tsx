@@ -3,6 +3,7 @@
 import ProductCard from "@/components/ProductCard";
 import { usePerformanceProfile } from "@/hooks/usePerformanceProfile";
 import { useTimeoutRegistry } from "@/hooks/useTimeoutRegistry";
+import { getProductColorHex as getColorHex } from "@/lib/productColors";
 import { getProductPageContent, type ProductPageSpecification } from "@/lib/productPageContent";
 import products from "@/lib/productsData";
 import type { Product } from "@/lib/types";
@@ -28,37 +29,25 @@ import { useEffect, useMemo, useRef, useState } from "react";
 /* DESIGN TOKENS */
 /* ────────────────────────────────────────────────────────────────── */
 
-const COLOR_MAP: Record<string, string> = {
-  black: "#0A0A0A", brown: "#5D4037", navy: "#1A237E", gray: "#616161",
-  white: "#FAFAFA", cream: "#FFF8E7", tan: "#D2B48C", camel: "#C19A6B",
-  olive: "#556B2F", sand: "#C2B280", chocolate: "#3E2723", stone: "#78909C",
-  charcoal: "#37474F", midnight: "#263238", gold: "#C6A75E", silver: "#9E9E9E",
-  tortoise: "#5D4037", sky: "#87CEEB",
-};
-
-function getColorHex(color: string) {
-  return COLOR_MAP[color.toLowerCase()] || color;
-}
-
 function getOriginalPrice(price: number, discount?: number) {
   if (!discount || discount <= 0 || discount >= 100) return null;
   return Math.round(price / (1 - discount / 100));
 }
 
 const glass = {
-  background: "linear-gradient(135deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%)",
+  background: "linear-gradient(135deg, rgba(255,248,236,0.09) 0%, rgba(255,248,236,0.03) 100%)",
   backdropFilter: "blur(24px) saturate(160%)",
   WebkitBackdropFilter: "blur(24px) saturate(160%)",
-  border: "1px solid rgba(255,255,255,0.10)",
-  boxShadow: "0 16px 48px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.16)",
+  border: "1px solid rgba(255,248,236,0.10)",
+  boxShadow: "0 16px 48px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,248,236,0.16)",
 };
 
 const goldGlass = {
-  background: "linear-gradient(135deg, rgba(198,169,98,0.22) 0%, rgba(178,149,78,0.10) 100%)",
+  background: "linear-gradient(135deg, rgba(201,168,106,0.22) 0%, rgba(178,149,78,0.10) 100%)",
   backdropFilter: "blur(20px) saturate(160%)",
   WebkitBackdropFilter: "blur(20px) saturate(160%)",
-  border: "1px solid rgba(198,169,98,0.28)",
-  boxShadow: "0 8px 32px rgba(198,169,98,0.12), inset 0 1px 0 rgba(255,255,255,0.14)",
+  border: "1px solid rgba(201,168,106,0.28)",
+  boxShadow: "0 8px 32px rgba(201,168,106,0.12), inset 0 1px 0 rgba(255,248,236,0.14)",
 };
 
 /* ────────────────────────────────────────────────────────────────── */
@@ -187,8 +176,8 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
                 style={{
                   ...glass,
                   boxShadow: hoveredIndex === i
-                    ? "0 24px 64px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.16)"
-                    : "0 16px 48px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.16)",
+                    ? "0 24px 64px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,248,236,0.16)"
+                    : "0 16px 48px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,248,236,0.16)",
                 }}
               >
                 {/* Image */}
@@ -270,7 +259,7 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
             }}
             animate={{
               width: selectedIndex === i ? 32 : 8,
-              backgroundColor: selectedIndex === i ? "#C6A75E" : "rgba(255,255,255,0.2)",
+              backgroundColor: selectedIndex === i ? "#C9A86A" : "rgba(255,248,236,0.2)",
             }}
             className="h-1 rounded-full transition-all"
           />
@@ -459,7 +448,7 @@ export default function PremiumProductPage() {
 
   if (loadingProduct) {
     return (
-      <div className="min-h-screen bg-[#080808] flex items-center justify-center">
+      <div className="min-h-screen bg-[#0A0908] flex items-center justify-center">
         <p className="text-white/50 font-light tracking-widest" style={{ fontFamily: "'Jost', sans-serif" }}>
           Loading product...
         </p>
@@ -469,7 +458,7 @@ export default function PremiumProductPage() {
 
   if (!product || !p) {
     return (
-      <div className="min-h-screen bg-[#080808] flex items-center justify-center">
+      <div className="min-h-screen bg-[#0A0908] flex items-center justify-center">
         <p className="text-white/50 font-light tracking-widest" style={{ fontFamily: "'Jost', sans-serif" }}>
           Product not found.
         </p>
@@ -556,9 +545,9 @@ export default function PremiumProductPage() {
       <style>{`
         
         * {
-          --gold: #C6A75E;
-          --dark: #080808;
-          --border: rgba(255,255,255,0.1);
+          --gold: #C9A86A;
+          --dark: #0A0908;
+          --border: rgba(255,248,236,0.1);
         }
         
         body { background: var(--dark); overflow-x: hidden; }
@@ -584,7 +573,7 @@ export default function PremiumProductPage() {
         .float-animation { animation: float 3s ease-in-out infinite; }
 
         /* Selection highlight */
-        ::selection { background: rgba(198, 169, 98, 0.3); color: white; }
+        ::selection { background: rgba(201, 168, 106, 0.3); color: white; }
 
         /* Smooth scroll */
         html { scroll-behavior: smooth; }
@@ -615,7 +604,7 @@ export default function PremiumProductPage() {
       </AnimatePresence>
 
       <div
-        className="min-h-screen bg-[#080808] text-white overflow-hidden"
+        className="min-h-screen bg-[#0A0908] text-white overflow-hidden"
         style={{ fontFamily: "'Jost', sans-serif" }}
       >
         {/* Ambient background glows */}
@@ -627,7 +616,7 @@ export default function PremiumProductPage() {
               height: shouldReduceDecorativeMotion ? 620 : 1000,
               top: "-30%",
               right: "-20%",
-              background: "radial-gradient(circle, rgba(198,169,98,0.08) 0%, transparent 60%)",
+              background: "radial-gradient(circle, rgba(201,168,106,0.08) 0%, transparent 60%)",
               filter: shouldReduceDecorativeMotion ? "blur(72px)" : "blur(100px)",
               opacity: shouldReduceDecorativeMotion ? 0.05 : undefined,
             }}
@@ -684,9 +673,9 @@ export default function PremiumProductPage() {
                 <span
                   className="inline-block px-4 py-2 rounded-full text-[8px] tracking-[0.4em] uppercase font-light"
                   style={{
-                    color: "#C6A962",
-                    background: "linear-gradient(135deg, rgba(198,169,98,0.12), rgba(198,169,98,0.04))",
-                    border: "1px solid rgba(198,169,98,0.2)",
+                    color: "#C9A86A",
+                    background: "linear-gradient(135deg, rgba(201,168,106,0.12), rgba(201,168,106,0.04))",
+                    border: "1px solid rgba(201,168,106,0.2)",
                     backdropFilter: "blur(12px)",
                   }}
                 >
@@ -747,7 +736,7 @@ export default function PremiumProductPage() {
                 ) : null}
                 <p
                   className="font-light"
-                  style={{ fontSize: "2.2rem", color: "#C6A962", letterSpacing: "0.05em", fontFamily: "'Cormorant Garamond', serif" }}
+                  style={{ fontSize: "2.2rem", color: "#C9A86A", letterSpacing: "0.05em", fontFamily: "'Cormorant Garamond', serif" }}
                 >
                   EGP {product.price.toLocaleString()}
                 </p>
@@ -759,7 +748,7 @@ export default function PremiumProductPage() {
                 animate={{ width: 40 }}
                 transition={{ delay: 0.45, duration: 0.6 }}
                 className="mb-8 h-px"
-                style={{ background: "linear-gradient(90deg, rgba(198,169,98,0.8), transparent)" }}
+                style={{ background: "linear-gradient(90deg, rgba(201,168,106,0.8), transparent)" }}
               />
 
               {/* Description */}
@@ -791,15 +780,15 @@ export default function PremiumProductPage() {
                         onClick={() => setSelectedSize(size)}
                         className="px-6 py-3 rounded-full text-sm font-light tracking-[0.1em] transition-all duration-300"
                         style={selectedSize === size ? {
-                          background: "linear-gradient(135deg, rgba(198,169,98,0.25), rgba(198,169,98,0.1))",
-                          border: "1px solid rgba(198,169,98,0.5)",
-                          color: "#C6A962",
+                          background: "linear-gradient(135deg, rgba(201,168,106,0.25), rgba(201,168,106,0.1))",
+                          border: "1px solid rgba(201,168,106,0.5)",
+                          color: "#C9A86A",
                           backdropFilter: "blur(12px)",
-                          boxShadow: "0 8px 24px rgba(198,169,98,0.15)",
+                          boxShadow: "0 8px 24px rgba(201,168,106,0.15)",
                         } : {
-                          background: "rgba(255,255,255,0.05)",
-                          border: "1px solid rgba(255,255,255,0.1)",
-                          color: "rgba(255,255,255,0.6)",
+                          background: "rgba(255,248,236,0.05)",
+                          border: "1px solid rgba(255,248,236,0.1)",
+                          color: "rgba(255,248,236,0.6)",
                           backdropFilter: "blur(12px)",
                         }}
                       >
@@ -836,10 +825,10 @@ export default function PremiumProductPage() {
                             width: 44, height: 44,
                             backgroundColor: hex,
                             border: selectedColor === color
-                              ? "2px solid rgba(198,169,98,0.9)"
-                              : "2px solid rgba(255,255,255,0.15)",
+                              ? "2px solid rgba(201,168,106,0.9)"
+                              : "2px solid rgba(255,248,236,0.15)",
                             boxShadow: selectedColor === color
-                              ? "0 0 0 4px rgba(198,169,98,0.2), 0 8px 24px rgba(0,0,0,0.5)"
+                              ? "0 0 0 4px rgba(201,168,106,0.2), 0 8px 24px rgba(0,0,0,0.5)"
                               : "0 4px 12px rgba(0,0,0,0.3)",
                           }}
                         >
@@ -848,7 +837,7 @@ export default function PremiumProductPage() {
                               layoutId="colorSelected"
                               className="absolute inset-0 rounded-full"
                               style={{
-                                background: "linear-gradient(135deg, rgba(255,255,255,0.3), transparent)",
+                                background: "linear-gradient(135deg, rgba(255,248,236,0.3), transparent)",
                               }}
                             />
                           )}
@@ -886,11 +875,11 @@ export default function PremiumProductPage() {
                   <ShoppingBag
                     strokeWidth={1.3}
                     className="relative z-10 h-5 w-5"
-                    style={{ color: added ? "#C6A962" : "rgba(255,255,255,0.7)" }}
+                    style={{ color: added ? "#C9A86A" : "rgba(255,248,236,0.7)" }}
                   />
                   <span
                     className="relative z-10"
-                    style={{ color: added ? "#C6A962" : "rgba(255,255,255,0.8)" }}
+                    style={{ color: added ? "#C9A86A" : "rgba(255,248,236,0.8)" }}
                   >
                     {loading ? "Adding…" : added ? "Added" : "Add to Cart"}
                   </span>
@@ -907,8 +896,8 @@ export default function PremiumProductPage() {
                 >
                   <div className="shimmer absolute inset-0 pointer-events-none opacity-80" />
                   <div className="relative z-10 flex items-center justify-center gap-3">
-                    <Zap strokeWidth={1.3} className="relative z-10 h-5 w-5" style={{ color: "#C6A962" }} />
-                    <span className="relative z-10" style={{ color: "#C6A962" }}>
+                    <Zap strokeWidth={1.3} className="relative z-10 h-5 w-5" style={{ color: "#C9A86A" }} />
+                    <span className="relative z-10" style={{ color: "#C9A86A" }}>
                       Buy Now
                     </span>
                   </div>
@@ -944,7 +933,7 @@ export default function PremiumProductPage() {
                 fontFamily: "'Cormorant Garamond', serif",
                 fontSize: "clamp(2rem, 4vw, 3rem)",
                 letterSpacing: "0.06em",
-                color: "#C6A962",
+                color: "#C9A86A",
               }}
             >
               Product Details
@@ -1020,9 +1009,9 @@ export default function PremiumProductPage() {
                         <div
                           className="flex h-12 w-12 items-center justify-center rounded-full"
                           style={{
-                            background: "linear-gradient(135deg, rgba(198,169,98,0.16), rgba(198,169,98,0.05))",
-                            border: "1px solid rgba(198,169,98,0.24)",
-                            color: "#C6A962",
+                            background: "linear-gradient(135deg, rgba(201,168,106,0.16), rgba(201,168,106,0.05))",
+                            border: "1px solid rgba(201,168,106,0.24)",
+                            color: "#C9A86A",
                           }}
                         >
                           <Icon size={18} strokeWidth={1.4} />
@@ -1058,7 +1047,7 @@ export default function PremiumProductPage() {
                   fontFamily: "'Cormorant Garamond', serif",
                   fontSize: "clamp(2rem, 4vw, 3rem)",
                   letterSpacing: "0.06em",
-                  color: "#C6A962",
+                  color: "#C9A86A",
                 }}
               >
                 You May Also Like

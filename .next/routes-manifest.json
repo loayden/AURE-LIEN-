@@ -269,6 +269,12 @@
       "namedRegex": "^/api/session(?:/)?$"
     },
     {
+      "page": "/api/upload",
+      "regex": "^/api/upload(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/upload(?:/)?$"
+    },
+    {
       "page": "/api/user",
       "regex": "^/api/user(?:/)?$",
       "routeKeys": {},

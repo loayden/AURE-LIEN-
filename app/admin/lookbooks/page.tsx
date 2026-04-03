@@ -235,7 +235,7 @@ export default function AdminLookbooksPage() {
             <div>
               <h3 className="title-display text-[1.65rem]">{lb.title}</h3>
               <p className="body-copy mt-2">{lb.slug} • {lb.sections.length} sections</p>
-              <span className={`eyebrow mt-3 inline-block ${lb.published ? "text-[#C6A962]" : "text-white/35"}`}>
+              <span className={`eyebrow mt-3 inline-block ${lb.published ? "text-[#C9A86A]" : "text-white/35"}`}>
                 {lb.published ? "Published" : "Draft"}
               </span>
             </div>

@@ -7,6 +7,7 @@ interface CategoryCollectionPageProps {
   eyebrow?: string;
   description?: string;
   emptyMessage?: string;
+  fullMobileCards?: boolean;
 }
 
 export default function CategoryCollectionPage({
@@ -15,6 +16,7 @@ export default function CategoryCollectionPage({
   eyebrow = "Curated Category",
   description = "A focused edit sized for comfortable browsing across phones, tablets, and desktop.",
   emptyMessage = "No products found in this category.",
+  fullMobileCards = false,
 }: CategoryCollectionPageProps) {
   const products = productsData.filter((product) => product.category === category);
   const pieceLabel = products.length === 1 ? "Piece" : "Pieces";
@@ -44,20 +46,20 @@ export default function CategoryCollectionPage({
           <div className="mt-6 flex items-center justify-center gap-2 sm:gap-3">
             <span
               className="h-px w-8 sm:w-10"
-              style={{ background: "linear-gradient(90deg, transparent, rgba(198,169,98,0.72), transparent)" }}
+              style={{ background: "linear-gradient(90deg, transparent, rgba(201,168,106,0.72), transparent)" }}
             />
             <span className="count-pill">
               {products.length} {pieceLabel}
             </span>
             <span
               className="h-px w-8 sm:w-10"
-              style={{ background: "linear-gradient(90deg, transparent, rgba(198,169,98,0.72), transparent)" }}
+              style={{ background: "linear-gradient(90deg, transparent, rgba(201,168,106,0.72), transparent)" }}
             />
           </div>
         </div>
 
         {products.length > 0 ? (
-          <div className="catalog-grid">
+          <div className={fullMobileCards ? "catalog-grid catalog-grid-mobile-full" : "catalog-grid"}>
             {products.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}

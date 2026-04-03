@@ -1,3 +1,5 @@
+import { withPublicAssetVersion } from "./publicAsset";
+
 export type LookbookSection = {
   title: string;
   image: string;
@@ -29,21 +31,21 @@ export const fallbackLookbooks: LookbookRecord[] = [
     sections: [
       {
         title: "Autumn Tailoring",
-        image: "/uploads/Jackets & Coats.jpg",
+        image: withPublicAssetVersion("/uploads/Jackets & Coats.jpg"),
         slug: "autumn-tailoring",
         chapter: "I",
         hotspots: [],
       },
       {
         title: "Summer Riviera",
-        image: "/uploads/Suits.jpg",
+        image: withPublicAssetVersion("/uploads/Suits.jpg"),
         slug: "summer-riviera",
         chapter: "II",
         hotspots: [],
       },
       {
         title: "Modern Essentials",
-        image: "/uploads/Sneakers.jpg",
+        image: withPublicAssetVersion("/uploads/Sneakers.jpg"),
         slug: "modern-essentials",
         chapter: "III",
         hotspots: [],

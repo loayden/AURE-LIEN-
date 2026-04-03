@@ -5,7 +5,7 @@ export default function PrivacyPage() {
     <LegalDocumentPage
       eyebrow="Legal"
       title="Privacy"
-      intro="AURELIEN keeps customer information limited to what is required to operate the store, support orders, and improve service quality."
+      intro="BOUT keeps customer information limited to what is required to operate the store, support orders, and improve service quality."
       sections={[
         {
           heading: "Information We Use",

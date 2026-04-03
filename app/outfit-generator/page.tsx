@@ -35,10 +35,10 @@ function GlassSelect({
         onClick={() => setOpen(!open)}
         className="relative flex min-h-[44px] min-w-[44px] items-center justify-between rounded-2xl px-4 py-3.5 text-left transition-all duration-300 sm:px-5"
         style={{
-          background:"linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)",
+          background:"linear-gradient(135deg, rgba(255,248,236,0.07) 0%, rgba(255,248,236,0.02) 100%)",
           backdropFilter:"blur(16px)",
-          border: open ? "1px solid rgba(198,169,98,0.45)" : "1px solid rgba(255,255,255,0.09)",
-          boxShadow: open ? "0 0 0 3px rgba(198,169,98,0.08)" : "none",
+          border: open ? "1px solid rgba(201,168,106,0.45)" : "1px solid rgba(255,248,236,0.09)",
+          boxShadow: open ? "0 0 0 3px rgba(201,168,106,0.08)" : "none",
         }}
       >
         <span className="text-white/70 text-sm font-light tracking-wide"
@@ -60,14 +60,14 @@ function GlassSelect({
             transition={{ duration:0.2, ease:[0.22,1,0.36,1] }}
             className="absolute left-0 right-0 top-[calc(100%+6px)] z-50 overflow-hidden rounded-2xl"
             style={{
-              background:"linear-gradient(160deg, rgba(18,18,20,0.96) 0%, rgba(10,10,12,0.98) 100%)",
+              background:"linear-gradient(160deg, rgba(30,24,22,0.96) 0%, rgba(20,17,15,0.98) 100%)",
               backdropFilter:"blur(32px) saturate(180%)",
-              border:"1px solid rgba(255,255,255,0.09)",
-              boxShadow:"0 24px 60px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.10)",
+              border:"1px solid rgba(255,248,236,0.09)",
+              boxShadow:"0 24px 60px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,248,236,0.10)",
             }}
           >
             <div className="absolute inset-x-4 top-0 h-px pointer-events-none"
-                 style={{ background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent)" }} />
+                 style={{ background:"linear-gradient(90deg, transparent, rgba(255,248,236,0.16), transparent)" }} />
             {options.map((opt, i) => (
               <li key={opt.value}>
                 <button
@@ -75,7 +75,7 @@ function GlassSelect({
                   onClick={() => { onChange(opt.value); setOpen(false); }}
                   className="flex min-h-[44px] min-w-[44px] w-full items-center justify-between px-4 py-3 text-left transition-all duration-200 hover:bg-white/[0.05] sm:px-5"
                   style={{
-                    color: opt.value === value ? "#C6A962" : "rgba(255,255,255,0.50)",
+                    color: opt.value === value ? "#C9A86A" : "rgba(255,248,236,0.50)",
                     fontSize:"11px",
                     letterSpacing:"0.15em",
                     fontFamily:"'Jost', sans-serif",
@@ -84,11 +84,11 @@ function GlassSelect({
                 >
                   <span className="uppercase">{opt.label}</span>
                   {opt.value === value && (
-                    <span className="w-1 h-1 rounded-full" style={{ background:"#C6A962" }} />
+                    <span className="w-1 h-1 rounded-full" style={{ background:"#C9A86A" }} />
                   )}
                 </button>
                 {i < options.length - 1 && (
-                  <div className="mx-4 h-px" style={{ background:"rgba(255,255,255,0.05)" }} />
+                  <div className="mx-4 h-px" style={{ background:"rgba(255,248,236,0.05)" }} />
                 )}
               </li>
             ))}
@@ -114,20 +114,20 @@ function OutfitCard({ outfit, index, onAddToCart }: {
       transition={{ delay: index * 0.12, duration:0.8, ease:[0.22,1,0.36,1] }}
       className="relative overflow-hidden rounded-2xl flex flex-col"
       style={{
-        background:"linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.025) 100%)",
+        background:"linear-gradient(135deg, rgba(255,248,236,0.08) 0%, rgba(255,248,236,0.025) 100%)",
         backdropFilter:"blur(24px) saturate(160%)",
-        border:"1px solid rgba(255,255,255,0.09)",
-        boxShadow:"0 24px 64px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,255,255,0.14)",
+        border:"1px solid rgba(255,248,236,0.09)",
+        boxShadow:"0 24px 64px rgba(0,0,0,0.40), inset 0 1px 0 rgba(255,248,236,0.14)",
       }}
     >
       {/* Specular top line */}
       <div className="absolute inset-x-5 top-0 h-px pointer-events-none"
-           style={{ background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.20), transparent)" }} />
+           style={{ background:"linear-gradient(90deg, transparent, rgba(255,248,236,0.20), transparent)" }} />
 
       {/* Card header */}
-      <div className="px-4 pb-4 pt-5 sm:px-6 sm:pt-6" style={{ borderBottom:"1px solid rgba(255,255,255,0.06)" }}>
+      <div className="px-4 pb-4 pt-5 sm:px-6 sm:pt-6" style={{ borderBottom:"1px solid rgba(255,248,236,0.06)" }}>
         <div className="flex items-center gap-3 mb-1">
-          <span className="text-[#C6A962] text-[9px] tracking-[0.35em] uppercase font-light"
+          <span className="text-[#C9A86A] text-[9px] tracking-[0.35em] uppercase font-light"
                 style={{ fontFamily:"'Jost', sans-serif" }}>
             Look {String(index + 1).padStart(2, "0")}
           </span>
@@ -148,7 +148,7 @@ function OutfitCard({ outfit, index, onAddToCart }: {
             href={`/product/${p._id}`}
             className="group flex items-center gap-3 p-2.5 rounded-xl transition-all duration-300"
             style={{ border:"1px solid transparent" }}
-            onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)")}
+            onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(255,248,236,0.07)")}
             onMouseLeave={(e) => (e.currentTarget.style.borderColor = "transparent")}
           >
             {/* Thumbnail */}
@@ -166,7 +166,7 @@ function OutfitCard({ outfit, index, onAddToCart }: {
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center"
-                     style={{ background:"rgba(255,255,255,0.04)" }}>
+                     style={{ background:"rgba(255,248,236,0.04)" }}>
                   <span className="text-white/20 text-[8px]">—</span>
                 </div>
               )}
@@ -197,14 +197,14 @@ function OutfitCard({ outfit, index, onAddToCart }: {
 
       {/* Card footer */}
       <div className="flex flex-col gap-3 px-4 pb-5 pt-4 sm:px-6 sm:pb-6"
-           style={{ borderTop:"1px solid rgba(255,255,255,0.06)" }}>
+           style={{ borderTop:"1px solid rgba(255,248,236,0.06)" }}>
         {/* Total */}
         <div className="flex items-center justify-between">
           <span className="text-white/20 text-[9px] tracking-[0.3em] uppercase"
                 style={{ fontFamily:"'Jost', sans-serif" }}>
             Outfit Total
           </span>
-          <span className="font-light" style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"1.1rem", color:"#C6A962", letterSpacing:"0.06em" }}>
+          <span className="font-light" style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"1.1rem", color:"#C9A86A", letterSpacing:"0.06em" }}>
             EGP {total.toLocaleString()}
           </span>
         </div>
@@ -217,18 +217,18 @@ function OutfitCard({ outfit, index, onAddToCart }: {
           whileTap={{ scale:0.985 }}
           className="relative flex min-h-[44px] min-w-[44px] w-full items-center justify-center gap-2 rounded-full py-3 font-light transition-all duration-400 overflow-hidden sm:gap-3"
           style={{
-            background:"linear-gradient(135deg, rgba(198,169,98,0.20), rgba(198,169,98,0.07))",
+            background:"linear-gradient(135deg, rgba(201,168,106,0.20), rgba(201,168,106,0.07))",
             backdropFilter:"blur(16px)",
-            border:"1px solid rgba(198,169,98,0.32)",
-            boxShadow:"0 0 24px rgba(198,169,98,0.10), inset 0 1px 0 rgba(255,255,255,0.14)",
-            color:"#C6A962",
+            border:"1px solid rgba(201,168,106,0.32)",
+            boxShadow:"0 0 24px rgba(201,168,106,0.10), inset 0 1px 0 rgba(255,248,236,0.14)",
+            color:"#C9A86A",
             fontSize:"10px",
             letterSpacing:"0.28em",
             fontFamily:"'Jost', sans-serif",
           }}
         >
           <div className="absolute inset-0 pointer-events-none"
-               style={{ background:"linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.07) 50%, transparent 60%)" }} />
+               style={{ background:"linear-gradient(105deg, transparent 40%, rgba(255,248,236,0.07) 50%, transparent 60%)" }} />
           <ShoppingBag strokeWidth={1.3} className="w-3.5 h-3.5 relative z-10" />
           <span className="relative z-10 uppercase">Add Outfit to Cart</span>
         </motion.button>
@@ -291,11 +291,11 @@ export default function OutfitGeneratorPage() {
   return (
     <>
       <style>{`
-        body { background: #080808; }
-        ::selection { background: #C6A962; color: #080808; }
+        body { background: #0A0908; }
+        ::selection { background: #C9A86A; color: #0A0908; }
       `}</style>
 
-      <main className="relative min-h-screen bg-[#080808] px-4 pb-16 pt-16 text-white sm:px-6 sm:pb-24 sm:pt-24 md:px-10 md:pb-32"
+      <main className="relative min-h-screen bg-[#0A0908] px-4 pb-16 pt-16 text-white sm:px-6 sm:pb-24 sm:pt-24 md:px-10 md:pb-32"
             style={{ fontFamily:"'Jost', sans-serif" }}>
 
         <div className="relative z-10 max-w-6xl mx-auto">
@@ -313,22 +313,22 @@ export default function OutfitGeneratorPage() {
                 className="font-light text-white leading-none"
                 style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(2.5rem, 6vw, 4.5rem)", letterSpacing:"0.04em" }}
               >
-                Outfit <em style={{ color:"#C6A962", fontStyle:"italic" }}>Generator</em>
+                Outfit <em style={{ color:"#C9A86A", fontStyle:"italic" }}>Generator</em>
               </h1>
               <span
                 className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 px-4 py-2 rounded-full"
                 style={{
-                  background:"linear-gradient(135deg, rgba(198,169,98,0.12), rgba(198,169,98,0.04))",
-                  border:"1px solid rgba(198,169,98,0.20)",
+                  background:"linear-gradient(135deg, rgba(201,168,106,0.12), rgba(201,168,106,0.04))",
+                  border:"1px solid rgba(201,168,106,0.20)",
                   backdropFilter:"blur(14px)",
                 }}
               >
-                <Sparkles strokeWidth={1.3} className="w-3 h-3" style={{ color:"#C6A962" }} />
-                <span className="text-[#C6A962] text-[9px] tracking-[0.3em] uppercase font-light">AI Powered</span>
+                <Sparkles strokeWidth={1.3} className="w-3 h-3" style={{ color:"#C9A86A" }} />
+                <span className="text-[#C9A86A] text-[9px] tracking-[0.3em] uppercase font-light">AI Powered</span>
               </span>
             </div>
             <div className="mt-5 h-px"
-                 style={{ background:"linear-gradient(90deg, rgba(198,169,98,0.4), transparent)" }} />
+                 style={{ background:"linear-gradient(90deg, rgba(201,168,106,0.4), transparent)" }} />
           </motion.div>
 
           {/* ── CONTROLS ── */}
@@ -338,15 +338,15 @@ export default function OutfitGeneratorPage() {
             transition={{ duration:0.8, delay:0.1 }}
             className="relative mb-6 overflow-hidden rounded-3xl p-5 sm:mb-8 sm:p-8 md:mb-10"
             style={{
-              background:"linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)",
+              background:"linear-gradient(135deg, rgba(255,248,236,0.07) 0%, rgba(255,248,236,0.02) 100%)",
               backdropFilter:"blur(24px) saturate(160%)",
-              border:"1px solid rgba(255,255,255,0.09)",
-              boxShadow:"0 20px 56px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.13)",
+              border:"1px solid rgba(255,248,236,0.09)",
+              boxShadow:"0 20px 56px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,248,236,0.13)",
             }}
           >
             {/* Specular */}
             <div className="absolute inset-x-6 top-0 h-px pointer-events-none"
-                 style={{ background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent)" }} />
+                 style={{ background:"linear-gradient(90deg, transparent, rgba(255,248,236,0.18), transparent)" }} />
 
             <p className="text-white/20 text-[9px] tracking-[0.35em] uppercase mb-6"
                style={{ fontFamily:"'Jost', sans-serif" }}>
@@ -376,18 +376,18 @@ export default function OutfitGeneratorPage() {
               whileTap={{ scale:0.985 }}
               className="relative overflow-hidden inline-flex items-center gap-3 px-9 py-4 rounded-full font-light disabled:opacity-45 transition-all duration-400"
               style={{
-                background:"linear-gradient(135deg, rgba(198,169,98,0.22), rgba(198,169,98,0.08))",
+                background:"linear-gradient(135deg, rgba(201,168,106,0.22), rgba(201,168,106,0.08))",
                 backdropFilter:"blur(16px)",
-                border:"1px solid rgba(198,169,98,0.35)",
-                boxShadow:"0 0 28px rgba(198,169,98,0.12), inset 0 1px 0 rgba(255,255,255,0.16)",
-                color:"#C6A962",
+                border:"1px solid rgba(201,168,106,0.35)",
+                boxShadow:"0 0 28px rgba(201,168,106,0.12), inset 0 1px 0 rgba(255,248,236,0.16)",
+                color:"#C9A86A",
                 fontSize:"10px",
                 letterSpacing:"0.32em",
                 fontFamily:"'Jost', sans-serif",
               }}
             >
               <div className="absolute inset-0 pointer-events-none"
-                   style={{ background:"linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%)" }} />
+                   style={{ background:"linear-gradient(105deg, transparent 40%, rgba(255,248,236,0.08) 50%, transparent 60%)" }} />
               {loading ? (
                 <>
                   <motion.span
@@ -420,12 +420,12 @@ export default function OutfitGeneratorPage() {
               >
                 {[0,1,2].map((i) => (
                   <div key={i} className="rounded-2xl overflow-hidden h-96 relative"
-                       style={{ background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.06)" }}>
+                       style={{ background:"rgba(255,248,236,0.04)", border:"1px solid rgba(255,248,236,0.06)" }}>
                     <motion.div
                       animate={{ x:["-100%","100%"] }}
                       transition={{ repeat:Infinity, duration:1.8, delay: i * 0.2, ease:"easeInOut" }}
                       className="absolute inset-0"
-                      style={{ background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent)" }}
+                      style={{ background:"linear-gradient(90deg, transparent, rgba(255,248,236,0.04), transparent)" }}
                     />
                   </div>
                 ))}

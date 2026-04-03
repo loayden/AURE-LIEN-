@@ -7,6 +7,7 @@ export default function ShirtsPage() {
       category="shirts"
       eyebrow="Shirting Edit"
       description="Clean shirting laid out with softer widths, calmer section spacing, and more readable mobile proportions."
+      fullMobileCards
     />
   );
 }

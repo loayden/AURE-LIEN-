@@ -2,6 +2,7 @@
 
 import AdaptiveHeroMedia from "@/components/AdaptiveHeroMedia";
 import ProductCard from "@/components/ProductCard";
+import { withPublicAssetVersion } from "@/lib/publicAsset";
 import products from "@/lib/productsData";
 import type { Product } from "@/lib/types";
 import { motion, useScroll, useTransform } from "framer-motion";
@@ -155,10 +156,10 @@ function GlassNav({ active, onChange }: { active: string; onChange: (id: string)
     <div
       className="flex flex-wrap items-center justify-center gap-1 p-1.5 rounded-full max-w-full overflow-x-auto"
       style={{
-        background: "linear-gradient(135deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.04) 100%)",
+        background: "linear-gradient(135deg, rgba(255,248,236,0.10) 0%, rgba(255,248,236,0.04) 100%)",
         backdropFilter: "blur(20px) saturate(160%)",
-        border: "1px solid rgba(255,255,255,0.12)",
-        boxShadow: "0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.15)",
+        border: "1px solid rgba(255,248,236,0.12)",
+        boxShadow: "0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,248,236,0.15)",
       }}
     >
       {SECTIONS.map((s) => (
@@ -170,12 +171,12 @@ function GlassNav({ active, onChange }: { active: string; onChange: (id: string)
           }}
           className="relative px-3 sm:px-5 py-2 rounded-full text-[9px] sm:text-[10px] tracking-[0.25em] uppercase font-light transition-all duration-400 whitespace-nowrap flex-shrink-0"
           style={{
-            color: active === s.id ? "#080808" : "rgba(255,255,255,0.5)",
+            color: active === s.id ? "#0A0908" : "rgba(255,248,236,0.5)",
             background:
               active === s.id
-                ? "linear-gradient(135deg, rgba(198,169,98,0.95) 0%, rgba(178,149,78,0.95) 100%)"
+                ? "linear-gradient(135deg, rgba(201,168,106,0.95) 0%, rgba(178,149,78,0.95) 100%)"
                 : "transparent",
-            boxShadow: active === s.id ? "0 2px 12px rgba(198,169,98,0.4)" : "none",
+            boxShadow: active === s.id ? "0 2px 12px rgba(201,168,106,0.4)" : "none",
             fontFamily: "'Jost', sans-serif",
           }}
         >
@@ -205,18 +206,18 @@ export default function CollectionPage() {
   return (
     <>
       <style>{`
-        body { background: #080808; }
+        body { background: #0A0908; }
         .glass-pill {
-          background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.06) 100%);
-          box-shadow: 0 8px 32px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.22);
+          background: linear-gradient(135deg, rgba(255,248,236,0.15) 0%, rgba(255,248,236,0.06) 100%);
+          box-shadow: 0 8px 32px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,248,236,0.22);
           backdrop-filter: blur(20px) saturate(180%);
-          border: 1px solid rgba(255,255,255,0.14);
+          border: 1px solid rgba(255,248,236,0.14);
           transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
           min-height: 44px;
         }
         .glass-pill:hover {
-          background: linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.09) 100%);
-          box-shadow: 0 12px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.28), 0 0 20px rgba(198,169,98,0.12);
+          background: linear-gradient(135deg, rgba(255,248,236,0.22) 0%, rgba(255,248,236,0.09) 100%);
+          box-shadow: 0 12px 40px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,248,236,0.28), 0 0 20px rgba(201,168,106,0.12);
         }
         .glass-pill:active {
           transform: scale(0.98);
@@ -232,7 +233,7 @@ export default function CollectionPage() {
         .sticky-nav {
           background: linear-gradient(135deg, rgba(8,8,8,0.7) 0%, rgba(8,8,8,0.5) 100%);
           backdrop-filter: blur(28px) saturate(180%);
-          border-bottom: 1px solid rgba(255,255,255,0.07);
+          border-bottom: 1px solid rgba(255,248,236,0.07);
         }
         
         /* Mobile optimization */
@@ -247,7 +248,7 @@ export default function CollectionPage() {
         initial={false}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.9 }}
-        className="relative bg-[#080808] text-white min-h-screen"
+        className="relative bg-[#0A0908] text-white min-h-screen"
         style={{ fontFamily: "'Jost', sans-serif" }}
       >
         {/* ── HERO (Mobile optimized) ── */}
@@ -260,9 +261,9 @@ export default function CollectionPage() {
               alt="Collection campaign"
               className="absolute inset-0 h-full w-full object-cover"
               imagePriority
-              posterSrc="/uploads/collections.jpg"
+              posterSrc={withPublicAssetVersion("/uploads/collections.jpg")}
               style={{ filter: "brightness(0.5) saturate(0.85)" }}
-              videoSrc="/uploads/Goldmaa.mp4"
+              videoSrc={withPublicAssetVersion("/uploads/Goldmaa.mp4")}
             />
           </motion.div>
 
@@ -274,7 +275,7 @@ export default function CollectionPage() {
           />
           <div
             className="absolute inset-x-0 bottom-0 h-40 sm:h-60"
-            style={{ background: "linear-gradient(to top, #080808, transparent)" }}
+            style={{ background: "linear-gradient(to top, #0A0908, transparent)" }}
           />
           <div
             className="absolute inset-x-0 top-0 h-16 sm:h-24"
@@ -294,7 +295,7 @@ export default function CollectionPage() {
                 textShadow: "0 4px 40px rgba(0,0,0,0.5)",
               }}
             >
-              The <em style={{ color: "#C6A962", fontStyle: "italic" }}>Collection</em>
+              The <em style={{ color: "#C9A86A", fontStyle: "italic" }}>Collection</em>
             </h1>
             <p
               className="hero-line-3 text-white/45 font-light tracking-widest max-w-md mx-auto text-xs sm:text-sm"
@@ -359,7 +360,7 @@ export default function CollectionPage() {
                     fontFamily: "'Cormorant Garamond', serif",
                     fontSize: "clamp(1.5rem, 5vw, 3.2rem)",
                     letterSpacing: "0.06em",
-                    color: "#C6A962",
+                    color: "#C9A86A",
                   }}
                 >
                   {section.label}
@@ -385,7 +386,7 @@ export default function CollectionPage() {
                 <div
                   className="mt-16 sm:mt-24 h-px"
                   style={{
-                    background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)",
+                    background: "linear-gradient(90deg, transparent, rgba(255,248,236,0.06), transparent)",
                   }}
                 />
               )}
@@ -396,18 +397,18 @@ export default function CollectionPage() {
         {/* ── FOOTER CTA ── */}
         <section
           className="relative mt-8 flex flex-col items-center justify-center overflow-hidden px-4 py-16 text-center sm:px-6 sm:py-24 md:px-10"
-          style={{ background: "#060606" }}
+          style={{ background: "#14110F" }}
         >
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: "radial-gradient(ellipse at 50% 100%, rgba(198,169,98,0.06) 0%, transparent 65%)",
+              background: "radial-gradient(ellipse at 50% 100%, rgba(201,168,106,0.06) 0%, transparent 65%)",
             }}
           />
           <div
             className="absolute inset-x-0 top-0 h-px"
             style={{
-              background: "linear-gradient(90deg, transparent, rgba(198,169,98,0.25), transparent)",
+              background: "linear-gradient(90deg, transparent, rgba(201,168,106,0.25), transparent)",
             }}
           />
 
@@ -431,7 +432,7 @@ export default function CollectionPage() {
             >
               Every Piece.
               <br />
-              <em style={{ color: "#C6A962" }}>One Vision.</em>
+              <em style={{ color: "#C9A86A" }}>One Vision.</em>
             </h2>
             <Link
               href="/shop"

@@ -7,6 +7,7 @@ export default function JeansPage() {
       category="jeans"
       eyebrow="Pants Edit"
       description="A cleaner jeans catalog with more forgiving gutters, spacing, and card rhythm for phone users."
+      fullMobileCards
     />
   );
 }

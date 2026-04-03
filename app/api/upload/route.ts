@@ -1,7 +1,4 @@
-import { put } from "@vercel/blob";
 import { randomUUID } from "crypto";
-import { promises as fs } from "fs";
-import path from "path";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -21,6 +18,19 @@ function sanitizeBaseName(filename: string) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 60);
+}
+
+async function saveLocally(file: File, filename: string) {
+  const [{ mkdir, writeFile }, { join }] = await Promise.all([import("fs/promises"), import("path")]);
+
+  const uploadDir = join(process.cwd(), "public", "uploads");
+  const outputPath = join(uploadDir, filename);
+
+  await mkdir(uploadDir, { recursive: true });
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  await writeFile(outputPath, bytes);
+
+  return `/uploads/${filename}`;
 }
 
 export async function POST(request: Request) {
@@ -49,7 +59,9 @@ export async function POST(request: Request) {
     const extension = ALLOWED_TYPES.get(file.type) ?? "bin";
     const safeBaseName = sanitizeBaseName(file.name) || "upload";
     const filename = `${Date.now()}-${randomUUID().slice(0, 8)}-${safeBaseName}.${extension}`;
+
     if (process.env.BLOB_READ_WRITE_TOKEN) {
+      const { put } = await import("@vercel/blob");
       const blob = await put(`uploads/${filename}`, file, {
         access: "public",
         addRandomSuffix: false,
@@ -57,14 +69,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ url: blob.url });
     }
 
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    const outputPath = path.join(uploadDir, filename);
+    // Keep the local filesystem fallback out of production bundles.
+    // Otherwise Next/Vercel output tracing pulls the entire public/uploads
+    // directory into this function, which blows past the serverless size limit.
+    if (process.env.NODE_ENV === "production") {
+      return NextResponse.json(
+        { error: "Upload storage is not configured. Set BLOB_READ_WRITE_TOKEN for production." },
+        { status: 500 }
+      );
+    }
 
-    await fs.mkdir(uploadDir, { recursive: true });
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    await fs.writeFile(outputPath, bytes);
-
-    return NextResponse.json({ url: `/uploads/${filename}` });
+    const localUrl = await saveLocally(file, filename);
+    return NextResponse.json({ url: localUrl });
   } catch (error) {
     console.error("Upload API error:", error);
     return NextResponse.json({ error: "Unable to store the uploaded image." }, { status: 500 });

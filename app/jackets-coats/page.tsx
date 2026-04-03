@@ -7,6 +7,7 @@ export default function JacketsPage() {
       category="jackets-coats"
       eyebrow="Outerwear Edit"
       description="Structured outer layers with mobile-friendly spacing, imagery, and card sizing across the full catalog."
+      fullMobileCards
     />
   );
 }

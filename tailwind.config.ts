@@ -8,16 +8,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        black: "#0A0A0A",
-        charcoal: "#1A1A1A",
-        "charcoal-light": "#252525",
-        ivory: "#F5F1E9",
-        "ivory-muted": "#EAE6DF",
-        brass: "#C6A75E",
-        "brass-light": "#D4AF37",
-        "brass-muted": "rgba(198, 167, 94, 0.6)",
+        black: "rgb(10 9 8 / <alpha-value>)",
+        white: "rgb(255 248 236 / <alpha-value>)",
+        surface: "#14110F",
+        charcoal: "#1D1815",
+        "charcoal-light": "#2A221D",
+        ivory: "#FFF8EC",
+        "ivory-muted": "#E8DCC9",
+        brass: "#C9A86A",
+        "brass-light": "#E2C58D",
+        "brass-muted": "rgba(201, 168, 106, 0.6)",
+        espresso: "#8B6A3E",
         silver: "#B0B0B0",
-        champagne: "#F7E7CE",
+        champagne: "#F6E9D5",
       },
       fontFamily: {
         serif: ["var(--font-cormorant)", "Cormorant Garamond", "Georgia", "serif"],
@@ -48,8 +51,8 @@ const config: Config = {
         "1000": "1000ms",
       },
       boxShadow: {
-        "brass-glow": "0 0 40px rgba(198, 167, 94, 0.15)",
-        "brass-glow-hover": "0 0 60px rgba(198, 167, 94, 0.25)",
+        "brass-glow": "0 0 40px rgba(201, 168, 106, 0.15)",
+        "brass-glow-hover": "0 0 60px rgba(201, 168, 106, 0.25)",
       },
       animation: {
         "zoom-slow": "zoom-slow 20s ease-out forwards",

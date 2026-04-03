@@ -19,7 +19,7 @@ export function getWelcomeEmailHtml(data: WelcomeEmailData): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome to Luxury Aurelien</title>
+  <title>Welcome to Luxury Bout</title>
 </head>
 <body style="margin:0;padding:0;background-color:#111111;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#111111;">
@@ -29,7 +29,7 @@ export function getWelcomeEmailHtml(data: WelcomeEmailData): string {
           <!-- Header -->
           <tr>
             <td style="padding-bottom:40px;border-bottom:1px solid rgba(198,167,94,0.3);">
-              <h1 style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:28px;letter-spacing:0.2em;color:#C6A75E;text-transform:uppercase;">Luxury Aurelien</h1>
+              <h1 style="margin:0;font-family:Georgia,'Times New Roman',serif;font-size:28px;letter-spacing:0.2em;color:#C6A75E;text-transform:uppercase;">Luxury Bout</h1>
             </td>
           </tr>
           <!-- Content -->
@@ -37,7 +37,7 @@ export function getWelcomeEmailHtml(data: WelcomeEmailData): string {
             <td style="padding:48px 0 32px;">
               <p style="margin:0 0 24px;font-size:18px;line-height:1.6;color:#F5F1E9;">Dear ${escapeHtml(displayName)},</p>
               <p style="margin:0 0 24px;font-size:16px;line-height:1.7;color:#EAE6DF;">
-                Hello and welcome to Luxury Aurelien. We are honoured to have you join our community of discerning individuals who appreciate refined craftsmanship and timeless design.
+                Hello and welcome to Luxury Bout. We are honoured to have you join our community of discerning individuals who appreciate refined craftsmanship and timeless design.
               </p>
               <p style="margin:0 0 32px;font-size:16px;line-height:1.7;color:#EAE6DF;">
                 Explore our curated collections of tailored menswear, footwear, and accessories — each piece crafted with precision and designed for those who value understated elegance.
@@ -48,7 +48,7 @@ export function getWelcomeEmailHtml(data: WelcomeEmailData): string {
           <!-- Footer -->
           <tr>
             <td style="padding-top:32px;border-top:1px solid rgba(198,167,94,0.2);">
-              <p style="margin:0;font-size:12px;color:#B0B0B0;letter-spacing:0.1em;">Luxury Aurelien — Crafted in silence. Designed for presence.</p>
+              <p style="margin:0;font-size:12px;color:#B0B0B0;letter-spacing:0.1em;">Luxury Bout — Crafted in silence. Designed for presence.</p>
             </td>
           </tr>
         </table>

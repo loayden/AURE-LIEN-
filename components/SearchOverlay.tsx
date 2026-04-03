@@ -91,20 +91,20 @@ export default function SearchOverlay({
             <div
               className="relative flex items-center gap-2 overflow-hidden rounded-2xl px-4 py-3.5 sm:gap-3 sm:px-5 sm:py-4"
               style={{
-                background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.025) 100%)",
+                background: "linear-gradient(135deg, rgba(255,248,236,0.08) 0%, rgba(255,248,236,0.025) 100%)",
                 backdropFilter: shouldReduceDecorativeEffects ? "blur(12px)" : "blur(20px)",
-                border: "1px solid rgba(255,255,255,0.10)",
-                boxShadow: "0 16px 48px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.14)",
+                border: "1px solid rgba(255,248,236,0.10)",
+                boxShadow: "0 16px 48px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,248,236,0.14)",
               }}
             >
               {/* Specular */}
               <div className="absolute inset-x-5 top-0 h-px pointer-events-none"
-                   style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.20), transparent)" }} />
+                   style={{ background: "linear-gradient(90deg, transparent, rgba(255,248,236,0.20), transparent)" }} />
 
               <Search
                 strokeWidth={1.3}
                 className="h-4.5 w-4.5 flex-shrink-0 transition-colors duration-300 sm:h-5 sm:w-5"
-                style={{ color: q ? "#C6A962" : "rgba(255,255,255,0.25)" }}
+                style={{ color: q ? "#C9A86A" : "rgba(255,248,236,0.25)" }}
               />
 
               <input
@@ -131,7 +131,7 @@ export default function SearchOverlay({
                     type="button"
                     onClick={() => setQ("")}
                     className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full transition-all duration-300"
-                    style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.10)" }}
+                    style={{ background: "rgba(255,248,236,0.08)", border: "1px solid rgba(255,248,236,0.10)" }}
                   >
                     <X strokeWidth={1.3} className="w-3.5 h-3.5 text-white/40" />
                   </motion.button>
@@ -158,18 +158,18 @@ export default function SearchOverlay({
                 >
                   {[0, 1, 2, 3].map((i) => (
                     <div key={i} className="flex gap-4 p-3 rounded-2xl overflow-hidden relative"
-                         style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.06)", height: 88 }}>
+                         style={{ background: "rgba(255,248,236,0.04)", border: "1px solid rgba(255,248,236,0.06)", height: 88 }}>
                       {shouldReduceDecorativeEffects ? (
                         <div
                           className="absolute inset-0"
-                          style={{ background: "rgba(255,255,255,0.03)" }}
+                          style={{ background: "rgba(255,248,236,0.03)" }}
                         />
                       ) : (
                         <motion.div
                           animate={{ x: ["-100%", "100%"] }}
                           transition={{ repeat: Infinity, duration: 1.6, delay: i * 0.12, ease: "easeInOut" }}
                           className="absolute inset-0"
-                          style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent)" }}
+                          style={{ background: "linear-gradient(90deg, transparent, rgba(255,248,236,0.04), transparent)" }}
                         />
                       )}
                     </div>
@@ -193,7 +193,7 @@ export default function SearchOverlay({
                     </p>
                     <p className="font-light text-white/35"
                        style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.3rem", letterSpacing: "0.06em" }}>
-                      No pieces found for <em style={{ color: "#C6A962" }}>"{q}"</em>
+                      No pieces found for <em style={{ color: "#C9A86A" }}>"{q}"</em>
                     </p>
                   </motion.div>
                 ) : (
@@ -220,14 +220,14 @@ export default function SearchOverlay({
                             href={`/product/${p._id}`}
                             onClick={onClose}
                             className="group flex min-h-[44px] min-w-[44px] items-center gap-3 rounded-2xl p-3 transition-all duration-300 sm:gap-4"
-                            style={{ border: "1px solid rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.03)" }}
+                            style={{ border: "1px solid rgba(255,248,236,0.06)", background: "rgba(255,248,236,0.03)" }}
                             onMouseEnter={(e) => {
-                              (e.currentTarget as HTMLElement).style.borderColor = "rgba(198,169,98,0.25)";
-                              (e.currentTarget as HTMLElement).style.background = "rgba(198,169,98,0.04)";
+                              (e.currentTarget as HTMLElement).style.borderColor = "rgba(201,168,106,0.25)";
+                              (e.currentTarget as HTMLElement).style.background = "rgba(201,168,106,0.04)";
                             }}
                             onMouseLeave={(e) => {
-                              (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.06)";
-                              (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.03)";
+                              (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,248,236,0.06)";
+                              (e.currentTarget as HTMLElement).style.background = "rgba(255,248,236,0.03)";
                             }}
                           >
                             {/* Thumbnail */}
@@ -243,7 +243,7 @@ export default function SearchOverlay({
                                 />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center"
-                                     style={{ background: "rgba(255,255,255,0.04)" }}>
+                                     style={{ background: "rgba(255,248,236,0.04)" }}>
                                   <span className="text-white/15 text-[8px]">—</span>
                                 </div>
                               )}
@@ -262,7 +262,7 @@ export default function SearchOverlay({
                                 {p.name}
                               </p>
                               <p className="font-light mt-0.5"
-                                 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.82rem", color: "#C6A962", letterSpacing: "0.06em" }}>
+                                 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "0.82rem", color: "#C9A86A", letterSpacing: "0.06em" }}>
                                 EGP {p.price?.toLocaleString()}
                               </p>
                             </div>
@@ -271,7 +271,7 @@ export default function SearchOverlay({
                             <ArrowRight
                               strokeWidth={1.2}
                               className="w-3.5 h-3.5 flex-shrink-0 opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all duration-300"
-                              style={{ color: "#C6A962" }}
+                              style={{ color: "#C9A86A" }}
                             />
                           </Link>
                         </motion.div>
@@ -289,7 +289,7 @@ export default function SearchOverlay({
                         <Link
                           href={`/search?q=${encodeURIComponent(q)}`}
                           onClick={onClose}
-                          className="inline-flex items-center gap-2.5 text-white/30 hover:text-[#C6A962] transition-colors duration-300"
+                          className="inline-flex items-center gap-2.5 text-white/30 hover:text-[#C9A86A] transition-colors duration-300"
                           style={{ fontSize: "10px", letterSpacing: "0.3em", fontFamily: "'Jost', sans-serif" }}
                         >
                           <span className="uppercase">View all {results.length} results</span>
@@ -326,10 +326,10 @@ export default function SearchOverlay({
             whileTap={{ scale: 0.9 }}
             className="absolute top-6 right-6 flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300"
             style={{
-              background: "linear-gradient(135deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03))",
-              border: "1px solid rgba(255,255,255,0.10)",
+              background: "linear-gradient(135deg, rgba(255,248,236,0.09), rgba(255,248,236,0.03))",
+              border: "1px solid rgba(255,248,236,0.10)",
               backdropFilter: "blur(12px)",
-              color: "rgba(255,255,255,0.45)",
+              color: "rgba(255,248,236,0.45)",
             }}
             aria-label="Close search"
           >

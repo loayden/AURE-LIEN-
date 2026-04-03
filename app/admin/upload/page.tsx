@@ -89,7 +89,7 @@ export default function UploadPage() {
             <div className="relative overflow-hidden rounded-[1.3rem] border border-white/10 bg-white/[0.03] p-2">
               <div
                 className="absolute inset-x-5 top-0 h-px pointer-events-none"
-                style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.20), transparent)" }}
+                style={{ background: "linear-gradient(90deg, transparent, rgba(255,248,236,0.20), transparent)" }}
               />
               <div className="relative aspect-[4/3] overflow-hidden rounded-[1rem]">
                 <Image src={url} alt="Uploaded asset preview" fill className="object-cover" sizes="(max-width: 768px) 100vw, 720px" />

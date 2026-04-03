@@ -6,7 +6,10 @@
  */
 import connectDB from "./connectDB";
 import ProductModel from "@/models/Product";
-import productsData from "./productsData";
+import { applyCatalogPriceOffset } from "./catalogPrice";
+import { resolveProductColors } from "./productColors";
+import { withPublicAssetVersion } from "./publicAsset";
+import { rawProductsData } from "./productsData";
 import { readProductsJson } from "./productsJson";
 import type { Product } from "./types";
 
@@ -42,12 +45,12 @@ function normalizeImagePath(image: unknown): string {
 
   if (!normalized) return PLACEHOLDER_IMAGE;
   if (normalized.startsWith("uploads/") || normalized.startsWith("images/")) {
-    return `/${normalized}`;
+    return withPublicAssetVersion(`/${normalized}`);
   }
   if (normalized === "placeholder.svg") return "/images/placeholder.svg";
 
   // Admin-uploaded media is stored under public/uploads.
-  return `/uploads/${normalized}`;
+  return withPublicAssetVersion(`/uploads/${normalized}`);
 }
 
 function normalizeProduct(raw: any): Product {
@@ -59,7 +62,7 @@ function normalizeProduct(raw: any): Product {
     _id: String(raw?._id ?? ""),
     name: String(raw?.name ?? "").trim(),
     category: String(raw?.category ?? "").trim(),
-    price: Number(raw?.price ?? 0),
+    price: applyCatalogPriceOffset(Number(raw?.price ?? 0)),
     discount:
       typeof raw?.discount === "number" && raw.discount > 0
         ? raw.discount
@@ -68,9 +71,15 @@ function normalizeProduct(raw: any): Product {
     size: Array.isArray(raw?.size)
       ? raw.size.map((value: unknown) => String(value))
       : [],
-    colors: Array.isArray(raw?.colors)
-      ? raw.colors.map((value: unknown) => String(value))
-      : [],
+    colors: resolveProductColors({
+      _id: String(raw?._id ?? ""),
+      name: String(raw?.name ?? "").trim(),
+      description: raw?.description ? String(raw.description) : undefined,
+      images,
+      colors: Array.isArray(raw?.colors)
+        ? raw.colors.map((value: unknown) => String(value))
+        : [],
+    }),
     description: raw?.description ? String(raw.description) : undefined,
     material: raw?.material ? String(raw.material) : undefined,
     stock: typeof raw?.stock === "number" ? raw.stock : undefined,
@@ -108,7 +117,7 @@ async function readMongoProducts(): Promise<Product[]> {
 }
 
 async function loadAllProducts(): Promise<Product[]> {
-  const builtInProducts = productsData.map(normalizeProduct);
+  const builtInProducts = rawProductsData.map(normalizeProduct);
   const fromJson = (await readProductsJson()).map(normalizeProduct);
   const fromMongo = await readMongoProducts();
 

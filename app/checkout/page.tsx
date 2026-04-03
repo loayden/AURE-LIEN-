@@ -33,22 +33,22 @@ function GlassSection({ icon, title, children }: { icon: React.ReactNode; title:
     <div
       className="relative overflow-hidden rounded-2xl p-5 sm:p-6"
       style={{
-        background: "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.025) 100%)",
+        background: "linear-gradient(135deg, rgba(255,248,236,0.08) 0%, rgba(255,248,236,0.025) 100%)",
         backdropFilter: "blur(24px) saturate(160%)",
         WebkitBackdropFilter: "blur(24px) saturate(160%)",
-        border: "1px solid rgba(255,255,255,0.09)",
-        boxShadow: "0 16px 48px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.14)",
+        border: "1px solid rgba(255,248,236,0.09)",
+        boxShadow: "0 16px 48px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,248,236,0.14)",
       }}
     >
       <div className="absolute inset-x-5 top-0 h-px pointer-events-none"
-           style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent)" }} />
+           style={{ background: "linear-gradient(90deg, transparent, rgba(255,248,236,0.18), transparent)" }} />
       <div className="flex items-center gap-3 mb-5 sm:mb-6">
         <div className="p-2 rounded-xl"
              style={{
-               background: "linear-gradient(135deg, rgba(198,169,98,0.14), rgba(198,169,98,0.04))",
-               border: "1px solid rgba(198,169,98,0.2)",
+               background: "linear-gradient(135deg, rgba(201,168,106,0.14), rgba(201,168,106,0.04))",
+               border: "1px solid rgba(201,168,106,0.2)",
              }}>
-          <span style={{ color: "#C6A962" }}>{icon}</span>
+          <span style={{ color: "#C9A86A" }}>{icon}</span>
         </div>
         <h2
           className="font-light text-white text-lg sm:text-xl"
@@ -345,7 +345,7 @@ export default function CheckoutPage() {
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-[#080808] flex items-center justify-center">
+    <div className="min-h-screen bg-[#0A0908] flex items-center justify-center">
       <motion.p animate={{ opacity:[0.3,0.7,0.3] }} transition={{ repeat:Infinity, duration:1.8 }}
         className="text-white/30 text-[10px] tracking-[0.4em] uppercase"
         style={{ fontFamily:"'Jost', sans-serif" }}>
@@ -355,7 +355,7 @@ export default function CheckoutPage() {
   );
 
   if (success) return (
-    <div className="min-h-screen bg-[#080808] flex items-center justify-center px-4 sm:px-6">
+    <div className="min-h-screen bg-[#0A0908] flex items-center justify-center px-4 sm:px-6">
       <motion.div
         initial={{ opacity:0, scale:0.95, y:20 }}
         animate={{ opacity:1, scale:1, y:0 }}
@@ -365,12 +365,12 @@ export default function CheckoutPage() {
       >
         <div className="flex justify-center mb-6">
           <div className="w-16 h-16 rounded-3xl flex items-center justify-center"
-               style={{ background:"linear-gradient(135deg, rgba(198,169,98,0.2), rgba(198,169,98,0.06))", border:"1px solid rgba(198,169,98,0.3)" }}>
-            <CheckCircle2 strokeWidth={1.2} className="w-8 h-8" style={{ color:"#C6A962" }} />
+               style={{ background:"linear-gradient(135deg, rgba(201,168,106,0.2), rgba(201,168,106,0.06))", border:"1px solid rgba(201,168,106,0.3)" }}>
+            <CheckCircle2 strokeWidth={1.2} className="w-8 h-8" style={{ color:"#C9A86A" }} />
           </div>
         </div>
         <h2 className="font-light text-white mb-3" style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.8rem, 5vw, 2rem)", letterSpacing:"0.06em" }}>
-          Order <em style={{ color:"#C6A962" }}>Confirmed</em>
+          Order <em style={{ color:"#C9A86A" }}>Confirmed</em>
         </h2>
         <p className="text-white/35 text-sm font-light tracking-widest">Redirecting to your orders…</p>
       </motion.div>
@@ -380,19 +380,19 @@ export default function CheckoutPage() {
   return (
     <>
       <style>{`
-        body { background: #080808; }
-        ::selection { background: #C6A962; color: #080808; }
-        select option { background: #141414; color: rgba(255,255,255,0.8); }
+        body { background: #0A0908; }
+        ::selection { background: #C9A86A; color: #0A0908; }
+        select option { background: #1A1512; color: rgba(255,248,236,0.8); }
 
         input[type="checkbox"] {
-          accent-color: #C6A962;
+          accent-color: #C9A86A;
           width: 14px !important; height: 14px !important;
           border-radius: 4px !important;
           padding: 0 !important;
           cursor: pointer;
         }
         input[type="radio"] {
-          accent-color: #C6A962;
+          accent-color: #C9A86A;
           width: 14px !important; height: 14px !important;
           padding: 0 !important;
           cursor: pointer;
@@ -405,7 +405,7 @@ export default function CheckoutPage() {
         }
       `}</style>
 
-      <div className="relative min-h-screen bg-[#080808] text-white" style={{ fontFamily:"'Jost', sans-serif" }}>
+      <div className="relative min-h-screen bg-[#0A0908] text-white" style={{ fontFamily:"'Jost', sans-serif" }}>
 
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-10 pt-20 sm:pt-28 pb-24 sm:pb-32">
 
@@ -414,9 +414,9 @@ export default function CheckoutPage() {
             <p className="text-white/20 text-[8px] sm:text-[9px] tracking-[0.45em] uppercase mb-3 sm:mb-4">Final Step</p>
             <h1 className="font-light text-white leading-none mb-2"
                 style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(2rem, 7vw, 4.5rem)", letterSpacing:"0.04em" }}>
-              Check<em style={{ color:"#C6A962", fontStyle:"italic" }}>out</em>
+              Check<em style={{ color:"#C9A86A", fontStyle:"italic" }}>out</em>
             </h1>
-            <div className="mt-4 sm:mt-5 h-px" style={{ background:"linear-gradient(90deg, rgba(198,169,98,0.4), transparent)" }} />
+            <div className="mt-4 sm:mt-5 h-px" style={{ background:"linear-gradient(90deg, rgba(201,168,106,0.4), transparent)" }} />
           </motion.div>
 
           {/* ── ERROR ── */}
@@ -442,7 +442,7 @@ export default function CheckoutPage() {
                     <div className="flex flex-col gap-3 max-w-lg">
                       <p className="text-white/25 text-[9px] sm:text-[10px] tracking-[0.25em] font-light">
                         Have an account?{" "}
-                        <Link href="/login" className="text-[#C6A962] hover:underline transition-all">Sign in</Link>
+                        <Link href="/login" className="text-[#C9A86A] hover:underline transition-all">Sign in</Link>
                       </p>
                       <input type="email" placeholder="Email address" value={form.email} onChange={(e) => update("email", e.target.value)} autoComplete="email" required />
                       <label className="flex items-center gap-3 cursor-pointer group">
@@ -489,11 +489,11 @@ export default function CheckoutPage() {
                       <label
                         className="flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all duration-300 min-h-[56px]"
                         style={form.shippingMethod === "within_egypt" ? {
-                          background:"linear-gradient(135deg, rgba(198,169,98,0.12), rgba(198,169,98,0.04))",
-                          border:"1px solid rgba(198,169,98,0.3)",
+                          background:"linear-gradient(135deg, rgba(201,168,106,0.12), rgba(201,168,106,0.04))",
+                          border:"1px solid rgba(201,168,106,0.3)",
                         } : {
-                          background:"rgba(255,255,255,0.03)",
-                          border:"1px solid rgba(255,255,255,0.08)",
+                          background:"rgba(255,248,236,0.03)",
+                          border:"1px solid rgba(255,248,236,0.08)",
                         }}
                       >
                         <div className="flex items-center gap-3">
@@ -505,7 +505,7 @@ export default function CheckoutPage() {
                             <p className="text-white/30 text-[9px] tracking-[0.25em] uppercase mt-0.5">Standard Delivery · 2–3 days</p>
                           </div>
                         </div>
-                        <span className="font-light whitespace-nowrap ml-2" style={{ color:"#C6A962", fontFamily:"'Cormorant Garamond', serif", fontSize:"1.1rem" }}>
+                        <span className="font-light whitespace-nowrap ml-2" style={{ color:"#C9A86A", fontFamily:"'Cormorant Garamond', serif", fontSize:"1.1rem" }}>
                           EGP 75
                         </span>
                       </label>
@@ -523,16 +523,16 @@ export default function CheckoutPage() {
                       whileTap={{ scale:0.985 }}
                       className="relative w-full overflow-hidden rounded-full py-4 flex items-center justify-center gap-3 disabled:opacity-50 min-h-[48px]"
                       style={{
-                        background:"linear-gradient(135deg, rgba(198,169,98,0.22), rgba(178,149,78,0.10))",
-                        border:"1px solid rgba(198,169,98,0.35)",
+                        background:"linear-gradient(135deg, rgba(201,168,106,0.22), rgba(178,149,78,0.10))",
+                        border:"1px solid rgba(201,168,106,0.35)",
                         backdropFilter:"blur(16px)",
-                        boxShadow:"0 0 28px rgba(198,169,98,0.12), inset 0 1px 0 rgba(255,255,255,0.14)",
+                        boxShadow:"0 0 28px rgba(201,168,106,0.12), inset 0 1px 0 rgba(255,248,236,0.14)",
                       }}
                     >
-                      <span className="text-[#C6A962] text-[10px] tracking-[0.32em] uppercase font-light">
+                      <span className="text-[#C9A86A] text-[10px] tracking-[0.32em] uppercase font-light">
                         {submitting ? "Placing Order…" : "Place Order"}
                       </span>
-                      {!submitting && <ChevronRight strokeWidth={1.3} className="w-4 h-4 text-[#C6A962]" />}
+                      {!submitting && <ChevronRight strokeWidth={1.3} className="w-4 h-4 text-[#C9A86A]" />}
                     </motion.button>
                     <button
                       type="button"
@@ -551,13 +551,13 @@ export default function CheckoutPage() {
 
                 {/* Summary card */}
                 <div className="relative overflow-hidden rounded-2xl p-5"
-                     style={{ background:"linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.025) 100%)", backdropFilter:"blur(24px) saturate(160%)", WebkitBackdropFilter:"blur(24px) saturate(160%)", border:"1px solid rgba(255,255,255,0.09)", boxShadow:"0 16px 48px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.14)" }}>
+                     style={{ background:"linear-gradient(135deg, rgba(255,248,236,0.08) 0%, rgba(255,248,236,0.025) 100%)", backdropFilter:"blur(24px) saturate(160%)", WebkitBackdropFilter:"blur(24px) saturate(160%)", border:"1px solid rgba(255,248,236,0.09)", boxShadow:"0 16px 48px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,248,236,0.14)" }}>
                   <div className="absolute inset-x-4 top-0 h-px pointer-events-none"
-                       style={{ background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent)" }} />
+                       style={{ background:"linear-gradient(90deg, transparent, rgba(255,248,236,0.16), transparent)" }} />
 
                   <p className="text-white/20 text-[8px] sm:text-[9px] tracking-[0.4em] uppercase mb-4">Your Order</p>
                   <h3 className="font-light text-white mb-5" style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.2rem, 3vw, 1.4rem)", letterSpacing:"0.07em" }}>
-                    Order <em style={{ color:"#C6A962" }}>Summary</em>
+                    Order <em style={{ color:"#C9A86A" }}>Summary</em>
                   </h3>
 
                   {/* Items */}
@@ -568,7 +568,7 @@ export default function CheckoutPage() {
                              style={{ boxShadow:"0 4px 16px rgba(0,0,0,0.4)" }}>
                           <Image src={item.image||"/images/placeholder.svg"} alt={item.name} fill className="object-cover" sizes="56px" />
                           <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-light"
-                               style={{ background:"rgba(198,169,98,0.9)", color:"#080808" }}>
+                               style={{ background:"rgba(201,168,106,0.9)", color:"#0A0908" }}>
                             {item.quantity}
                           </div>
                         </div>
@@ -591,7 +591,7 @@ export default function CheckoutPage() {
                     ))}
                   </div>
 
-                  <div className="h-px mb-4" style={{ background:"rgba(255,255,255,0.06)" }} />
+                  <div className="h-px mb-4" style={{ background:"rgba(255,248,236,0.06)" }} />
 
                   <div className="flex flex-col gap-2 mb-4">
                     <div className="flex justify-between">
@@ -605,9 +605,9 @@ export default function CheckoutPage() {
                   </div>
 
                   <div className="rounded-xl px-4 py-3.5 flex justify-between items-center"
-                       style={{ background:"linear-gradient(135deg, rgba(198,169,98,0.14), rgba(198,169,98,0.04))", border:"1px solid rgba(198,169,98,0.22)" }}>
-                    <p className="text-[#C6A962] text-[9px] tracking-[0.35em] uppercase">Total</p>
-                    <p className="font-light" style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.1rem, 3vw, 1.3rem)", color:"#C6A962", letterSpacing:"0.06em" }}>
+                       style={{ background:"linear-gradient(135deg, rgba(201,168,106,0.14), rgba(201,168,106,0.04))", border:"1px solid rgba(201,168,106,0.22)" }}>
+                    <p className="text-[#C9A86A] text-[9px] tracking-[0.35em] uppercase">Total</p>
+                    <p className="font-light" style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.1rem, 3vw, 1.3rem)", color:"#C9A86A", letterSpacing:"0.06em" }}>
                       EGP {total.toLocaleString()}
                     </p>
                   </div>
@@ -632,17 +632,17 @@ export default function CheckoutPage() {
             <motion.div initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.8 }}
               className="flex flex-col items-center justify-center text-center py-20 sm:py-28">
               <div className="w-16 h-16 rounded-3xl flex items-center justify-center mb-6"
-                   style={{ background:"linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))", border:"1px solid rgba(255,255,255,0.09)" }}>
+                   style={{ background:"linear-gradient(135deg, rgba(255,248,236,0.08), rgba(255,248,236,0.02))", border:"1px solid rgba(255,248,236,0.09)" }}>
                 <Package strokeWidth={1} className="w-7 h-7 text-white/20" />
               </div>
               <h2 className="font-light text-white mb-3"
                   style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.5rem, 5vw, 1.8rem)", letterSpacing:"0.06em" }}>
-                Nothing to <em style={{ color:"#C6A962" }}>checkout</em>
+                Nothing to <em style={{ color:"#C9A86A" }}>checkout</em>
               </h2>
               <p className="text-white/25 text-sm font-light tracking-widest mb-8">Add items to your cart first.</p>
               <Link href="/shop"
-                className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full text-[#C6A962] text-[10px] tracking-[0.3em] uppercase font-light transition-all duration-500 hover:scale-[1.02] min-h-[44px]"
-                style={{ background:"linear-gradient(135deg, rgba(198,169,98,0.14), rgba(198,169,98,0.04))", border:"1px solid rgba(198,169,98,0.25)", backdropFilter:"blur(16px)" }}>
+                className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full text-[#C9A86A] text-[10px] tracking-[0.3em] uppercase font-light transition-all duration-500 hover:scale-[1.02] min-h-[44px]"
+                style={{ background:"linear-gradient(135deg, rgba(201,168,106,0.14), rgba(201,168,106,0.04))", border:"1px solid rgba(201,168,106,0.25)", backdropFilter:"blur(16px)" }}>
                 Continue Shopping
               </Link>
             </motion.div>

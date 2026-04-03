@@ -42,12 +42,12 @@ export default function LoginPage() {
   return (
     <>
       <style>{`
-        body { background: #080808; }
-        ::selection { background: #C6A962; color: #080808; }
+        body { background: #0A0908; }
+        ::selection { background: #C9A86A; color: #0A0908; }
       `}</style>
 
       <main
-        className="relative min-h-screen bg-[#080808] flex items-center justify-center px-4 py-16 sm:px-6 sm:py-24 md:px-10"
+        className="relative min-h-screen bg-[#0A0908] flex items-center justify-center px-4 py-16 sm:px-6 sm:py-24 md:px-10"
         style={{ fontFamily: "'Jost', sans-serif" }}
       >
 
@@ -58,16 +58,16 @@ export default function LoginPage() {
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
           className="relative w-full max-w-md overflow-hidden rounded-3xl"
           style={{
-            background: "linear-gradient(160deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.025) 60%, transparent 100%)",
+            background: "linear-gradient(160deg, rgba(255,248,236,0.09) 0%, rgba(255,248,236,0.025) 60%, transparent 100%)",
             backdropFilter: "blur(32px) saturate(160%)",
             WebkitBackdropFilter: "blur(32px) saturate(160%)",
-            border: "1px solid rgba(255,255,255,0.10)",
-            boxShadow: "0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.18)",
+            border: "1px solid rgba(255,248,236,0.10)",
+            boxShadow: "0 32px 80px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,248,236,0.18)",
           }}
         >
           {/* Specular top line */}
           <div className="absolute inset-x-6 top-0 h-px pointer-events-none"
-               style={{ background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent)" }} />
+               style={{ background: "linear-gradient(90deg, transparent, rgba(255,248,236,0.28), transparent)" }} />
 
           <div className="px-5 pt-8 pb-8 sm:px-8 sm:pt-10 sm:pb-10">
 
@@ -84,7 +84,7 @@ export default function LoginPage() {
                 AURÉLIEN
               </h1>
               <div className="mx-auto mt-3 mb-4 w-8 h-px"
-                   style={{ background: "linear-gradient(90deg, transparent, rgba(198,169,98,0.7), transparent)" }} />
+                   style={{ background: "linear-gradient(90deg, transparent, rgba(201,168,106,0.7), transparent)" }} />
               <p className="text-white/25 text-[9px] tracking-[0.45em] uppercase">Sign In</p>
             </div>
 
@@ -132,7 +132,7 @@ export default function LoginPage() {
                   <label className="text-white/25 text-[9px] tracking-[0.4em] uppercase">Password</label>
                   <Link
                     href="/forgot-password"
-                    className="text-white/20 text-[9px] tracking-[0.2em] uppercase hover:text-[#C6A962] transition-colors duration-300"
+                    className="text-white/20 text-[9px] tracking-[0.2em] uppercase hover:text-[#C9A86A] transition-colors duration-300"
                   >
                     Forgot?
                   </Link>
@@ -169,29 +169,29 @@ export default function LoginPage() {
                 whileTap={{ scale: 0.985 }}
                 className="relative mt-2 flex min-h-[44px] min-w-[44px] w-full items-center justify-center gap-2 overflow-hidden rounded-full py-4 transition-all duration-500 disabled:opacity-50 sm:gap-3"
                 style={{
-                  background: "linear-gradient(135deg, rgba(198,169,98,0.22), rgba(178,149,78,0.10))",
-                  border: "1px solid rgba(198,169,98,0.35)",
+                  background: "linear-gradient(135deg, rgba(201,168,106,0.22), rgba(178,149,78,0.10))",
+                  border: "1px solid rgba(201,168,106,0.35)",
                   backdropFilter: "blur(16px)",
-                  boxShadow: "0 0 28px rgba(198,169,98,0.12), inset 0 1px 0 rgba(255,255,255,0.14)",
+                  boxShadow: "0 0 28px rgba(201,168,106,0.12), inset 0 1px 0 rgba(255,248,236,0.14)",
                 }}
               >
                 {/* Shimmer */}
                 <div className="absolute inset-0 pointer-events-none"
-                     style={{ background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%)" }} />
-                <span className="relative z-10 text-[#C6A962] text-[10px] tracking-[0.32em] uppercase font-light">
+                     style={{ background: "linear-gradient(105deg, transparent 40%, rgba(255,248,236,0.08) 50%, transparent 60%)" }} />
+                <span className="relative z-10 text-[#C9A86A] text-[10px] tracking-[0.32em] uppercase font-light">
                   {loading ? "Signing In…" : "Sign In"}
                 </span>
                 {!loading && (
-                  <ArrowRight strokeWidth={1.3} className="relative z-10 w-3.5 h-3.5 text-[#C6A962]" />
+                  <ArrowRight strokeWidth={1.3} className="relative z-10 w-3.5 h-3.5 text-[#C9A86A]" />
                 )}
               </motion.button>
             </form>
 
             {/* Divider */}
             <div className="flex items-center gap-4 my-7">
-              <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
+              <div className="flex-1 h-px" style={{ background: "rgba(255,248,236,0.06)" }} />
               <span className="text-white/15 text-[9px] tracking-[0.3em] uppercase">or</span>
-              <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.06)" }} />
+              <div className="flex-1 h-px" style={{ background: "rgba(255,248,236,0.06)" }} />
             </div>
 
             {/* Sign up link */}
@@ -199,7 +199,7 @@ export default function LoginPage() {
               No account?{" "}
               <Link
                 href="/signup"
-                className="text-[#C6A962] hover:text-white/80 transition-colors duration-300"
+                className="text-[#C9A86A] hover:text-white/80 transition-colors duration-300"
                 style={{ letterSpacing: "0.2em" }}
               >
                 Create one

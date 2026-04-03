@@ -20,7 +20,8 @@ const NAV_SERVICE = [
   { label: "About", href: "/about" },
 ];
 
-const INSTAGRAM_URL = "https://www.instagram.com/aurelien.clothes/?__pwa=1";
+const INSTAGRAM_URL = "https://www.instagram.com/bout.clothes/?__pwa=1";
+const POWERED_BY_URL = "https://www.instagram.com/fr3_fdn/?__pwa=1";
 
 const SOCIALS = [{ Icon: Instagram, href: INSTAGRAM_URL }];
 const LEGAL_LINKS = [
@@ -42,20 +43,20 @@ export default function LuxuryFooter() {
       <footer
         className="relative mt-20 sm:mt-32 overflow-hidden"
         style={{
-          background: "#060606",
+          background: "#14110F",
           fontFamily: "'Jost', sans-serif",
         }}
       >
         {/* Top gold divider */}
         <div className="absolute inset-x-0 top-0 h-px"
-             style={{ background: "linear-gradient(90deg, transparent, rgba(198,169,98,0.35), transparent)" }} />
+             style={{ background: "linear-gradient(90deg, transparent, rgba(201,168,106,0.35), transparent)" }} />
 
         {/* Ambient glow */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div style={{
             position: "absolute",
             bottom: "-20%", left: "50%", transform: "translateX(-50%)",
-            background: "radial-gradient(circle, rgba(198,169,98,0.05) 0%, transparent 65%)",
+            background: "radial-gradient(circle, rgba(201,168,106,0.05) 0%, transparent 65%)",
             filter: "blur(80px)",
           }} className="mobile-orb-lg" />
         </div>
@@ -67,14 +68,14 @@ export default function LuxuryFooter() {
           <div className="flex flex-col gap-5 md:col-span-1">
             <Link href="/" className="group inline-block">
               <h2
-                className="font-light text-white tracking-[0.18em] leading-none group-hover:text-[#C6A962] transition-colors duration-500"
+                className="font-light text-white tracking-[0.18em] leading-none group-hover:text-[#C9A86A] transition-colors duration-500"
                 style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.65rem, 8vw, 1.9rem)" }}
               >
-                AURÉLIEN
+                BOUT
               </h2>
             </Link>
             <div className="w-10 h-px"
-                 style={{ background:"linear-gradient(90deg, rgba(198,169,98,0.7), transparent)" }} />
+                 style={{ background:"linear-gradient(90deg, rgba(201,168,106,0.7), transparent)" }} />
             <p className="max-w-none text-[11px] font-light leading-relaxed tracking-[0.08em] text-white/72 sm:max-w-[220px] sm:text-sm">
               Crafted in silence. Designed with discipline. A study in structure, presence, and restraint.
             </p>
@@ -91,13 +92,13 @@ export default function LuxuryFooter() {
                   whileTap={{ scale: 0.92 }}
                   className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl p-3 transition-all duration-400 sm:p-2.5"
                   style={{
-                    background: "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))",
-                    border: "1px solid rgba(255,255,255,0.08)",
+                    background: "linear-gradient(135deg, rgba(255,248,236,0.08), rgba(255,248,236,0.02))",
+                    border: "1px solid rgba(255,248,236,0.08)",
                     backdropFilter: "blur(12px)",
-                    color: "rgba(255,255,255,0.58)",
+                    color: "rgba(255,248,236,0.58)",
                   }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#C6A962"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(198,169,98,0.3)"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.58)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.08)"; }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#C9A86A"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(201,168,106,0.3)"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "rgba(255,248,236,0.58)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,248,236,0.08)"; }}
                 >
                   <Icon strokeWidth={1.3} className="w-4 h-4" />
                 </motion.a>
@@ -108,7 +109,7 @@ export default function LuxuryFooter() {
           {/* Collections nav */}
           <div className="flex flex-col gap-5">
             <p className="text-[9px] uppercase tracking-[0.45em] text-white/72">Collections</p>
-            <div className="w-6 h-px" style={{ background:"rgba(198,169,98,0.4)" }} />
+            <div className="w-6 h-px" style={{ background:"rgba(201,168,106,0.4)" }} />
             <ul className="flex flex-col gap-3">
               {NAV_COLLECTIONS.map((item) => (
                 <li key={item.href}>
@@ -118,7 +119,7 @@ export default function LuxuryFooter() {
                     style={{ fontSize:"0.75rem", letterSpacing:"0.08em" }}
                   >
                     <span className="w-3 h-px transition-all duration-300 group-hover:w-5"
-                          style={{ background:"rgba(198,169,98,0.5)", flexShrink:0 }} />
+                          style={{ background:"rgba(201,168,106,0.5)", flexShrink:0 }} />
                     {item.label}
                   </Link>
                 </li>
@@ -129,7 +130,7 @@ export default function LuxuryFooter() {
           {/* Service nav */}
           <div className="flex flex-col gap-5">
             <p className="text-[9px] uppercase tracking-[0.45em] text-white/72">Customer Service</p>
-            <div className="w-6 h-px" style={{ background:"rgba(198,169,98,0.4)" }} />
+            <div className="w-6 h-px" style={{ background:"rgba(201,168,106,0.4)" }} />
             <ul className="flex flex-col gap-3">
               {NAV_SERVICE.map((item) => (
                 <li key={item.href}>
@@ -139,7 +140,7 @@ export default function LuxuryFooter() {
                     style={{ fontSize:"0.75rem", letterSpacing:"0.08em" }}
                   >
                     <span className="w-3 h-px transition-all duration-300 group-hover:w-5"
-                          style={{ background:"rgba(198,169,98,0.5)", flexShrink:0 }} />
+                          style={{ background:"rgba(201,168,106,0.5)", flexShrink:0 }} />
                     {item.label}
                   </Link>
                 </li>
@@ -150,7 +151,7 @@ export default function LuxuryFooter() {
           {/* Newsletter */}
           <div className="flex flex-col gap-5">
             <p className="text-[9px] uppercase tracking-[0.45em] text-white/72">Private Access</p>
-            <div className="w-6 h-px" style={{ background:"rgba(198,169,98,0.4)" }} />
+            <div className="w-6 h-px" style={{ background:"rgba(201,168,106,0.4)" }} />
             <p className="text-[11px] font-light leading-relaxed tracking-[0.08em] text-white/72 sm:text-sm">
               Join the Maison.<br />Receive exclusive releases.
             </p>
@@ -170,10 +171,10 @@ export default function LuxuryFooter() {
               <div
                 className="flex flex-col sm:flex-row items-stretch overflow-hidden rounded-xl"
                 style={{
-                  background: "linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%)",
+                  background: "linear-gradient(135deg, rgba(255,248,236,0.07) 0%, rgba(255,248,236,0.02) 100%)",
                   backdropFilter: "blur(16px)",
-                  border: "1px solid rgba(255,255,255,0.09)",
-                  boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
+                  border: "1px solid rgba(255,248,236,0.09)",
+                  boxShadow: "inset 0 1px 0 rgba(255,248,236,0.08)",
                 }}
               >
                 <input
@@ -191,7 +192,7 @@ export default function LuxuryFooter() {
                   whileTap={{ scale:0.95 }}
                   className="flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 border-t border-white/10 px-4 py-3 transition-all duration-300 sm:border-l sm:border-t-0 sm:gap-3"
                 >
-                  <span className="text-[9px] tracking-[0.3em] uppercase font-light text-white/88 transition-colors hover:text-[#C6A962]">
+                  <span className="text-[9px] tracking-[0.3em] uppercase font-light text-white/88 transition-colors hover:text-[#C9A86A]">
                     Join
                   </span>
                   <ArrowRight strokeWidth={1.3} className="w-3 h-3 text-white/78" />
@@ -208,7 +209,7 @@ export default function LuxuryFooter() {
 
         {/* ── DIVIDER ── */}
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 md:px-10">
-          <div className="h-px" style={{ background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)" }} />
+          <div className="h-px" style={{ background:"linear-gradient(90deg, transparent, rgba(255,248,236,0.06), transparent)" }} />
         </div>
 
         {/* ── BOTTOM BAR ── */}
@@ -216,22 +217,35 @@ export default function LuxuryFooter() {
 
           {/* Presented by */}
           <motion.a
-            href={INSTAGRAM_URL}
+            href={POWERED_BY_URL}
             target="_blank"
             rel="noopener noreferrer"
             whileHover={{ opacity:1 }}
             className="flex flex-col items-center sm:items-start gap-1 cursor-pointer select-none"
             style={{ opacity:0.6, transition:"opacity 0.3s" }}
           >
-            <span className="text-[8px] uppercase tracking-[0.35em] font-light text-white/68">Instagram</span>
-            <span className="tracking-[0.24em] text-[10px] font-light uppercase text-[#C6A962] sm:text-xs">
-              @AURELIEN.CLOTHES
+            <span className="text-[8px] uppercase tracking-[0.35em] font-light text-white/68">Powered By</span>
+            <span
+              className="flex items-center gap-1 tracking-[0.24em] text-[10px] font-light uppercase sm:text-xs"
+              style={{ fontFamily: "'Jost', sans-serif" }}
+            >
+              <span style={{ color: "#7C5CFF" }}>FR</span>
+              <span
+                style={{
+                  color: "#C9A86A",
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: "1.1em",
+                  lineHeight: 1,
+                }}
+              >
+                ع
+              </span>
             </span>
           </motion.a>
 
           {/* Copyright */}
           <p className="text-center text-[9px] uppercase tracking-[0.3em] text-white/50">
-            © {new Date().getFullYear()} Aurélien. All rights reserved.
+            © {new Date().getFullYear()} Bout. All rights reserved.
           </p>
 
           {/* Legal links */}

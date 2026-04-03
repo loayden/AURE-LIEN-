@@ -7,6 +7,7 @@ export default function SuitsPage() {
       category="suits"
       eyebrow="Tailoring Edit"
       description="Refined tailoring presented with lighter spacing and more comfortable grid behavior on smaller screens."
+      fullMobileCards
     />
   );
 }

@@ -59,7 +59,7 @@ export default function SectionHeader({
       )}
       <div
         className={`mt-5 h-px w-10 ${align === "center" ? "mx-auto" : ""}`}
-        style={{ background: "linear-gradient(90deg, transparent, rgba(198,169,98,0.55), transparent)" }}
+        style={{ background: "linear-gradient(90deg, transparent, rgba(201,168,106,0.55), transparent)" }}
       />
     </motion.div>
   );

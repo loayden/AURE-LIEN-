@@ -125,7 +125,7 @@ export default function AccountPage() {
           <section className="glass-panel p-6 sm:p-8">
             <div className="mb-6 flex items-center gap-3">
               <div className="empty-icon-panel h-12 w-12 rounded-[1rem]">
-                <User2 strokeWidth={1.2} className="h-5 w-5 text-[#C6A962]" />
+                <User2 strokeWidth={1.2} className="h-5 w-5 text-[#C9A86A]" />
               </div>
               <div>
                 <p className="eyebrow mb-2">Profile</p>
@@ -156,7 +156,7 @@ export default function AccountPage() {
 
             <div className="mt-4 rounded-[1.15rem] border border-white/8 bg-white/[0.03] p-4">
               <div className="mb-3 flex items-center gap-2">
-                <MapPin strokeWidth={1.2} className="h-4 w-4 text-[#C6A962]" />
+                <MapPin strokeWidth={1.2} className="h-4 w-4 text-[#C9A86A]" />
                 <p className="eyebrow">Delivery Address</p>
               </div>
               <p className="body-copy body-copy-strong">
@@ -181,14 +181,14 @@ export default function AccountPage() {
             <nav className="flex flex-col gap-3">
               <Link href="/orders" className="liquid-row-link">
                 <span className="inline-flex items-center gap-3">
-                  <Package2 strokeWidth={1.2} className="h-4 w-4 text-[#C6A962]" />
+                  <Package2 strokeWidth={1.2} className="h-4 w-4 text-[#C9A86A]" />
                   <span className="text-[0.82rem] uppercase tracking-[0.24em]">Order History</span>
                 </span>
                 <ArrowRight strokeWidth={1.2} className="h-4 w-4 text-white/35" />
               </Link>
               <Link href="/wishlist" className="liquid-row-link">
                 <span className="inline-flex items-center gap-3">
-                  <User2 strokeWidth={1.2} className="h-4 w-4 text-[#C6A962]" />
+                  <User2 strokeWidth={1.2} className="h-4 w-4 text-[#C9A86A]" />
                   <span className="text-[0.82rem] uppercase tracking-[0.24em]">Wishlist</span>
                 </span>
                 <ArrowRight strokeWidth={1.2} className="h-4 w-4 text-white/35" />

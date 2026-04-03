@@ -1,10 +1,11 @@
 "use client";
 
-import AdaptiveHeroMedia from "@/components/AdaptiveHeroMedia";
 import ProductCard from "@/components/ProductCard";
+import { withPublicAssetVersion } from "@/lib/publicAsset";
 import products from "@/lib/productsData";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
+import Image from "next/image";
 import {
   ChevronDown,
   Grid,
@@ -234,7 +235,7 @@ export default function AureLienPlatform() {
   return (
     <>
       <style>{`
-        * { --gold: #C6A962; --dark: #080808; }
+        * { --gold: #C9A86A; --dark: #0A0908; }
         body { background: var(--dark); }
 
         @keyframes fadeUp {
@@ -247,29 +248,29 @@ export default function AureLienPlatform() {
         .sh3 { animation: fadeUp 1s cubic-bezier(0.22,1,0.36,1) 0.55s both; }
 
         .glass {
-          background: linear-gradient(135deg, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.03) 100%);
+          background: linear-gradient(135deg, rgba(255,248,236,0.09) 0%, rgba(255,248,236,0.03) 100%);
           backdrop-filter: blur(24px) saturate(160%);
           -webkit-backdrop-filter: blur(24px) saturate(160%);
-          border: 1px solid rgba(255,255,255,0.10);
-          box-shadow: 0 16px 48px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.16);
+          border: 1px solid rgba(255,248,236,0.10);
+          box-shadow: 0 16px 48px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,248,236,0.16);
         }
         .glass-md {
-          background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+          background: linear-gradient(135deg, rgba(255,248,236,0.08) 0%, rgba(255,248,236,0.02) 100%);
           backdrop-filter: blur(20px) saturate(150%);
           -webkit-backdrop-filter: blur(20px) saturate(150%);
-          border: 1px solid rgba(255,255,255,0.08);
-          box-shadow: 0 12px 36px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.10);
+          border: 1px solid rgba(255,248,236,0.08);
+          box-shadow: 0 12px 36px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,248,236,0.10);
         }
         .gold-glass {
-          background: linear-gradient(135deg, rgba(198,169,98,0.14) 0%, rgba(198,169,98,0.04) 100%);
+          background: linear-gradient(135deg, rgba(201,168,106,0.14) 0%, rgba(201,168,106,0.04) 100%);
           backdrop-filter: blur(20px) saturate(150%);
           -webkit-backdrop-filter: blur(20px) saturate(150%);
-          border: 1px solid rgba(198,169,98,0.22);
-          box-shadow: 0 8px 32px rgba(198,169,98,0.08), inset 0 1px 0 rgba(255,255,255,0.14);
+          border: 1px solid rgba(201,168,106,0.22);
+          box-shadow: 0 8px 32px rgba(201,168,106,0.08), inset 0 1px 0 rgba(255,248,236,0.14);
         }
         .home-hero-shell {
           isolation: isolate;
-          background: #080808;
+          background: #0A0908;
         }
         .home-hero-shell::after {
           content: "";
@@ -278,7 +279,7 @@ export default function AureLienPlatform() {
           pointer-events: none;
           z-index: 1;
           background:
-            radial-gradient(ellipse at 50% 0%, rgba(198,169,98,0.08) 0%, transparent 55%),
+            radial-gradient(ellipse at 50% 0%, rgba(201,168,106,0.08) 0%, transparent 55%),
             linear-gradient(180deg, rgba(8,8,8,0.35) 0%, rgba(8,8,8,0.78) 100%);
         }
 
@@ -295,7 +296,7 @@ export default function AureLienPlatform() {
         initial={false}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.9 }}
-        className="relative bg-[#080808] text-white min-h-screen"
+        className="relative bg-[#0A0908] text-white min-h-screen"
         style={{ fontFamily: "'Jost', sans-serif" }}
       >
 
@@ -304,13 +305,14 @@ export default function AureLienPlatform() {
           ref={heroRef}
           className="home-hero-shell relative flex min-h-[72vh] items-center overflow-hidden px-4 pb-12 pt-14 sm:min-h-[82vh] sm:px-6 sm:pb-20 sm:pt-[4.5rem] md:min-h-[92vh] md:px-10 md:pb-28 md:pt-24"
         >
-          <AdaptiveHeroMedia
-            alt="AURE-LIEN campaign"
+          <Image
+            src={withPublicAssetVersion("/uploads/homepage.jpg")}
+            alt="BOUT boutique interior"
+            fill
+            priority
+            sizes="100vw"
             className="absolute inset-0 h-full w-full object-cover"
-            imagePriority
-            posterSrc="/uploads/main.jpg"
             style={{ zIndex: 0 }}
-            videoSrc="/uploads/0316 (3).mp4"
           />
 
           <motion.div
@@ -335,7 +337,7 @@ export default function AureLienPlatform() {
               >
                 Luxury Reach,
                 <br />
-                <em style={{ color: "#C6A962", fontStyle: "italic" }}>
+                <em style={{ color: "#C9A86A", fontStyle: "italic" }}>
                   Without Marketplace Noise.
                 </em>
               </h1>
@@ -347,7 +349,7 @@ export default function AureLienPlatform() {
                   letterSpacing: "0.03em",
                 }}
               >
-                AURE-LIEN gives independent boutiques a calmer, more selective digital
+                BOUT gives independent boutiques a calmer, more selective digital
                 presence built for stronger presentation and easier mobile discovery.
               </p>
 
@@ -382,7 +384,7 @@ export default function AureLienPlatform() {
           className="relative z-10 mx-auto px-4 sm:px-6 md:px-10 mb-8 sm:mb-10 md:mb-12 h-px max-w-7xl"
           style={{
             background:
-              "linear-gradient(90deg, transparent, rgba(198,169,98,0.18), transparent)",
+              "linear-gradient(90deg, transparent, rgba(201,168,106,0.18), transparent)",
           }}
         />
 
@@ -393,8 +395,24 @@ export default function AureLienPlatform() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.75 }}
-              className="glass-md rounded-[26px] sm:rounded-[32px] p-5 sm:p-7 md:p-10"
+              className="glass-md relative overflow-hidden rounded-[26px] sm:rounded-[32px] p-5 sm:p-7 md:p-10"
             >
+              <Image
+                src={withPublicAssetVersion("/uploads/main.jpg")}
+                alt="BOUT editorial portrait"
+                fill
+                sizes="(max-width: 1024px) 100vw, 55vw"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,9,8,0.2)_0%,rgba(10,9,8,0.56)_42%,rgba(10,9,8,0.88)_100%)]" />
+              <div
+                className="absolute inset-x-5 top-0 h-px pointer-events-none"
+                style={{
+                  background:
+                    "linear-gradient(90deg, transparent, rgba(255,248,236,0.20), transparent)",
+                }}
+              />
+              <div className="relative z-10">
               <p
                 className="text-white/52 uppercase mb-3 sm:mb-4"
                 style={{
@@ -422,7 +440,7 @@ export default function AureLienPlatform() {
                   letterSpacing: "0.025em",
                 }}
               >
-                AURE-LIEN gives premium boutiques a quieter digital stage for product,
+                BOUT gives premium boutiques a quieter digital stage for product,
                 material, and brand point of view.
               </p>
               <p
@@ -431,9 +449,10 @@ export default function AureLienPlatform() {
                   fontSize: "clamp(10px, 2vw, 13px)",
                   letterSpacing: "0.025em",
                 }}
-              >
-                On mobile, the experience stays readable, spacious, and intentional.
-              </p>
+                >
+                  On mobile, the experience stays readable, spacious, and intentional.
+                </p>
+              </div>
             </motion.div>
 
             <div className="space-y-3 sm:space-y-4">
@@ -447,7 +466,7 @@ export default function AureLienPlatform() {
                   className="gold-glass rounded-2xl p-4 sm:p-5 md:p-6"
                 >
                   <p
-                    className="text-[#C6A962] uppercase mb-2"
+                    className="text-[#C9A86A] uppercase mb-2"
                     style={{
                       fontSize: "clamp(8px, 1.4vw, 9px)",
                       letterSpacing: "0.26em",
@@ -509,7 +528,7 @@ export default function AureLienPlatform() {
             >
               A More Considered Way
               <br />
-              To <span style={{ color: "#C6A962" }}>Expand Your Reach</span>
+              To <span style={{ color: "#C9A86A" }}>Expand Your Reach</span>
             </h2>
             <p
               className="text-white/58 font-light max-w-xl mx-auto"
@@ -558,7 +577,7 @@ export default function AureLienPlatform() {
                       key={point}
                       className="flex items-start gap-2 text-[10px] leading-relaxed text-white/62 sm:text-[11px]"
                     >
-                      <Check size={14} className="text-[#C6A962] flex-shrink-0 mt-0.5" />
+                      <Check size={14} className="text-[#C9A86A] flex-shrink-0 mt-0.5" />
                       <span>{point}</span>
                     </li>
                   ))}
@@ -595,7 +614,7 @@ export default function AureLienPlatform() {
             >
               How The Partnership
               <br />
-              <em style={{ color: "#C6A962", fontStyle: "italic" }}>Unfolds</em>
+              <em style={{ color: "#C9A86A", fontStyle: "italic" }}>Unfolds</em>
             </h2>
             <p
               className="text-white/58 font-light max-w-xl mx-auto"
@@ -640,7 +659,7 @@ export default function AureLienPlatform() {
                   {step.title}
                 </h3>
                 <p
-                  className="text-[#C6A962] uppercase font-light mb-3 sm:mb-4"
+                  className="text-[#C9A86A] uppercase font-light mb-3 sm:mb-4"
                   style={{
                     fontSize: "clamp(9px, 2vw, 11px)",
                     letterSpacing: "0.14em",
@@ -669,47 +688,64 @@ export default function AureLienPlatform() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.75 }}
-              className="gold-glass rounded-[26px] sm:rounded-[32px] p-5 sm:p-7 md:p-10"
+              className="gold-glass relative overflow-hidden rounded-[26px] sm:rounded-[32px] p-5 sm:p-7 md:p-10"
             >
-              <p
-                className="text-white/48 uppercase mb-3 sm:mb-4"
+              <Image
+                src={withPublicAssetVersion("/uploads/collections.jpg")}
+                alt="BOUT platform experience editorial"
+                fill
+                sizes="(max-width: 1024px) 100vw, 46vw"
+                className="object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,9,8,0.26)_0%,rgba(10,9,8,0.6)_40%,rgba(10,9,8,0.9)_100%)]" />
+              <div
+                className="absolute inset-x-5 top-0 h-px pointer-events-none"
                 style={{
-                  fontSize: "clamp(8px, 1.5vw, 9px)",
-                  letterSpacing: "0.36em",
+                  background:
+                    "linear-gradient(90deg, transparent, rgba(255,248,236,0.20), transparent)",
                 }}
-              >
-                Platform Experience
-              </p>
-              <h2
-                className="font-light text-white mb-4 sm:mb-5"
-                style={{
-                  fontFamily: "'Cormorant Garamond', serif",
-                  fontSize: "clamp(1.55rem, 5vw, 3rem)",
-                  letterSpacing: "0.02em",
-                  lineHeight: 1,
-                }}
-              >
-                Designed for modern boutique growth.
-              </h2>
-              <p
-                className="text-white/62 leading-relaxed mb-4 sm:mb-5"
-                style={{
-                  fontSize: "clamp(11px, 2.2vw, 14px)",
-                  letterSpacing: "0.025em",
-                }}
-              >
-                The platform translates the presence of your boutique into a refined
-                digital experience with clarity, structure, and intention.
-              </p>
-              <p
-                className="text-white/58 leading-relaxed"
-                style={{
-                  fontSize: "clamp(10px, 2vw, 12px)",
-                  letterSpacing: "0.02em",
-                }}
-              >
-                Visibility should support identity, not weaken it.
-              </p>
+              />
+              <div className="relative z-10">
+                <p
+                  className="text-white/48 uppercase mb-3 sm:mb-4"
+                  style={{
+                    fontSize: "clamp(8px, 1.5vw, 9px)",
+                    letterSpacing: "0.36em",
+                  }}
+                >
+                  Platform Experience
+                </p>
+                <h2
+                  className="font-light text-white mb-4 sm:mb-5"
+                  style={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontSize: "clamp(1.55rem, 5vw, 3rem)",
+                    letterSpacing: "0.02em",
+                    lineHeight: 1,
+                  }}
+                >
+                  Designed for modern boutique growth.
+                </h2>
+                <p
+                  className="text-white/62 leading-relaxed mb-4 sm:mb-5"
+                  style={{
+                    fontSize: "clamp(11px, 2.2vw, 14px)",
+                    letterSpacing: "0.025em",
+                  }}
+                >
+                  The platform translates the presence of your boutique into a refined
+                  digital experience with clarity, structure, and intention.
+                </p>
+                <p
+                  className="text-white/58 leading-relaxed"
+                  style={{
+                    fontSize: "clamp(10px, 2vw, 12px)",
+                    letterSpacing: "0.02em",
+                  }}
+                >
+                  Visibility should support identity, not weaken it.
+                </p>
+              </div>
             </motion.div>
 
             <div className="space-y-3 sm:space-y-4">
@@ -724,7 +760,7 @@ export default function AureLienPlatform() {
                 >
                   <div className="flex items-start gap-3">
                     <div className="gold-glass rounded-full p-2 min-h-[44px] min-w-[44px] flex items-center justify-center flex-shrink-0">
-                      <Check size={16} className="text-[#C6A962]" />
+                      <Check size={16} className="text-[#C9A86A]" />
                     </div>
                     <div>
                       <h3
@@ -780,8 +816,8 @@ export default function AureLienPlatform() {
                 letterSpacing: "0.04em",
               }}
             >
-              The AURE-LIEN{" "}
-              <em style={{ color: "#C6A962", fontStyle: "italic" }}>Standard</em>
+              The BOUT{" "}
+              <em style={{ color: "#C9A86A", fontStyle: "italic" }}>Standard</em>
             </h2>
             <p
               className="mt-3 max-w-xl mx-auto text-white/58 font-light"
@@ -796,7 +832,7 @@ export default function AureLienPlatform() {
               className="mt-3 sm:mt-4 mx-auto w-8 h-px"
               style={{
                 background:
-                  "linear-gradient(90deg, transparent, rgba(198,169,98,0.55), transparent)",
+                  "linear-gradient(90deg, transparent, rgba(201,168,106,0.55), transparent)",
               }}
             />
           </motion.div>
@@ -820,8 +856,8 @@ export default function AureLienPlatform() {
                     className="inline-flex items-center rounded-full px-3 py-2 min-h-[44px] text-white/55 uppercase"
                     style={{
                       background:
-                        "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%)",
-                      border: "1px solid rgba(255,255,255,0.08)",
+                        "linear-gradient(135deg, rgba(255,248,236,0.08) 0%, rgba(255,248,236,0.03) 100%)",
+                      border: "1px solid rgba(255,248,236,0.08)",
                       fontSize: "clamp(8px, 1.5vw, 9px)",
                       letterSpacing: "0.24em",
                     }}
@@ -832,7 +868,7 @@ export default function AureLienPlatform() {
                     className="h-px flex-1 self-center"
                     style={{
                       background:
-                        "linear-gradient(90deg, rgba(198,169,98,0.35), transparent)",
+                        "linear-gradient(90deg, rgba(201,168,106,0.35), transparent)",
                     }}
                   />
                 </div>
@@ -864,13 +900,15 @@ export default function AureLienPlatform() {
         {/* ── FEATURED COLLECTIONS ── */}
         <section
           ref={shopRef}
-          className="px-4 sm:px-6 md:px-10 relative z-10 mb-6 sm:mb-8 md:mb-10"
+          className={`px-4 sm:px-6 md:px-10 relative mb-6 sm:mb-8 md:mb-10 ${
+            sortOpen ? "z-30" : "z-10"
+          }`}
         >
           <div
             className="mb-6 sm:mb-8 md:mb-10 h-px max-w-7xl mx-auto"
             style={{
               background:
-                "linear-gradient(90deg, transparent, rgba(198,169,98,0.18), transparent)",
+                "linear-gradient(90deg, transparent, rgba(201,168,106,0.18), transparent)",
             }}
           />
 
@@ -899,7 +937,7 @@ export default function AureLienPlatform() {
             >
               Discover The
               <br />
-              <em style={{ color: "#C6A962", fontStyle: "italic" }}>
+              <em style={{ color: "#C9A86A", fontStyle: "italic" }}>
                 Collection Experience
               </em>
             </h2>
@@ -956,7 +994,7 @@ export default function AureLienPlatform() {
                 />
                 <div
                   className="w-px h-5"
-                  style={{ background: "rgba(255,255,255,0.08)" }}
+                  style={{ background: "rgba(255,248,236,0.08)" }}
                 />
                 <span
                   className="text-white/30 tracking-[0.35em] uppercase flex-shrink-0"
@@ -1016,7 +1054,10 @@ export default function AureLienPlatform() {
                 </motion.button>
               </div>
 
-              <div ref={sortMenuRef} className="relative w-full sm:w-auto">
+              <div
+                ref={sortMenuRef}
+                className={`relative w-full sm:w-auto ${sortOpen ? "z-30" : "z-10"}`}
+              >
                 <button
                   onClick={() => setSortOpen(!sortOpen)}
                   aria-expanded={sortOpen}
@@ -1115,7 +1156,7 @@ export default function AureLienPlatform() {
             className="mb-4 sm:mb-6 md:mb-8 h-px max-w-7xl mx-auto"
             style={{
               background:
-                "linear-gradient(90deg, transparent, rgba(198,169,98,0.18), transparent)",
+                "linear-gradient(90deg, transparent, rgba(201,168,106,0.18), transparent)",
             }}
           />
 
@@ -1177,7 +1218,7 @@ export default function AureLienPlatform() {
                               className="text-white font-light mt-1.5 sm:mt-2"
                               style={{
                                 fontFamily: "'Cormorant Garamond', serif",
-                                color: "#C6A962",
+                                color: "#C9A86A",
                                 fontSize: "clamp(13px, 2.5vw, 16px)",
                               }}
                             >
@@ -1193,7 +1234,7 @@ export default function AureLienPlatform() {
                             className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 self-end rounded-full border border-white/10 px-4 py-3 text-[10px] uppercase tracking-[0.22em] text-white/72 transition-colors hover:text-white sm:self-auto"
                             style={{
                               fontFamily: "'Jost', sans-serif",
-                              background: "rgba(255,255,255,0.04)",
+                              background: "rgba(255,248,236,0.04)",
                             }}
                           >
                             Details
@@ -1264,7 +1305,7 @@ export default function AureLienPlatform() {
                 letterSpacing: "0.04em",
               }}
             >
-              AURE-LIEN is intended for boutiques that want growth to feel aligned with
+              BOUT is intended for boutiques that want growth to feel aligned with
               their identity: selective, elevated, and easier for clients to navigate on
               every screen.
             </p>
