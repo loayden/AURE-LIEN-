@@ -46,7 +46,7 @@ export default function Loading() {
             className="font-light tracking-[0.45em] text-white/30 uppercase text-[10px]"
             style={{ fontFamily:"'Cormorant Garamond', serif", letterSpacing:"0.55em" }}
           >
-            AURÉLIEN
+            BOUT
           </motion.p>
 
       </div>

@@ -161,7 +161,7 @@ interface FilterState {
   search: string;
 }
 
-export default function AureLienPlatform() {
+export default function BoutPlatform() {
   const router = useRouter();
   const [sort, setSort] = useState("default");
   const [sortOpen, setSortOpen] = useState(false);

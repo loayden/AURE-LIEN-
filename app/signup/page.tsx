@@ -127,7 +127,7 @@ export default function SignupPage() {
                 className="font-light text-white leading-none mb-2"
                 style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"2.2rem", letterSpacing:"0.12em" }}
               >
-                AURÉLIEN
+                BOUT
               </h1>
               <div className="mx-auto mt-3 mb-4 w-8 h-px"
                    style={{ background:"linear-gradient(90deg, transparent, rgba(201,168,106,0.7), transparent)" }} />

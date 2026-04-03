@@ -126,7 +126,7 @@ export default function AboutPage() {
                 textShadow:"0 4px 60px rgba(0,0,0,0.4)",
               }}
             >
-              AURÉ<em style={{ color:"#C9A86A", fontStyle:"italic" }}>LIEN</em>
+              BOUT
             </motion.h1>
 
             <motion.div
@@ -192,7 +192,7 @@ export default function AboutPage() {
               className="text-white/35 font-light leading-relaxed max-w-xl mx-auto"
               style={{ fontSize:"0.92rem", letterSpacing:"0.07em" }}
             >
-              AURÉLIEN was conceived as a refusal — a refusal to be ordinary, to be seasonal, to be forgotten. Every piece we create carries the weight of intention. We source with discipline, construct with obsession, and release with restraint. The result is not fashion. It is architecture for the body.
+              BOUT was conceived as a refusal — a refusal to be ordinary, to be seasonal, to be forgotten. Every piece we create carries the weight of intention. We source with discipline, construct with obsession, and release with restraint. The result is not fashion. It is architecture for the body.
             </motion.p>
           </div>
         </section>
@@ -251,7 +251,7 @@ export default function AboutPage() {
               <Pillar
                 number="03"
                 title="Permanence"
-                body="We build pieces that last beyond seasons, beyond trends, beyond the moment of purchase. AURÉLIEN is not a wardrobe refresh. It is an investment in a version of yourself that does not expire."
+                body="We build pieces that last beyond seasons, beyond trends, beyond the moment of purchase. BOUT is not a wardrobe refresh. It is an investment in a version of yourself that does not expire."
               />
             </div>
           </div>
@@ -326,7 +326,7 @@ export default function AboutPage() {
               <div className="w-10 h-px" style={{ background:"linear-gradient(90deg, rgba(201,168,106,0.6), transparent)" }} />
               <p className="text-white/35 font-light leading-relaxed text-sm"
                  style={{ letterSpacing:"0.05em" }}>
-                AURÉLIEN was founded in Cairo by designers who grew up between two worlds — the ancient craft traditions of the Middle East and the sharp minimalism of European tailoring. The result is a language all its own: structured but fluid, rich but restrained.
+                BOUT was founded in Cairo by designers who grew up between two worlds — the ancient craft traditions of the Middle East and the sharp minimalism of European tailoring. The result is a language all its own: structured but fluid, rich but restrained.
               </p>
               <p className="text-white/30 font-light leading-relaxed text-sm"
                  style={{ letterSpacing:"0.05em" }}>
@@ -429,7 +429,7 @@ export default function AboutPage() {
             </h2>
             <p className="text-white/30 font-light leading-relaxed mb-10 max-w-sm mx-auto text-sm"
                style={{ letterSpacing:"0.07em" }}>
-              Explore the full AURÉLIEN collection — each piece a statement, each purchase a commitment to a higher standard.
+              Explore the full BOUT collection — each piece a statement, each purchase a commitment to a higher standard.
             </p>
             <Link
               href="/shop"
