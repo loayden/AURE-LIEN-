@@ -34,26 +34,6 @@ export const rawProductsData = [
   },
   
   {
-    _id: "p-jc-005",
-    name: "Oversized Winter Puffer",
-    category: "jackets-coats",
-    price: 749,
-    images: ["/uploads/mozzz.jpg", "/uploads/mozz.jpg"],
-    size: ["M", "L", "XL"],
-    description: "Oversized Winter Puffer",
-    colors: ["navy"],
-  },
-  {
-    _id: "p-jc-006",
-    name: "Vintage Purple Work",
-    category: "jackets-coats",
-    price: 749,
-    images: ["/uploads/purblejacket.jpg", "/uploads/light_violet_jacket.jpg"],
-    size: ["M", "L", "XL"],
-    description: "Vintage Purple Work jacket",
-    colors: ["violet"],
-  },
-  {
     _id: "p-jc-007",
     name: "Navy Embroidered Bomber",
     category: "jackets-coats",
