@@ -69,16 +69,6 @@ export const rawProductsData = [
   },
  
   {
-    _id: "p-jc-009",
-    name: "Sage Minimal Street Set",
-    category: "jackets-coats",
-    price: 749,
-    images: ["/uploads/formal_lines2.jpg", "/uploads/formal_lines.jpg"],
-    size: ["M", "L", "XL"],
-    description: "Sage Minimal Street Set",
-    colors: ["black"],
-  },
-  {
     _id: "p-jc-011",
     name: "Urban Brown Leather Jacket",
     category: "jackets-coats",
@@ -99,16 +89,6 @@ export const rawProductsData = [
     colors: ["black"],
   },
   {
-    _id: "p-jc-013",
-    name: "Minimal Black Winter Jacket",
-    category: "jackets-coats",
-    price: 749,
-    images: ["/uploads/noir.jpg", "/uploads/black_soft_jacket.jpg"],
-    size: ["M", "L", "XL"],
-    description: "Minimal Black Winter Jacket",
-    colors: ["black"],
-  },
-  {
     _id: "p-jc-014",
     name: "gray Urban Bomber Jacket",
     category: "jackets-coats",
@@ -117,16 +97,6 @@ export const rawProductsData = [
     size: ["M", "L", "XL"],
     description: "gray Urban Bomber Jacket",
     colors: ["gray"],
-  },
-  {
-    _id: "p-jc-015",
-    name: "Sage Minimal pockets jacket",
-    category: "jackets-coats",
-    price: 749,
-    images: ["/uploads/formallinespockets.jpg", "/uploads/pocket.jpg"],
-    size: ["M", "L", "XL"],
-    description: "Sage Minimal pockets Street Set",
-    colors: ["black"],
   },
   {
     _id: "p-jc-016",
@@ -183,26 +153,6 @@ export const rawProductsData = [
   },
 
   // Shirts
-  {
-    _id: "p-sh-001",
-    name: "Olive Minimal green Knit",
-    category: "shirts",
-    price: 109,
-    images: ["/uploads/gre.jpg", "/uploads/green_zipper.jpg"],
-    size: ["S", "M", "L", "XL"],
-    description: "Olive Minimal green Knit",
-    colors: ["green"],
-  },
-  {
-    _id: "p-sh-002",
-    name: "beige polo classic",
-    category: "shirts",
-    price: 95,
-    images: ["/uploads/peigshirt.jpg", "/uploads/peig.jpg"],
-    size: ["S", "M", "L", "XL"],
-    description: "beige polo classic",
-    colors: ["beige"],
-  },
   {
     _id: "p-sh-003",
     name: "Black & White Striped Polo Sweater",
