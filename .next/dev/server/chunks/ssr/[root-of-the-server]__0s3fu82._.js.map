@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 10, "column": 0}, "map": {"version":3,"sources":["file:///Users/shereenmagdy/Documents/GitHub/AURE-LIEN-/app/admin/products/page.tsx"],"sourcesContent":["export default function AdminProductsPage() {\n  return (\n    <div>\n      <h1 className=\"text-2xl font-serif font-light tracking-luxury-wide mb-6\">\n        Products\n      </h1>\n      <p className=\"text-ivory-muted\">Product management coming soon.</p>\n    </div>\n  );\n}\n"],"names":["AdminProductsPage","className"],"mappings":";;;;;;AAAe,SAASA;IACtB,qBACE,uRAAC;;0BACC,uRAAC;gBAAGC,WAAU;0BAA2D;;;;;;0BAGzE,uRAAC;gBAAEA,WAAU;0BAAmB;;;;;;;;;;;;AAGtC"}}]
-}
