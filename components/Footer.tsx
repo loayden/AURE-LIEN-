@@ -17,6 +17,7 @@ const NAV_COLLECTIONS = [
 const NAV_SERVICE = [
   { label: "Account", href: "/account" },
   { label: "Orders", href: "/orders" },
+  { label: "Discover", href: "/discover" },
   { label: "About", href: "/about" },
 ];
 

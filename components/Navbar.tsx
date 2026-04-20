@@ -4,6 +4,7 @@ import { useOverlayIsolation } from "@/components/useOverlayIsolation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
+  Compass,
   ChevronDown,
   CreditCard,
   Footprints,
@@ -36,6 +37,7 @@ type MenuItem = {
 
 const mainMenuItems: MenuItem[] = [
   { title: "Home",        link: "/",           icon: <Home        strokeWidth={1.4} className="w-3.5 h-3.5" /> },
+  { title: "Discover",    link: "/discover",   icon: <Compass     strokeWidth={1.4} className="w-3.5 h-3.5" /> },
   { title: "Shop",        link: "/shop",        icon: <ShoppingBag strokeWidth={1.4} className="w-3.5 h-3.5" /> },
   {
     title: "Collection", link: "/collection", icon: <Layers strokeWidth={1.4} className="w-3.5 h-3.5" />,
