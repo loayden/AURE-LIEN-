@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Hero() {
   return (
@@ -45,9 +46,9 @@ export default function Hero() {
           Founded in restraint. Refined without display.
         </p>
 
-        <button className="min-h-[44px] min-w-[44px] border border-[#FFF8EC]/60 px-5 py-3 text-[11px] tracking-[0.35em] uppercase text-[#FFF8EC] transition-all duration-700 hover:bg-[#FFF8EC] hover:text-[#14110F] sm:px-14 sm:py-4 sm:text-xs">
+        <Link href="/collection" className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center border border-[#FFF8EC]/60 px-5 py-3 text-[11px] tracking-[0.35em] uppercase text-[#FFF8EC] transition-all duration-700 hover:bg-[#FFF8EC] hover:text-[#14110F] sm:px-14 sm:py-4 sm:text-xs">
           EXPLORE COLLECTION
-        </button>
+        </Link>
       </motion.div>
     </section>
   );

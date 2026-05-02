@@ -1,16 +1,30 @@
 "use client";
 
 import ProductCard from "@/components/ProductCard";
-import productsData from "@/lib/productsData";
 import { useEffect, useState } from "react";
 
 export default function ProductsFromAPIPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    setProducts(productsData);
-    setLoading(false);
+    (async () => {
+      try {
+        const res = await fetch("/api/products", { cache: "no-store" });
+        const data = await res.json();
+
+        if (!res.ok || !Array.isArray(data)) {
+          throw new Error(data?.error || "Failed to load products");
+        }
+
+        setProducts(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load products");
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
   if (loading) {
@@ -49,7 +63,7 @@ export default function ProductsFromAPIPage() {
         </section>
       ) : (
         <div className="glass-panel mx-auto max-w-2xl px-5 py-10 text-center">
-          <p className="body-copy body-copy-strong">No products found.</p>
+          <p className="body-copy body-copy-strong">{error || "No products found."}</p>
         </div>
       )}
       </section>

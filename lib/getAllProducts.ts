@@ -6,7 +6,6 @@
  */
 import connectDB from "./connectDB";
 import ProductModel from "@/models/Product";
-import { applyCatalogPriceOffset } from "./catalogPrice";
 import { resolveProductColors } from "./productColors";
 import { withPublicAssetVersion } from "./publicAsset";
 import { rawProductsData } from "./productsData";
@@ -14,7 +13,6 @@ import { readProductsJson } from "./productsJson";
 import type { Product } from "./types";
 
 const PLACEHOLDER_IMAGE = "/images/placeholder.svg";
-const DEFAULT_CATALOG_DISCOUNT = 40;
 
 let cache: Product[] | null = null;
 
@@ -62,11 +60,11 @@ function normalizeProduct(raw: any): Product {
     _id: String(raw?._id ?? ""),
     name: String(raw?.name ?? "").trim(),
     category: String(raw?.category ?? "").trim(),
-    price: applyCatalogPriceOffset(Number(raw?.price ?? 0)),
+    price: Number(raw?.price ?? 0),
     discount:
       typeof raw?.discount === "number" && raw.discount > 0
         ? raw.discount
-        : DEFAULT_CATALOG_DISCOUNT,
+        : undefined,
     images: images.length > 0 ? images : [PLACEHOLDER_IMAGE],
     size: Array.isArray(raw?.size)
       ? raw.size.map((value: unknown) => String(value))

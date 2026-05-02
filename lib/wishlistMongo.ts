@@ -17,7 +17,7 @@ export interface ProductDataSnapshot {
   category?: string;
 }
 
-function useMongoStorage(): boolean {
+function hasMongoStorage(): boolean {
   const uri = process.env.MONGO_URI?.trim() || process.env.MONGODB_URI?.trim();
   return Boolean(
     uri &&
@@ -59,7 +59,7 @@ async function saveWishlistByUserRedis(
 }
 
 export async function getWishlistByUserMongo(userId: string): Promise<Array<{ productId: string; productData?: ProductDataSnapshot | null }>> {
-  if (useMongoStorage()) {
+  if (hasMongoStorage()) {
     try {
       await connectDB();
       const items = await Wishlist.find({ userId }).sort({ createdAt: -1 }).lean();
@@ -83,7 +83,7 @@ export async function addToWishlistMongo(
   productId: string,
   productData?: ProductDataSnapshot | null
 ): Promise<void> {
-  if (useMongoStorage()) {
+  if (hasMongoStorage()) {
     try {
       await connectDB();
       await Wishlist.findOneAndUpdate(
@@ -114,7 +114,7 @@ export async function addToWishlistMongo(
 }
 
 export async function removeFromWishlistMongo(userId: string, productId: string): Promise<void> {
-  if (useMongoStorage()) {
+  if (hasMongoStorage()) {
     try {
       await connectDB();
       await Wishlist.deleteOne({ userId, productId });

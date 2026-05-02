@@ -4,8 +4,6 @@
  */
 import { jwtVerify } from "jose";
 
-const JWT_SECRET = process.env.JWT_SECRET || "luxury-secret-change-in-production";
-
 export interface JWTPayload {
   userId: string;
   email: string;
@@ -14,7 +12,10 @@ export interface JWTPayload {
 
 export async function verifyTokenEdge(token: string): Promise<JWTPayload | null> {
   try {
-    const secret = new TextEncoder().encode(JWT_SECRET);
+    const jwtSecret = process.env.JWT_SECRET?.trim();
+    if (!jwtSecret) return null;
+
+    const secret = new TextEncoder().encode(jwtSecret);
     const { payload } = await jwtVerify(token, secret);
     return {
       userId: payload.userId as string,

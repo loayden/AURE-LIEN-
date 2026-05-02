@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { AlertTriangle, ArrowRight, RotateCcw } from "lucide-react";
+import Link from "next/link";
 
 export default function GlobalError({
   error,
@@ -120,7 +121,7 @@ export default function GlobalError({
                 <RotateCcw strokeWidth={1.3} className="h-4 w-4" />
                 Try Again
               </button>
-              <a
+              <Link
                 href="/"
                 style={{
                   display: "inline-flex",
@@ -141,7 +142,7 @@ export default function GlobalError({
               >
                 Return Home
                 <ArrowRight strokeWidth={1.3} className="h-4 w-4" />
-              </a>
+              </Link>
             </div>
           </motion.div>
         </div>

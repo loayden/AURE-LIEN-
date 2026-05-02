@@ -2,7 +2,7 @@
 
 import productsData from "@/lib/productsData";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckCircle2, ChevronRight, MapPin, Package, Truck, User } from "lucide-react";
+import { CheckCircle2, ChevronRight, CreditCard, MapPin, Package, Truck, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -27,6 +27,7 @@ interface FormData {
 }
 
 const SHIPPING_COST_CAIRO = 75;
+type PaymentMethod = "card" | "cod";
 
 function GlassSection({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
@@ -70,6 +71,7 @@ export default function CheckoutPage() {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [fromCart, setFromCart] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
   const [form, setForm] = useState<FormData>({
     email: "", newsletter: false, country: "Egypt",
     firstName: "", lastName: "", address: "", apartment: "",
@@ -83,7 +85,19 @@ export default function CheckoutPage() {
       await fetch("/api/checkout-draft", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: items.map((i) => ({ _id: i._id, productId: i.productId, name: i.name, price: i.price, quantity: i.quantity, image: i.image })), form: formData }),
+        body: JSON.stringify({
+          items: items.map((i) => ({
+            _id: i._id,
+            productId: i.productId,
+            name: i.name,
+            price: i.price,
+            quantity: i.quantity,
+            image: i.image,
+            size: i.size ?? null,
+            color: i.color ?? null,
+          })),
+          form: formData,
+        }),
       });
     } catch {}
   }, []);
@@ -253,6 +267,18 @@ export default function CheckoutPage() {
       } 
     }
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      setError("Please enter a valid email address.");
+      setSubmitting(false);
+      return;
+    }
+
+    if (form.phone.replace(/\D/g, "").length < 8) {
+      setError("Please enter a valid phone number.");
+      setSubmitting(false);
+      return;
+    }
+
     const items = cart
       .filter(item => item.productId && (item.quantity ?? 0) > 0)
       .map((item) => ({
@@ -315,7 +341,34 @@ export default function CheckoutPage() {
         throw new Error(data?.error || "Failed to place order"); 
       }
 
-      setSuccess("Order placed successfully."); 
+      const placedOrderId = typeof data?.orderId === "string" ? data.orderId : "";
+
+      if (paymentMethod === "card") {
+        if (!placedOrderId) {
+          throw new Error("Order was created without a payment reference.");
+        }
+
+        const origin = window.location.origin;
+        const checkoutRes = await fetch("/api/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderId: placedOrderId,
+            successUrl: `${origin}/orders?orderId=${encodeURIComponent(placedOrderId)}&payment=success`,
+            cancelUrl: `${origin}/checkout?orderId=${encodeURIComponent(placedOrderId)}&payment=cancelled`,
+          }),
+        });
+        const checkoutData = await checkoutRes.json();
+
+        if (!checkoutRes.ok || !checkoutData?.url) {
+          throw new Error(checkoutData?.error || "Card payment could not be started.");
+        }
+
+        window.location.assign(checkoutData.url);
+        return;
+      }
+
+      setSuccess("Order received and pending confirmation."); 
       setCart([]);
       
       if (typeof window !== "undefined") { 
@@ -325,8 +378,6 @@ export default function CheckoutPage() {
       await fetch("/api/checkout-draft", { method: "DELETE" });
       
       if (fromCart) await fetch("/api/cart", { method: "DELETE" });
-
-      const placedOrderId = typeof data?.orderId === "string" ? data.orderId : "";
 
       setTimeout(() => {
         router.push(
@@ -513,6 +564,39 @@ export default function CheckoutPage() {
                   </GlassSection>
                 </motion.div>
 
+                {/* Payment */}
+                <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.3, duration:0.7 }}>
+                  <GlassSection icon={<CreditCard strokeWidth={1.3} className="w-4 h-4" />} title="Payment">
+                    <div className="grid gap-3 max-w-lg sm:grid-cols-2">
+                      {[
+                        { value: "card", title: "Card", detail: "Pay securely online" },
+                        { value: "cod", title: "Cash on delivery", detail: "Pay when it arrives" },
+                      ].map((option) => {
+                        const active = paymentMethod === option.value;
+                        return (
+                          <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => setPaymentMethod(option.value as PaymentMethod)}
+                            className="text-left p-4 rounded-xl transition-all duration-300 min-h-[72px]"
+                            style={active ? {
+                              background:"linear-gradient(135deg, rgba(201,168,106,0.12), rgba(201,168,106,0.04))",
+                              border:"1px solid rgba(201,168,106,0.3)",
+                            } : {
+                              background:"rgba(255,248,236,0.03)",
+                              border:"1px solid rgba(255,248,236,0.08)",
+                            }}
+                            aria-pressed={active}
+                          >
+                            <span className="block text-white/70 text-sm font-light tracking-wide">{option.title}</span>
+                            <span className="block text-white/30 text-[9px] tracking-[0.25em] uppercase mt-1">{option.detail}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </GlassSection>
+                </motion.div>
+
                 {/* Submit / Cancel */}
                 <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.34, duration:0.7 }}>
                   <div className="flex flex-col gap-3">
@@ -530,7 +614,7 @@ export default function CheckoutPage() {
                       }}
                     >
                       <span className="text-[#C9A86A] text-[10px] tracking-[0.32em] uppercase font-light">
-                        {submitting ? "Placing Order…" : "Place Order"}
+                        {submitting ? "Processing…" : paymentMethod === "card" ? "Continue to Payment" : "Submit Order"}
                       </span>
                       {!submitting && <ChevronRight strokeWidth={1.3} className="w-4 h-4 text-[#C9A86A]" />}
                     </motion.button>

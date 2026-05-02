@@ -252,15 +252,25 @@ const STYLES = [
   { value:"street",  label:"Street" },
 ];
 
+function getColorValue(color: unknown): string {
+  if (typeof color === "string") return color;
+  if (typeof color === "object" && color !== null && "name" in color) {
+    return String((color as { name?: unknown }).name ?? "");
+  }
+  return "";
+}
+
 export default function OutfitGeneratorPage() {
   const router = useRouter();
   const [occasion, setOccasion] = useState("formal");
   const [style, setStyle] = useState("minimal");
   const [outfits, setOutfits] = useState<Outfit[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   async function generate() {
     setLoading(true);
+    setError("");
     setOutfits([]);
     try {
       const res = await fetch("/api/outfit-generate", {
@@ -269,23 +279,53 @@ export default function OutfitGeneratorPage() {
         body: JSON.stringify({ occasion, style, season:"all" }),
       });
       const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "Unable to generate outfits.");
       setOutfits(data.outfits || []);
-    } catch {
+    } catch (requestError) {
       setOutfits([]);
+      setError(requestError instanceof Error ? requestError.message : "Unable to generate outfits.");
     } finally {
       setLoading(false);
     }
   }
 
   async function addOutfitToCart(items: Product[]) {
-    for (const p of items) {
-      await fetch("/api/cart", {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ productId:p._id, quantity:1 }),
-      });
+    setError("");
+
+    const itemNeedingVariant = items.find((product) => {
+      const sizes = Array.isArray(product.size) ? product.size : [];
+      const colors = Array.isArray(product.colors) ? product.colors : [];
+      return sizes.length > 1 || colors.length > 1;
+    });
+
+    if (itemNeedingVariant) {
+      setError(`${itemNeedingVariant.name} needs a size or color choice. Open the product page to add it with variants.`);
+      return;
     }
-    router.push("/cart");
+
+    try {
+      for (const p of items) {
+        const res = await fetch("/api/cart", {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({
+            productId:p._id,
+            quantity:1,
+            size: Array.isArray(p.size) && p.size.length === 1 ? p.size[0] : "One Size",
+            color: Array.isArray(p.colors) && p.colors.length === 1 ? getColorValue(p.colors[0]) : "Default",
+          }),
+        });
+
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data?.error || "Unable to add outfit to cart.");
+        }
+      }
+      window.dispatchEvent(new Event("cart:changed"));
+      router.push("/cart");
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Unable to add outfit to cart.");
+    }
   }
 
   return (
@@ -307,7 +347,7 @@ export default function OutfitGeneratorPage() {
             transition={{ duration:0.8 }}
             className="mb-6 sm:mb-8 md:mb-10"
           >
-            <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase mb-4">AI Styling</p>
+            <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase mb-4">Curated Styling</p>
             <div className="flex items-end gap-4 flex-wrap justify-between">
               <h1
                 className="font-light text-white leading-none"
@@ -324,7 +364,7 @@ export default function OutfitGeneratorPage() {
                 }}
               >
                 <Sparkles strokeWidth={1.3} className="w-3 h-3" style={{ color:"#C9A86A" }} />
-                <span className="text-[#C9A86A] text-[9px] tracking-[0.3em] uppercase font-light">AI Powered</span>
+                <span className="text-[#C9A86A] text-[9px] tracking-[0.3em] uppercase font-light">Curated Picks</span>
               </span>
             </div>
             <div className="mt-5 h-px"
@@ -432,6 +472,16 @@ export default function OutfitGeneratorPage() {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {error && !loading && (
+            <motion.div
+              initial={{ opacity:0, y:8 }}
+              animate={{ opacity:1, y:0 }}
+              className="mb-6 rounded-2xl border border-red-400/20 bg-red-400/10 px-4 py-3 text-red-100/70"
+            >
+              <p className="text-[10px] uppercase tracking-[0.25em]">{error}</p>
+            </motion.div>
+          )}
 
           {/* ── Outfit cards ── */}
           <AnimatePresence>

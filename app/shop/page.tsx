@@ -43,7 +43,6 @@ export default function EnhancedShopPage() {
     priceRange: null,
     search: "",
   });
-  const [filtersOpen, setFiltersOpen] = useState(false);
   const heroRef = useRef<HTMLElement>(null);
   const deferredSearch = useDeferredValue(filters.search);
 

@@ -22,7 +22,8 @@ import {
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 const SearchOverlay = dynamic(() => import("./SearchOverlay"));
@@ -162,18 +163,34 @@ function DesktopMenuItem({ item }: { item: MenuItem }) {
   );
 }
 
+function CartBadge({ count }: { count: number }) {
+  if (count <= 0) return null;
+
+  return (
+    <span
+      className="absolute -right-0.5 -top-0.5 z-20 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-medium leading-none text-[#14110F]"
+      style={{ background: "#C9A86A", fontFamily: "'Jost', sans-serif" }}
+    >
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
+
 /* ── Utility icon button ── */
-function UtilityBtn({ item }: { item: MenuItem }) {
+function UtilityBtn({ item, cartCount }: { item: MenuItem; cartCount: number }) {
+  const isCart = item.title === "Cart";
+
   return (
     <motion.div whileHover={{ scale:1.08 }} whileTap={{ scale:0.9 }}>
       <Link
         href={item.link}
-        aria-label={item.title}
+        aria-label={isCart && cartCount > 0 ? `Cart, ${cartCount} items` : item.title}
         className="relative group flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-white/45 transition-colors duration-300 hover:text-white/85 lg:h-10 lg:w-10"
       >
         <span className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
               style={{ background:"rgba(255,248,236,0.07)" }} />
         <span className="relative z-10">{item.icon}</span>
+        {isCart && <CartBadge count={cartCount} />}
       </Link>
     </motion.div>
   );
@@ -395,10 +412,29 @@ function MobileMenu({
 
 /* ── Main Navbar ── */
 export default function Navbar() {
+  const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<number | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+
+  const refreshCartCount = useCallback(async () => {
+    try {
+      const res = await fetch("/api/cart", { cache: "no-store" });
+      if (!res.ok) return;
+      const data = await res.json();
+      const count = Array.isArray(data.items)
+        ? data.items.reduce((sum: number, item: { quantity?: number }) => {
+            const quantity = Number(item.quantity ?? 0);
+            return Number.isFinite(quantity) && quantity > 0 ? sum + quantity : sum;
+          }, 0)
+        : 0;
+      setCartCount(count);
+    } catch {
+      setCartCount(0);
+    }
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -412,6 +448,19 @@ export default function Navbar() {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
     return () => { document.body.style.overflow = previousOverflow; };
   }, [mobileOpen]);
+
+  useEffect(() => {
+    refreshCartCount();
+  }, [pathname, refreshCartCount]);
+
+  useEffect(() => {
+    window.addEventListener("focus", refreshCartCount);
+    window.addEventListener("cart:changed", refreshCartCount);
+    return () => {
+      window.removeEventListener("focus", refreshCartCount);
+      window.removeEventListener("cart:changed", refreshCartCount);
+    };
+  }, [refreshCartCount]);
 
   return (
     <>
@@ -480,22 +529,25 @@ export default function Navbar() {
               <Search strokeWidth={1.4} className="relative z-10 w-4 h-4" />
             </motion.button>
 
-            {utilityItems.map((item, i) => <UtilityBtn key={i} item={item} />)}
+            {utilityItems.map((item, i) => <UtilityBtn key={i} item={item} cartCount={cartCount} />)}
           </div>
 
           {/* Mobile controls */}
           <div className="flex items-center gap-1 md:hidden">
             {/* Cart + Account quick links */}
             {[
-              { href:"/cart",    label:"Cart",    icon:<ShoppingCart strokeWidth={1.4} className="w-4 h-4" /> },
-              { href:"/account", label:"Account", icon:<User         strokeWidth={1.4} className="w-4 h-4" /> },
+              { href:"/cart",    label:"Cart",    icon:<ShoppingCart strokeWidth={1.4} className="w-4 h-4" />, count: cartCount },
+              { href:"/account", label:"Account", icon:<User         strokeWidth={1.4} className="w-4 h-4" />, count: 0 },
             ].map((btn, i) => (
               <motion.div key={i} whileTap={{ scale:0.88 }}>
-                <Link href={btn.href} aria-label={btn.label}
+                <Link
+                  href={btn.href}
+                  aria-label={btn.count > 0 ? `${btn.label}, ${btn.count} items` : btn.label}
                   className="relative group flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-white/50 transition-colors duration-300 hover:text-white/85">
                   <span className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                         style={{ background:"rgba(255,248,236,0.06)" }} />
                   <span className="relative z-10">{btn.icon}</span>
+                  {btn.href === "/cart" && <CartBadge count={btn.count} />}
                 </Link>
               </motion.div>
             ))}

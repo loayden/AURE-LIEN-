@@ -2,13 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import productsData from "@/lib/productsData";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "" });
 const MAX_MESSAGES = 12;
 const MAX_MESSAGE_LENGTH = 1200;
 const CHAT_TIMEOUT_MS = 12000;
 
+let openaiClient: OpenAI | null = null;
+
+function getOpenAIClient(): OpenAI | null {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return null;
+
+  if (!openaiClient) {
+    openaiClient = new OpenAI({ apiKey });
+  }
+
+  return openaiClient;
+}
+
 export async function POST(req: NextRequest) {
-  if (!process.env.OPENAI_API_KEY) {
+  const openai = getOpenAIClient();
+  if (!openai) {
     return NextResponse.json(
       { error: "AI service not configured" },
       { status: 503 }

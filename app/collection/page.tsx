@@ -200,7 +200,7 @@ export default function CollectionPage() {
 
   const PRODUCTS_ORGANIZED = useMemo(
     () => organizeProductsByCategory(products),
-    [products]
+    []
   );
 
   return (

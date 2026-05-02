@@ -1,9 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Instagram } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { FaInstagram } from "react-icons/fa";
 
 const NAV_COLLECTIONS = [
   { label: "Collection", href: "/collection" },
@@ -24,7 +25,7 @@ const NAV_SERVICE = [
 const INSTAGRAM_URL = "https://www.instagram.com/bout.clothes/?__pwa=1";
 const POWERED_BY_URL = "https://www.instagram.com/fr3_fdn/?__pwa=1";
 
-const SOCIALS = [{ Icon: Instagram, href: INSTAGRAM_URL }];
+const SOCIALS = [{ Icon: FaInstagram, href: INSTAGRAM_URL }];
 const LEGAL_LINKS = [
   { label: "Privacy", href: "/privacy" },
   { label: "Terms", href: "/terms" },
@@ -34,9 +35,38 @@ const LEGAL_LINKS = [
 export default function LuxuryFooter() {
   const [email, setEmail] = useState("");
   const [joined, setJoined] = useState(false);
+  const [joining, setJoining] = useState(false);
+  const [newsletterError, setNewsletterError] = useState("");
 
-  const handleJoin = () => {
-    if (email.trim()) { setJoined(true); setEmail(""); }
+  const handleJoin = async () => {
+    const nextEmail = email.trim().toLowerCase();
+    setNewsletterError("");
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nextEmail)) {
+      setNewsletterError("Enter a valid email.");
+      return;
+    }
+
+    setJoining(true);
+    try {
+      const res = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: nextEmail }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Subscription failed");
+      }
+
+      setJoined(true);
+      setEmail("");
+    } catch (error) {
+      setNewsletterError(error instanceof Error ? error.message : "Subscription failed");
+    } finally {
+      setJoining(false);
+    }
   };
 
   return (
@@ -182,23 +212,36 @@ export default function LuxuryFooter() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleJoin()}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      void handleJoin();
+                    }
+                  }}
                   placeholder="Your email"
                   className="flex-1 bg-transparent px-4 py-3 text-base tracking-[0.12em] text-white/80 outline-none placeholder:text-white/45 sm:text-sm"
                   style={{ fontFamily:"'Jost', sans-serif" }}
                 />
                 <motion.button
-                  onClick={handleJoin}
+                  type="button"
+                  onClick={() => void handleJoin()}
+                  disabled={joining}
                   whileHover={{ scale:1.05 }}
                   whileTap={{ scale:0.95 }}
-                  className="flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 border-t border-white/10 px-4 py-3 transition-all duration-300 sm:border-l sm:border-t-0 sm:gap-3"
+                  className="flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 border-t border-white/10 px-4 py-3 transition-all duration-300 disabled:opacity-50 sm:border-l sm:border-t-0 sm:gap-3"
                 >
                   <span className="text-[9px] tracking-[0.3em] uppercase font-light text-white/88 transition-colors hover:text-[#C9A86A]">
-                    Join
+                    {joining ? "Joining" : "Join"}
                   </span>
                   <ArrowRight strokeWidth={1.3} className="w-3 h-3 text-white/78" />
                 </motion.button>
               </div>
+            )}
+
+            {newsletterError && (
+              <p className="text-[9px] leading-relaxed tracking-[0.2em] text-red-300/80">
+                {newsletterError}
+              </p>
             )}
 
             {/* Privacy note */}

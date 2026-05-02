@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/connectDB";
 import Lookbook from "@/models/Lookbook";
 import { fallbackLookbooks } from "@/lib/lookbooksData";
+import { requireAdminRequest } from "@/lib/adminAuth";
 
 export async function GET(req: NextRequest) {
   const published = req.nextUrl.searchParams.get("published");
@@ -21,6 +22,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const unauthorized = await requireAdminRequest(req);
+  if (unauthorized) return unauthorized;
+
   try {
     await connectDB();
     const body = await req.json();

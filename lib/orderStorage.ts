@@ -19,7 +19,7 @@ import {
 const BLOB_ORDERS_PATH = "orders.json";
 const BLOB_ORDERS_DATA_PATH = "ordersData.json";
 
-function useMongoStorage(): boolean {
+function hasMongoStorage(): boolean {
   const uri = process.env.MONGO_URI?.trim() || process.env.MONGODB_URI?.trim();
   return Boolean(
     uri &&
@@ -27,7 +27,7 @@ function useMongoStorage(): boolean {
   );
 }
 
-function useCloudStorage(): boolean {
+function hasCloudStorage(): boolean {
   return typeof process.env.BLOB_READ_WRITE_TOKEN === "string" && process.env.BLOB_READ_WRITE_TOKEN.length > 0;
 }
 
@@ -69,6 +69,10 @@ function normalizeOrder(order: any): any {
   const createdAt = order?.createdAt
     ? new Date(order.createdAt).toISOString()
     : new Date().toISOString();
+  const updatedAt = order?.updatedAt
+    ? new Date(order.updatedAt).toISOString()
+    : createdAt;
+  const paidAt = order?.paidAt ? new Date(order.paidAt).toISOString() : null;
 
   return {
     _id: orderId,
@@ -95,7 +99,13 @@ function normalizeOrder(order: any): any {
     totalPrice: Number(order?.totalPrice ?? order?.total ?? 0),
     total: Number(order?.total ?? order?.totalPrice ?? 0),
     status: order?.status ?? "pending",
+    paymentStatus:
+      order?.paymentStatus ?? (order?.status === "completed" ? "paid" : "pending"),
+    paymentProvider: order?.paymentProvider ?? "manual",
+    stripeSessionId: order?.stripeSessionId ?? "",
+    paidAt,
     createdAt,
+    updatedAt,
     customer: {
       email: customer.email ?? "",
       firstName: customer.firstName ?? "",
@@ -145,7 +155,12 @@ function toOrdersDataRecord(order: any): any {
     },
     customer: normalized.customer,
     userId: normalized.userId,
+    paymentStatus: normalized.paymentStatus,
+    paymentProvider: normalized.paymentProvider,
+    stripeSessionId: normalized.stripeSessionId,
+    paidAt: normalized.paidAt,
     createdAt: normalized.createdAt,
+    updatedAt: normalized.updatedAt,
   };
 }
 
@@ -163,7 +178,7 @@ async function writeLocalJson(filePath: string, data: unknown): Promise<void> {
 }
 
 async function readOrderSnapshots(): Promise<any[]> {
-  if (useCloudStorage()) {
+  if (hasCloudStorage()) {
     try {
       const text = await readBlobByPathname(BLOB_ORDERS_PATH);
       if (!text) return [];
@@ -186,7 +201,7 @@ async function writeOrderSnapshots(orders: any[]): Promise<void> {
   const normalized = sortOrdersByDateDesc(orders.map(normalizeOrder));
   const ordersData = normalized.map(toOrdersDataRecord);
 
-  if (useCloudStorage()) {
+  if (hasCloudStorage()) {
     const { put } = await import("@vercel/blob");
     await Promise.all([
       put(BLOB_ORDERS_PATH, JSON.stringify(normalized, null, 2), {
@@ -244,7 +259,7 @@ async function readBlobByPathname(pathname: string): Promise<string | null> {
 export async function getOrdersJson(): Promise<any[]> {
   const snapshotOrders = await readOrderSnapshots();
 
-  if (useMongoStorage()) {
+  if (hasMongoStorage()) {
     try {
       const mongoOrders = await readMongoOrders();
       return mergeOrders(mongoOrders, snapshotOrders);
@@ -259,7 +274,7 @@ export async function getOrdersJson(): Promise<any[]> {
 export async function appendOrder(order: any): Promise<any> {
   const normalized = normalizeOrder(order);
 
-  if (useMongoStorage()) {
+  if (hasMongoStorage()) {
     await connectDB();
     await Order.findOneAndUpdate(
       { _id: normalized._id },
@@ -277,7 +292,7 @@ export async function appendOrder(order: any): Promise<any> {
     return normalized;
   }
 
-  if (!useCloudStorage() && isRedisStorageAvailable()) {
+  if (!hasCloudStorage() && isRedisStorageAvailable()) {
     await appendRedisOrder(normalized);
     return normalized;
   }
@@ -289,7 +304,7 @@ export async function appendOrder(order: any): Promise<any> {
 }
 
 export async function removeOrderById(orderId: string, userId?: string): Promise<boolean> {
-  if (useMongoStorage()) {
+  if (hasMongoStorage()) {
     await connectDB();
     const filter = userId ? { _id: orderId, userId } : { _id: orderId };
     const result = await Order.deleteOne(filter);
@@ -306,7 +321,7 @@ export async function removeOrderById(orderId: string, userId?: string): Promise
     return result.deletedCount > 0;
   }
 
-  if (!useCloudStorage() && isRedisStorageAvailable()) {
+  if (!hasCloudStorage() && isRedisStorageAvailable()) {
     const orders = await readOrderSnapshots();
     const existing = orders.find((order) => {
       const normalized = normalizeOrder(order);
@@ -339,6 +354,67 @@ export async function removeOrderById(orderId: string, userId?: string): Promise
   return true;
 }
 
+export async function updateOrderById(
+  orderId: string,
+  updates: Record<string, unknown>,
+  userId?: string
+): Promise<any | null> {
+  const now = new Date().toISOString();
+
+  if (hasMongoStorage()) {
+    await connectDB();
+    const filter = userId ? { _id: orderId, userId } : { _id: orderId };
+    const updated = await Order.findOneAndUpdate(
+      filter,
+      { ...updates, updatedAt: now },
+      { new: true }
+    ).lean();
+
+    if (!updated) return null;
+
+    try {
+      await syncOrderSnapshotsFromMongo();
+    } catch (error) {
+      console.warn(
+        "⚠️ Order updated in MongoDB but snapshot sync failed:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
+
+    return normalizeOrder(updated);
+  }
+
+  const orders = await readOrderSnapshots();
+  const index = orders.findIndex((order) => {
+    const normalized = normalizeOrder(order);
+    if (normalized._id !== orderId) return false;
+    if (userId && normalized.userId !== userId) return false;
+    return true;
+  });
+
+  if (index === -1) return null;
+
+  const current = normalizeOrder(orders[index]);
+  const updated = normalizeOrder({
+    ...current,
+    ...updates,
+    _id: current._id,
+    id: current.id,
+    userId: current.userId,
+    items: current.items,
+    products: current.products,
+    customer: current.customer,
+    total: current.total,
+    totalPrice: current.totalPrice,
+    createdAt: current.createdAt,
+    updatedAt: now,
+  });
+
+  orders[index] = updated;
+  await setOrdersJson(orders);
+  return updated;
+}
+
 /** Read ordersData array (detailed format for admin/analytics) */
 export async function getOrdersDataJson(): Promise<any[]> {
   const orders = await getOrdersJson();
@@ -349,7 +425,7 @@ export async function getOrdersDataJson(): Promise<any[]> {
 export async function setOrdersJson(orders: any[]): Promise<void> {
   const normalized = sortOrdersByDateDesc(orders.map(normalizeOrder));
 
-  if (useMongoStorage()) {
+  if (hasMongoStorage()) {
     await connectDB();
     if (normalized.length === 0) {
       await Order.deleteMany({});
@@ -389,7 +465,7 @@ export async function setOrdersJson(orders: any[]): Promise<void> {
 
 /** Write ordersData array */
 export async function setOrdersDataJson(ordersData: any[]): Promise<void> {
-  if (useMongoStorage()) {
+  if (hasMongoStorage()) {
     await writeOrderSnapshots(
       ordersData.map((record: any) => ({
         id: record.id,
@@ -399,7 +475,12 @@ export async function setOrdersDataJson(ordersData: any[]): Promise<void> {
         totalPrice: record.totalPrice ?? record.total,
         total: record.total ?? record.totalPrice,
         status: record.status,
+        paymentStatus: record.paymentStatus,
+        paymentProvider: record.paymentProvider,
+        stripeSessionId: record.stripeSessionId,
+        paidAt: record.paidAt,
         createdAt: record.createdAt,
+        updatedAt: record.updatedAt,
         customer: record.customer ?? record.user,
       }))
     );
@@ -413,7 +494,12 @@ export async function setOrdersDataJson(ordersData: any[]): Promise<void> {
     totalPrice: record.totalPrice ?? record.total,
     total: record.total ?? record.totalPrice,
     status: record.status,
+    paymentStatus: record.paymentStatus,
+    paymentProvider: record.paymentProvider,
+    stripeSessionId: record.stripeSessionId,
+    paidAt: record.paidAt,
     createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
     customer: record.customer ?? record.user,
   }));
   await writeOrderSnapshots(orders);

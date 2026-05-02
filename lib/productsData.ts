@@ -1,8 +1,5 @@
-import { applyCatalogPriceOffset } from "./catalogPrice";
 import { resolveProductColors } from "./productColors";
 import { withPublicAssetVersion } from "./publicAsset";
-
-const CATALOG_DISCOUNT = 40;
 
 export const rawProductsData = [
   // Jackets & Coats
@@ -373,8 +370,6 @@ const productsData = rawProductsData.map((product) => ({
   ...product,
   colors: resolveProductColors(product),
   images: product.images.map(withPublicAssetVersion),
-  price: applyCatalogPriceOffset(product.price),
-  discount: CATALOG_DISCOUNT,
 }));
 
 export default productsData;

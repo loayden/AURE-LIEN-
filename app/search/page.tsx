@@ -1,18 +1,53 @@
 "use client";
 
 import ProductCard from "@/components/ProductCard";
-import { searchCatalogProducts } from "@/lib/searchProducts";
+import type { Product } from "@/lib/types";
 import { motion } from "framer-motion";
 import { Search, Sparkles } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useMemo } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 function SearchContent() {
   const searchParams = useSearchParams();
   const q = searchParams.get("q") || "";
-  const products = useMemo(() => (q ? searchCatalogProducts(q) : []), [q]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
   const words = q.trim().split(/\s+/).filter(Boolean);
   const accent = words.length > 1 ? words.pop() : q ? "Results" : "Search";
+
+  useEffect(() => {
+    const query = q.trim();
+    if (!query) {
+      setProducts([]);
+      setLoading(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setLoading(true);
+
+    fetch(`/api/search?q=${encodeURIComponent(query)}`, {
+      cache: "no-store",
+      signal: controller.signal,
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Search failed");
+        return res.json();
+      })
+      .then((data) => {
+        if (!controller.signal.aborted) {
+          setProducts(Array.isArray(data.products) ? data.products : []);
+        }
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setProducts([]);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [q]);
 
   return (
     <main className="liquid-page px-4 pb-16 pt-16 sm:px-6 sm:pb-20 sm:pt-20 md:px-10">
@@ -35,7 +70,7 @@ function SearchContent() {
                 </>
               )}
             </h1>
-            {q ? <span className="count-pill">{products.length} Matches</span> : null}
+            {q ? <span className="count-pill">{loading ? "Searching" : `${products.length} Matches`}</span> : null}
           </div>
           <div className="page-header-divider mt-6" />
         </motion.div>
@@ -51,6 +86,15 @@ function SearchContent() {
             <p className="body-copy mt-3 max-w-md text-center">
               Enter a search term above or open the header search overlay to browse the collection with the same glass-driven layout.
             </p>
+          </div>
+        ) : loading ? (
+          <div className="glass-panel flex flex-col items-center px-6 py-16 text-center">
+            <div className="empty-icon-panel mb-6">
+              <Search strokeWidth={1} className="h-7 w-7 text-white/20" />
+            </div>
+            <h2 className="title-display text-[1.8rem]">
+              Searching <em className="gold-italic">Archive</em>
+            </h2>
           </div>
         ) : products.length === 0 ? (
           <div className="glass-panel flex flex-col items-center px-6 py-16 text-center">

@@ -17,7 +17,7 @@ export const SEARCH_CATEGORIES = [
   "belts",
 ];
 
-interface SearchOptions {
+export interface SearchOptions {
   category?: string;
   minPrice?: number | null;
   maxPrice?: number | null;
@@ -31,14 +31,14 @@ function matchesColor(product: Product, color?: string) {
   const normalizedColor = color.trim().toLowerCase();
   if (!normalizedColor) return true;
 
-  return product.colors?.some((entry) => entry.toLowerCase().includes(normalizedColor));
+  return product.colors?.some((entry) => String(entry).toLowerCase().includes(normalizedColor));
 }
 
-export function searchCatalogProducts(query: string, options: SearchOptions = {}) {
+export function filterCatalogProducts(products: Product[], query: string, options: SearchOptions = {}) {
   const normalizedQuery = query.trim().toLowerCase();
   const terms = normalizedQuery ? normalizedQuery.split(/\s+/).filter(Boolean) : [];
 
-  const results = productsData.filter((product) => {
+  const results = products.filter((product) => {
     const category = String(product.category ?? "").trim();
     const categoryFilter = options.category?.trim();
 
@@ -67,4 +67,8 @@ export function searchCatalogProducts(query: string, options: SearchOptions = {}
   }
 
   return results;
+}
+
+export function searchCatalogProducts(query: string, options: SearchOptions = {}) {
+  return filterCatalogProducts(productsData as Product[], query, options);
 }

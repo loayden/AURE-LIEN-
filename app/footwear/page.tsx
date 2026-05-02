@@ -195,7 +195,7 @@ export default function FootwearPage() {
           {/* Sneakers full-width on top, Loafers + Lace-Ups side by side */}
           <div className="flex flex-col gap-5">
             {/* Row 1 — Sneakers full width */}
-            {[ITEMS[0]].map((item, i) => (
+            {[ITEMS[0]].map((item) => (
               <motion.div
                 key={item.link}
                 initial={false}

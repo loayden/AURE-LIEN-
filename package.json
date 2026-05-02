@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "seed:admin": "npx ts-node -P tsconfig.scripts.json -r tsconfig-paths/register scripts/seed-admin.ts"
   },
   "dependencies": {
@@ -16,18 +16,17 @@
     "framer-motion": "^12.34.3",
     "jose": "^5.10.0",
     "jsonwebtoken": "^9.0.3",
-    "lucide-react": "^0.263.0",
+    "lucide-react": "^1.14.0",
     "mongoose": "^9.2.1",
-    "next": "^16.1.6",
+    "next": "^16.2.4",
     "nodemailer": "^8.0.1",
     "openai": "^6.27.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "react-icons": "^5.5.0",
     "react-intersection-observer": "^10.0.3",
     "recharts": "^2.15.4",
     "stripe": "^20.4.1",
-    "uuid": "^13.0.0",
     "zustand": "^4.5.2"
   },
   "devDependencies": {
@@ -36,15 +35,19 @@
     "@types/mongoose": "^5.11.96",
     "@types/node": "20.12.7",
     "@types/nodemailer": "^7.0.11",
-    "@types/react": "18.2.66",
-    "@types/react-dom": "18.2.22",
-    "@types/uuid": "^10.0.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "autoprefixer": "^10.4.19",
     "dotenv": "^17.3.1",
-    "postcss": "^8.4.38",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.4",
+    "postcss": "8.5.13",
     "tailwindcss": "^3.4.3",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "postcss": "8.5.13"
   }
 }

@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import LegalDocumentPage from "@/components/LegalDocumentPage";
+
+export const metadata: Metadata = {
+  title: "Cookies | BOUT",
+  description: "How BOUT uses cookies and similar storage for sessions, carts, preferences, and reliability.",
+};
 
 export default function CookiesPage() {
   return (

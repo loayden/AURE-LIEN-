@@ -7,8 +7,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendEmailAsync } from "@/lib/email/sender";
 import { getWelcomeEmailHtml } from "@/lib/email/templates/welcome";
+import { requireAdminRequest } from "@/lib/adminAuth";
 
 export async function POST(req: NextRequest) {
+  const unauthorized = await requireAdminRequest(req);
+  if (unauthorized) return unauthorized;
+
   try {
     const body = await req.json();
     const { email, name } = body;

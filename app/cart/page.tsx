@@ -72,6 +72,7 @@ export default function CartPage() {
             )
         )
       );
+      window.dispatchEvent(new Event("cart:changed"));
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Unable to remove this item");
     }
@@ -100,6 +101,7 @@ export default function CartPage() {
             : i
         )
       );
+      window.dispatchEvent(new Event("cart:changed"));
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Unable to update quantity");
     }
@@ -276,7 +278,7 @@ export default function CartPage() {
                           <div className="inline-flex items-center gap-2 rounded-full border border-white/10 px-2 py-1 text-[10px] tracking-[0.18em] uppercase">
                             <button
                               type="button"
-                              className="flex h-6 w-6 items-center justify-center rounded-full bg-white/5 transition-transform active:scale-95"
+                              className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-white/5 transition-transform active:scale-95"
                               onClick={() => updateQuantity(item.productId, item.size ?? null, item.color ?? null, (item.quantity ?? 1) - 1)}
                             >
                               -
@@ -286,7 +288,7 @@ export default function CartPage() {
                             </span>
                             <button
                               type="button"
-                              className="flex h-6 w-6 items-center justify-center rounded-full bg-white/5 transition-transform active:scale-95"
+                              className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full bg-white/5 transition-transform active:scale-95"
                               onClick={() => updateQuantity(item.productId, item.size ?? null, item.color ?? null, (item.quantity ?? 1) + 1)}
                             >
                               +

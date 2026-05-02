@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { requireAdminRequest } from "@/lib/adminAuth";
 
 export const runtime = "nodejs";
 
@@ -33,7 +34,10 @@ async function saveLocally(file: File, filename: string) {
   return `/uploads/${filename}`;
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const unauthorized = await requireAdminRequest(request);
+  if (unauthorized) return unauthorized;
+
   try {
     const formData = await request.formData();
     const file = formData.get("file");

@@ -2,12 +2,11 @@
 
 import { useOverlayIsolation } from "@/components/useOverlayIsolation";
 import { usePerformanceProfile } from "@/hooks/usePerformanceProfile";
-import { searchCatalogProducts } from "@/lib/searchProducts";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Search, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
 interface SearchProduct {
@@ -26,16 +25,14 @@ export default function SearchOverlay({
   onClose: () => void;
 }) {
   const [q, setQ] = useState("");
+  const [results, setResults] = useState<SearchProduct[]>([]);
+  const [searching, setSearching] = useState(false);
   const [portalReady, setPortalReady] = useState(false);
   const { lowEndDevice, prefersReducedMotion } = usePerformanceProfile();
   const deferredQuery = useDeferredValue(q);
   const trimmedQuery = deferredQuery.trim();
   const shouldReduceDecorativeEffects = lowEndDevice || prefersReducedMotion;
-  const loading = q.trim() !== trimmedQuery;
-  const results = useMemo<SearchProduct[]>(
-    () => (trimmedQuery ? searchCatalogProducts(trimmedQuery, { limit: 12 }) : []),
-    [trimmedQuery]
-  );
+  const loading = q.trim() !== trimmedQuery || searching;
 
   useOverlayIsolation(open);
 
@@ -44,6 +41,39 @@ export default function SearchOverlay({
   }, []);
 
   useEffect(() => { if (!open) setQ(""); }, [open]);
+
+  useEffect(() => {
+    if (!trimmedQuery) {
+      setResults([]);
+      setSearching(false);
+      return;
+    }
+
+    const controller = new AbortController();
+    setSearching(true);
+
+    fetch(`/api/search?q=${encodeURIComponent(trimmedQuery)}&limit=12`, {
+      cache: "no-store",
+      signal: controller.signal,
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Search failed");
+        return res.json();
+      })
+      .then((data) => {
+        if (!controller.signal.aborted) {
+          setResults(Array.isArray(data.products) ? data.products : []);
+        }
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setResults([]);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setSearching(false);
+      });
+
+    return () => controller.abort();
+  }, [trimmedQuery]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -324,7 +354,7 @@ export default function SearchOverlay({
             transition={{ delay: 0.15, duration: 0.4 }}
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.9 }}
-            className="absolute top-6 right-6 flex items-center justify-center w-9 h-9 rounded-full transition-all duration-300"
+            className="absolute right-6 top-6 flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition-all duration-300"
             style={{
               background: "linear-gradient(135deg, rgba(255,248,236,0.09), rgba(255,248,236,0.03))",
               border: "1px solid rgba(255,248,236,0.10)",

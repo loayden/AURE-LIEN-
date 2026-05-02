@@ -3,6 +3,7 @@ import { getOrCreateUserId } from "@/lib/userSession";
 import { getAuthFromRequest } from "@/lib/auth";
 import { attachUserCookie } from "@/lib/userSession";
 import { appendOrder, getOrdersJson } from "@/lib/orderStorage";
+import { getAllProducts } from "@/lib/getAllProducts";
 
 type OrderItem = {
   productId: string;
@@ -13,6 +14,9 @@ type OrderItem = {
   color?: string;
   image?: string;
 };
+
+const SHIPPING_COST_WITHIN_EGYPT = 75;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type CustomerInfo = {
   email: string;
@@ -49,12 +53,19 @@ type Order = {
   customer: CustomerInfo;
   createdAt: string;
   status: string;
+  paymentStatus: string;
+  paymentProvider: string;
+  paidAt: string | null;
 };
 
 async function resolveUserId(req: NextRequest): Promise<{ userId: string; isNew: boolean }> {
   const auth = await getAuthFromRequest(req);
   if (auth?.userId) return { userId: auth.userId, isNew: false };
   return getOrCreateUserId(req);
+}
+
+function getServerShippingCost(shippingMethod: string): number {
+  return shippingMethod === "within_egypt" ? SHIPPING_COST_WITHIN_EGYPT : 0;
 }
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
@@ -73,11 +84,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     const { items = [], total = 0, customerInfo = {} } = body;
+    const rawCustomer =
+      typeof customerInfo === "object" && customerInfo !== null ? customerInfo : {};
 
     console.log("📥 Received order data:", {
-      itemsCount: items.length,
+      itemsCount: Array.isArray(items) ? items.length : 0,
       total,
-      customerEmail: customerInfo.email,
+      customerEmail: rawCustomer.email,
     });
 
     // ✅ VALIDATION: Check items array
@@ -97,94 +110,109 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // ✅ VALIDATION: Check customer info
-    const hasCustomerName =
-      Boolean(customerInfo.name) ||
-      Boolean(customerInfo.firstName) ||
-      Boolean(customerInfo.lastName);
+    const normalizedCustomer: CustomerInfo = {
+      email: String(rawCustomer.email ?? "").trim(),
+      firstName: String(rawCustomer.firstName ?? "").trim(),
+      lastName: String(rawCustomer.lastName ?? "").trim(),
+      name:
+        String(rawCustomer.name ?? "").trim() ||
+        [rawCustomer.firstName, rawCustomer.lastName].filter(Boolean).join(" ").trim(),
+      address: String(rawCustomer.address ?? "").trim(),
+      apartment: String(rawCustomer.apartment ?? "").trim(),
+      city: String(rawCustomer.city ?? "").trim(),
+      postalCode: String(rawCustomer.postalCode ?? rawCustomer.zipCode ?? "").trim(),
+      country: String(rawCustomer.country ?? "").trim(),
+      phone: String(rawCustomer.phone ?? "").trim(),
+      newsletter: Boolean(rawCustomer.newsletter),
+      shippingMethod: String(rawCustomer.shippingMethod ?? "").trim(),
+      shippingCost: 0,
+    };
 
-    if (!customerInfo.email || !hasCustomerName || !customerInfo.address) {
-      console.error("❌ Missing required customer information:", {
-        hasEmail: !!customerInfo.email,
-        hasName: hasCustomerName,
-        hasAddress: !!customerInfo.address,
-      });
+    normalizedCustomer.shippingCost = getServerShippingCost(normalizedCustomer.shippingMethod ?? "");
+
+    const hasCustomerName =
+      Boolean(normalizedCustomer.name) ||
+      Boolean(normalizedCustomer.firstName) ||
+      Boolean(normalizedCustomer.lastName);
+
+    if (!normalizedCustomer.email || !hasCustomerName || !normalizedCustomer.address) {
       return NextResponse.json(
         { error: "Missing required customer information" },
         { status: 400 }
       );
     }
 
-    // ✅ VALIDATION: Validate each item
+    if (!EMAIL_PATTERN.test(normalizedCustomer.email)) {
+      return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
+    }
+
+    if (!normalizedCustomer.phone || normalizedCustomer.phone.replace(/\D/g, "").length < 8) {
+      return NextResponse.json({ error: "Invalid phone number" }, { status: 400 });
+    }
+
+    const catalog = await getAllProducts();
+    const catalogById = new Map(catalog.map((product) => [String(product._id), product]));
+    const serverItems: OrderItem[] = [];
+
     for (const item of items) {
-      if (!item.productId || !item.name || !item.price || !item.quantity) {
-        console.error("❌ Invalid item structure:", item);
+      const productId = String(item?.productId ?? item?._id ?? "").trim();
+      const quantity = Number(item?.quantity);
+
+      if (!productId || !Number.isInteger(quantity) || quantity < 1) {
         return NextResponse.json(
-          { error: "Each item must have productId, name, price, and quantity" },
+          { error: "Each item must reference a product and use a positive integer quantity" },
           { status: 400 }
         );
       }
 
-      if (item.quantity < 1) {
-        console.error("❌ Invalid quantity:", item.quantity);
+      const product = catalogById.get(productId);
+      if (!product) {
         return NextResponse.json(
-          { error: "Item quantity must be at least 1" },
+          { error: `Unknown product: ${productId}` },
           { status: 400 }
         );
       }
 
-      if (item.price < 0) {
-        console.error("❌ Invalid price:", item.price);
+      const unitPrice = Number(product.price ?? 0);
+      if (!Number.isFinite(unitPrice) || unitPrice <= 0) {
         return NextResponse.json(
-          { error: "Item price cannot be negative" },
+          { error: `Product is not available for checkout: ${productId}` },
           { status: 400 }
         );
       }
+
+      const availableStock = typeof product.stock === "number" ? product.stock : null;
+      if (availableStock === 0 || (availableStock !== null && quantity > availableStock)) {
+        return NextResponse.json(
+          { error: `Requested quantity exceeds available stock: ${product.name}` },
+          { status: 409 }
+        );
+      }
+
+      serverItems.push({
+        productId,
+        name: product.name,
+        price: unitPrice,
+        quantity,
+        size: String(item?.size ?? "One Size").trim() || "One Size",
+        color: String(item?.color ?? "Default").trim() || "Default",
+        image: product.images?.[0] ?? "/images/placeholder.svg",
+      });
     }
 
-    // ✅ VALIDATION: Validate total
-    if (typeof total !== "number" || total < 0) {
-      console.error("❌ Invalid total:", total);
-      return NextResponse.json(
-        { error: "Total must be a positive number" },
-        { status: 400 }
-      );
-    }
-
-    const normalizedCustomer: CustomerInfo = {
-      email: String(customerInfo.email ?? "").trim(),
-      firstName: String(customerInfo.firstName ?? "").trim(),
-      lastName: String(customerInfo.lastName ?? "").trim(),
-      name:
-        String(customerInfo.name ?? "").trim() ||
-        [customerInfo.firstName, customerInfo.lastName].filter(Boolean).join(" ").trim(),
-      address: String(customerInfo.address ?? "").trim(),
-      apartment: String(customerInfo.apartment ?? "").trim(),
-      city: String(customerInfo.city ?? "").trim(),
-      postalCode: String(customerInfo.postalCode ?? customerInfo.zipCode ?? "").trim(),
-      country: String(customerInfo.country ?? "").trim(),
-      phone: String(customerInfo.phone ?? "").trim(),
-      newsletter: Boolean(customerInfo.newsletter),
-      shippingMethod: String(customerInfo.shippingMethod ?? "").trim(),
-      shippingCost: Number(customerInfo.shippingCost ?? 0),
-    };
-
-    // ✅ CALCULATE TOTAL SERVER-SIDE (don't trust frontend)
-    const itemsTotal = items.reduce((sum: number, item: OrderItem) => {
-      return sum + item.price * item.quantity;
-    }, 0);
+    const itemsTotal = serverItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const calculatedTotal = itemsTotal + normalizedCustomer.shippingCost;
 
-    console.log(`✅ Total validation: frontend=${total.toFixed(2)}, server=${calculatedTotal.toFixed(2)}`);
-
-    // Allow small rounding differences (cents)
-    if (Math.abs(calculatedTotal - total) > 0.01) {
-      console.warn(`⚠️ Total mismatch - using server-calculated total`);
+    if (typeof total === "number" && Math.abs(calculatedTotal - total) > 0.01) {
+      console.warn("Order total mismatch; using server catalog total", {
+        clientTotal: total,
+        serverTotal: calculatedTotal,
+      });
     }
 
     // ✅ Step 1: Create new order payload
     const orderId = `order-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
-    const products = items.map((item: OrderItem) => ({
+    const products = serverItems.map((item) => ({
       _id: item.productId,
       name: item.name,
       price: item.price,
@@ -212,10 +240,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       totalPrice: calculatedTotal,
       customer: normalizedCustomer,
       createdAt: new Date().toISOString(),
-      status: "completed",
+      status: "pending",
+      paymentStatus: "pending",
+      paymentProvider: "manual",
+      paidAt: null,
     };
 
-    console.log(`✅ Created new order ${newOrder._id} with ${items.length} items`);
+    console.log(`✅ Created new order ${newOrder._id} with ${serverItems.length} items`);
 
     // ✅ Step 2: Persist the order in the shared store
     try {
@@ -234,9 +265,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       {
         success: true,
         orderId: newOrder._id,
-        message: "Order placed successfully",
+        message: "Order received and pending confirmation",
         total: calculatedTotal,
-        itemsCount: items.length,
+        itemsCount: serverItems.length,
       },
       { status: 201 }
     );

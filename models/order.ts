@@ -55,7 +55,12 @@ const orderSchema = new Schema(
     totalPrice: { type: Number, required: true, default: 0 },
     total: { type: Number, required: true, default: 0 },
     status: { type: String, default: "pending" },
+    paymentStatus: { type: String, default: "pending" },
+    paymentProvider: { type: String, default: "manual" },
+    stripeSessionId: { type: String, default: "" },
+    paidAt: { type: Date, default: null },
     createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
     customer: { type: customerSchema, default: {} },
   },
   {

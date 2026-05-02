@@ -14,5 +14,6 @@ export const paths = {
   checkoutDrafts: path.join(DATA_DIR, "checkoutDrafts.json"),
   users: path.join(DATA_DIR, "users.json"),
   wishlist: path.join(DATA_DIR, "wishlist.json"),
+  newsletter: path.join(DATA_DIR, "newsletter.json"),
   products: path.join(DATA_DIR, "products.json"),
 } as const;

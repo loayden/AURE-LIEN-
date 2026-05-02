@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import LegalDocumentPage from "@/components/LegalDocumentPage";
+
+export const metadata: Metadata = {
+  title: "Privacy | BOUT",
+  description: "How BOUT uses customer information for orders, service, and store reliability.",
+};
 
 export default function PrivacyPage() {
   return (

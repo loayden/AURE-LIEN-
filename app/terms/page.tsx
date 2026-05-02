@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import LegalDocumentPage from "@/components/LegalDocumentPage";
+
+export const metadata: Metadata = {
+  title: "Terms | BOUT",
+  description: "BOUT storefront terms covering purchases, account use, availability, and order responsibilities.",
+};
 
 export default function TermsPage() {
   return (

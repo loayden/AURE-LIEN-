@@ -413,13 +413,14 @@ function ProductCardComponent({
     });
   }, [product.colors]);
 
-  const isLowStock = (product.stock ?? 10) < 5;
-  const outOfStock = (product.stock ?? 1) === 0;
+  const stock = typeof product.stock === "number" ? product.stock : null;
+  const isLowStock = stock !== null && stock > 0 && stock < 5;
+  const outOfStock = stock === 0;
   const originalPrice = getOriginalPrice(product.price ?? 0, product.discount);
-  const selectedColorOption = normalizedColors.find((color) => color.hex === selectedColor) ?? null;
+  const selectedColorOption = normalizedColors.find((color) => color.name === selectedColor) ?? null;
   const displayColorOption = selectedColorOption ?? normalizedColors[0] ?? null;
   const resolvedSize = selectedSize ?? (sizes.length === 1 ? sizes[0] : null);
-  const resolvedColor = selectedColor ?? (normalizedColors.length === 1 ? normalizedColors[0].hex : null);
+  const resolvedColor = selectedColor ?? (normalizedColors.length === 1 ? normalizedColors[0].name : null);
   const categoryLabel = formatCategoryLabel(product.category ?? "");
   const sizeSummary = resolvedSize ?? formatSizeSummary(sizes);
   const colorSummary = selectedColorOption?.name ?? (displayColorOption ? displayColorOption.name : "Mono");
@@ -704,9 +705,9 @@ function ProductCardComponent({
     setShowSizeSelector(false);
   }, []);
 
-  const selectColor = useCallback((e: ReactMouseEvent<HTMLButtonElement>, colorHex: string) => {
+  const selectColor = useCallback((e: ReactMouseEvent<HTMLButtonElement>, colorName: string) => {
     e.stopPropagation();
-    setSelectedColor(colorHex);
+    setSelectedColor(colorName);
     setShowColorSelector(false);
   }, []);
 
@@ -750,6 +751,7 @@ function ProductCardComponent({
       });
       if (!res.ok) throw new Error();
       if (!mountedRef.current) return;
+      window.dispatchEvent(new Event("cart:changed"));
       setAdded(true);
       registerTimeout(() => setAdded(false), 2200);
     } catch {
@@ -1126,11 +1128,11 @@ function ProductCardComponent({
                         <button
                           type="button"
                           key={color.hex}
-                          onClick={(e) => selectColor(e, color.hex)}
+                          onClick={(e) => selectColor(e, color.name)}
                           className="flex h-10 min-w-[44px] items-center justify-center rounded-xl border-2 px-3 transition-all"
                           style={{
                             background: color.hex,
-                            borderColor: selectedColor === color.hex ? "#C9A86A" : "transparent",
+                            borderColor: selectedColor === color.name ? "#C9A86A" : "transparent",
                             opacity: 0.9,
                           }}
                           title={color.name}

@@ -25,7 +25,7 @@ export interface UserRecord {
 
 const BLOB_USERS_PATH = "users.json";
 
-function useMongoStorage(): boolean {
+function hasMongoStorage(): boolean {
   const uri = process.env.MONGO_URI?.trim() || process.env.MONGODB_URI?.trim();
   return Boolean(
     uri &&
@@ -33,7 +33,7 @@ function useMongoStorage(): boolean {
   );
 }
 
-function useCloudStorage(): boolean {
+function hasCloudStorage(): boolean {
   return typeof process.env.BLOB_READ_WRITE_TOKEN === "string" && process.env.BLOB_READ_WRITE_TOKEN.length > 0;
 }
 
@@ -125,7 +125,7 @@ async function readMongoUsers(): Promise<UserRecord[]> {
 }
 
 async function readUserSnapshots(): Promise<UserRecord[]> {
-  if (useCloudStorage()) {
+  if (hasCloudStorage()) {
     const blobUsers = await readBlobUsers();
     if (blobUsers.length > 0) {
       return blobUsers;
@@ -143,7 +143,7 @@ async function readUserSnapshots(): Promise<UserRecord[]> {
 }
 
 async function writeUserSnapshots(users: UserRecord[]) {
-  if (useCloudStorage()) {
+  if (hasCloudStorage()) {
     await writeBlobUsers(users);
     return;
   }
@@ -159,7 +159,7 @@ async function writeUserSnapshots(users: UserRecord[]) {
 export async function getUsersJson(): Promise<UserRecord[]> {
   const snapshotUsers = await readUserSnapshots();
 
-  if (!useMongoStorage()) {
+  if (!hasMongoStorage()) {
     return snapshotUsers;
   }
 
@@ -197,7 +197,7 @@ export async function createUser(data: Omit<UserRecord, "id" | "createdAt">): Pr
     createdAt: new Date().toISOString(),
   });
 
-  if (useMongoStorage()) {
+  if (hasMongoStorage()) {
     try {
       await connectDB();
       await User.findOneAndUpdate(
@@ -228,7 +228,7 @@ export async function createUser(data: Omit<UserRecord, "id" | "createdAt">): Pr
 }
 
 export async function updateUserRole(id: string, role: "customer" | "admin"): Promise<void> {
-  if (useMongoStorage()) {
+  if (hasMongoStorage()) {
     try {
       await connectDB();
       await User.findOneAndUpdate(

@@ -17,6 +17,10 @@ type CartItem = {
   color?: string | null;
 };
 
+function isPositiveInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value > 0;
+}
+
 // GET: fetch cart items
 export async function GET(req: NextRequest) {
   try {
@@ -67,13 +71,18 @@ export async function POST(req: NextRequest) {
       color?: string | null;
     };
 
-    if (!productId || typeof productId !== "string" || typeof quantity !== "number") {
+    if (!productId || typeof productId !== "string" || !isPositiveInteger(quantity)) {
       return NextResponse.json({ error: "Invalid cart data" }, { status: 400 });
     }
 
     const product = await getProductById(productId);
     if (!product) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+
+    const availableStock = typeof product.stock === "number" ? product.stock : null;
+    if (availableStock === 0) {
+      return NextResponse.json({ error: "Product is out of stock" }, { status: 409 });
     }
 
     const index = cart.findIndex(
@@ -84,6 +93,11 @@ export async function POST(req: NextRequest) {
     );
 
     if (index !== -1) {
+      const requestedQuantity = cart[index].quantity + quantity;
+      if (availableStock !== null && requestedQuantity > availableStock) {
+        return NextResponse.json({ error: "Requested quantity exceeds available stock" }, { status: 409 });
+      }
+
       cart[index].quantity += quantity;
       await setCartByUser(userId, cart as CartItemRecord[]);
       const res = NextResponse.json({
@@ -97,6 +111,10 @@ export async function POST(req: NextRequest) {
       }, { status: 200 });
       if (isNew) attachUserCookie(res, userId);
       return res;
+    }
+
+    if (availableStock !== null && quantity > availableStock) {
+      return NextResponse.json({ error: "Requested quantity exceeds available stock" }, { status: 409 });
     }
 
     const newItem: CartItem = {
@@ -138,8 +156,18 @@ export async function PUT(req: NextRequest) {
       color?: string | null;
     };
 
-    if (!productId || typeof productId !== "string" || typeof quantity !== "number") {
+    if (!productId || typeof productId !== "string" || !isPositiveInteger(quantity)) {
       return NextResponse.json({ error: "Invalid cart data" }, { status: 400 });
+    }
+
+    const product = await getProductById(productId);
+    if (!product) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+
+    const availableStock = typeof product.stock === "number" ? product.stock : null;
+    if (availableStock !== null && quantity > availableStock) {
+      return NextResponse.json({ error: "Requested quantity exceeds available stock" }, { status: 409 });
     }
 
     const index = cart.findIndex(
@@ -165,7 +193,7 @@ export async function PUT(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const { userId, isNew } = getOrCreateUserId(req);
-    let cart = await getCartByUser(userId);
+    const cart = await getCartByUser(userId);
     const body = await req.json().catch(() => ({}));
     const { productId, size, color } = (body ?? {}) as {
       productId?: string;

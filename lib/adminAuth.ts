@@ -1,3 +1,6 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getAuthFromRequest } from "@/lib/auth";
+
 export const ENV_ADMIN_USER_ID = "env-admin";
 
 export type EnvAdminUser = {
@@ -53,4 +56,13 @@ export function isEnvAdminIdentity(userId: string, email?: string): boolean {
     userId === ENV_ADMIN_USER_ID ||
     email?.trim().toLowerCase() === config.email
   );
+}
+
+export async function requireAdminRequest(req: NextRequest): Promise<NextResponse | null> {
+  const auth = await getAuthFromRequest(req);
+  if (!auth || auth.role !== "admin") {
+    return NextResponse.json({ message: "Not authorized" }, { status: 403 });
+  }
+
+  return null;
 }

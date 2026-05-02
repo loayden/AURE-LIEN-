@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { AlertTriangle, ArrowRight, RotateCcw } from "lucide-react";
+import Link from "next/link";
 
 export default function GlobalError({
   error,
@@ -189,7 +190,7 @@ export default function GlobalError({
                 )}
 
                 {/* Go home */}
-                <a
+                <Link
                   href="/"
                   style={{
                     display:"inline-flex", alignItems:"center", gap:10,
@@ -214,7 +215,7 @@ export default function GlobalError({
                 >
                   Return Home
                   <ArrowRight strokeWidth={1.3} style={{ width:13, height:13 }} />
-                </a>
+                </Link>
               </div>
 
             </motion.div>

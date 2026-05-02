@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { searchCatalogProducts, SEARCH_CATEGORIES } from "@/lib/searchProducts";
+import { getAllProducts } from "@/lib/getAllProducts";
+import { filterCatalogProducts, SEARCH_CATEGORIES } from "@/lib/searchProducts";
 
 export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams.get("q") || "";
@@ -7,6 +8,7 @@ export async function GET(req: NextRequest) {
   const minPrice = req.nextUrl.searchParams.get("minPrice");
   const maxPrice = req.nextUrl.searchParams.get("maxPrice");
   const color = req.nextUrl.searchParams.get("color") || "";
+  const limit = req.nextUrl.searchParams.get("limit");
   const normalizedMinPrice =
     minPrice != null && minPrice !== "" && !Number.isNaN(Number(minPrice))
       ? Number(minPrice)
@@ -15,11 +17,17 @@ export async function GET(req: NextRequest) {
     maxPrice != null && maxPrice !== "" && !Number.isNaN(Number(maxPrice))
       ? Number(maxPrice)
       : null;
-  const results = searchCatalogProducts(q, {
+  const normalizedLimit =
+    limit != null && limit !== "" && !Number.isNaN(Number(limit))
+      ? Number(limit)
+      : undefined;
+  const products = await getAllProducts();
+  const results = filterCatalogProducts(products, q, {
     category,
     minPrice: normalizedMinPrice,
     maxPrice: normalizedMaxPrice,
     color,
+    limit: normalizedLimit,
   });
 
   return NextResponse.json({

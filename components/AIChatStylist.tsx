@@ -3,6 +3,7 @@
 import { useOverlayIsolation } from "@/components/useOverlayIsolation";
 import { useTimeoutRegistry } from "@/hooks/useTimeoutRegistry";
 import { motion, AnimatePresence } from "framer-motion";
+import { MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -114,9 +115,7 @@ export default function AIChatStylist() {
             color: "#C9A86A",
           }}
         >
-          <svg className="h-5 w-5 sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 2 13.574 2 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-          </svg>
+          <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={1.6} />
         </motion.button>
       )}
 

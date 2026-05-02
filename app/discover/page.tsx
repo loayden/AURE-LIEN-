@@ -1,7 +1,18 @@
+import type { Metadata } from "next";
 import { withPublicAssetVersion } from "@/lib/publicAsset";
-import { ArrowRight, Check, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Discover | BOUT",
+  description: "Explore BOUT's service promises, sourcing notes, and shopping experience.",
+  openGraph: {
+    title: "Discover | BOUT",
+    description: "Service and product details from BOUT.",
+    type: "website",
+  },
+};
 
 const BENEFITS = [
   {

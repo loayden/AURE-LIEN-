@@ -120,8 +120,8 @@ const TRUST_POINTS = [
     icon: ShieldCheck,
   },
   {
-    title: "Card-ready payments",
-    description: "Built to support fast digital payment with a clearer path from product to order.",
+    title: "Order review",
+    description: "Orders stay pending until payment or fulfillment is confirmed by the store.",
     icon: CreditCard,
   },
   {
@@ -403,7 +403,7 @@ export default function HomePage() {
         <div className="page-wrap flex flex-wrap items-center justify-between gap-3 py-3">
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {[
-              "Secure checkout",
+              "Protected checkout",
               "Refined menswear",
               "Faster category discovery",
             ].map((item) => (

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { clearCartByUser } from "@/lib/cartStorage";
+import { updateOrderById } from "@/lib/orderStorage";
 
 function getStripe(): Stripe | null {
   const key = process.env.STRIPE_SECRET_KEY;
@@ -20,8 +22,31 @@ export async function POST(req: NextRequest) {
     const event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
-      // Optional: create order in DB, send confirmation email, etc.
-      console.log("Checkout completed:", session.id);
+      const orderId = session.metadata?.orderId;
+      const userId = session.metadata?.userId;
+
+      if (!orderId) {
+        console.warn("Stripe checkout completed without order metadata:", session.id);
+        return NextResponse.json({ received: true });
+      }
+
+      const paidAt = new Date().toISOString();
+      const updated = await updateOrderById(orderId, {
+        status: "completed",
+        paymentStatus: "paid",
+        paymentProvider: "stripe",
+        stripeSessionId: session.id,
+        paidAt,
+      }, userId || undefined);
+
+      if (!updated) {
+        console.error("Stripe webhook could not find order:", orderId);
+        return NextResponse.json({ error: "Order not found" }, { status: 404 });
+      }
+
+      if (userId) {
+        await clearCartByUser(userId);
+      }
     }
     return NextResponse.json({ received: true });
   } catch (e) {
