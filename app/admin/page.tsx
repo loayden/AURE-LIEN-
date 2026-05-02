@@ -14,7 +14,7 @@ import {
   LineChart,
   Line,
 } from "recharts";
-import { Package } from "lucide-react";
+import { AlertTriangle, Clock3, Package, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface Stats {
@@ -35,8 +35,19 @@ interface Stats {
   }[];
 }
 
+interface OperationalStats {
+  pendingOrders: number;
+  lowStock: { _id: string; name: string; stock?: number }[];
+  recentOrders: { _id: string; status: string; totalPrice?: number; total?: number; createdAt?: string }[];
+}
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
+  const [operations, setOperations] = useState<OperationalStats>({
+    pendingOrders: 0,
+    lowStock: [],
+    recentOrders: [],
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -57,6 +68,35 @@ export default function AdminDashboard() {
 
         if (!cancelled) {
           setStats(data);
+        }
+
+        const [ordersRes, productsRes] = await Promise.allSettled([
+          fetch("/api/admin/orders", { cache: "no-store" }),
+          fetch("/api/admin/products", { cache: "no-store" }),
+        ]);
+
+        if (!cancelled) {
+          const ordersData =
+            ordersRes.status === "fulfilled" && ordersRes.value.ok
+              ? await ordersRes.value.json()
+              : { orders: [] };
+          const productsData =
+            productsRes.status === "fulfilled" && productsRes.value.ok
+              ? await productsRes.value.json()
+              : { products: [] };
+          const orders = Array.isArray(ordersData?.orders) ? ordersData.orders : [];
+          const products = Array.isArray(productsData?.products) ? productsData.products : [];
+
+          setOperations({
+            pendingOrders: orders.filter((order: any) => String(order.status || "").toLowerCase() === "pending" || String(order.paymentStatus || "").toLowerCase() === "pending").length,
+            lowStock: products
+              .filter((product: any) => typeof product.stock === "number" && product.stock >= 0 && product.stock < 5)
+              .slice(0, 5),
+            recentOrders: orders
+              .slice()
+              .sort((a: any, b: any) => Date.parse(b.createdAt || "") - Date.parse(a.createdAt || ""))
+              .slice(0, 5),
+          });
         }
       } catch (err) {
         if (!cancelled) {
@@ -131,6 +171,73 @@ export default function AdminDashboard() {
           <p className="eyebrow mb-3">Total Customers</p>
           <p className="font-light text-[#C9A86A]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}>{s.totalCustomers}</p>
         </div>
+      </div>
+
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:mb-8 lg:grid-cols-3">
+        <AdminPanel className="p-5">
+          <div className="mb-4 flex items-center gap-3">
+            <span className="empty-icon-panel h-11 w-11 rounded-2xl">
+              <Clock3 className="h-5 w-5 text-[#C9A86A]" strokeWidth={1.3} />
+            </span>
+            <div>
+              <p className="eyebrow mb-1">Pending Payments</p>
+              <p className="font-light text-[#C9A86A]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.8rem" }}>
+                {operations.pendingOrders}
+              </p>
+            </div>
+          </div>
+          <p className="body-copy">Orders still waiting for payment or admin confirmation.</p>
+        </AdminPanel>
+
+        <AdminPanel className="p-5">
+          <div className="mb-4 flex items-center gap-3">
+            <span className="empty-icon-panel h-11 w-11 rounded-2xl">
+              <AlertTriangle className="h-5 w-5 text-[#C9A86A]" strokeWidth={1.3} />
+            </span>
+            <div>
+              <p className="eyebrow mb-1">Low Stock</p>
+              <p className="font-light text-[#C9A86A]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.8rem" }}>
+                {operations.lowStock.length}
+              </p>
+            </div>
+          </div>
+          {operations.lowStock.length > 0 ? (
+            <div className="space-y-2">
+              {operations.lowStock.slice(0, 3).map((product) => (
+                <p key={product._id} className="truncate text-xs text-white/45">
+                  {product.name} · {product.stock ?? 0} left
+                </p>
+              ))}
+            </div>
+          ) : (
+            <p className="body-copy">No low-stock products are currently reported.</p>
+          )}
+        </AdminPanel>
+
+        <AdminPanel className="p-5">
+          <div className="mb-4 flex items-center gap-3">
+            <span className="empty-icon-panel h-11 w-11 rounded-2xl">
+              <ShoppingBag className="h-5 w-5 text-[#C9A86A]" strokeWidth={1.3} />
+            </span>
+            <div>
+              <p className="eyebrow mb-1">Recent Orders</p>
+              <p className="font-light text-[#C9A86A]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.8rem" }}>
+                {operations.recentOrders.length}
+              </p>
+            </div>
+          </div>
+          {operations.recentOrders.length > 0 ? (
+            <div className="space-y-2">
+              {operations.recentOrders.slice(0, 3).map((order) => (
+                <p key={order._id} className="truncate text-xs text-white/45">
+                  #{order._id.slice(0, 8)} · {order.status} · EGP {Number(order.totalPrice ?? order.total ?? 0).toLocaleString()}
+                </p>
+              ))}
+            </div>
+          ) : (
+            <p className="body-copy">Recent order movement will appear here.</p>
+          )}
+        </AdminPanel>
       </div>
 
       {s.revenueByMonth.length > 0 && (

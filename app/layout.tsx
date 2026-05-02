@@ -3,7 +3,9 @@ import ClientErrorBoundary from '@/components/ClientErrorBoundary'
 import Cursor from '@/components/Cursor'
 import DeferredAIChatStylist from '@/components/DeferredAIChatStylist'
 import Footer from '@/components/Footer'
+import MobileBottomNav from '@/components/MobileBottomNav'
 import Navbar from '@/components/Navbar'
+import ToastProvider from '@/components/ToastProvider'
 import { Cormorant_Garamond, Jost } from 'next/font/google'
 import './globals.css'
 
@@ -51,6 +53,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <DeferredAIChatStylist />
           </ClientErrorBoundary>
           <Footer />
+          <ClientErrorBoundary fallback={null}>
+            <MobileBottomNav />
+            <ToastProvider />
+          </ClientErrorBoundary>
         </div>
       </body>
     </html>

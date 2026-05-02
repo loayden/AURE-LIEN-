@@ -1,6 +1,7 @@
 "use client";
 
 import { useOverlayIsolation } from "@/components/useOverlayIsolation";
+import MiniCartDrawer from "@/components/MiniCartDrawer";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
@@ -177,21 +178,46 @@ function CartBadge({ count }: { count: number }) {
 }
 
 /* ── Utility icon button ── */
-function UtilityBtn({ item, cartCount }: { item: MenuItem; cartCount: number }) {
+function UtilityBtn({
+  item,
+  cartCount,
+  onCartOpen,
+}: {
+  item: MenuItem;
+  cartCount: number;
+  onCartOpen: () => void;
+}) {
   const isCart = item.title === "Cart";
+  const className = "relative group flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-white/45 transition-colors duration-300 hover:text-white/85 lg:h-10 lg:w-10";
+  const content = (
+    <>
+      <span className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            style={{ background:"rgba(255,248,236,0.07)" }} />
+      <span className="relative z-10">{item.icon}</span>
+      {isCart && <CartBadge count={cartCount} />}
+    </>
+  );
 
   return (
     <motion.div whileHover={{ scale:1.08 }} whileTap={{ scale:0.9 }}>
-      <Link
-        href={item.link}
-        aria-label={isCart && cartCount > 0 ? `Cart, ${cartCount} items` : item.title}
-        className="relative group flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-white/45 transition-colors duration-300 hover:text-white/85 lg:h-10 lg:w-10"
-      >
-        <span className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              style={{ background:"rgba(255,248,236,0.07)" }} />
-        <span className="relative z-10">{item.icon}</span>
-        {isCart && <CartBadge count={cartCount} />}
-      </Link>
+      {isCart ? (
+        <button
+          type="button"
+          onClick={onCartOpen}
+          aria-label={cartCount > 0 ? `Open cart, ${cartCount} items` : "Open cart"}
+          className={className}
+        >
+          {content}
+        </button>
+      ) : (
+        <Link
+          href={item.link}
+          aria-label={item.title}
+          className={className}
+        >
+          {content}
+        </Link>
+      )}
     </motion.div>
   );
 }
@@ -416,6 +442,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<number | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [cartDrawerOpen, setCartDrawerOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [cartCount, setCartCount] = useState(0);
 
@@ -461,6 +488,17 @@ export default function Navbar() {
       window.removeEventListener("cart:changed", refreshCartCount);
     };
   }, [refreshCartCount]);
+
+  useEffect(() => {
+    const openCart = () => setCartDrawerOpen(true);
+    const openSearch = () => setSearchOpen(true);
+    window.addEventListener("cart:open", openCart);
+    window.addEventListener("search:open", openSearch);
+    return () => {
+      window.removeEventListener("cart:open", openCart);
+      window.removeEventListener("search:open", openSearch);
+    };
+  }, []);
 
   return (
     <>
@@ -529,28 +567,41 @@ export default function Navbar() {
               <Search strokeWidth={1.4} className="relative z-10 w-4 h-4" />
             </motion.button>
 
-            {utilityItems.map((item, i) => <UtilityBtn key={i} item={item} cartCount={cartCount} />)}
+            {utilityItems.map((item, i) => (
+              <UtilityBtn
+                key={i}
+                item={item}
+                cartCount={cartCount}
+                onCartOpen={() => setCartDrawerOpen(true)}
+              />
+            ))}
           </div>
 
           {/* Mobile controls */}
           <div className="flex items-center gap-1 md:hidden">
             {/* Cart + Account quick links */}
-            {[
-              { href:"/cart",    label:"Cart",    icon:<ShoppingCart strokeWidth={1.4} className="w-4 h-4" />, count: cartCount },
-              { href:"/account", label:"Account", icon:<User         strokeWidth={1.4} className="w-4 h-4" />, count: 0 },
-            ].map((btn, i) => (
-              <motion.div key={i} whileTap={{ scale:0.88 }}>
-                <Link
-                  href={btn.href}
-                  aria-label={btn.count > 0 ? `${btn.label}, ${btn.count} items` : btn.label}
-                  className="relative group flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-white/50 transition-colors duration-300 hover:text-white/85">
-                  <span className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                        style={{ background:"rgba(255,248,236,0.06)" }} />
-                  <span className="relative z-10">{btn.icon}</span>
-                  {btn.href === "/cart" && <CartBadge count={btn.count} />}
-                </Link>
-              </motion.div>
-            ))}
+            <motion.div whileTap={{ scale:0.88 }}>
+              <button
+                type="button"
+                onClick={() => setCartDrawerOpen(true)}
+                aria-label={cartCount > 0 ? `Open cart, ${cartCount} items` : "Open cart"}
+                className="relative group flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-white/50 transition-colors duration-300 hover:text-white/85">
+                <span className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      style={{ background:"rgba(255,248,236,0.06)" }} />
+                <span className="relative z-10"><ShoppingCart strokeWidth={1.4} className="w-4 h-4" /></span>
+                <CartBadge count={cartCount} />
+              </button>
+            </motion.div>
+            <motion.div whileTap={{ scale:0.88 }}>
+              <Link
+                href="/account"
+                aria-label="Account"
+                className="relative group flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-white/50 transition-colors duration-300 hover:text-white/85">
+                <span className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      style={{ background:"rgba(255,248,236,0.06)" }} />
+                <span className="relative z-10"><User strokeWidth={1.4} className="w-4 h-4" /></span>
+              </Link>
+            </motion.div>
 
             {/* Search */}
             <motion.button
@@ -603,6 +654,7 @@ export default function Navbar() {
       </AnimatePresence>
 
       <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <MiniCartDrawer open={cartDrawerOpen} onClose={() => setCartDrawerOpen(false)} />
     </>
   );
 }

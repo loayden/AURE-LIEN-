@@ -3,9 +3,10 @@
 import AdminBanner from "@/components/admin/AdminBanner";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminPanel from "@/components/admin/AdminPanel";
-import { Check, Lock, Pencil, Plus, Trash2, X } from "lucide-react";
+import { Check, Lock, Pencil, Plus, Search, Trash2, X } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 type AdminProduct = {
   _id: string;
@@ -50,6 +51,10 @@ export default function AdminProductsPage() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<ProductDraft | null>(null);
+  const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const [deleteTarget, setDeleteTarget] = useState<AdminProduct | null>(null);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const loadProducts = useCallback(async () => {
@@ -139,6 +144,28 @@ export default function AdminProductsPage() {
     setDraft((current) => current ? { ...current, [key]: value } : current);
   };
 
+  const categories = useMemo(
+    () => Array.from(new Set(products.map((product) => product.category).filter(Boolean))).sort(),
+    [products]
+  );
+
+  const filteredProducts = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return products.filter((product) => {
+      if (categoryFilter !== "all" && product.category !== categoryFilter) return false;
+      if (!query) return true;
+      return `${product.name} ${product.category} ${product._id}`.toLowerCase().includes(query);
+    });
+  }, [categoryFilter, products, search]);
+
+  const pageSize = 12;
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
+  const visibleProducts = filteredProducts.slice((page - 1) * pageSize, page * pageSize);
+
+  useEffect(() => {
+    setPage(1);
+  }, [categoryFilter, search]);
+
   return (
     <div className="space-y-6">
       <AdminPageHeader
@@ -153,6 +180,36 @@ export default function AdminProductsPage() {
       />
 
       {message ? <AdminBanner message={message.text} tone={message.type} /> : null}
+
+      <AdminPanel className="p-4 sm:p-5">
+        <div className="grid gap-3 lg:grid-cols-[1fr_240px_auto] lg:items-center">
+          <label className="flex min-h-[48px] items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.035] px-4">
+            <Search className="h-4 w-4 text-white/35" />
+            <span className="sr-only">Search products</span>
+            <input
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search product, category, id"
+              className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none placeholder:text-white/28"
+            />
+          </label>
+          <select
+            value={categoryFilter}
+            onChange={(event) => setCategoryFilter(event.target.value)}
+            className="glass-input min-h-[48px]"
+          >
+            <option value="all">All categories</option>
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+          <span className="count-pill justify-center">
+            {filteredProducts.length} products
+          </span>
+        </div>
+      </AdminPanel>
 
       <AdminPanel className="p-0">
         <div className="overflow-x-auto">
@@ -174,14 +231,14 @@ export default function AdminProductsPage() {
                     Loading products
                   </td>
                 </tr>
-              ) : products.length === 0 ? (
+              ) : filteredProducts.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-5 py-10 text-center text-[10px] uppercase tracking-[0.3em] text-white/40">
                     No products found
                   </td>
                 </tr>
               ) : (
-                products.map((product) => {
+                visibleProducts.map((product) => {
                   const editing = editingId === product._id && draft;
                   const locked = !product.managed;
                   const busy = savingId === product._id;
@@ -201,9 +258,20 @@ export default function AdminProductsPage() {
                             <input value={draft.images} onChange={(event) => updateDraft("images", event.target.value)} placeholder="/uploads/product.jpg" />
                           </div>
                         ) : (
-                          <div>
-                            <p className="font-light text-white">{product.name}</p>
-                            <p className="mt-1 text-[10px] tracking-[0.18em] text-white/35">{product._id}</p>
+                          <div className="flex items-center gap-3">
+                            <div className="relative h-14 w-12 flex-shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/[0.04]">
+                              <Image
+                                src={product.images?.[0] || "/images/placeholder.svg"}
+                                alt={product.name}
+                                fill
+                                sizes="48px"
+                                className="object-cover"
+                              />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="truncate font-light text-white">{product.name}</p>
+                              <p className="mt-1 text-[10px] tracking-[0.18em] text-white/35">{product._id}</p>
+                            </div>
                           </div>
                         )}
                       </td>
@@ -276,7 +344,7 @@ export default function AdminProductsPage() {
                               </button>
                               <button
                                 type="button"
-                                onClick={() => void deleteProduct(product._id)}
+                                onClick={() => setDeleteTarget(product)}
                                 disabled={locked || busy}
                                 className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-red-300/20 px-3 text-red-200/70 disabled:cursor-not-allowed disabled:opacity-35"
                                 aria-label={locked ? "Built-in product locked" : "Delete product"}
@@ -294,7 +362,60 @@ export default function AdminProductsPage() {
             </tbody>
           </table>
         </div>
+        {!loading && filteredProducts.length > pageSize ? (
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 px-5 py-4">
+            <p className="text-[10px] uppercase tracking-[0.24em] text-white/35">
+              Page {page} of {totalPages}
+            </p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setPage((current) => Math.max(1, current - 1))}
+                disabled={page === 1}
+                className="btn-ghost min-h-[44px] justify-center disabled:opacity-40"
+              >
+                Previous
+              </button>
+              <button
+                type="button"
+                onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+                disabled={page === totalPages}
+                className="btn-ghost min-h-[44px] justify-center disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        ) : null}
       </AdminPanel>
+
+      {deleteTarget ? (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/65 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Delete product confirmation">
+          <div className="w-full max-w-md rounded-[28px] border border-white/10 bg-[#14110F] p-6 shadow-2xl">
+            <p className="eyebrow mb-4">Confirm Delete</p>
+            <h2 className="font-serif text-3xl font-light text-white">Delete product?</h2>
+            <p className="body-copy mt-4">
+              This removes the managed product record for {deleteTarget.name}. Built-in locked products cannot be deleted here.
+            </p>
+            <div className="mt-7 grid grid-cols-2 gap-3">
+              <button type="button" onClick={() => setDeleteTarget(null)} className="btn-ghost justify-center">
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  const targetId = deleteTarget._id;
+                  setDeleteTarget(null);
+                  await deleteProduct(targetId);
+                }}
+                className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-red-300/25 bg-red-400/10 px-5 text-[10px] uppercase tracking-[0.24em] text-red-200"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

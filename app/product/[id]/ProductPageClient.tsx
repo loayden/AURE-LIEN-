@@ -1,6 +1,7 @@
 "use client";
 
 import ProductCard from "@/components/ProductCard";
+import { showToast } from "@/components/ToastProvider";
 import { usePerformanceProfile } from "@/hooks/usePerformanceProfile";
 import { useTimeoutRegistry } from "@/hooks/useTimeoutRegistry";
 import { getProductColorHex as getColorHex } from "@/lib/productColors";
@@ -14,8 +15,10 @@ import {
   Check,
   ChevronRight,
   Copy,
+  PackageCheck,
+  Ruler,
   ShoppingBag,
-  Star,
+  X,
   Zap
 } from "lucide-react";
 import Image from "next/image";
@@ -55,9 +58,10 @@ const goldGlass = {
 interface HorizontalGalleryProps {
   images: string[];
   productName: string;
+  onOpenImage?: (index: number) => void;
 }
 
-function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps) {
+function HorizontalScrollGallery({ images, productName, onOpenImage }: HorizontalGalleryProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -163,7 +167,10 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
               transition={{ delay: i * 0.05, duration: 0.6 }}
               onMouseEnter={() => setHoveredIndex(i)}
               onMouseLeave={() => setHoveredIndex(null)}
-              onClick={() => setSelectedIndex(i)}
+              onClick={() => {
+                setSelectedIndex(i);
+                onOpenImage?.(i);
+              }}
               className="snap-center flex-shrink-0 cursor-pointer group"
               style={{ width: "min(82vw, 400px)", aspectRatio: "4 / 5" }}
             >
@@ -197,7 +204,6 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
                   className="absolute inset-0 flex items-center justify-center pointer-events-none"
                 >
                   <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-md text-white text-[11px] tracking-widest uppercase font-light">
-                    <span>🔍</span>
                     View
                   </div>
                 </motion.div>
@@ -377,6 +383,9 @@ export default function PremiumProductPage() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"specs" | "details">("specs");
   const [actionError, setActionError] = useState<string | null>(null);
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [recentlyViewedIds, setRecentlyViewedIds] = useState<string[]>([]);
   const { registerTimeout } = useTimeoutRegistry();
   const p = product;
   const allMedia = useMemo(() => {
@@ -393,7 +402,7 @@ export default function PremiumProductPage() {
     return products.filter((r) => r.category === product.category && r._id !== product._id).slice(0, 4) as Product[];
   }, [product]);
   const pageContent = useMemo(() => (product ? getProductPageContent(product) : null), [product]);
-  const highlightIcons = useMemo(() => [Award, Star, Check, Box], []);
+  const highlightIcons = useMemo(() => [Award, PackageCheck, Check, Box], []);
 
   useEffect(() => {
     if (!id) {
@@ -450,6 +459,22 @@ export default function PremiumProductPage() {
     };
   }, [id]);
 
+  useEffect(() => {
+    if (!product?._id || typeof window === "undefined") return;
+
+    const storageKey = "bout:recently-viewed";
+    let current: unknown = [];
+    try {
+      current = JSON.parse(window.localStorage.getItem(storageKey) || "[]");
+    } catch {
+      current = [];
+    }
+    const ids = Array.isArray(current) ? current.map((value) => String(value)) : [];
+    const nextIds = [product._id, ...ids.filter((value) => value !== product._id)].slice(0, 8);
+    window.localStorage.setItem(storageKey, JSON.stringify(nextIds));
+    setRecentlyViewedIds(nextIds.filter((value) => value !== product._id));
+  }, [product?._id]);
+
   if (loadingProduct) {
     return (
       <div className="min-h-screen bg-[#0A0908] flex items-center justify-center">
@@ -473,12 +498,24 @@ export default function PremiumProductPage() {
   const sizes = product.size || [];
   const colors = product.colors || [];
   const originalPrice = getOriginalPrice(product.price, product.discount);
+  const stock = typeof product.stock === "number" ? product.stock : null;
+  const isSoldOut = stock === 0;
+  const isLowStock = stock !== null && stock > 0 && stock < 5;
+  const stockLabel = isSoldOut ? "Sold out" : isLowStock ? `${stock} left` : stock !== null ? "In stock" : "Available";
+  const stockTone = isSoldOut ? "text-red-300" : isLowStock ? "text-amber-300" : "text-emerald-300";
+  const recentlyViewedProducts = products
+    .filter((entry) => recentlyViewedIds.includes(String(entry._id)) && String(entry._id) !== String(product._id))
+    .slice(0, 4) as Product[];
   const showActionError = (message: string) => {
     setActionError(message);
     registerTimeout(() => setActionError(null), 2500);
   };
 
   const handleAddToCart = async () => {
+    if (isSoldOut) {
+      showActionError("This piece is sold out.");
+      return;
+    }
     if (sizes.length > 0 && !selectedSize) {
       showActionError("Please select a size first.");
       return;
@@ -503,9 +540,11 @@ export default function PremiumProductPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed");
       window.dispatchEvent(new Event("cart:changed"));
+      showToast({ tone: "success", title: "Cart", message: `${product.name} added to cart.` });
       setAdded(true);
       registerTimeout(() => setAdded(false), 2500);
     } catch {
+      showToast({ tone: "error", title: "Cart", message: "Failed to add this piece to the cart." });
       showActionError("Failed to add this piece to the cart.");
     } finally {
       setLoading(false);
@@ -513,6 +552,10 @@ export default function PremiumProductPage() {
   };
 
   const handleBuyNow = () => {
+    if (isSoldOut) {
+      showActionError("This piece is sold out.");
+      return;
+    }
     if (sizes.length > 0 && !selectedSize) {
       showActionError("Please select a size first.");
       return;
@@ -600,6 +643,119 @@ export default function PremiumProductPage() {
         ) : null}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {lightboxIndex !== null ? (
+          <motion.div
+            className="fixed inset-0 z-[90] bg-black/86 backdrop-blur-md"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${product.name} image preview`}
+          >
+            <button
+              type="button"
+              onClick={() => setLightboxIndex(null)}
+              className="absolute right-4 top-4 z-20 flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-white/70 transition-colors hover:text-white"
+              aria-label="Close image preview"
+            >
+              <X className="h-5 w-5" strokeWidth={1.4} />
+            </button>
+            <div className="absolute inset-0 flex items-center justify-center p-4 sm:p-8">
+              <motion.div
+                key={lightboxIndex}
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                className="relative h-[82vh] w-full max-w-5xl overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.035]"
+              >
+                <Image
+                  src={allMedia[lightboxIndex] ?? "/images/placeholder.svg"}
+                  alt={`${product.name} enlarged view`}
+                  fill
+                  sizes="100vw"
+                  className="object-contain"
+                />
+              </motion.div>
+            </div>
+            {allMedia.length > 1 ? (
+              <div className="absolute inset-x-4 bottom-4 flex items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setLightboxIndex((current) => (current === null ? 0 : (current - 1 + allMedia.length) % allMedia.length))}
+                  className="flex min-h-[44px] items-center rounded-full border border-white/10 bg-white/[0.06] px-5 text-[10px] uppercase tracking-[0.22em] text-white/70"
+                >
+                  Previous
+                </button>
+                <span className="rounded-full bg-black/35 px-4 py-3 text-[10px] uppercase tracking-[0.22em] text-white/52">
+                  {lightboxIndex + 1} / {allMedia.length}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setLightboxIndex((current) => (current === null ? 0 : (current + 1) % allMedia.length))}
+                  className="flex min-h-[44px] items-center rounded-full border border-white/10 bg-white/[0.06] px-5 text-[10px] uppercase tracking-[0.22em] text-white/70"
+                >
+                  Next
+                </button>
+              </div>
+            ) : null}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {sizeGuideOpen ? (
+          <motion.div className="fixed inset-0 z-[88]" role="dialog" aria-modal="true" aria-label="Size guide">
+            <motion.button
+              type="button"
+              className="absolute inset-0 cursor-default bg-black/62 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSizeGuideOpen(false)}
+              aria-label="Close size guide"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 24, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 24, scale: 0.98 }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              className="absolute inset-x-3 bottom-3 rounded-[28px] border border-white/10 bg-[#14110F] p-5 shadow-2xl sm:left-1/2 sm:top-1/2 sm:bottom-auto sm:w-[min(560px,calc(100vw-2rem))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:p-7"
+            >
+              <div className="mb-6 flex items-start justify-between gap-4">
+                <div>
+                  <p className="eyebrow mb-3">Size Guide</p>
+                  <h2 className="font-serif text-3xl font-light text-white">Choose your fit</h2>
+                </div>
+                <button type="button" onClick={() => setSizeGuideOpen(false)} className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-white/55" aria-label="Close size guide">
+                  <X className="h-4 w-4" strokeWidth={1.4} />
+                </button>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
+                <p className="mb-4 text-sm leading-6 text-white/52">
+                  Available sizes for this product are shown below. Select the size you normally wear for this category, then confirm color before adding to cart.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {sizes.length > 0 ? sizes.map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => {
+                        setSelectedSize(size);
+                        setSizeGuideOpen(false);
+                      }}
+                      className="min-h-[44px] rounded-full border border-white/10 px-5 text-sm text-white/72 transition-colors hover:border-brass/40 hover:text-brass"
+                    >
+                      {size}
+                    </button>
+                  )) : (
+                    <span className="text-sm text-white/45">This item has no size selection.</span>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
       <div
         className="min-h-screen bg-[#0A0908] text-white overflow-hidden"
         style={{ fontFamily: "'Jost', sans-serif" }}
@@ -647,7 +803,7 @@ export default function PremiumProductPage() {
 
         {/* Horizontal Scroll Gallery - NOW AT TOP */}
         <div className="relative z-10 mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-16">
-          <HorizontalScrollGallery images={allMedia} productName={product.name} />
+          <HorizontalScrollGallery images={allMedia} productName={product.name} onOpenImage={setLightboxIndex} />
         </div>
 
         {/* Hero Section - Product Title & CTA */}
@@ -696,23 +852,22 @@ export default function PremiumProductPage() {
                 {product.name}
               </motion.h1>
 
-              {/* Rating */}
+              {/* Availability */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.35 }}
-                className="flex items-center gap-3 mb-8"
+                className="mb-8 flex flex-wrap items-center gap-3"
               >
-                <div className="flex gap-1">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      size={16}
-                      className={i < 4 ? "fill-amber-400 text-amber-400" : "text-white/20"}
-                    />
-                  ))}
-                </div>
-                <span className="text-white/50 text-[12px] tracking-widest">4.8 / 5</span>
+                <span className={`inline-flex min-h-[42px] items-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-4 text-[10px] uppercase tracking-[0.22em] ${stockTone}`}>
+                  <PackageCheck className="h-4 w-4" strokeWidth={1.4} />
+                  {stockLabel}
+                </span>
+                {isLowStock ? (
+                  <span className="text-[10px] uppercase tracking-[0.22em] text-white/38">
+                    Limited quantity
+                  </span>
+                ) : null}
               </motion.div>
 
               {/* Price - Luxe styling */}
@@ -767,7 +922,19 @@ export default function PremiumProductPage() {
                   transition={{ delay: 0.55 }}
                   className="mb-8"
                 >
-                  <p className="text-white/30 text-[9px] tracking-[0.35em] uppercase mb-4 font-light">Size</p>
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <p className="text-white/30 text-[9px] tracking-[0.35em] uppercase font-light">
+                      Size {selectedSize ? <span className="ml-2 text-white/55 normal-case tracking-normal">— {selectedSize}</span> : null}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setSizeGuideOpen(true)}
+                      className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/10 px-4 text-[10px] uppercase tracking-[0.18em] text-white/52 transition-colors hover:text-white"
+                    >
+                      <Ruler className="h-3.5 w-3.5" strokeWidth={1.4} />
+                      Guide
+                    </button>
+                  </div>
                   <div className="flex flex-wrap gap-3">
                     {sizes.map((size) => (
                       <motion.button
@@ -775,7 +942,7 @@ export default function PremiumProductPage() {
                         whileHover={{ scale: 1.08 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setSelectedSize(size)}
-                        className="px-6 py-3 rounded-full text-sm font-light tracking-[0.1em] transition-all duration-300"
+                        className="min-h-[48px] px-6 py-3 rounded-full text-sm font-light tracking-[0.1em] transition-all duration-300"
                         style={selectedSize === size ? {
                           background: "linear-gradient(135deg, rgba(201,168,106,0.25), rgba(201,168,106,0.1))",
                           border: "1px solid rgba(201,168,106,0.5)",
@@ -817,6 +984,7 @@ export default function PremiumProductPage() {
                           whileTap={{ scale: 0.9 }}
                           onClick={() => setSelectedColor(color)}
                           title={color}
+                          aria-label={`Select ${color}`}
                           className="rounded-full transition-all duration-300 relative"
                           style={{
                             width: 44, height: 44,
@@ -855,7 +1023,7 @@ export default function PremiumProductPage() {
                 {/* Add to Cart */}
                 <motion.button
                   onClick={handleAddToCart}
-                  disabled={loading}
+                  disabled={loading || isSoldOut}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className="relative flex-1 overflow-hidden rounded-full px-8 py-5 text-[11px] font-light uppercase tracking-[0.15em] disabled:cursor-not-allowed disabled:opacity-50"
@@ -878,7 +1046,7 @@ export default function PremiumProductPage() {
                     className="relative z-10"
                     style={{ color: added ? "#C9A86A" : "rgba(255,248,236,0.8)" }}
                   >
-                    {loading ? "Adding…" : added ? "Added" : "Add to Cart"}
+                    {isSoldOut ? "Sold Out" : loading ? "Adding…" : added ? "Added" : "Add to Cart"}
                   </span>
                   </div>
                 </motion.button>
@@ -886,16 +1054,17 @@ export default function PremiumProductPage() {
                 {/* Buy Now */}
                 <motion.button
                   onClick={handleBuyNow}
+                  disabled={isSoldOut}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="relative flex-1 overflow-hidden rounded-full px-8 py-5 text-[11px] font-light uppercase tracking-[0.15em]"
+                  className="relative flex-1 overflow-hidden rounded-full px-8 py-5 text-[11px] font-light uppercase tracking-[0.15em] disabled:cursor-not-allowed disabled:opacity-50"
                   style={goldGlass}
                 >
                   <div className="shimmer absolute inset-0 pointer-events-none opacity-80" />
                   <div className="relative z-10 flex items-center justify-center gap-3">
                     <Zap strokeWidth={1.3} className="relative z-10 h-5 w-5" style={{ color: "#C9A86A" }} />
                     <span className="relative z-10" style={{ color: "#C9A86A" }}>
-                      Buy Now
+                      {isSoldOut ? "Unavailable" : "Buy Now"}
                     </span>
                   </div>
                 </motion.button>
@@ -1059,6 +1228,47 @@ export default function PremiumProductPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1, duration: 0.6 }}
+                >
+                  <ProductCard product={rp} />
+                </motion.div>
+              ))}
+            </div>
+          </motion.section>
+        )}
+
+        {recentlyViewedProducts.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="relative z-10 mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-16"
+          >
+            <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-white/25 text-[9px] tracking-[0.4em] uppercase mb-3">Recently Viewed</p>
+                <h2
+                  className="font-light text-white leading-none"
+                  style={{
+                    fontFamily: "'Cormorant Garamond', serif",
+                    fontSize: "clamp(2rem, 4vw, 3rem)",
+                    letterSpacing: "0.06em",
+                    color: "#C9A86A",
+                  }}
+                >
+                  Continue Browsing
+                </h2>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {recentlyViewedProducts.map((rp, i) => (
+                <motion.div
+                  key={rp._id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08, duration: 0.6 }}
                 >
                   <ProductCard product={rp} />
                 </motion.div>

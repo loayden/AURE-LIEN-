@@ -1,6 +1,7 @@
 "use client";
 
 import ProductCard from "@/components/ProductCard";
+import { showToast } from "@/components/ToastProvider";
 import type { Product } from "@/lib/types";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Heart } from "lucide-react";
@@ -37,6 +38,7 @@ export default function WishlistPage() {
 
   const removeFromList = useCallback((productId: string) => {
     setItems((prev) => prev.filter((p) => p._id !== productId));
+    showToast({ tone: "success", title: "Wishlist", message: "Piece removed from wishlist." });
   }, []);
 
   /* ── Loading ── */

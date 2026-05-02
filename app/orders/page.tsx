@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Calendar, CheckCircle2, Clock, Hash, Package, ShoppingBag } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -30,6 +31,64 @@ function StatusBadge({ status }: { status: string }) {
             style={{ color: isPending ? "rgba(255,190,60,0.75)" : "rgba(80,200,120,0.75)", fontFamily:"'Jost', sans-serif" }}>
         {isPending ? "Pending" : "Completed"}
       </span>
+    </div>
+  );
+}
+
+function PaymentBadge({ paymentStatus }: { paymentStatus?: string }) {
+  const normalized = String(paymentStatus || "pending").toLowerCase();
+  const paid = normalized === "paid" || normalized === "succeeded" || normalized === "complete";
+  return (
+    <div
+      className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5"
+      style={paid ? {
+        background: "linear-gradient(135deg, rgba(80,200,120,0.12), rgba(60,180,100,0.04))",
+        border: "1px solid rgba(80,200,120,0.22)",
+      } : {
+        background: "linear-gradient(135deg, rgba(255,180,50,0.14), rgba(255,160,30,0.05))",
+        border: "1px solid rgba(255,180,50,0.25)",
+      }}
+    >
+      {paid ? (
+        <CheckCircle2 strokeWidth={1.3} className="h-3 w-3" style={{ color:"rgba(80,200,120,0.8)" }} />
+      ) : (
+        <Clock strokeWidth={1.3} className="h-3 w-3" style={{ color:"rgba(255,190,60,0.8)" }} />
+      )}
+      <span className="text-[9px] uppercase tracking-[0.3em] font-light" style={{ color: paid ? "rgba(80,200,120,0.75)" : "rgba(255,190,60,0.75)" }}>
+        Payment {paid ? "Paid" : "Pending"}
+      </span>
+    </div>
+  );
+}
+
+function OrderTimeline({ status }: { status?: string }) {
+  const steps = ["Pending", "Paid", "Processing", "Shipped", "Delivered"];
+  const normalized = String(status || "pending").toLowerCase();
+  const activeIndex =
+    normalized === "delivered" ? 4 :
+    normalized === "shipped" ? 3 :
+    normalized === "processing" ? 2 :
+    normalized === "paid" || normalized === "completed" ? 1 :
+    0;
+
+  return (
+    <div className="px-4 pt-4 sm:px-6">
+      <div className="grid grid-cols-5 gap-2">
+        {steps.map((step, index) => {
+          const active = index <= activeIndex;
+          return (
+            <div key={step} className="min-w-0">
+              <div
+                className="mb-2 h-1 rounded-full"
+                style={{ background: active ? "rgba(201,168,106,0.82)" : "rgba(255,248,236,0.10)" }}
+              />
+              <p className={active ? "text-brass" : "text-white/25"} style={{ fontSize: 9, letterSpacing: "0.18em", textTransform: "uppercase" }}>
+                {step}
+              </p>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -86,6 +145,7 @@ function OrderCard({ order, index, onPending }: { order: any; index: number; onP
 
         <div className="flex flex-col items-end gap-2">
           <StatusBadge status={order.status} />
+          <PaymentBadge paymentStatus={order.paymentStatus} />
           <div className="flex items-center gap-1.5">
             <Calendar strokeWidth={1.2} className="w-3 h-3 text-white/20" />
             <p className="text-white/25 text-[9px] tracking-widest"
@@ -95,6 +155,8 @@ function OrderCard({ order, index, onPending }: { order: any; index: number; onP
           </div>
         </div>
       </div>
+
+      <OrderTimeline status={order.status} />
 
       {/* ── Items ── */}
       <div className="flex flex-col gap-3 px-4 py-4 sm:px-6 sm:py-5">
@@ -188,42 +250,50 @@ function OrderCard({ order, index, onPending }: { order: any; index: number; onP
         </div>
 
         {/* Right — action */}
-        {isPending ? (
-          <motion.button
-            type="button"
-            onClick={() => onPending(order)}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
-            className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 px-5 py-3 rounded-full font-light transition-all duration-400 sm:gap-3 sm:px-6"
-            style={{
-              background: "linear-gradient(135deg, rgba(255,180,50,0.18), rgba(255,160,30,0.06))",
-              border: "1px solid rgba(255,180,50,0.28)",
-              backdropFilter: "blur(16px)",
-              color: "rgba(255,190,60,0.85)",
-              fontFamily: "'Jost', sans-serif",
-              fontSize: "10px",
-              letterSpacing: "0.3em",
-            }}
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            href={`/orders/${encodeURIComponent(String(order._id))}`}
+            className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-full border border-white/10 px-5 py-3 text-[10px] uppercase tracking-[0.26em] text-white/55 transition-colors hover:text-white"
           >
-            Complete Order
-            <ArrowRight strokeWidth={1.3} className="w-3.5 h-3.5" />
-          </motion.button>
-        ) : (
-          <div
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full"
-            style={{
-              background: "rgba(80,200,120,0.06)",
-              border: "1px solid rgba(80,200,120,0.14)",
-              backdropFilter: "blur(12px)",
-            }}
-          >
-            <Package strokeWidth={1.2} className="w-3.5 h-3.5" style={{ color:"rgba(80,200,120,0.6)" }} />
-            <span className="text-[9px] tracking-[0.3em] uppercase font-light"
-                  style={{ color:"rgba(80,200,120,0.6)", fontFamily:"'Jost', sans-serif" }}>
-              Completed
-            </span>
-          </div>
-        )}
+            Details
+          </Link>
+          {isPending ? (
+            <motion.button
+              type="button"
+              onClick={() => onPending(order)}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 px-5 py-3 rounded-full font-light transition-all duration-400 sm:gap-3 sm:px-6"
+              style={{
+                background: "linear-gradient(135deg, rgba(255,180,50,0.18), rgba(255,160,30,0.06))",
+                border: "1px solid rgba(255,180,50,0.28)",
+                backdropFilter: "blur(16px)",
+                color: "rgba(255,190,60,0.85)",
+                fontFamily: "'Jost', sans-serif",
+                fontSize: "10px",
+                letterSpacing: "0.3em",
+              }}
+            >
+              Pay Now
+              <ArrowRight strokeWidth={1.3} className="w-3.5 h-3.5" />
+            </motion.button>
+          ) : (
+            <div
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full"
+              style={{
+                background: "rgba(80,200,120,0.06)",
+                border: "1px solid rgba(80,200,120,0.14)",
+                backdropFilter: "blur(12px)",
+              }}
+            >
+              <Package strokeWidth={1.2} className="w-3.5 h-3.5" style={{ color:"rgba(80,200,120,0.6)" }} />
+              <span className="text-[9px] tracking-[0.3em] uppercase font-light"
+                    style={{ color:"rgba(80,200,120,0.6)", fontFamily:"'Jost', sans-serif" }}>
+                Confirmed
+              </span>
+            </div>
+          )}
+        </div>
       </div>
     </motion.div>
   );
@@ -236,6 +306,7 @@ export default function OrdersPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderId");
+  const payment = searchParams.get("payment");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -296,6 +367,19 @@ export default function OrdersPage() {
             >
               <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: "rgba(255,120,120,0.75)" }}>
                 {error}
+              </p>
+            </div>
+          ) : null}
+
+          {payment ? (
+            <div
+              className="mb-5 rounded-2xl px-4 py-3"
+              style={payment === "success"
+                ? { background: "rgba(80,200,120,0.08)", border: "1px solid rgba(80,200,120,0.18)" }
+                : { background: "rgba(255,180,50,0.08)", border: "1px solid rgba(255,180,50,0.18)" }}
+            >
+              <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: payment === "success" ? "rgba(120,230,150,0.75)" : "rgba(255,190,60,0.75)" }}>
+                {payment === "success" ? "Payment returned successfully. Order status will update after confirmation." : "Payment was not completed."}
               </p>
             </div>
           ) : null}

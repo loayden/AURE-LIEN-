@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, ChevronRight, CreditCard, MapPin, Package, Truck, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface Product { _id: string; name: string; price: number; images: string[]; }
@@ -65,9 +65,11 @@ function GlassSection({ icon, title, children }: { icon: React.ReactNode; title:
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [cart, setCart] = useState<FullCartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState("");
+  const [confirmedOrderId, setConfirmedOrderId] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [fromCart, setFromCart] = useState(false);
@@ -78,6 +80,16 @@ export default function CheckoutPage() {
     city: "", postalCode: "", phone: "", shippingMethod: "within_egypt",
   });
   const saveDraftRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (searchParams.get("payment") !== "cancelled") return;
+    const orderId = searchParams.get("orderId");
+    setError(
+      orderId
+        ? `Card payment was cancelled for order ${orderId}. You can try again or choose cash on delivery.`
+        : "Card payment was cancelled. You can try again or choose cash on delivery."
+    );
+  }, [searchParams]);
 
   const saveDraft = useCallback(async (items: FullCartItem[], formData: FormData) => {
     if (items.length === 0) return;
@@ -243,6 +255,7 @@ export default function CheckoutPage() {
     e.preventDefault();
     setError(""); 
     setSuccess(""); 
+    setConfirmedOrderId("");
     setSubmitting(true);
 
     if (!cart.length) { 
@@ -297,18 +310,6 @@ export default function CheckoutPage() {
       return; 
     }
 
-    console.log("📤 Sending order payload:", {
-      items,
-      total,
-      customerInfo: {
-        email: form.email,
-        name: `${form.firstName} ${form.lastName}`,
-        address: form.address,
-        city: form.city,
-        phone: form.phone,
-      }
-    });
-
     try {
       const res = await fetch("/api/saveorder", {
         method: "POST",
@@ -335,7 +336,6 @@ export default function CheckoutPage() {
       });
 
       const data = await res.json();
-      console.log("📥 Server response:", data);
 
       if (!res.ok) { 
         throw new Error(data?.error || "Failed to place order"); 
@@ -368,6 +368,7 @@ export default function CheckoutPage() {
         return;
       }
 
+      setConfirmedOrderId(placedOrderId);
       setSuccess("Order received and pending confirmation."); 
       setCart([]);
       
@@ -387,7 +388,7 @@ export default function CheckoutPage() {
         );
       }, 1800);
     } catch (err: any) { 
-      console.error("❌ Order error:", err);
+      console.error("Order error:", err);
       setError(err.message || "Failed to place order."); 
     }
     finally { 
@@ -423,7 +424,18 @@ export default function CheckoutPage() {
         <h2 className="font-light text-white mb-3" style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.8rem, 5vw, 2rem)", letterSpacing:"0.06em" }}>
           Order <em style={{ color:"#C9A86A" }}>Confirmed</em>
         </h2>
-        <p className="text-white/35 text-sm font-light tracking-widest">Redirecting to your orders…</p>
+        {confirmedOrderId ? (
+          <div className="mb-4 rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-3">
+            <p className="mb-1 text-[9px] uppercase tracking-[0.28em] text-white/25">Order number</p>
+            <p className="font-light text-[#C9A86A]" style={{ fontFamily:"'Cormorant Garamond', serif", letterSpacing:"0.08em" }}>
+              {confirmedOrderId}
+            </p>
+          </div>
+        ) : null}
+        <p className="text-white/35 text-sm font-light tracking-widest">
+          Payment status: {paymentMethod === "cod" ? "Pending cash on delivery" : "Redirecting to card payment"}
+        </p>
+        <p className="mt-2 text-white/30 text-xs font-light tracking-widest">Redirecting to your orders…</p>
       </motion.div>
     </div>
   );

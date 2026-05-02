@@ -1,5 +1,6 @@
 "use client";
 
+import { showToast } from "@/components/ToastProvider";
 import type { Product } from "@/lib/types";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, ChevronDown, ShoppingBag, Sparkles } from "lucide-react";
@@ -299,7 +300,9 @@ export default function OutfitGeneratorPage() {
     });
 
     if (itemNeedingVariant) {
-      setError(`${itemNeedingVariant.name} needs a size or color choice. Open the product page to add it with variants.`);
+      const message = `${itemNeedingVariant.name} needs a size or color choice. Open the product page to add it with variants.`;
+      setError(message);
+      showToast({ tone: "error", title: "Outfit", message });
       return;
     }
 
@@ -322,9 +325,12 @@ export default function OutfitGeneratorPage() {
         }
       }
       window.dispatchEvent(new Event("cart:changed"));
+      showToast({ tone: "success", title: "Outfit", message: "Outfit pieces added to cart." });
       router.push("/cart");
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Unable to add outfit to cart.");
+      const message = requestError instanceof Error ? requestError.message : "Unable to add outfit to cart.";
+      setError(message);
+      showToast({ tone: "error", title: "Outfit", message });
     }
   }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import ProductCard from "@/components/ProductCard";
+import { showToast } from "@/components/ToastProvider";
 import productsData from "@/lib/productsData";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Package, ShoppingBag, Trash2 } from "lucide-react";
@@ -73,8 +74,11 @@ export default function CartPage() {
         )
       );
       window.dispatchEvent(new Event("cart:changed"));
+      showToast({ tone: "success", title: "Cart", message: "Item removed from cart." });
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Unable to remove this item");
+      const message = requestError instanceof Error ? requestError.message : "Unable to remove this item";
+      setError(message);
+      showToast({ tone: "error", title: "Cart", message });
     }
     finally { setRemoving(null); }
   };
@@ -102,8 +106,11 @@ export default function CartPage() {
         )
       );
       window.dispatchEvent(new Event("cart:changed"));
+      showToast({ tone: "success", title: "Cart", message: "Quantity updated." });
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Unable to update quantity");
+      const message = requestError instanceof Error ? requestError.message : "Unable to update quantity";
+      setError(message);
+      showToast({ tone: "error", title: "Cart", message });
     }
   };
 

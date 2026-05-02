@@ -11,6 +11,7 @@ import {
 import { ArrowRight, ChevronDown, Heart, ShoppingBag, Star, Zap } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { showToast } from "./ToastProvider";
 import {
   MouseEvent as ReactMouseEvent,
   KeyboardEvent as ReactKeyboardEvent,
@@ -752,10 +753,12 @@ function ProductCardComponent({
       if (!res.ok) throw new Error();
       if (!mountedRef.current) return;
       window.dispatchEvent(new Event("cart:changed"));
+      showToast({ tone: "success", title: "Cart", message: `${product.name} added to cart.` });
       setAdded(true);
       registerTimeout(() => setAdded(false), 2200);
     } catch {
       if (!mountedRef.current) return;
+      showToast({ tone: "error", title: "Cart", message: "Unable to add this piece right now." });
       showTransientError("Unable to add this piece right now.");
     }
     finally {
