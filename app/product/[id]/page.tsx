@@ -683,12 +683,12 @@ export default function PremiumProductPage() {
             <div
               className="rounded-2xl px-4 py-3"
               style={{
-                background: "rgba(255,60,60,0.07)",
-                border: "1px solid rgba(255,80,80,0.18)",
+                background: "rgba(154,34,34,0.08)",
+                border: "1px solid rgba(154,34,34,0.22)",
                 backdropFilter: "blur(16px)",
               }}
             >
-              <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: "rgba(255,120,120,0.75)" }}>
+              <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: "#9A2222" }}>
                 {actionError}
               </p>
             </div>

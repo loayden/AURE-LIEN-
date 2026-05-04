@@ -108,14 +108,14 @@ export default function AdminProductsPage() {
 
       <AdminPanel className="p-4 sm:p-6">
         <div className="mb-5 grid gap-3 lg:grid-cols-[1fr_14rem_auto]">
-          <label className="flex min-h-[44px] items-center gap-3 rounded-full border border-white/10 bg-white/[0.04] px-4">
+          <label className="flex min-h-[44px] items-center gap-3 rounded-full border border-[rgba(123,103,82,0.16)] bg-[rgba(255,255,255,0.48)] px-4">
             <Search className="h-4 w-4 text-[#A87935]" strokeWidth={1.4} />
             <span className="sr-only">Search products</span>
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search products, IDs, categories..."
-              className="w-full border-0 bg-transparent text-sm text-[#FFF8EC] outline-none placeholder:text-[#FFF8EC]/32"
+              className="w-full border-0 bg-transparent text-sm text-[#3D3025] outline-none placeholder:text-[#6F6254]/70"
             />
           </label>
 
@@ -126,7 +126,7 @@ export default function AdminProductsPage() {
             id="product-category-filter"
             value={category}
             onChange={(event) => setCategory(event.target.value)}
-            className="min-h-[44px] rounded-full border border-white/10 bg-[#FFF9EF] px-4 text-[11px] uppercase tracking-[0.18em] text-[#FFF8EC]/70 outline-none"
+            className="min-h-[44px] rounded-full border border-[rgba(123,103,82,0.16)] bg-[#FFF9EF] px-4 text-[11px] uppercase tracking-[0.18em] text-[#3D3025] outline-none"
           >
             <option value="all">All categories</option>
             {categories.map((item) => (
@@ -154,8 +154,8 @@ export default function AdminProductsPage() {
             icon={Package}
           />
         ) : (
-          <div className="overflow-hidden rounded-2xl border border-white/10">
-            <div className="hidden grid-cols-[5rem_1fr_9rem_7rem_7rem_4rem] gap-4 border-b border-white/10 bg-white/[0.03] px-4 py-3 text-[10px] uppercase tracking-[0.2em] text-[#FFF8EC]/38 lg:grid">
+          <div className="overflow-hidden rounded-2xl border border-[rgba(123,103,82,0.16)]">
+            <div className="hidden grid-cols-[5rem_1fr_9rem_7rem_7rem_4rem] gap-4 border-b border-[rgba(123,103,82,0.14)] bg-[rgba(255,255,255,0.42)] px-4 py-3 text-[10px] uppercase tracking-[0.2em] text-[#6F6254] lg:grid">
               <span>Image</span>
               <span>Product</span>
               <span>Category</span>
@@ -167,7 +167,7 @@ export default function AdminProductsPage() {
             {visibleProducts.map((product) => (
               <div
                 key={product._id}
-                className="grid gap-4 border-b border-white/10 px-4 py-4 last:border-b-0 lg:grid-cols-[5rem_1fr_9rem_7rem_7rem_4rem] lg:items-center"
+                className="grid gap-4 border-b border-[rgba(123,103,82,0.12)] px-4 py-4 last:border-b-0 lg:grid-cols-[5rem_1fr_9rem_7rem_7rem_4rem] lg:items-center"
               >
                 <div className="relative h-24 w-20 overflow-hidden rounded-xl bg-[#1D1915] lg:h-20 lg:w-16">
                   <Image
@@ -180,17 +180,17 @@ export default function AdminProductsPage() {
                 </div>
 
                 <div>
-                  <p className="text-base font-light leading-snug text-[#FFF8EC]">
+                  <p className="text-base font-light leading-snug text-[#3D3025]">
                     {product.name}
                   </p>
-                  <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-[#FFF8EC]/32">
+                  <p className="mt-2 text-[10px] uppercase tracking-[0.2em] text-[#6F6254]">
                     {product._id}
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2 text-[10px] uppercase tracking-[0.16em]">
-                    <span className="rounded-full border border-white/10 px-2 py-1 text-[#FFF8EC]/45">
+                    <span className="rounded-full border border-[rgba(123,103,82,0.16)] bg-[rgba(255,249,239,0.58)] px-2 py-1 text-[#5B4E42]">
                       Sizes: {product.size?.length ? product.size.join(", ") : "Unset"}
                     </span>
-                    <span className="rounded-full border border-white/10 px-2 py-1 text-[#FFF8EC]/45">
+                    <span className="rounded-full border border-[rgba(123,103,82,0.16)] bg-[rgba(255,249,239,0.58)] px-2 py-1 text-[#5B4E42]">
                       Discount: {typeof product.discount === "number" ? `${product.discount}%` : "None"}
                     </span>
                   </div>
@@ -200,16 +200,16 @@ export default function AdminProductsPage() {
                   {formatCategoryLabel(product.category)}
                 </p>
 
-                <p className="text-[11px] uppercase tracking-[0.18em] text-[#FFF8EC]/52">
+                <p className="text-[11px] uppercase tracking-[0.18em] text-[#5B4E42]">
                   {stockLabel(product)}
                 </p>
 
-                <p className="text-sm text-[#FFF8EC]">EGP {formatPrice(product.price)}</p>
+                <p className="text-sm text-[#3D3025]">EGP {formatPrice(product.price)}</p>
 
                 <button
                   type="button"
                   onClick={() => setPendingDelete(product)}
-                  className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-red-400/20 bg-red-400/[0.06] text-red-200 transition-colors hover:bg-red-400/[0.12] disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-[rgba(154,34,34,0.22)] bg-[rgba(154,34,34,0.08)] text-[#9A2222] transition-colors hover:bg-[rgba(154,34,34,0.12)] disabled:cursor-not-allowed disabled:opacity-40"
                   aria-label={`Delete ${product.name}`}
                 >
                   <Trash2 className="h-4 w-4" strokeWidth={1.5} />
@@ -225,19 +225,19 @@ export default function AdminProductsPage() {
               type="button"
               onClick={() => setPage((current) => Math.max(1, current - 1))}
               disabled={page === 1}
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/10 px-4 text-[10px] uppercase tracking-[0.18em] text-[#FFF8EC]/60 disabled:opacity-35"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-[rgba(123,103,82,0.16)] bg-[rgba(255,255,255,0.42)] px-4 text-[10px] uppercase tracking-[0.18em] text-[#5B4E42] disabled:opacity-35"
             >
               <ChevronLeft className="h-4 w-4" />
               Previous
             </button>
-            <span className="text-[10px] uppercase tracking-[0.2em] text-[#FFF8EC]/35">
+            <span className="text-[10px] uppercase tracking-[0.2em] text-[#6F6254]">
               Page {page} of {totalPages}
             </span>
             <button
               type="button"
               onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
               disabled={page === totalPages}
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-white/10 px-4 text-[10px] uppercase tracking-[0.18em] text-[#FFF8EC]/60 disabled:opacity-35"
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-[rgba(123,103,82,0.16)] bg-[rgba(255,255,255,0.42)] px-4 text-[10px] uppercase tracking-[0.18em] text-[#5B4E42] disabled:opacity-35"
             >
               Next
               <ChevronRight className="h-4 w-4" />
@@ -248,12 +248,12 @@ export default function AdminProductsPage() {
 
       {pendingDelete ? (
         <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#FFF9EF] p-6 shadow-2xl">
-            <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full border border-red-400/20 bg-red-400/[0.08] text-red-200">
+          <div className="w-full max-w-md rounded-3xl border border-[rgba(123,103,82,0.18)] bg-[#FFF9EF] p-6 shadow-2xl">
+            <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(154,34,34,0.22)] bg-[rgba(154,34,34,0.08)] text-[#9A2222]">
               <AlertTriangle className="h-5 w-5" strokeWidth={1.5} />
             </div>
-            <h2 className="font-serif text-3xl font-light text-[#FFF8EC]">Delete product?</h2>
-            <p className="mt-3 text-sm leading-7 text-[#FFF8EC]/52">
+            <h2 className="font-serif text-3xl font-light text-[#3D3025]">Delete product?</h2>
+            <p className="mt-3 text-sm leading-7 text-[#5B4E42]">
               This removes admin-added catalogue records. Built-in seed products are protected and the API will leave them in place.
             </p>
             <p className="mt-4 text-sm text-[#A87935]">{pendingDelete.name}</p>
@@ -262,7 +262,7 @@ export default function AdminProductsPage() {
               <button
                 type="button"
                 onClick={() => setPendingDelete(null)}
-                className="min-h-[44px] rounded-full border border-white/10 px-5 text-[10px] uppercase tracking-[0.2em] text-[#FFF8EC]/65"
+                className="min-h-[44px] rounded-full border border-[rgba(123,103,82,0.16)] px-5 text-[10px] uppercase tracking-[0.2em] text-[#5B4E42]"
               >
                 Cancel
               </button>
@@ -270,7 +270,7 @@ export default function AdminProductsPage() {
                 type="button"
                 onClick={confirmDelete}
                 disabled={deleting}
-                className="min-h-[44px] rounded-full border border-red-300/25 bg-red-400/[0.1] px-5 text-[10px] uppercase tracking-[0.2em] text-red-100 disabled:opacity-45"
+                className="min-h-[44px] rounded-full border border-[rgba(154,34,34,0.28)] bg-[rgba(154,34,34,0.10)] px-5 text-[10px] uppercase tracking-[0.2em] text-[#9A2222] disabled:opacity-45"
               >
                 {deleting ? "Deleting" : "Delete"}
               </button>

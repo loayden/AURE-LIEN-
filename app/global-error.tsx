@@ -58,7 +58,7 @@ export default function GlobalError({
                 border: "1px solid rgba(220,60,60,0.22)",
               }}
             >
-              <AlertTriangle strokeWidth={1.3} className="h-5 w-5" style={{ color: "rgba(255,100,100,0.75)" }} />
+              <AlertTriangle strokeWidth={1.3} className="h-5 w-5" style={{ color: "#9A2222" }} />
             </div>
 
             <p style={{ margin: 0, color: "rgba(61,48,37,0.72)", fontSize: 9, letterSpacing: "0.45em", textTransform: "uppercase" }}>

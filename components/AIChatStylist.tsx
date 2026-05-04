@@ -156,9 +156,9 @@ export default function AIChatStylist() {
                   <div
                     className="rounded-2xl px-3 py-2"
                     style={{
-                      background: "rgba(255,60,60,0.07)",
-                      border: "1px solid rgba(255,80,80,0.18)",
-                      color: "rgba(255,120,120,0.75)",
+                      background: "rgba(154,34,34,0.08)",
+                      border: "1px solid rgba(154,34,34,0.22)",
+                      color: "#9A2222",
                     }}
                   >
                     <p className="text-[10px] tracking-[0.16em] uppercase">{error}</p>
@@ -176,12 +176,12 @@ export default function AIChatStylist() {
                           ? {
                               background: "linear-gradient(135deg, rgba(168,121,53,0.18), rgba(168,121,53,0.06))",
                               border: "1px solid rgba(168,121,53,0.22)",
-                              color: "rgba(255,248,236,0.88)",
+                              color: "#3D3025",
                             }
                           : {
-                              background: "linear-gradient(135deg, rgba(255,248,236,0.08), rgba(255,248,236,0.025))",
-                              border: "1px solid rgba(255,248,236,0.08)",
-                              color: "rgba(255,248,236,0.82)",
+                              background: "linear-gradient(135deg, rgba(255,249,239,0.72), rgba(245,241,232,0.52))",
+                              border: "1px solid rgba(123,103,82,0.16)",
+                              color: "#5B4E42",
                             }
                       }
                     >

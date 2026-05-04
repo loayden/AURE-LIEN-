@@ -114,7 +114,7 @@ export default function GlobalError({
                 border:"1px solid rgba(220,60,60,0.22)",
                 backdropFilter:"blur(12px)",
               }}>
-                <AlertTriangle strokeWidth={1.3} style={{ width:20, height:20, color:"rgba(255,100,100,0.75)" }} />
+                <AlertTriangle strokeWidth={1.3} style={{ width:20, height:20, color:"#9A2222" }} />
               </div>
 
               {/* Eyebrow */}

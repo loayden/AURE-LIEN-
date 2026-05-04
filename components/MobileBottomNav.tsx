@@ -67,7 +67,7 @@ export default function MobileBottomNav() {
               <span className="relative flex h-5 items-center justify-center">
                 <Icon className="h-[18px] w-[18px]" strokeWidth={1.55} />
                 {item.label === "Cart" && cartCount > 0 ? (
-                  <span className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#A87935] px-1 text-[9px] leading-none text-[#FFF9EF]">
+                  <span className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#A87935] px-1 text-[9px] leading-none text-[#1D1815]">
                     {cartCount > 9 ? "9+" : cartCount}
                   </span>
                 ) : null}

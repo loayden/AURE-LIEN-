@@ -8,9 +8,9 @@ import { useState } from "react";
 
 /* ── Password strength ── */
 const STRENGTH_CONFIG = [
-  { label: "Weak",   color: "rgba(255,80,80,0.7)",    bg: "rgba(255,80,80,0.15)"   },
-  { label: "Fair",   color: "rgba(255,180,50,0.75)",   bg: "rgba(255,180,50,0.15)"  },
-  { label: "Strong", color: "rgba(80,200,120,0.75)",   bg: "rgba(80,200,120,0.12)"  },
+  { label: "Weak",   color: "#9A2222", bg: "rgba(154,34,34,0.12)"   },
+  { label: "Fair",   color: "#7A581F", bg: "rgba(168,121,53,0.14)"  },
+  { label: "Strong", color: "#256944", bg: "rgba(37,105,68,0.12)"  },
 ];
 
 function StrengthBar({ password }: { password: string }) {
@@ -246,7 +246,7 @@ export default function SignupPage() {
                     <motion.p
                       initial={{ opacity:0, y:-4 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}
                       className="text-[9px] tracking-[0.25em] uppercase font-light"
-                      style={{ color:"rgba(255,80,80,0.65)" }}
+                      style={{ color:"#9A2222" }}
                     >
                       Passwords don't match
                     </motion.p>

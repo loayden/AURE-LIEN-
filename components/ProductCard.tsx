@@ -795,13 +795,13 @@ function ProductCardComponent({
                 exit={{ opacity: 0, y: -6, height: 0 }}
                 className="overflow-hidden rounded-2xl px-3 py-2"
                 style={{
-                  background: "rgba(255,60,60,0.07)",
-                  border: "1px solid rgba(255,80,80,0.18)",
+                  background: "rgba(154,34,34,0.08)",
+                  border: "1px solid rgba(154,34,34,0.22)",
                 }}
               >
                 <p
                   className="text-[9px] uppercase tracking-[0.22em]"
-                  style={{ color: "rgba(255,120,120,0.78)", fontFamily: "'Jost', sans-serif" }}
+                  style={{ color: "#9A2222", fontFamily: "'Jost', sans-serif" }}
                 >
                   {feedbackError}
                 </p>
@@ -895,11 +895,11 @@ function ProductCardComponent({
                 fontFamily: "'Jost', sans-serif",
                 background: added
                   ? "rgba(168,121,53,0.18)"
-                  : "#A87935",
+                  : "#4C3A26",
                 color: added ? "#7A581F" : "#FFF9EF",
                 border: added
                   ? "1px solid rgba(168,121,53,0.35)"
-                  : "1px solid rgba(168,121,53,0.70)",
+                  : "1px solid rgba(76,58,38,0.70)",
               }}
               aria-label={added ? "Added" : `Add ${product.name} to cart`}
             >

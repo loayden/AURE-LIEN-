@@ -1493,6 +1493,10 @@ button:active,
   color: var(--ink) !important;
 }
 
+[class*="text-[#FFF8EC]/"] {
+  color: rgba(61,48,37,0.78) !important;
+}
+
 [class*="text-white/10"],
 [class*="text-white/15"],
 [class*="text-white/20"],

@@ -192,7 +192,7 @@ function UtilityBtn({
       />
       <span className="relative z-10">{item.icon}</span>
       {item.title === "Cart" && cartCount > 0 ? (
-        <span className="absolute -right-0.5 -top-0.5 z-20 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#A87935] px-1 text-[9px] leading-none text-[#FFF9EF]">
+        <span className="absolute -right-0.5 -top-0.5 z-20 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#A87935] px-1 text-[9px] leading-none text-[#1D1815]">
           {cartCount > 9 ? "9+" : cartCount}
         </span>
       ) : null}
@@ -411,9 +411,15 @@ export default function Navbar() {
   const [miniCartOpen, setMiniCartOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [scrolled, setScrolled] = useState(false);
+  const scrolledRef = useRef(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
+    const onScroll = () => {
+      const nextScrolled = window.scrollY > 12;
+      if (scrolledRef.current === nextScrolled) return;
+      scrolledRef.current = nextScrolled;
+      setScrolled(nextScrolled);
+    };
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
@@ -530,7 +536,7 @@ export default function Navbar() {
                     <span className="absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ background: hoverFill }} />
                     <span className="relative z-10">{button.icon}</span>
                     {cartCount > 0 ? (
-                      <span className="absolute -right-0.5 -top-0.5 z-20 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#A87935] px-1 text-[9px] leading-none text-[#FFF9EF]">
+                      <span className="absolute -right-0.5 -top-0.5 z-20 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#A87935] px-1 text-[9px] leading-none text-[#1D1815]">
                         {cartCount > 9 ? "9+" : cartCount}
                       </span>
                     ) : null}

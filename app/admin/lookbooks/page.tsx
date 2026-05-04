@@ -260,7 +260,7 @@ export default function AdminLookbooksPage() {
                 type="button"
                 onClick={() => deleteLookbook(lb._id)}
                 className="btn-ghost px-4"
-                style={{ color: "rgba(255,120,120,0.78)", borderColor: "rgba(255,80,80,0.18)" }}
+                style={{ color: "#9A2222", borderColor: "rgba(154,34,34,0.22)" }}
               >
                 Delete
               </button>
