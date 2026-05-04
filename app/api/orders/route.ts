@@ -97,6 +97,20 @@ export async function DELETE(req: NextRequest) {
     return NextResponse.json({ error: "orderId required" }, { status: 400 });
   }
   const { userId, isNew } = await resolveUserId(req);
+  const orders = (await getOrdersJson()).map(normalizeOrder);
+  const order = orders.find(o => o._id === orderId && o.userId === userId);
+  if (!order) {
+    return NextResponse.json({ error: "Order not found" }, { status: 404 });
+  }
+
+  const canCancelCheckout =
+    order.status === "pending" &&
+    order.paymentStatus !== "paid" &&
+    order.paymentMethod === "card";
+  if (!canCancelCheckout) {
+    return NextResponse.json({ error: "Order cannot be canceled from checkout" }, { status: 409 });
+  }
+
   const removed = await removeOrderById(orderId, userId);
   if (!removed) {
     return NextResponse.json({ error: "Order not found" }, { status: 404 });

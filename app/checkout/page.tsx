@@ -78,6 +78,22 @@ export default function CheckoutPage() {
     city: "", postalCode: "", phone: "", shippingMethod: "within_egypt",
   });
   const saveDraftRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const cancelOnLeaveReadyRef = useRef(false);
+  const canceledParam = searchParams.get("canceled");
+  const canceledOrderId = searchParams.get("orderId");
+
+  const clearCheckoutSession = useCallback(async (keepalive = false) => {
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("checkoutItems");
+      sessionStorage.removeItem("selectedOrder");
+    }
+
+    try {
+      await fetch("/api/checkout-draft", { method: "DELETE", keepalive });
+    } catch {
+      // Leaving the page should never block navigation.
+    }
+  }, []);
 
   const saveDraft = useCallback(async (items: FullCartItem[], formData: FormData) => {
     if (items.length === 0) return;
@@ -91,10 +107,14 @@ export default function CheckoutPage() {
   }, [paymentMethod]);
 
   useEffect(() => {
-    if (searchParams.get("canceled") === "1") {
-      setError("Card payment was canceled. Your cart is still here.");
+    if (canceledParam === "1") {
+      setError("Checkout was canceled. Your cart is still here.");
+      void clearCheckoutSession();
+      if (canceledOrderId) {
+        void fetch(`/api/orders?orderId=${encodeURIComponent(canceledOrderId)}`, { method: "DELETE" }).catch(() => {});
+      }
     }
-  }, [searchParams]);
+  }, [canceledParam, canceledOrderId, clearCheckoutSession]);
 
   useEffect(() => {
     (async () => {
@@ -137,37 +157,6 @@ export default function CheckoutPage() {
             color: i.color ?? null,
           }));
           if (merged.length > 0) { setCart(merged); setLoading(false); return; }
-        }
-
-        const selectedJson = typeof window !== "undefined" ? sessionStorage.getItem("selectedOrder") : null;
-        if (selectedJson) {
-          const sel = JSON.parse(selectedJson);
-          const items = (sel.items||[])
-            .filter((i: any) => (i.productId||i._id) && (i.quantity??1)>0)
-            .map((i: any) => ({
-              _id: i.productId||i._id,
-              productId: i.productId||i._id,
-              name: i.name??"Unknown",
-              price: Number(i.price??0),
-              quantity: i.quantity??1,
-              image: i.image||"/images/placeholder.svg",
-              size: i.size ?? null,
-              color: i.color ?? null,
-            }));
-          if (items.length > 0) { 
-            setCart(items); 
-            if (sel.customer) setForm((f) => ({ 
-              ...f, 
-              email: sel.customer.email||"", 
-              firstName: sel.customer.firstName||"", 
-              lastName: sel.customer.lastName||"", 
-              address: sel.customer.address||"", 
-              city: sel.customer.city||"", 
-              phone: sel.customer.phone||"" 
-            })); 
-            setLoading(false); 
-            return; 
-          }
         }
 
         setFromCart(true);
@@ -214,6 +203,23 @@ export default function CheckoutPage() {
     return () => { if (saveDraftRef.current) clearTimeout(saveDraftRef.current); };
   }, [cart, form, saveDraft]);
 
+  useEffect(() => {
+    const cancelOnPageLeave = () => {
+      if (!cancelOnLeaveReadyRef.current) return;
+      void clearCheckoutSession(true);
+    };
+    const readyTimer = window.setTimeout(() => {
+      cancelOnLeaveReadyRef.current = true;
+    }, 0);
+
+    window.addEventListener("pagehide", cancelOnPageLeave);
+    return () => {
+      window.clearTimeout(readyTimer);
+      window.removeEventListener("pagehide", cancelOnPageLeave);
+      cancelOnPageLeave();
+    };
+  }, [clearCheckoutSession]);
+
   const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
   const shippingCost = form.shippingMethod === "within_egypt" ? SHIPPING_COST_CAIRO : 0;
   const total = subtotal + shippingCost;
@@ -223,17 +229,8 @@ export default function CheckoutPage() {
   async function handleCancel() {
     setError("");
     setSuccess("");
-    try {
-      if (typeof window !== "undefined") {
-        sessionStorage.removeItem("checkoutItems");
-        sessionStorage.removeItem("selectedOrder");
-      }
-      await fetch("/api/checkout-draft", { method: "DELETE" });
-    } catch {
-      // swallow cancel errors
-    } finally {
-      router.push("/cart");
-    }
+    await clearCheckoutSession();
+    router.push("/cart");
   }
 
   async function handleSubmit(e: React.FormEvent) {

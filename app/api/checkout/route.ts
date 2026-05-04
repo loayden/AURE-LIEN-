@@ -11,6 +11,10 @@ function getStripe(): Stripe | null {
   return new Stripe(key);
 }
 
+function appendQueryParam(url: string, key: string, value: string) {
+  return `${url}${url.includes("?") ? "&" : "?"}${key}=${encodeURIComponent(value)}`;
+}
+
 export async function POST(req: NextRequest) {
   const stripe = getStripe();
   if (!stripe) {
@@ -71,12 +75,14 @@ export async function POST(req: NextRequest) {
 
     const success = successUrl || `${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/checkout/confirmation?paymentStatus=paid`;
     const successWithOrder = `${success}${success.includes("?") ? "&" : "?"}orderId=${encodeURIComponent(orderId)}`;
+    const cancel = cancelUrl || `${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/checkout?canceled=1`;
+    const cancelWithOrder = appendQueryParam(cancel, "orderId", orderId);
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: lineItems,
       success_url: successWithOrder,
-      cancel_url: cancelUrl || `${process.env.NEXT_PUBLIC_URL}/cart`,
+      cancel_url: cancelWithOrder,
       client_reference_id: userId,
       metadata: {
         orderId,

@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Calendar, CheckCircle2, Clock, CreditCard, Hash, Package, ShoppingBag } from "lucide-react";
+import { ArrowRight, Calendar, CheckCircle2, Clock, CreditCard, Hash, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -72,11 +72,10 @@ function OrderTimeline({ status }: { status: string }) {
 }
 
 /* ── Single order card ── */
-function OrderCard({ order, index, onPending }: { order: any; index: number; onPending: (o: any) => void }) {
+function OrderCard({ order, index }: { order: any; index: number }) {
   const items = order.items || [];
   const totalQty = items.reduce((a: number, i: any) => a + (i.quantity ?? 1), 0);
   const totalPrice = Number(order.totalPrice ?? order.total ?? 0);
-  const isPending = order.status === "pending";
 
   return (
     <motion.div
@@ -230,49 +229,13 @@ function OrderCard({ order, index, onPending }: { order: any; index: number; onP
 
         {/* Right — action */}
         <div className="flex flex-col gap-2 sm:flex-row">
-        <Link
-          href={`/orders/${encodeURIComponent(order._id)}`}
-          className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full border border-white/10 px-5 py-3 text-[10px] uppercase tracking-[0.24em] text-white/60 transition-colors hover:text-white"
-        >
-          Details
-          <ArrowRight strokeWidth={1.3} className="w-3.5 h-3.5" />
-        </Link>
-        {isPending ? (
-          <motion.button
-            type="button"
-            onClick={() => onPending(order)}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
-            className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 px-5 py-3 rounded-full font-light transition-all duration-400 sm:gap-3 sm:px-6"
-            style={{
-              background: "linear-gradient(135deg, rgba(255,180,50,0.18), rgba(255,160,30,0.06))",
-              border: "1px solid rgba(255,180,50,0.28)",
-              backdropFilter: "blur(16px)",
-              color: "rgba(255,190,60,0.85)",
-              fontFamily: "'Jost', sans-serif",
-              fontSize: "10px",
-              letterSpacing: "0.3em",
-            }}
+          <Link
+            href={`/orders/${encodeURIComponent(order._id)}`}
+            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full border border-white/10 px-5 py-3 text-[10px] uppercase tracking-[0.24em] text-white/60 transition-colors hover:text-white"
           >
-            Pay Now
+            Details
             <ArrowRight strokeWidth={1.3} className="w-3.5 h-3.5" />
-          </motion.button>
-        ) : (
-          <div
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full"
-            style={{
-              background: "rgba(80,200,120,0.06)",
-              border: "1px solid rgba(80,200,120,0.14)",
-              backdropFilter: "blur(12px)",
-            }}
-          >
-            <Package strokeWidth={1.2} className="w-3.5 h-3.5" style={{ color:"rgba(80,200,120,0.6)" }} />
-            <span className="text-[9px] tracking-[0.3em] uppercase font-light"
-                  style={{ color:"rgba(80,200,120,0.6)", fontFamily:"'Jost', sans-serif" }}>
-              Completed
-            </span>
-          </div>
-        )}
+          </Link>
         </div>
       </div>
     </motion.div>
@@ -310,13 +273,6 @@ export default function OrdersPage() {
     })();
     return () => controller.abort();
   }, [orderId]);
-
-  async function handlePending(order: any) {
-    if (typeof window !== "undefined") sessionStorage.setItem("selectedOrder", JSON.stringify(order));
-    setOrders((prev) => prev.filter((o) => o._id !== order._id));
-    try { await fetch(`/api/orders?orderId=${encodeURIComponent(order._id)}`, { method:"DELETE" }); } catch {}
-    router.push("/checkout");
-  }
 
   /* ── Loading ── */
   if (loading) return (
@@ -402,7 +358,7 @@ export default function OrdersPage() {
             <AnimatePresence mode="popLayout">
               <div className="flex flex-col gap-5">
                 {orders.map((order, i) => (
-                  <OrderCard key={order._id} order={order} index={i} onPending={handlePending} />
+                  <OrderCard key={order._id} order={order} index={i} />
                 ))}
               </div>
             </AnimatePresence>

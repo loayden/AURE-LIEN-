@@ -1,9 +1,9 @@
 "use client";
 
-import { ArrowRight, CheckCircle2, Clock3, CreditCard, Hash, Package, Truck } from "lucide-react";
+import { CheckCircle2, Clock3, CreditCard, Hash, Package, Truck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const STEPS = ["Pending", "Paid", "Processing", "Shipped", "Delivered"];
@@ -18,7 +18,6 @@ function activeStep(status: string) {
 
 export default function OrderDetailsPage() {
   const params = useParams();
-  const router = useRouter();
   const orderId = Array.isArray(params?.id) ? params.id[0] : String(params?.id ?? "");
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -41,12 +40,6 @@ export default function OrderDetailsPage() {
       });
     return () => controller.abort();
   }, [orderId]);
-
-  function resumePayment() {
-    if (!order) return;
-    sessionStorage.setItem("selectedOrder", JSON.stringify(order));
-    router.push("/checkout");
-  }
 
   if (loading) {
     return (
@@ -160,12 +153,6 @@ export default function OrderDetailsPage() {
                 <span className="text-[10px] uppercase tracking-[0.22em]">Support available</span>
               </div>
             </div>
-            {!paymentPaid ? (
-              <button type="button" onClick={resumePayment} className="btn-gold justify-center">
-                Pay Now
-                <ArrowRight className="h-4 w-4" strokeWidth={1.3} />
-              </button>
-            ) : null}
             <Link href="/orders" className="btn-ghost justify-center">
               Back to Orders
             </Link>
