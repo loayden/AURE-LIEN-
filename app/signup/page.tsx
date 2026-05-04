@@ -93,12 +93,12 @@ export default function SignupPage() {
   return (
     <>
       <style>{`
-        body { background: #0A0908; }
-        ::selection { background: #C9A86A; color: #0A0908; }
+        body { background: #F5F1E8; }
+        ::selection { background: #A87935; color: #F5F1E8; }
       `}</style>
 
       <main
-        className="relative min-h-screen bg-[#0A0908] flex items-center justify-center px-4 py-16 sm:px-6 sm:py-24 md:px-10"
+        className="relative min-h-screen bg-[#F5F1E8] flex items-center justify-center px-4 py-16 sm:px-6 sm:py-24 md:px-10"
         style={{ fontFamily:"'Jost', sans-serif" }}
       >
 
@@ -130,7 +130,7 @@ export default function SignupPage() {
                 BOUT
               </h1>
               <div className="mx-auto mt-3 mb-4 w-8 h-px"
-                   style={{ background:"linear-gradient(90deg, transparent, rgba(201,168,106,0.7), transparent)" }} />
+                   style={{ background:"linear-gradient(90deg, transparent, rgba(168,121,53,0.7), transparent)" }} />
               <p className="text-white/25 text-[9px] tracking-[0.45em] uppercase">Create Account</p>
             </div>
 
@@ -262,18 +262,18 @@ export default function SignupPage() {
                 whileTap={{ scale:0.985 }}
                 className="relative mt-2 w-full overflow-hidden rounded-full py-4 flex items-center justify-center gap-3 disabled:opacity-50 transition-all duration-500"
                 style={{
-                  background:"linear-gradient(135deg, rgba(201,168,106,0.22), rgba(178,149,78,0.10))",
-                  border:"1px solid rgba(201,168,106,0.35)",
+                  background:"linear-gradient(135deg, rgba(168,121,53,0.22), rgba(178,149,78,0.10))",
+                  border:"1px solid rgba(168,121,53,0.35)",
                   backdropFilter:"blur(16px)",
-                  boxShadow:"0 0 28px rgba(201,168,106,0.12), inset 0 1px 0 rgba(255,248,236,0.14)",
+                  boxShadow:"0 0 28px rgba(168,121,53,0.12), inset 0 1px 0 rgba(255,248,236,0.14)",
                 }}
               >
                 <div className="absolute inset-0 pointer-events-none"
                      style={{ background:"linear-gradient(105deg, transparent 40%, rgba(255,248,236,0.08) 50%, transparent 60%)" }} />
-                <span className="relative z-10 text-[#C9A86A] text-[10px] tracking-[0.32em] uppercase font-light">
+                <span className="relative z-10 text-[#A87935] text-[10px] tracking-[0.32em] uppercase font-light">
                   {loading ? "Creating Account…" : "Create Account"}
                 </span>
-                {!loading && <ArrowRight strokeWidth={1.3} className="relative z-10 w-3.5 h-3.5 text-[#C9A86A]" />}
+                {!loading && <ArrowRight strokeWidth={1.3} className="relative z-10 w-3.5 h-3.5 text-[#A87935]" />}
               </motion.button>
             </form>
 
@@ -288,7 +288,7 @@ export default function SignupPage() {
             <p className="text-center text-white/25 text-[10px] tracking-[0.2em]">
               Already have an account?{" "}
               <Link href="/login"
-                className="text-[#C9A86A] hover:text-white/80 transition-colors duration-300"
+                className="text-[#A87935] hover:text-white/80 transition-colors duration-300"
                 style={{ letterSpacing:"0.2em" }}>
                 Sign In
               </Link>

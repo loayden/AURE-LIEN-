@@ -3,6 +3,7 @@ import { getOrCreateUserId } from "@/lib/userSession";
 import { getAuthFromRequest } from "@/lib/auth";
 import { attachUserCookie } from "@/lib/userSession";
 import { appendOrder, getOrdersJson } from "@/lib/orderStorage";
+import { getProductById } from "@/lib/getAllProducts";
 
 type OrderItem = {
   productId: string;
@@ -49,7 +50,17 @@ type Order = {
   customer: CustomerInfo;
   createdAt: string;
   status: string;
+  paymentStatus: string;
+  paymentMethod: string;
 };
+
+const SHIPPING_OPTIONS: Record<string, number> = {
+  within_egypt: 75,
+};
+
+function isPositiveInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value > 0;
+}
 
 async function resolveUserId(req: NextRequest): Promise<{ userId: string; isNew: boolean }> {
   const auth = await getAuthFromRequest(req);
@@ -72,7 +83,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const { items = [], total = 0, customerInfo = {} } = body;
+    const { items = [], total = 0, customerInfo = {}, paymentMethod = "cod" } = body;
 
     console.log("📥 Received order data:", {
       itemsCount: items.length,
@@ -115,28 +126,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // ✅ VALIDATION: Validate each item
+    // ✅ VALIDATION: Validate each item. Server-side catalog lookup below is the
+    // source of truth for names, images, and prices.
     for (const item of items) {
-      if (!item.productId || !item.name || !item.price || !item.quantity) {
+      if (!item.productId || !isPositiveInteger(Number(item.quantity))) {
         console.error("❌ Invalid item structure:", item);
         return NextResponse.json(
-          { error: "Each item must have productId, name, price, and quantity" },
-          { status: 400 }
-        );
-      }
-
-      if (item.quantity < 1) {
-        console.error("❌ Invalid quantity:", item.quantity);
-        return NextResponse.json(
-          { error: "Item quantity must be at least 1" },
-          { status: 400 }
-        );
-      }
-
-      if (item.price < 0) {
-        console.error("❌ Invalid price:", item.price);
-        return NextResponse.json(
-          { error: "Item price cannot be negative" },
+          { error: "Each item must have productId and a positive whole quantity" },
           { status: 400 }
         );
       }
@@ -165,12 +161,47 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       country: String(customerInfo.country ?? "").trim(),
       phone: String(customerInfo.phone ?? "").trim(),
       newsletter: Boolean(customerInfo.newsletter),
-      shippingMethod: String(customerInfo.shippingMethod ?? "").trim(),
-      shippingCost: Number(customerInfo.shippingCost ?? 0),
+      shippingMethod: String(customerInfo.shippingMethod ?? "within_egypt").trim(),
+      shippingCost: 0,
     };
+    normalizedCustomer.shippingCost =
+      SHIPPING_OPTIONS[normalizedCustomer.shippingMethod || "within_egypt"] ?? 0;
+
+    let resolvedItems: OrderItem[];
+    try {
+      resolvedItems = await Promise.all(
+        items.map(async (item: OrderItem) => {
+          const product = await getProductById(String(item.productId));
+          if (!product) {
+            throw new Error(`Product not found: ${item.productId}`);
+          }
+          const quantity = Number(item.quantity);
+          if (typeof product.stock === "number" && product.stock <= 0) {
+            throw new Error(`${product.name} is sold out`);
+          }
+          if (typeof product.stock === "number" && quantity > product.stock) {
+            throw new Error(`Only ${product.stock} available for ${product.name}`);
+          }
+          return {
+            productId: product._id,
+            name: product.name,
+            price: Number(product.price),
+            quantity,
+            size: item.size || "One Size",
+            color: item.color || "Default",
+            image: product.images?.[0] ?? "/images/placeholder.svg",
+          };
+        })
+      );
+    } catch (catalogError) {
+      return NextResponse.json(
+        { error: catalogError instanceof Error ? catalogError.message : "Unable to validate order items" },
+        { status: 400 }
+      );
+    }
 
     // ✅ CALCULATE TOTAL SERVER-SIDE (don't trust frontend)
-    const itemsTotal = items.reduce((sum: number, item: OrderItem) => {
+    const itemsTotal = resolvedItems.reduce((sum: number, item) => {
       return sum + item.price * item.quantity;
     }, 0);
     const calculatedTotal = itemsTotal + normalizedCustomer.shippingCost;
@@ -184,7 +215,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     // ✅ Step 1: Create new order payload
     const orderId = `order-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
-    const products = items.map((item: OrderItem) => ({
+    const products = resolvedItems.map((item) => ({
       _id: item.productId,
       name: item.name,
       price: item.price,
@@ -212,7 +243,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       totalPrice: calculatedTotal,
       customer: normalizedCustomer,
       createdAt: new Date().toISOString(),
-      status: "completed",
+      status: paymentMethod === "card" ? "pending" : "pending",
+      paymentStatus: paymentMethod === "card" ? "unpaid" : "pending",
+      paymentMethod: paymentMethod === "card" ? "card" : "cash_on_delivery",
     };
 
     console.log(`✅ Created new order ${newOrder._id} with ${items.length} items`);
@@ -237,6 +270,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         message: "Order placed successfully",
         total: calculatedTotal,
         itemsCount: items.length,
+        paymentStatus: newOrder.paymentStatus,
+        status: newOrder.status,
       },
       { status: 201 }
     );

@@ -55,6 +55,8 @@ const orderSchema = new Schema(
     totalPrice: { type: Number, required: true, default: 0 },
     total: { type: Number, required: true, default: 0 },
     status: { type: String, default: "pending" },
+    paymentStatus: { type: String, default: "pending" },
+    paymentMethod: { type: String, default: "" },
     createdAt: { type: Date, default: Date.now },
     customer: { type: customerSchema, default: {} },
   },

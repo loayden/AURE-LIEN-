@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { clearCartByUser } from "@/lib/cartStorage";
+import { getOrdersJson, setOrdersJson } from "@/lib/orderStorage";
 
 function getStripe(): Stripe | null {
   const key = process.env.STRIPE_SECRET_KEY;
@@ -20,8 +22,28 @@ export async function POST(req: NextRequest) {
     const event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
-      // Optional: create order in DB, send confirmation email, etc.
-      console.log("Checkout completed:", session.id);
+      const orderId = session.metadata?.orderId;
+      const userId = session.metadata?.userId || session.client_reference_id || "";
+
+      if (orderId) {
+        const orders = await getOrdersJson();
+        const index = orders.findIndex((order: any) => String(order._id ?? order.id) === String(orderId));
+
+        if (index !== -1) {
+          orders[index] = {
+            ...orders[index],
+            status: "paid",
+            paymentStatus: "paid",
+            stripeSessionId: session.id,
+            paidAt: new Date().toISOString(),
+          };
+          await setOrdersJson(orders);
+        }
+      }
+
+      if (userId) {
+        await clearCartByUser(userId);
+      }
     }
     return NextResponse.json({ received: true });
   } catch (e) {

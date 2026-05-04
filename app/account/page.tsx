@@ -1,23 +1,29 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, LogOut, MapPin, Package2, User2 } from "lucide-react";
+import { ArrowRight, Heart, LogOut, MapPin, Package2, Save, User2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { showToast } from "@/components/ToastProvider";
+
+type AccountUser = {
+  name: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  apartment?: string;
+  city?: string;
+  postalCode?: string;
+  country?: string;
+};
 
 export default function AccountPage() {
   const router = useRouter();
-  const [user, setUser] = useState<{
-    name: string;
-    email: string;
-    phone?: string;
-    address?: string;
-    apartment?: string;
-    city?: string;
-    postalCode?: string;
-    country?: string;
-  } | null>(null);
+  const [user, setUser] = useState<AccountUser | null>(null);
+  const [draft, setDraft] = useState<AccountUser | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -29,7 +35,10 @@ export default function AccountPage() {
         if (!res.ok) throw new Error("Unauthorized");
         return res.json();
       })
-      .then(setUser)
+      .then((data) => {
+        setUser(data);
+        setDraft(data);
+      })
       .catch((requestError) => {
         if (controller.signal.aborted) return;
         if (requestError instanceof Error && requestError.message === "Unauthorized") {
@@ -53,6 +62,38 @@ export default function AccountPage() {
     window.dispatchEvent(new Event("wishlist:invalidate"));
     router.push("/");
     router.refresh();
+  }
+
+  function updateDraft(key: keyof AccountUser, value: string) {
+    setDraft((current) => (current ? { ...current, [key]: value } : current));
+  }
+
+  async function saveProfile() {
+    if (!draft) return;
+    setSaving(true);
+    setError(null);
+
+    try {
+      const response = await fetch("/api/users/me", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(draft),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.error || "Unable to update profile");
+      }
+      setUser(data);
+      setDraft(data);
+      setEditing(false);
+      showToast("Profile updated.", "success");
+    } catch (requestError) {
+      const message = requestError instanceof Error ? requestError.message : "Unable to update profile";
+      setError(message);
+      showToast(message, "error");
+    } finally {
+      setSaving(false);
+    }
   }
 
   if (loading) {
@@ -123,48 +164,88 @@ export default function AccountPage() {
 
         <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
           <section className="glass-panel p-6 sm:p-8">
-            <div className="mb-6 flex items-center gap-3">
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
               <div className="empty-icon-panel h-12 w-12 rounded-[1rem]">
-                <User2 strokeWidth={1.2} className="h-5 w-5 text-[#C9A86A]" />
+                <User2 strokeWidth={1.2} className="h-5 w-5 text-[#A87935]" />
               </div>
               <div>
                 <p className="eyebrow mb-2">Profile</p>
                 <p className="body-copy body-copy-strong">Your account details and delivery profile.</p>
               </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (editing) {
+                    setDraft(user);
+                    setEditing(false);
+                    return;
+                  }
+                  setEditing(true);
+                }}
+                className="inline-flex min-h-[44px] items-center justify-center rounded-full border border-white/10 px-4 text-[10px] uppercase tracking-[0.2em] text-white/55 transition-colors hover:border-[#A87935]/35 hover:text-[#A87935]"
+              >
+                {editing ? "Cancel" : "Edit Profile"}
+              </button>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-[1.15rem] border border-white/8 bg-white/[0.03] p-4">
-                <p className="eyebrow mb-2">Name</p>
-                <p className="body-copy body-copy-strong">{user.name}</p>
-              </div>
-              <div className="rounded-[1.15rem] border border-white/8 bg-white/[0.03] p-4">
-                <p className="eyebrow mb-2">Email</p>
-                <p className="body-copy body-copy-strong break-all">{user.email}</p>
-              </div>
-              <div className="rounded-[1.15rem] border border-white/8 bg-white/[0.03] p-4">
-                <p className="eyebrow mb-2">Phone</p>
-                <p className="body-copy body-copy-strong">{user.phone || "Not added yet"}</p>
-              </div>
-              <div className="rounded-[1.15rem] border border-white/8 bg-white/[0.03] p-4">
-                <p className="eyebrow mb-2">Location</p>
-                <p className="body-copy body-copy-strong">
-                  {[user.city, user.country].filter(Boolean).join(", ") || "Not added yet"}
-                </p>
-              </div>
+              {[
+                ["name", "Name", draft?.name || ""],
+                ["email", "Email", draft?.email || ""],
+                ["phone", "Phone", draft?.phone || ""],
+                ["city", "City", draft?.city || ""],
+              ].map(([key, label, value]) => (
+                <label key={key} className="rounded-[1.15rem] border border-white/8 bg-white/[0.03] p-4">
+                  <span className="eyebrow mb-2 block">{label}</span>
+                  <input
+                    value={value}
+                    readOnly={!editing || key === "email"}
+                    onChange={(event) => updateDraft(key as keyof AccountUser, event.target.value)}
+                    className="min-h-[44px] w-full border-0 bg-transparent p-0 text-sm text-[#FFF8EC] outline-none read-only:text-white/62"
+                  />
+                </label>
+              ))}
             </div>
 
             <div className="mt-4 rounded-[1.15rem] border border-white/8 bg-white/[0.03] p-4">
               <div className="mb-3 flex items-center gap-2">
-                <MapPin strokeWidth={1.2} className="h-4 w-4 text-[#C9A86A]" />
+                <MapPin strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
                 <p className="eyebrow">Delivery Address</p>
               </div>
-              <p className="body-copy body-copy-strong">
-                {[user.address, user.apartment, user.city, user.postalCode, user.country]
-                  .filter(Boolean)
-                  .join(", ") || "Add an address during checkout to save it here."}
-              </p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[
+                  ["address", "Street address", draft?.address || ""],
+                  ["apartment", "Apartment", draft?.apartment || ""],
+                  ["postalCode", "Postal code", draft?.postalCode || ""],
+                  ["country", "Country", draft?.country || ""],
+                ].map(([key, label, value]) => (
+                  <label key={key} className="block">
+                    <span className="sr-only">{label}</span>
+                    <input
+                      value={value}
+                      readOnly={!editing}
+                      placeholder={label}
+                      onChange={(event) => updateDraft(key as keyof AccountUser, event.target.value)}
+                      className="min-h-[44px] w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm text-[#FFF8EC] outline-none placeholder:text-white/25 read-only:text-white/62"
+                    />
+                  </label>
+                ))}
+              </div>
             </div>
+
+            {editing ? (
+              <button
+                type="button"
+                onClick={saveProfile}
+                disabled={saving}
+                className="btn-gold mt-5 w-full justify-center disabled:opacity-45"
+              >
+                <Save strokeWidth={1.2} className="h-4 w-4" />
+                {saving ? "Saving" : "Save Profile"}
+              </button>
+            ) : null}
           </section>
 
           <section className="dark-panel flex flex-col gap-4 p-6 sm:p-7">
@@ -181,14 +262,14 @@ export default function AccountPage() {
             <nav className="flex flex-col gap-3">
               <Link href="/orders" className="liquid-row-link">
                 <span className="inline-flex items-center gap-3">
-                  <Package2 strokeWidth={1.2} className="h-4 w-4 text-[#C9A86A]" />
+                  <Package2 strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
                   <span className="text-[0.82rem] uppercase tracking-[0.24em]">Order History</span>
                 </span>
                 <ArrowRight strokeWidth={1.2} className="h-4 w-4 text-white/35" />
               </Link>
               <Link href="/wishlist" className="liquid-row-link">
                 <span className="inline-flex items-center gap-3">
-                  <User2 strokeWidth={1.2} className="h-4 w-4 text-[#C9A86A]" />
+                  <Heart strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
                   <span className="text-[0.82rem] uppercase tracking-[0.24em]">Wishlist</span>
                 </span>
                 <ArrowRight strokeWidth={1.2} className="h-4 w-4 text-white/35" />

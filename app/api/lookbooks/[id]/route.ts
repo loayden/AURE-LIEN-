@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/connectDB";
 import Lookbook from "@/models/Lookbook";
 import { getFallbackLookbookById } from "@/lib/lookbooksData";
+import { getAuthFromRequest } from "@/lib/auth";
 
 export async function GET(
   req: NextRequest,
@@ -13,7 +14,7 @@ export async function GET(
     const lookbook = await Lookbook.findById(id).lean();
     if (!lookbook) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json(lookbook);
-  } catch (e) {
+  } catch {
     const lookbook = getFallbackLookbookById(id);
     if (!lookbook) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
@@ -27,6 +28,11 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await getAuthFromRequest(req);
+    if (!auth || auth.role !== "admin") {
+      return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+    }
+
     await connectDB();
     const { id } = await params;
     const body = await req.json();
@@ -37,7 +43,7 @@ export async function PUT(
     );
     if (!lookbook) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json(lookbook);
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Failed to update" }, { status: 500 });
   }
 }
@@ -47,11 +53,16 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await getAuthFromRequest(req);
+    if (!auth || auth.role !== "admin") {
+      return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+    }
+
     await connectDB();
     const { id } = await params;
     await Lookbook.findByIdAndDelete(id);
     return NextResponse.json({ success: true });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ error: "Failed to delete" }, { status: 500 });
   }
 }

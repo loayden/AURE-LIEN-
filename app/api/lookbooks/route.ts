@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/connectDB";
 import Lookbook from "@/models/Lookbook";
 import { fallbackLookbooks } from "@/lib/lookbooksData";
+import { getAuthFromRequest } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   const published = req.nextUrl.searchParams.get("published");
@@ -22,6 +23,11 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await getAuthFromRequest(req);
+    if (!auth || auth.role !== "admin") {
+      return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+    }
+
     await connectDB();
     const body = await req.json();
     const { title, slug, sections } = body;

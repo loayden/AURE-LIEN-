@@ -3,6 +3,7 @@
 import ProductCard from "@/components/ProductCard";
 import { usePerformanceProfile } from "@/hooks/usePerformanceProfile";
 import { useTimeoutRegistry } from "@/hooks/useTimeoutRegistry";
+import { stockLabel, stockState } from "@/lib/commerce";
 import { getProductColorHex as getColorHex } from "@/lib/productColors";
 import { getProductPageContent, type ProductPageSpecification } from "@/lib/productPageContent";
 import products from "@/lib/productsData";
@@ -14,16 +15,22 @@ import {
   Check,
   ChevronRight,
   Copy,
-  Facebook,
-  Linkedin,
   ShoppingBag,
+  Ruler,
   Star,
-  Twitter,
+  X,
   Zap
 } from "lucide-react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  FaFacebookF as Facebook,
+  FaLinkedinIn as Linkedin,
+  FaTwitter as Twitter,
+} from "react-icons/fa";
+
+const catalogProducts = products as Product[];
 
 /* ────────────────────────────────────────────────────────────────── */
 /* DESIGN TOKENS */
@@ -35,19 +42,30 @@ function getOriginalPrice(price: number, discount?: number) {
 }
 
 const glass = {
-  background: "linear-gradient(135deg, rgba(255,248,236,0.09) 0%, rgba(255,248,236,0.03) 100%)",
+  background: "linear-gradient(135deg, rgba(255,255,255,0.78) 0%, rgba(255,249,239,0.58) 100%)",
   backdropFilter: "blur(24px) saturate(160%)",
   WebkitBackdropFilter: "blur(24px) saturate(160%)",
-  border: "1px solid rgba(255,248,236,0.10)",
-  boxShadow: "0 16px 48px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,248,236,0.16)",
+  border: "1px solid rgba(123,103,82,0.18)",
+  boxShadow: "0 16px 44px rgba(61,48,37,0.12), inset 0 1px 0 rgba(255,255,255,0.74)",
 };
 
 const goldGlass = {
-  background: "linear-gradient(135deg, rgba(201,168,106,0.22) 0%, rgba(178,149,78,0.10) 100%)",
+  background: "linear-gradient(135deg, rgba(168,121,53,0.16) 0%, rgba(255,249,239,0.58) 100%)",
+  color: "#7A581F",
   backdropFilter: "blur(20px) saturate(160%)",
   WebkitBackdropFilter: "blur(20px) saturate(160%)",
-  border: "1px solid rgba(201,168,106,0.28)",
-  boxShadow: "0 8px 32px rgba(201,168,106,0.12), inset 0 1px 0 rgba(255,248,236,0.14)",
+  border: "1px solid rgba(168,121,53,0.34)",
+  boxShadow: "0 10px 30px rgba(168,121,53,0.12), inset 0 1px 0 rgba(255,255,255,0.64)",
+};
+
+const primaryCta = {
+  background: "linear-gradient(135deg, rgba(76,58,38,0.96) 0%, rgba(125,89,43,0.92) 100%)",
+  backgroundColor: "#4C3A26",
+  color: "#FFF9EF",
+  backdropFilter: "blur(18px) saturate(150%)",
+  WebkitBackdropFilter: "blur(18px) saturate(150%)",
+  border: "1px solid rgba(168,121,53,0.42)",
+  boxShadow: "0 14px 30px rgba(61,48,37,0.16), inset 0 1px 0 rgba(255,255,255,0.30)",
 };
 
 /* ────────────────────────────────────────────────────────────────── */
@@ -65,6 +83,7 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const handleScroll = (direction: "left" | "right") => {
     if (!scrollContainerRef.current) return;
@@ -165,7 +184,10 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
               transition={{ delay: i * 0.05, duration: 0.6 }}
               onMouseEnter={() => setHoveredIndex(i)}
               onMouseLeave={() => setHoveredIndex(null)}
-              onClick={() => setSelectedIndex(i)}
+              onClick={() => {
+                setSelectedIndex(i);
+                setLightboxIndex(i);
+              }}
               className="snap-center flex-shrink-0 cursor-pointer group"
               style={{ width: "min(82vw, 400px)", aspectRatio: "4 / 5" }}
             >
@@ -199,7 +221,6 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
                   className="absolute inset-0 flex items-center justify-center pointer-events-none"
                 >
                   <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/20 backdrop-blur-md text-white text-[11px] tracking-widest uppercase font-light">
-                    <span>🔍</span>
                     View
                   </div>
                 </motion.div>
@@ -259,12 +280,50 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
             }}
             animate={{
               width: selectedIndex === i ? 32 : 8,
-              backgroundColor: selectedIndex === i ? "#C9A86A" : "rgba(255,248,236,0.2)",
+              backgroundColor: selectedIndex === i ? "#A87935" : "rgba(255,248,236,0.2)",
             }}
             className="h-1 rounded-full transition-all"
           />
         ))}
       </motion.div>
+
+      <AnimatePresence>
+        {lightboxIndex !== null ? (
+          <motion.div
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/84 p-4 backdrop-blur-xl"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${productName} image zoom`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <button
+              type="button"
+              aria-label="Close image zoom"
+              className="absolute inset-0 h-full w-full"
+              onClick={() => setLightboxIndex(null)}
+            />
+            <div className="relative z-10 h-[84vh] w-full max-w-5xl overflow-hidden rounded-[28px] border border-white/10 bg-[#FFF9EF]">
+              <Image
+                src={images[lightboxIndex]}
+                alt={`${productName} zoom ${lightboxIndex + 1}`}
+                fill
+                sizes="92vw"
+                className="object-contain"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setLightboxIndex(null)}
+              className="absolute right-5 top-5 z-20 flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.08] text-white/70 backdrop-blur-xl hover:text-white"
+              aria-label="Close image zoom"
+            >
+              <X className="h-4 w-4" strokeWidth={1.4} />
+            </button>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </motion.div>
   );
 }
@@ -379,6 +438,8 @@ export default function PremiumProductPage() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"specs" | "details">("specs");
   const [actionError, setActionError] = useState<string | null>(null);
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+  const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
   const { registerTimeout } = useTimeoutRegistry();
   const p = product;
   const allMedia = useMemo(() => {
@@ -390,6 +451,15 @@ export default function PremiumProductPage() {
 
     return media.length > 0 ? media : ["/images/placeholder.svg"];
   }, [p]);
+  const relatedProducts = useMemo(
+    () =>
+      p
+        ? catalogProducts.filter((r) => r.category === p.category && r._id !== p._id).slice(0, 4)
+        : [],
+    [p]
+  );
+  const pageContent = useMemo(() => (p ? getProductPageContent(p) : null), [p]);
+  const highlightIcons = useMemo(() => [Award, Star, Check, Box], []);
 
   useEffect(() => {
     if (!id) {
@@ -399,7 +469,7 @@ export default function PremiumProductPage() {
     }
 
     const fallbackProduct =
-      (products.find((entry) => String(entry._id) === id) as
+      (catalogProducts.find((entry) => String(entry._id) === id) as
         | (Product & { media360?: string[]; videoUrl?: string })
         | undefined) ?? null;
 
@@ -446,9 +516,28 @@ export default function PremiumProductPage() {
     };
   }, [id]);
 
+  useEffect(() => {
+    if (!p || typeof window === "undefined") return;
+    const key = "bout:recently-viewed";
+    const existing = JSON.parse(window.localStorage.getItem(key) || "[]") as string[];
+    const next = [p._id, ...existing.filter((item) => item !== p._id)].slice(0, 8);
+    window.localStorage.setItem(key, JSON.stringify(next));
+
+    const previousIds = next.filter((item) => item !== p._id).slice(0, 4);
+    if (!previousIds.length) {
+      setRecentlyViewed([]);
+      return;
+    }
+
+    const previous = previousIds
+      .map((item) => catalogProducts.find((entry) => entry._id === item))
+      .filter((item): item is Product => Boolean(item));
+    setRecentlyViewed(previous);
+  }, [p]);
+
   if (loadingProduct) {
     return (
-      <div className="min-h-screen bg-[#0A0908] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center">
         <p className="text-white/50 font-light tracking-widest" style={{ fontFamily: "'Jost', sans-serif" }}>
           Loading product...
         </p>
@@ -456,9 +545,9 @@ export default function PremiumProductPage() {
     );
   }
 
-  if (!product || !p) {
+  if (!product || !p || !pageContent) {
     return (
-      <div className="min-h-screen bg-[#0A0908] flex items-center justify-center">
+      <div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center">
         <p className="text-white/50 font-light tracking-widest" style={{ fontFamily: "'Jost', sans-serif" }}>
           Product not found.
         </p>
@@ -466,23 +555,22 @@ export default function PremiumProductPage() {
     );
   }
 
-  const relatedProducts = useMemo(
-    () =>
-      products.filter((r) => r.category === product.category && r._id !== product._id).slice(0, 4) as Product[],
-    [product.category, product._id]
-  );
-  const pageContent = useMemo(() => getProductPageContent(product), [product]);
-  const highlightIcons = useMemo(() => [Award, Star, Check, Box], []);
-
   const sizes = product.size || [];
   const colors = product.colors || [];
   const originalPrice = getOriginalPrice(product.price, product.discount);
+  const productStockState = stockState(product);
+  const soldOut = productStockState === "sold-out";
+  const lowStock = productStockState === "low-stock";
   const showActionError = (message: string) => {
     setActionError(message);
     registerTimeout(() => setActionError(null), 2500);
   };
 
   const handleAddToCart = async () => {
+    if (soldOut) {
+      showActionError("This piece is sold out.");
+      return;
+    }
     if (sizes.length > 0 && !selectedSize) {
       showActionError("Please select a size first.");
       return;
@@ -507,6 +595,7 @@ export default function PremiumProductPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed");
       setAdded(true);
+      window.dispatchEvent(new Event("cart:changed"));
       registerTimeout(() => setAdded(false), 2500);
     } catch {
       showActionError("Failed to add this piece to the cart.");
@@ -516,6 +605,10 @@ export default function PremiumProductPage() {
   };
 
   const handleBuyNow = () => {
+    if (soldOut) {
+      showActionError("This piece is sold out.");
+      return;
+    }
     if (sizes.length > 0 && !selectedSize) {
       showActionError("Please select a size first.");
       return;
@@ -545,8 +638,8 @@ export default function PremiumProductPage() {
       <style>{`
         
         * {
-          --gold: #C9A86A;
-          --dark: #0A0908;
+          --gold: #A87935;
+          --dark: #F5F1E8;
           --border: rgba(255,248,236,0.1);
         }
         
@@ -573,7 +666,7 @@ export default function PremiumProductPage() {
         .float-animation { animation: float 3s ease-in-out infinite; }
 
         /* Selection highlight */
-        ::selection { background: rgba(201, 168, 106, 0.3); color: white; }
+        ::selection { background: rgba(168, 121, 53, 0.3); color: #FFF9EF; }
 
         /* Smooth scroll */
         html { scroll-behavior: smooth; }
@@ -604,7 +697,7 @@ export default function PremiumProductPage() {
       </AnimatePresence>
 
       <div
-        className="min-h-screen bg-[#0A0908] text-white overflow-hidden"
+        className="min-h-screen bg-[#F5F1E8] text-[#3D3025] overflow-hidden"
         style={{ fontFamily: "'Jost', sans-serif" }}
       >
         {/* Ambient background glows */}
@@ -616,7 +709,7 @@ export default function PremiumProductPage() {
               height: shouldReduceDecorativeMotion ? 620 : 1000,
               top: "-30%",
               right: "-20%",
-              background: "radial-gradient(circle, rgba(201,168,106,0.08) 0%, transparent 60%)",
+              background: "radial-gradient(circle, rgba(168,121,53,0.08) 0%, transparent 60%)",
               filter: shouldReduceDecorativeMotion ? "blur(72px)" : "blur(100px)",
               opacity: shouldReduceDecorativeMotion ? 0.05 : undefined,
             }}
@@ -673,9 +766,9 @@ export default function PremiumProductPage() {
                 <span
                   className="inline-block px-4 py-2 rounded-full text-[8px] tracking-[0.4em] uppercase font-light"
                   style={{
-                    color: "#C9A86A",
-                    background: "linear-gradient(135deg, rgba(201,168,106,0.12), rgba(201,168,106,0.04))",
-                    border: "1px solid rgba(201,168,106,0.2)",
+                    color: "#A87935",
+                    background: "linear-gradient(135deg, rgba(168,121,53,0.12), rgba(168,121,53,0.04))",
+                    border: "1px solid rgba(168,121,53,0.2)",
                     backdropFilter: "blur(12px)",
                   }}
                 >
@@ -736,10 +829,34 @@ export default function PremiumProductPage() {
                 ) : null}
                 <p
                   className="font-light"
-                  style={{ fontSize: "2.2rem", color: "#C9A86A", letterSpacing: "0.05em", fontFamily: "'Cormorant Garamond', serif" }}
+                  style={{ fontSize: "2.2rem", color: "#A87935", letterSpacing: "0.05em", fontFamily: "'Cormorant Garamond', serif" }}
                 >
                   EGP {product.price.toLocaleString()}
                 </p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <span
+                    className="inline-flex min-h-[38px] items-center rounded-full border px-3 text-[10px] uppercase tracking-[0.22em]"
+                    style={{
+                      borderColor: soldOut
+                        ? "rgba(255,90,90,0.28)"
+                        : lowStock
+                          ? "rgba(255,190,80,0.28)"
+                          : "rgba(80,200,120,0.22)",
+                      background: soldOut
+                        ? "rgba(255,90,90,0.08)"
+                        : lowStock
+                          ? "rgba(255,190,80,0.08)"
+                          : "rgba(80,200,120,0.08)",
+                      color: soldOut
+                        ? "rgba(154,34,34,0.88)"
+                        : lowStock
+                          ? "#7A581F"
+                          : "rgba(37,105,68,0.92)",
+                    }}
+                  >
+                    {stockLabel(product)}
+                  </span>
+                </div>
               </motion.div>
 
               {/* Divider */}
@@ -748,7 +865,7 @@ export default function PremiumProductPage() {
                 animate={{ width: 40 }}
                 transition={{ delay: 0.45, duration: 0.6 }}
                 className="mb-8 h-px"
-                style={{ background: "linear-gradient(90deg, rgba(201,168,106,0.8), transparent)" }}
+                style={{ background: "linear-gradient(90deg, rgba(168,121,53,0.8), transparent)" }}
               />
 
               {/* Description */}
@@ -770,7 +887,17 @@ export default function PremiumProductPage() {
                   transition={{ delay: 0.55 }}
                   className="mb-8"
                 >
-                  <p className="text-white/30 text-[9px] tracking-[0.35em] uppercase mb-4 font-light">Size</p>
+                  <div className="mb-4 flex items-center gap-3">
+                    <p className="text-white/30 text-[9px] tracking-[0.35em] uppercase font-light">Size</p>
+                    <button
+                      type="button"
+                      onClick={() => setSizeGuideOpen(true)}
+                      className="inline-flex min-h-[36px] items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 text-[9px] uppercase tracking-[0.2em] text-white/50 transition-colors hover:text-white/80"
+                    >
+                      <Ruler className="h-3.5 w-3.5" strokeWidth={1.3} />
+                      Size Guide
+                    </button>
+                  </div>
                   <div className="flex flex-wrap gap-3">
                     {sizes.map((size) => (
                       <motion.button
@@ -780,15 +907,15 @@ export default function PremiumProductPage() {
                         onClick={() => setSelectedSize(size)}
                         className="px-6 py-3 rounded-full text-sm font-light tracking-[0.1em] transition-all duration-300"
                         style={selectedSize === size ? {
-                          background: "linear-gradient(135deg, rgba(201,168,106,0.25), rgba(201,168,106,0.1))",
-                          border: "1px solid rgba(201,168,106,0.5)",
-                          color: "#C9A86A",
+                          background: "linear-gradient(135deg, rgba(168,121,53,0.25), rgba(168,121,53,0.1))",
+                          border: "1px solid rgba(168,121,53,0.5)",
+                          color: "#A87935",
                           backdropFilter: "blur(12px)",
-                          boxShadow: "0 8px 24px rgba(201,168,106,0.15)",
+                          boxShadow: "0 8px 24px rgba(168,121,53,0.15)",
                         } : {
-                          background: "rgba(255,248,236,0.05)",
-                          border: "1px solid rgba(255,248,236,0.1)",
-                          color: "rgba(255,248,236,0.6)",
+                          background: "rgba(255,255,255,0.56)",
+                          border: "1px solid rgba(123,103,82,0.18)",
+                          color: "rgba(61,48,37,0.78)",
                           backdropFilter: "blur(12px)",
                         }}
                       >
@@ -808,7 +935,7 @@ export default function PremiumProductPage() {
                   className="mb-10"
                 >
                   <p className="text-white/30 text-[9px] tracking-[0.35em] uppercase mb-4 font-light">
-                    Color {selectedColor && <span className="ml-2 text-white/50 normal-case tracking-normal" style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic" }}>— {selectedColor}</span>}
+                    Color {selectedColor && <span className="ml-2 normal-case tracking-normal" style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", color: "rgba(61,48,37,0.72)" }}>— {selectedColor}</span>}
                   </p>
                   <div className="flex gap-3 flex-wrap">
                     {colors.map((color) => {
@@ -825,11 +952,11 @@ export default function PremiumProductPage() {
                             width: 44, height: 44,
                             backgroundColor: hex,
                             border: selectedColor === color
-                              ? "2px solid rgba(201,168,106,0.9)"
-                              : "2px solid rgba(255,248,236,0.15)",
+                              ? "2px solid rgba(168,121,53,0.9)"
+                              : "2px solid rgba(123,103,82,0.18)",
                             boxShadow: selectedColor === color
-                              ? "0 0 0 4px rgba(201,168,106,0.2), 0 8px 24px rgba(0,0,0,0.5)"
-                              : "0 4px 12px rgba(0,0,0,0.3)",
+                              ? "0 0 0 4px rgba(168,121,53,0.18), 0 8px 22px rgba(61,48,37,0.18)"
+                              : "0 6px 14px rgba(61,48,37,0.14)",
                           }}
                         >
                           {selectedColor === color && (
@@ -837,7 +964,7 @@ export default function PremiumProductPage() {
                               layoutId="colorSelected"
                               className="absolute inset-0 rounded-full"
                               style={{
-                                background: "linear-gradient(135deg, rgba(255,248,236,0.3), transparent)",
+                                background: "linear-gradient(135deg, rgba(255,255,255,0.42), transparent)",
                               }}
                             />
                           )}
@@ -858,7 +985,7 @@ export default function PremiumProductPage() {
                 {/* Add to Cart */}
                 <motion.button
                   onClick={handleAddToCart}
-                  disabled={loading}
+                  disabled={loading || soldOut}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className="relative flex-1 overflow-hidden rounded-full px-8 py-5 text-[11px] font-light uppercase tracking-[0.15em] disabled:cursor-not-allowed disabled:opacity-50"
@@ -866,7 +993,7 @@ export default function PremiumProductPage() {
                     ...goldGlass,
                     transition: "all 0.5s cubic-bezier(0.22,1,0.36,1)",
                   } : {
-                    ...glass,
+                    ...primaryCta,
                     transition: "all 0.5s cubic-bezier(0.22,1,0.36,1)",
                   }}
                 >
@@ -875,13 +1002,13 @@ export default function PremiumProductPage() {
                   <ShoppingBag
                     strokeWidth={1.3}
                     className="relative z-10 h-5 w-5"
-                    style={{ color: added ? "#C9A86A" : "rgba(255,248,236,0.7)" }}
+                    style={{ color: added ? "#7A581F" : "#FFF9EF" }}
                   />
                   <span
                     className="relative z-10"
-                    style={{ color: added ? "#C9A86A" : "rgba(255,248,236,0.8)" }}
+                    style={{ color: added ? "#7A581F" : "#FFF9EF" }}
                   >
-                    {loading ? "Adding…" : added ? "Added" : "Add to Cart"}
+                    {soldOut ? "Sold Out" : loading ? "Adding…" : added ? "Added" : "Add to Cart"}
                   </span>
                   </div>
                 </motion.button>
@@ -889,15 +1016,16 @@ export default function PremiumProductPage() {
                 {/* Buy Now */}
                 <motion.button
                   onClick={handleBuyNow}
+                  disabled={soldOut}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="relative flex-1 overflow-hidden rounded-full px-8 py-5 text-[11px] font-light uppercase tracking-[0.15em]"
+                  className="relative flex-1 overflow-hidden rounded-full px-8 py-5 text-[11px] font-light uppercase tracking-[0.15em] disabled:cursor-not-allowed disabled:opacity-50"
                   style={goldGlass}
                 >
                   <div className="shimmer absolute inset-0 pointer-events-none opacity-80" />
                   <div className="relative z-10 flex items-center justify-center gap-3">
-                    <Zap strokeWidth={1.3} className="relative z-10 h-5 w-5" style={{ color: "#C9A86A" }} />
-                    <span className="relative z-10" style={{ color: "#C9A86A" }}>
+                    <Zap strokeWidth={1.3} className="relative z-10 h-5 w-5" style={{ color: "#A87935" }} />
+                    <span className="relative z-10" style={{ color: "#A87935" }}>
                       Buy Now
                     </span>
                   </div>
@@ -933,7 +1061,7 @@ export default function PremiumProductPage() {
                 fontFamily: "'Cormorant Garamond', serif",
                 fontSize: "clamp(2rem, 4vw, 3rem)",
                 letterSpacing: "0.06em",
-                color: "#C9A86A",
+                color: "#A87935",
               }}
             >
               Product Details
@@ -1009,9 +1137,9 @@ export default function PremiumProductPage() {
                         <div
                           className="flex h-12 w-12 items-center justify-center rounded-full"
                           style={{
-                            background: "linear-gradient(135deg, rgba(201,168,106,0.16), rgba(201,168,106,0.05))",
-                            border: "1px solid rgba(201,168,106,0.24)",
-                            color: "#C9A86A",
+                            background: "linear-gradient(135deg, rgba(168,121,53,0.16), rgba(168,121,53,0.05))",
+                            border: "1px solid rgba(168,121,53,0.24)",
+                            color: "#A87935",
                           }}
                         >
                           <Icon size={18} strokeWidth={1.4} />
@@ -1047,7 +1175,7 @@ export default function PremiumProductPage() {
                   fontFamily: "'Cormorant Garamond', serif",
                   fontSize: "clamp(2rem, 4vw, 3rem)",
                   letterSpacing: "0.06em",
-                  color: "#C9A86A",
+                  color: "#A87935",
                 }}
               >
                 You May Also Like
@@ -1069,6 +1197,88 @@ export default function PremiumProductPage() {
             </div>
           </motion.section>
         )}
+
+        {recentlyViewed.length > 0 && (
+          <motion.section
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="relative z-10 mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-16"
+          >
+            <div className="mb-12">
+              <p className="text-white/25 text-[9px] tracking-[0.4em] uppercase mb-3">Recently Viewed</p>
+              <h2
+                className="font-light leading-none"
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: "clamp(2rem, 4vw, 3rem)",
+                  letterSpacing: "0.06em",
+                  color: "#A87935",
+                }}
+              >
+                Return to the edit
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {recentlyViewed.map((rp) => (
+                <ProductCard key={rp._id} product={rp} />
+              ))}
+            </div>
+          </motion.section>
+        )}
+
+        <AnimatePresence>
+          {sizeGuideOpen ? (
+            <motion.div
+              className="fixed inset-0 z-[96] flex items-end justify-center p-0 sm:items-center sm:p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Size guide"
+            >
+              <button type="button" aria-label="Close size guide" onClick={() => setSizeGuideOpen(false)} className="absolute inset-0 h-full w-full bg-black/70 backdrop-blur-sm" />
+              <motion.div
+                initial={{ y: 32, scale: 0.98 }}
+                animate={{ y: 0, scale: 1 }}
+                exit={{ y: 24, scale: 0.98 }}
+                className="relative w-full max-w-xl rounded-t-[28px] border border-white/10 bg-[#FFF9EF] p-5 shadow-[0_28px_80px_rgba(0,0,0,0.52)] sm:rounded-[28px] sm:p-7"
+              >
+                <div className="mb-5 flex items-start justify-between gap-4">
+                  <div>
+                    <p className="eyebrow mb-2">Size Guide</p>
+                    <h2 className="font-serif text-3xl font-light tracking-[0.04em] text-white">Choose with confidence</h2>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSizeGuideOpen(false)}
+                    className="flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-white/60"
+                    aria-label="Close size guide"
+                  >
+                    <X className="h-4 w-4" strokeWidth={1.4} />
+                  </button>
+                </div>
+                <div className="grid gap-3">
+                  {[
+                    ["XS / S", "Slim frame or close fit"],
+                    ["M / L", "Regular frame, standard fit"],
+                    ["XL / XXL", "Broader frame or relaxed fit"],
+                  ].map(([label, detail]) => (
+                    <div key={label} className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                      <span className="text-[11px] uppercase tracking-[0.24em] text-[#A87935]">{label}</span>
+                      <span className="text-right text-sm leading-6 tracking-[0.04em] text-white/48">{detail}</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-5 text-xs leading-6 tracking-[0.08em] text-white/40">
+                  Fit varies by product. Use this as a quick guide, then contact support for precise measurements before checkout when needed.
+                </p>
+              </motion.div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
 
         {/* Footer spacer */}
         <div className="h-10" />

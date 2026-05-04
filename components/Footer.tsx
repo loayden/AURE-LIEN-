@@ -1,9 +1,9 @@
 "use client";
 
+import NewsletterForm from "@/components/NewsletterForm";
 import { motion } from "framer-motion";
-import { ArrowRight, Instagram } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { FaInstagram } from "react-icons/fa";
 
 const NAV_COLLECTIONS = [
   { label: "Collection", href: "/collection" },
@@ -17,6 +17,7 @@ const NAV_COLLECTIONS = [
 const NAV_SERVICE = [
   { label: "Account", href: "/account" },
   { label: "Orders", href: "/orders" },
+  { label: "Returns", href: "/returns" },
   { label: "Discover", href: "/discover" },
   { label: "About", href: "/about" },
 ];
@@ -24,243 +25,172 @@ const NAV_SERVICE = [
 const INSTAGRAM_URL = "https://www.instagram.com/bout.clothes/?__pwa=1";
 const POWERED_BY_URL = "https://www.instagram.com/fr3_fdn/?__pwa=1";
 
-const SOCIALS = [{ Icon: Instagram, href: INSTAGRAM_URL }];
+const SOCIALS = [{ Icon: FaInstagram, href: INSTAGRAM_URL }];
 const LEGAL_LINKS = [
   { label: "Privacy", href: "/privacy" },
   { label: "Terms", href: "/terms" },
   { label: "Cookies", href: "/cookies" },
 ];
 
+const footerText = "#4B4137";
+const footerInk = "#3D3025";
+const footerGold = "#7A581F";
+const footerLine = "rgba(123,103,82,0.18)";
+
 export default function LuxuryFooter() {
-  const [email, setEmail] = useState("");
-  const [joined, setJoined] = useState(false);
-
-  const handleJoin = () => {
-    if (email.trim()) { setJoined(true); setEmail(""); }
-  };
-
   return (
-    <>
-      <footer
-        className="relative mt-20 sm:mt-32 overflow-hidden"
+    <footer
+      className="relative mt-20 overflow-hidden sm:mt-32"
+      style={{
+        background: "linear-gradient(180deg, rgba(255,249,239,0.92) 0%, rgba(245,241,232,0.98) 42%, rgba(231,219,203,0.96) 100%)",
+        borderTop: `1px solid ${footerLine}`,
+        fontFamily: "'Jost', sans-serif",
+      }}
+    >
+      <div
+        className="absolute inset-x-0 top-0 h-px"
+        style={{ background: "linear-gradient(90deg, transparent, rgba(168,121,53,0.36), transparent)" }}
+      />
+      <div
+        className="pointer-events-none absolute inset-0"
         style={{
-          background: "#14110F",
-          fontFamily: "'Jost', sans-serif",
+          background:
+            "linear-gradient(110deg, rgba(168,121,53,0.06) 0%, transparent 34%, rgba(255,255,255,0.42) 66%, rgba(123,103,82,0.05) 100%)",
         }}
-      >
-        {/* Top gold divider */}
-        <div className="absolute inset-x-0 top-0 h-px"
-             style={{ background: "linear-gradient(90deg, transparent, rgba(201,168,106,0.35), transparent)" }} />
+      />
 
-        {/* Ambient glow */}
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div style={{
-            position: "absolute",
-            bottom: "-20%", left: "50%", transform: "translateX(-50%)",
-            background: "radial-gradient(circle, rgba(201,168,106,0.05) 0%, transparent 65%)",
-            filter: "blur(80px)",
-          }} className="mobile-orb-lg" />
-        </div>
-
-        {/* ── UPPER GRID ── */}
-        <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-12 sm:grid-cols-2 sm:gap-10 sm:px-6 sm:py-20 md:px-10 xl:grid-cols-4 xl:gap-12">
-
-          {/* Brand */}
-          <div className="flex flex-col gap-5 md:col-span-1">
-            <Link href="/" className="group inline-block">
-              <h2
-                className="font-light text-white tracking-[0.18em] leading-none group-hover:text-[#C9A86A] transition-colors duration-500"
-                style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.65rem, 8vw, 1.9rem)" }}
-              >
-                BOUT
-              </h2>
-            </Link>
-            <div className="w-10 h-px"
-                 style={{ background:"linear-gradient(90deg, rgba(201,168,106,0.7), transparent)" }} />
-            <p className="max-w-none text-[11px] font-light leading-relaxed tracking-[0.08em] text-white/72 sm:max-w-[220px] sm:text-sm">
-              Crafted in silence. Designed with discipline. A study in structure, presence, and restraint.
-            </p>
-
-            {/* Social icons */}
-            <div className="flex items-center gap-3 sm:gap-4 pt-2">
-              {SOCIALS.map(({ Icon, href }, i) => (
-                <motion.a
-                  key={i}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  whileHover={{ scale: 1.12, y: -1 }}
-                  whileTap={{ scale: 0.92 }}
-                  className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl p-3 transition-all duration-400 sm:p-2.5"
-                  style={{
-                    background: "linear-gradient(135deg, rgba(255,248,236,0.08), rgba(255,248,236,0.02))",
-                    border: "1px solid rgba(255,248,236,0.08)",
-                    backdropFilter: "blur(12px)",
-                    color: "rgba(255,248,236,0.58)",
-                  }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#C9A86A"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(201,168,106,0.3)"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "rgba(255,248,236,0.58)"; (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,248,236,0.08)"; }}
-                >
-                  <Icon strokeWidth={1.3} className="w-4 h-4" />
-                </motion.a>
-              ))}
-            </div>
-          </div>
-
-          {/* Collections nav */}
-          <div className="flex flex-col gap-5">
-            <p className="text-[9px] uppercase tracking-[0.45em] text-white/72">Collections</p>
-            <div className="w-6 h-px" style={{ background:"rgba(201,168,106,0.4)" }} />
-            <ul className="flex flex-col gap-3">
-              {NAV_COLLECTIONS.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="group flex min-h-[44px] min-w-[44px] items-center gap-2 text-white/84 transition-all duration-300 hover:text-white"
-                    style={{ fontSize:"0.75rem", letterSpacing:"0.08em" }}
-                  >
-                    <span className="w-3 h-px transition-all duration-300 group-hover:w-5"
-                          style={{ background:"rgba(201,168,106,0.5)", flexShrink:0 }} />
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Service nav */}
-          <div className="flex flex-col gap-5">
-            <p className="text-[9px] uppercase tracking-[0.45em] text-white/72">Customer Service</p>
-            <div className="w-6 h-px" style={{ background:"rgba(201,168,106,0.4)" }} />
-            <ul className="flex flex-col gap-3">
-              {NAV_SERVICE.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="group flex min-h-[44px] min-w-[44px] items-center gap-2 text-white/84 transition-all duration-300 hover:text-white"
-                    style={{ fontSize:"0.75rem", letterSpacing:"0.08em" }}
-                  >
-                    <span className="w-3 h-px transition-all duration-300 group-hover:w-5"
-                          style={{ background:"rgba(201,168,106,0.5)", flexShrink:0 }} />
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Newsletter */}
-          <div className="flex flex-col gap-5">
-            <p className="text-[9px] uppercase tracking-[0.45em] text-white/72">Private Access</p>
-            <div className="w-6 h-px" style={{ background:"rgba(201,168,106,0.4)" }} />
-            <p className="text-[11px] font-light leading-relaxed tracking-[0.08em] text-white/72 sm:text-sm">
-              Join the Maison.<br />Receive exclusive releases.
-            </p>
-
-            {joined ? (
-              <motion.div
-                initial={{ opacity:0, y:8 }}
-                animate={{ opacity:1, y:0 }}
-                className="flex items-center gap-2 px-4 py-3 rounded-xl"
-                style={{ background:"linear-gradient(135deg, rgba(80,200,120,0.10), rgba(60,180,100,0.04))", border:"1px solid rgba(80,200,120,0.2)" }}
-              >
-                <span className="text-[9px] tracking-[0.3em] uppercase font-light" style={{ color:"rgba(80,200,120,0.75)" }}>
-                  Welcome to the Maison
-                </span>
-              </motion.div>
-            ) : (
-              <div
-                className="flex flex-col sm:flex-row items-stretch overflow-hidden rounded-xl"
-                style={{
-                  background: "linear-gradient(135deg, rgba(255,248,236,0.07) 0%, rgba(255,248,236,0.02) 100%)",
-                  backdropFilter: "blur(16px)",
-                  border: "1px solid rgba(255,248,236,0.09)",
-                  boxShadow: "inset 0 1px 0 rgba(255,248,236,0.08)",
-                }}
-              >
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleJoin()}
-                  placeholder="Your email"
-                  className="flex-1 bg-transparent px-4 py-3 text-base tracking-[0.12em] text-white/80 outline-none placeholder:text-white/45 sm:text-sm"
-                  style={{ fontFamily:"'Jost', sans-serif" }}
-                />
-                <motion.button
-                  onClick={handleJoin}
-                  whileHover={{ scale:1.05 }}
-                  whileTap={{ scale:0.95 }}
-                  className="flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 border-t border-white/10 px-4 py-3 transition-all duration-300 sm:border-l sm:border-t-0 sm:gap-3"
-                >
-                  <span className="text-[9px] tracking-[0.3em] uppercase font-light text-white/88 transition-colors hover:text-[#C9A86A]">
-                    Join
-                  </span>
-                  <ArrowRight strokeWidth={1.3} className="w-3 h-3 text-white/78" />
-                </motion.button>
-              </div>
-            )}
-
-            {/* Privacy note */}
-            <p className="text-[9px] leading-relaxed tracking-[0.2em] text-white/60">
-              No spam. Unsubscribe any time.
-            </p>
-          </div>
-        </div>
-
-        {/* ── DIVIDER ── */}
-        <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 md:px-10">
-          <div className="h-px" style={{ background:"linear-gradient(90deg, transparent, rgba(255,248,236,0.06), transparent)" }} />
-        </div>
-
-        {/* ── BOTTOM BAR ── */}
-        <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row sm:gap-6 sm:px-6 sm:py-10 md:px-10">
-
-          {/* Presented by */}
-          <motion.a
-            href={POWERED_BY_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            whileHover={{ opacity:1 }}
-            className="flex flex-col items-center sm:items-start gap-1 cursor-pointer select-none"
-            style={{ opacity:0.6, transition:"opacity 0.3s" }}
-          >
-            <span className="text-[8px] uppercase tracking-[0.35em] font-light text-white/68">Powered By</span>
-            <span
-              className="flex items-center gap-1 tracking-[0.24em] text-[10px] font-light uppercase sm:text-xs"
-              style={{ fontFamily: "'Jost', sans-serif" }}
+      <div className="relative z-10 mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-12 sm:grid-cols-2 sm:gap-10 sm:px-6 sm:py-20 md:px-10 xl:grid-cols-4 xl:gap-12">
+        <div className="flex flex-col gap-5 md:col-span-1">
+          <Link href="/" className="group inline-block">
+            <h2
+              className="font-light leading-none tracking-[0.18em] transition-colors duration-500 group-hover:text-[#A87935]"
+              style={{ color: footerInk, fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.65rem, 8vw, 1.9rem)" }}
             >
-              <span style={{ color: "#7C5CFF" }}>FR</span>
-              <span
-                style={{
-                  color: "#C9A86A",
-                  fontFamily: "'Cormorant Garamond', serif",
-                  fontSize: "1.1em",
-                  lineHeight: 1,
-                }}
-              >
-                ع
-              </span>
-            </span>
-          </motion.a>
-
-          {/* Copyright */}
-          <p className="text-center text-[9px] uppercase tracking-[0.3em] text-white/50">
-            © {new Date().getFullYear()} Bout. All rights reserved.
+              BOUT
+            </h2>
+          </Link>
+          <div className="h-px w-10" style={{ background: "linear-gradient(90deg, rgba(168,121,53,0.65), transparent)" }} />
+          <p className="max-w-none text-[11px] font-light leading-relaxed tracking-[0.08em] sm:max-w-[240px] sm:text-sm" style={{ color: footerText }}>
+            Crafted in silence. Designed with discipline. A study in structure, presence, and restraint.
           </p>
 
-          {/* Legal links */}
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5">
-            {LEGAL_LINKS.map((item) => (
-              <Link key={item.label} href={item.href}
-                className="inline-flex min-h-[44px] min-w-[44px] items-center text-[9px] uppercase tracking-[0.25em] text-white/78 transition-colors duration-300 hover:text-white">
-                {item.label}
-              </Link>
+          <div className="flex items-center gap-3 pt-2 sm:gap-4">
+            {SOCIALS.map(({ Icon, href }) => (
+              <motion.a
+                key={href}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                whileHover={{ scale: 1.12, y: -1 }}
+                whileTap={{ scale: 0.92 }}
+                className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl p-3 transition-all duration-300 sm:p-2.5"
+                style={{
+                  background: "linear-gradient(135deg, rgba(255,255,255,0.62), rgba(168,121,53,0.08))",
+                  border: `1px solid ${footerLine}`,
+                  backdropFilter: "blur(12px)",
+                  color: footerGold,
+                }}
+                aria-label="Instagram"
+              >
+                <Icon className="h-4 w-4" />
+              </motion.a>
             ))}
           </div>
         </div>
 
-      </footer>
-    </>
+        <FooterLinkGroup title="Collections" items={NAV_COLLECTIONS} />
+        <FooterLinkGroup title="Customer Service" items={NAV_SERVICE} />
+
+        <div className="flex flex-col gap-5">
+          <p className="text-[9px] uppercase tracking-[0.45em]" style={{ color: "rgba(61,48,37,0.74)" }}>
+            Private Access
+          </p>
+          <div className="h-px w-6" style={{ background: "rgba(168,121,53,0.38)" }} />
+          <p className="text-[11px] font-light leading-relaxed tracking-[0.08em] sm:text-sm" style={{ color: footerText }}>
+            Join the Maison.
+            <br />
+            Receive exclusive releases.
+          </p>
+          <NewsletterForm compact />
+          <p className="text-[9px] leading-relaxed tracking-[0.2em]" style={{ color: "rgba(61,48,37,0.74)" }}>
+            No spam. Unsubscribe any time.
+          </p>
+        </div>
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 md:px-10">
+        <div className="h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(123,103,82,0.16), transparent)" }} />
+      </div>
+
+      <div className="relative z-10 mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row sm:gap-6 sm:px-6 sm:py-10 md:px-10">
+        <motion.a
+          href={POWERED_BY_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          whileHover={{ opacity: 1 }}
+          className="flex cursor-pointer select-none flex-col items-center gap-1 sm:items-start"
+          style={{ opacity: 0.72, transition: "opacity 0.3s" }}
+        >
+          <span className="text-[8px] font-light uppercase tracking-[0.35em]" style={{ color: "rgba(61,48,37,0.74)" }}>
+            Powered By
+          </span>
+          <span className="flex items-center gap-1 text-[10px] font-light uppercase tracking-[0.24em] sm:text-xs" style={{ color: footerInk }}>
+            <span>FR</span>
+            <span
+              style={{
+                color: footerGold,
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: "1.1em",
+                lineHeight: 1,
+              }}
+            >
+              ع
+            </span>
+          </span>
+        </motion.a>
+
+        <p className="text-center text-[9px] uppercase tracking-[0.3em]" style={{ color: "rgba(61,48,37,0.74)" }}>
+          © {new Date().getFullYear()} Bout. All rights reserved.
+        </p>
+
+        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5">
+          {LEGAL_LINKS.map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              className="inline-flex min-h-[44px] min-w-[44px] items-center text-[9px] uppercase tracking-[0.25em] transition-colors duration-300 hover:text-[#3D3025]"
+              style={{ color: footerText }}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function FooterLinkGroup({ title, items }: { title: string; items: { label: string; href: string }[] }) {
+  return (
+    <div className="flex flex-col gap-5">
+      <p className="text-[9px] uppercase tracking-[0.45em]" style={{ color: "rgba(61,48,37,0.74)" }}>
+        {title}
+      </p>
+      <div className="h-px w-6" style={{ background: "rgba(168,121,53,0.38)" }} />
+      <ul className="flex flex-col gap-3">
+        {items.map((item) => (
+          <li key={item.href}>
+            <Link
+              href={item.href}
+              className="group flex min-h-[44px] min-w-[44px] items-center gap-2 transition-all duration-300 hover:text-[#3D3025]"
+              style={{ color: footerText, fontSize: "0.75rem", letterSpacing: "0.08em" }}
+            >
+              <span className="h-px w-3 flex-shrink-0 transition-all duration-300 group-hover:w-5" style={{ background: "rgba(168,121,53,0.48)" }} />
+              {item.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

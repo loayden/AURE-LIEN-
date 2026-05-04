@@ -1,4 +1,5 @@
 import { getAllProducts } from "@/lib/getAllProducts";
+import { categoryMatches } from "@/lib/commerce";
 import { NextResponse } from "next/server";
 
 export const categoryMap: Record<string, string> = {
@@ -58,8 +59,10 @@ export async function GET(req: Request) {
         buildFlexibleCategoryRegex(mappedCategory),
       ];
 
-      productsList = allProducts.filter((product) =>
-        regexes.some((regex) => regex.test(String(product.category ?? "")))
+      productsList = allProducts.filter(
+        (product) =>
+          categoryMatches(product, normalizedKey) ||
+          regexes.some((regex) => regex.test(String(product.category ?? "")))
       );
     }
 

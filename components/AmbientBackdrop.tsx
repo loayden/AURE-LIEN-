@@ -2,43 +2,20 @@ export default function AmbientBackdrop() {
   return (
     <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
       <div
-        className="orb orb-gold"
+        className="absolute inset-0"
         style={{
-          width: "min(700px, 74vw)",
-          height: "min(700px, 74vw)",
-          top: "-16%",
-          right: "-10%",
-        }}
-      />
-      <div
-        className="orb orb-violet"
-        style={{
-          width: "min(560px, 62vw)",
-          height: "min(560px, 62vw)",
-          bottom: "4%",
-          left: "-8%",
-        }}
-      />
-      <div
-        className="orb orb-gold"
-        style={{
-          width: "min(460px, 46vw)",
-          height: "min(460px, 46vw)",
-          top: "46%",
-          left: "36%",
-          opacity: 0.5,
-          filter: "blur(110px)",
-          animation: "orbDrift2 34s ease-in-out infinite reverse",
+          background:
+            "linear-gradient(135deg, rgba(255,249,239,0.96) 0%, rgba(245,241,232,0.92) 46%, rgba(232,220,205,0.88) 100%)",
         }}
       />
       <div
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse at top, rgba(201,168,106,0.06) 0%, transparent 55%), linear-gradient(180deg, rgba(8,8,8,0.02) 0%, rgba(8,8,8,0.14) 100%)",
+            "linear-gradient(90deg, rgba(168,121,53,0.045) 0%, transparent 32%, rgba(255,255,255,0.42) 62%, rgba(123,103,82,0.045) 100%)",
         }}
       />
       <div className="grain-overlay" />
     </div>
-  )
+  );
 }

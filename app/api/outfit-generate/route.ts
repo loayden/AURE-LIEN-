@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import productsData from "@/lib/productsData";
 
-const CATEGORIES = ["jackets-coats", "shirts", "suits", "knitwear", "lace-ups", "loafers", "boots", "sneakers", "belts", "sunglasses", "bags-wallets"];
+type CatalogProduct = (typeof productsData)[number];
 
 function pickByCategory(category: string, count: number, excludeIds: Set<string>) {
   const pool = productsData.filter(
@@ -15,23 +15,40 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { occasion, style, season } = body;
+    const styleValue = String(style || "minimal").toLowerCase();
+    const occasionValue = String(occasion || "curated").toLowerCase();
+    const seasonValue = String(season || "all").toLowerCase();
+    const shoePriority =
+      styleValue === "street"
+        ? ["sneakers", "boots", "loafers"]
+        : occasionValue === "formal" || occasionValue === "business"
+          ? ["lace-ups", "loafers", "boots"]
+          : ["loafers", "sneakers", "boots"];
+    const layerPriority =
+      seasonValue === "winter" || seasonValue === "fall"
+        ? ["jackets-coats", "knitwear", "suits"]
+        : ["suits", "shirts", "jackets-coats"];
 
-    const outfits: { name: string; items: typeof productsData }[] = [];
+    const outfits: { name: string; items: CatalogProduct[] }[] = [];
     const used = new Set<string>();
 
     for (let i = 0; i < 3; i++) {
-      const jacket = pickByCategory("jackets-coats", 1, used)[0] || pickByCategory("suits", 1, used)[0];
+      const jacket =
+        layerPriority.map((category) => pickByCategory(category, 1, used)[0]).find(Boolean) ||
+        pickByCategory("jackets-coats", 1, used)[0];
       if (jacket) used.add(jacket._id);
       const shirt = pickByCategory("shirts", 1, used)[0];
       if (shirt) used.add(shirt._id);
       const pants = pickByCategory("suits", 1, used)[0] || pickByCategory("jackets-coats", 1, used)[0];
       if (pants) used.add(pants._id);
-      const shoes = pickByCategory("lace-ups", 1, used)[0] || pickByCategory("loafers", 1, used)[0] || pickByCategory("sneakers", 1, used)[0];
+      const shoes = shoePriority.map((category) => pickByCategory(category, 1, used)[0]).find(Boolean);
       if (shoes) used.add(shoes._id);
       const acc = pickByCategory("belts", 1, used)[0] || pickByCategory("sunglasses", 1, used)[0];
       if (acc) used.add(acc._id);
 
-      const items = [jacket, shirt, pants, shoes, acc].filter(Boolean);
+      const items = [jacket, shirt, pants, shoes, acc].filter(
+        (item): item is CatalogProduct => Boolean(item)
+      );
       if (items.length >= 3) {
         outfits.push({
           name: `Outfit ${i + 1} — ${occasion || "Curated"}`,

@@ -14,7 +14,7 @@ import {
   LineChart,
   Line,
 } from "recharts";
-import { Package } from "lucide-react";
+import { AlertTriangle, Clock3, CreditCard, Package } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface Stats {
@@ -22,6 +22,17 @@ interface Stats {
   ordersToday: number;
   totalOrders: number;
   totalCustomers: number;
+  pendingPayments: number;
+  lowStockProducts: { id: string; name: string; stock?: number; category?: string }[];
+  recentOrders: {
+    id: string;
+    total: number;
+    status: string;
+    paymentStatus: string;
+    paymentMethod: string;
+    createdAt: string;
+    email: string;
+  }[];
   bestSellingProducts: { id: string; name: string; quantity: number }[];
   revenueByMonth: { month: string; revenue: number }[];
   recentCustomers: {
@@ -90,6 +101,9 @@ export default function AdminDashboard() {
     ordersToday: 0,
     totalOrders: 0,
     totalCustomers: 0,
+    pendingPayments: 0,
+    lowStockProducts: [],
+    recentOrders: [],
     bestSellingProducts: [],
     revenueByMonth: [],
     recentCustomers: [],
@@ -115,22 +129,78 @@ export default function AdminDashboard() {
       <div className="mb-6 grid grid-cols-1 gap-4 sm:mb-8 sm:grid-cols-2 sm:gap-5 md:mb-10 lg:grid-cols-4 lg:gap-6">
         <div className="admin-stat-card p-6">
           <p className="eyebrow mb-3">Total Revenue</p>
-          <p className="font-light text-[#C9A86A]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}>
+          <p className="font-light text-[#A87935]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}>
             EGP {s.totalRevenue.toLocaleString()}
           </p>
         </div>
         <div className="admin-stat-card p-6">
           <p className="eyebrow mb-3">Orders Today</p>
-          <p className="font-light text-[#C9A86A]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}>{s.ordersToday}</p>
+          <p className="font-light text-[#A87935]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}>{s.ordersToday}</p>
         </div>
         <div className="admin-stat-card p-6">
           <p className="eyebrow mb-3">Total Orders</p>
-          <p className="font-light text-[#C9A86A]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}>{s.totalOrders}</p>
+          <p className="font-light text-[#A87935]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}>{s.totalOrders}</p>
         </div>
         <div className="admin-stat-card p-6">
           <p className="eyebrow mb-3">Total Customers</p>
-          <p className="font-light text-[#C9A86A]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}>{s.totalCustomers}</p>
+          <p className="font-light text-[#A87935]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}>{s.totalCustomers}</p>
         </div>
+      </div>
+
+      <div className="mb-6 grid gap-4 sm:mb-8 md:mb-10 lg:grid-cols-3">
+        <AdminPanel className="p-5 sm:p-6">
+          <div className="mb-4 flex items-center gap-3">
+            <CreditCard className="h-5 w-5 text-[#A87935]" strokeWidth={1.4} />
+            <h2 className="eyebrow">Pending Payments</h2>
+          </div>
+          <p className="font-light text-[#FFF8EC]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2.5rem" }}>
+            {s.pendingPayments}
+          </p>
+          <p className="body-copy mt-2">Card/COD orders still waiting for payment or admin handling.</p>
+        </AdminPanel>
+
+        <AdminPanel className="p-5 sm:p-6">
+          <div className="mb-4 flex items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-[#A87935]" strokeWidth={1.4} />
+            <h2 className="eyebrow">Low Stock</h2>
+          </div>
+          {s.lowStockProducts.length > 0 ? (
+            <div className="space-y-3">
+              {s.lowStockProducts.slice(0, 4).map((product) => (
+                <div key={product.id} className="flex items-center justify-between gap-3">
+                  <p className="body-copy truncate">{product.name}</p>
+                  <span className="rounded-full border border-[#A87935]/25 px-2 py-1 text-[10px] text-[#A87935]">
+                    {product.stock} left
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="body-copy">No low-stock products are flagged right now.</p>
+          )}
+        </AdminPanel>
+
+        <AdminPanel className="p-5 sm:p-6">
+          <div className="mb-4 flex items-center gap-3">
+            <Clock3 className="h-5 w-5 text-[#A87935]" strokeWidth={1.4} />
+            <h2 className="eyebrow">Recent Orders</h2>
+          </div>
+          {s.recentOrders.length > 0 ? (
+            <div className="space-y-3">
+              {s.recentOrders.slice(0, 4).map((order) => (
+                <div key={order.id} className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="body-copy body-copy-strong truncate">{order.id || "Order"}</p>
+                    <p className="body-copy mt-1 truncate">{order.email}</p>
+                  </div>
+                  <span className="text-sm text-[#A87935]">EGP {order.total.toLocaleString()}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="body-copy">Recent orders will appear here after checkout activity.</p>
+          )}
+        </AdminPanel>
       </div>
 
       {s.revenueByMonth.length > 0 && (
@@ -144,13 +214,13 @@ export default function AdminDashboard() {
                 <YAxis stroke="rgba(255,248,236,0.35)" fontSize={12} tickFormatter={(v) => `EGP ${v}`} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "rgba(20,17,15,0.94)",
+                    backgroundColor: "rgba(255,249,239,0.94)",
                     border: "1px solid rgba(255,248,236,0.09)",
                     borderRadius: 16,
                   }}
                   formatter={(value: number) => [`EGP ${value.toLocaleString()}`, "Revenue"]}
                 />
-                <Line type="monotone" dataKey="revenue" stroke="#C9A86A" strokeWidth={2} dot={{ fill: "#C9A86A" }} />
+                <Line type="monotone" dataKey="revenue" stroke="#A87935" strokeWidth={2} dot={{ fill: "#A87935" }} />
               </LineChart>
             </ResponsiveContainer>
             </div>
@@ -173,7 +243,7 @@ export default function AdminDashboard() {
                   <p className="body-copy mt-1">
                     {customer.email || "No email"}
                   </p>
-                  <p className="eyebrow mt-2" style={{ color: "rgba(201,168,106,0.85)" }}>
+                  <p className="eyebrow mt-2" style={{ color: "rgba(168,121,53,0.85)" }}>
                     {customer.source === "account" ? "Account" : "Guest"}
                   </p>
                 </div>
@@ -184,7 +254,7 @@ export default function AdminDashboard() {
                   </div>
                   <div>
                     <p className="eyebrow mb-2">Spend</p>
-                    <p className="body-copy body-copy-strong text-[#C9A86A]">EGP {customer.totalSpent.toLocaleString()}</p>
+                    <p className="body-copy body-copy-strong text-[#A87935]">EGP {customer.totalSpent.toLocaleString()}</p>
                   </div>
                   <div className="col-span-2 sm:col-span-1">
                     <p className="eyebrow mb-2">Last Activity</p>
@@ -209,12 +279,12 @@ export default function AdminDashboard() {
                 <YAxis type="category" dataKey="name" stroke="rgba(255,248,236,0.35)" fontSize={11} width={110} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "rgba(20,17,15,0.94)",
+                    backgroundColor: "rgba(255,249,239,0.94)",
                     border: "1px solid rgba(255,248,236,0.09)",
                     borderRadius: 16,
                   }}
                 />
-                <Bar dataKey="quantity" fill="#C9A86A" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="quantity" fill="#A87935" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
             </div>

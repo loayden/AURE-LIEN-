@@ -1,4 +1,6 @@
 import { randomUUID } from "crypto";
+import { getAuthFromRequest } from "@/lib/auth";
+import { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -33,8 +35,13 @@ async function saveLocally(file: File, filename: string) {
   return `/uploads/${filename}`;
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
+    const auth = await getAuthFromRequest(request);
+    if (!auth || auth.role !== "admin") {
+      return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+    }
+
     const formData = await request.formData();
     const file = formData.get("file");
 

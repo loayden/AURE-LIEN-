@@ -57,6 +57,8 @@ function normalizeOrder(raw: any): any {
     items,
     totalPrice,
     status: raw.status ?? "pending",
+    paymentStatus: raw.paymentStatus ?? (raw.status === "completed" ? "paid" : "pending"),
+    paymentMethod: raw.paymentMethod ?? "",
     createdAt: raw.createdAt ?? new Date().toISOString(),
   };
 }
@@ -139,6 +141,8 @@ export async function POST(req: NextRequest) {
       items: enrichedItems,
       totalPrice,
       status: status || "pending",
+      paymentStatus: body.paymentStatus || "pending",
+      paymentMethod: body.paymentMethod || "",
       createdAt: new Date().toISOString(),
     };
 

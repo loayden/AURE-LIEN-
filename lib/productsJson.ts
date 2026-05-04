@@ -26,3 +26,11 @@ export async function appendProductJson(product: ProductRecord): Promise<void> {
   list.push(product);
   await fs.writeFile(paths.products, JSON.stringify(list, null, 2));
 }
+
+export async function removeProductJson(productId: string): Promise<boolean> {
+  const list = await readProductsJson();
+  const next = list.filter((product) => String(product._id) !== String(productId));
+  if (next.length === list.length) return false;
+  await fs.writeFile(paths.products, JSON.stringify(next, null, 2));
+  return true;
+}

@@ -1,8 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Calendar, CheckCircle2, Clock, Hash, Package, ShoppingBag } from "lucide-react";
+import { ArrowRight, Calendar, CheckCircle2, Clock, CreditCard, Hash, Package, ShoppingBag } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -30,6 +31,42 @@ function StatusBadge({ status }: { status: string }) {
             style={{ color: isPending ? "rgba(255,190,60,0.75)" : "rgba(80,200,120,0.75)", fontFamily:"'Jost', sans-serif" }}>
         {isPending ? "Pending" : "Completed"}
       </span>
+    </div>
+  );
+}
+
+function PaymentBadge({ status }: { status?: string }) {
+  const paid = status === "paid";
+  return (
+    <span
+      className="inline-flex items-center gap-2 rounded-full px-3 py-1.5"
+      style={{
+        background: paid ? "rgba(80,200,120,0.08)" : "rgba(168,121,53,0.08)",
+        border: paid ? "1px solid rgba(80,200,120,0.18)" : "1px solid rgba(168,121,53,0.2)",
+      }}
+    >
+      <CreditCard className="h-3 w-3" strokeWidth={1.3} style={{ color: paid ? "rgba(80,200,120,0.75)" : "#A87935" }} />
+      <span className="text-[9px] uppercase tracking-[0.24em]" style={{ color: paid ? "rgba(80,200,120,0.72)" : "#A87935" }}>
+        {paid ? "Paid" : "Payment Pending"}
+      </span>
+    </span>
+  );
+}
+
+function OrderTimeline({ status }: { status: string }) {
+  const steps = ["Pending", "Paid", "Processing", "Shipped", "Delivered"];
+  const normalized = status === "completed" ? "Delivered" : status === "paid" ? "Paid" : "Pending";
+  const activeIndex = Math.max(0, steps.findIndex((step) => step.toLowerCase() === normalized.toLowerCase()));
+  return (
+    <div className="mt-4 grid grid-cols-5 gap-1">
+      {steps.map((step, index) => (
+        <div key={step} className="min-w-0">
+          <div className={`h-1 rounded-full ${index <= activeIndex ? "bg-[#A87935]" : "bg-white/10"}`} />
+          <p className={`mt-2 truncate text-[8px] uppercase tracking-[0.14em] ${index <= activeIndex ? "text-[#A87935]" : "text-white/24"}`}>
+            {step}
+          </p>
+        </div>
+      ))}
     </div>
   );
 }
@@ -66,8 +103,8 @@ function OrderCard({ order, index, onPending }: { order: any; index: number; onP
            style={{ borderBottom: "1px solid rgba(255,248,236,0.06)" }}>
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl"
-               style={{ background:"linear-gradient(135deg, rgba(201,168,106,0.14), rgba(201,168,106,0.04))", border:"1px solid rgba(201,168,106,0.2)" }}>
-            <ShoppingBag strokeWidth={1.3} className="w-4 h-4" style={{ color:"#C9A86A" }} />
+               style={{ background:"linear-gradient(135deg, rgba(168,121,53,0.14), rgba(168,121,53,0.04))", border:"1px solid rgba(168,121,53,0.2)" }}>
+            <ShoppingBag strokeWidth={1.3} className="w-4 h-4" style={{ color:"#A87935" }} />
           </div>
           <div>
             <p className="text-white/20 text-[9px] tracking-[0.35em] uppercase mb-0.5"
@@ -86,6 +123,7 @@ function OrderCard({ order, index, onPending }: { order: any; index: number; onP
 
         <div className="flex flex-col items-end gap-2">
           <StatusBadge status={order.status} />
+          <PaymentBadge status={order.paymentStatus} />
           <div className="flex items-center gap-1.5">
             <Calendar strokeWidth={1.2} className="w-3 h-3 text-white/20" />
             <p className="text-white/25 text-[9px] tracking-widest"
@@ -157,6 +195,9 @@ function OrderCard({ order, index, onPending }: { order: any; index: number; onP
           </div>
         ))}
       </div>
+      <div className="px-4 pb-4 sm:px-6">
+        <OrderTimeline status={order.status} />
+      </div>
 
       {/* ── Card footer ── */}
       <div className="flex flex-col items-start justify-between gap-4 px-4 pb-5 pt-3 sm:flex-row sm:items-center sm:px-6 sm:pb-6"
@@ -181,13 +222,21 @@ function OrderCard({ order, index, onPending }: { order: any; index: number; onP
               Total
             </p>
             <p className="font-light"
-               style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"1.15rem", color:"#C9A86A", letterSpacing:"0.06em" }}>
+               style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"1.15rem", color:"#A87935", letterSpacing:"0.06em" }}>
               EGP {totalPrice.toLocaleString()}
             </p>
           </div>
         </div>
 
         {/* Right — action */}
+        <div className="flex flex-col gap-2 sm:flex-row">
+        <Link
+          href={`/orders/${encodeURIComponent(order._id)}`}
+          className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full border border-white/10 px-5 py-3 text-[10px] uppercase tracking-[0.24em] text-white/60 transition-colors hover:text-white"
+        >
+          Details
+          <ArrowRight strokeWidth={1.3} className="w-3.5 h-3.5" />
+        </Link>
         {isPending ? (
           <motion.button
             type="button"
@@ -205,7 +254,7 @@ function OrderCard({ order, index, onPending }: { order: any; index: number; onP
               letterSpacing: "0.3em",
             }}
           >
-            Complete Order
+            Pay Now
             <ArrowRight strokeWidth={1.3} className="w-3.5 h-3.5" />
           </motion.button>
         ) : (
@@ -224,6 +273,7 @@ function OrderCard({ order, index, onPending }: { order: any; index: number; onP
             </span>
           </div>
         )}
+        </div>
       </div>
     </motion.div>
   );
@@ -270,7 +320,7 @@ export default function OrdersPage() {
 
   /* ── Loading ── */
   if (loading) return (
-    <div className="min-h-screen bg-[#0A0908] flex items-center justify-center">
+    <div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center">
       <motion.p animate={{ opacity:[0.3,0.7,0.3] }} transition={{ repeat:Infinity, duration:1.8 }}
         className="text-white/30 text-[10px] tracking-[0.4em] uppercase"
         style={{ fontFamily:"'Jost', sans-serif" }}>
@@ -282,11 +332,11 @@ export default function OrdersPage() {
   return (
     <>
       <style>{`
-        body { background: #0A0908; }
-        ::selection { background: #C9A86A; color: #0A0908; }
+        body { background: #F5F1E8; }
+        ::selection { background: #A87935; color: #F5F1E8; }
       `}</style>
 
-      <div className="relative min-h-screen bg-[#0A0908] text-white" style={{ fontFamily:"'Jost', sans-serif" }}>
+      <div className="relative min-h-screen bg-[#F5F1E8] text-white" style={{ fontFamily:"'Jost', sans-serif" }}>
 
         <div className="relative z-10 mx-auto max-w-4xl px-4 pt-16 pb-16 sm:px-6 sm:pt-24 sm:pb-24 md:px-10 md:pb-32">
           {error ? (
@@ -306,18 +356,18 @@ export default function OrdersPage() {
             <div className="flex items-end justify-between gap-4 flex-wrap">
               <h1 className="font-light text-white leading-none"
                   style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(2.5rem, 6vw, 4.5rem)", letterSpacing:"0.04em" }}>
-                Your <em style={{ color:"#C9A86A", fontStyle:"italic" }}>Orders</em>
+                Your <em style={{ color:"#A87935", fontStyle:"italic" }}>Orders</em>
               </h1>
               {orders.length > 0 && (
                 <span className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 px-4 py-2 rounded-full"
-                      style={{ background:"linear-gradient(135deg, rgba(201,168,106,0.14), rgba(201,168,106,0.04))", border:"1px solid rgba(201,168,106,0.22)", backdropFilter:"blur(16px)" }}>
-                  <span className="text-[#C9A86A] text-[10px] tracking-[0.3em] uppercase font-light">
+                      style={{ background:"linear-gradient(135deg, rgba(168,121,53,0.14), rgba(168,121,53,0.04))", border:"1px solid rgba(168,121,53,0.22)", backdropFilter:"blur(16px)" }}>
+                  <span className="text-[#A87935] text-[10px] tracking-[0.3em] uppercase font-light">
                     {orders.length} {orders.length === 1 ? "Order" : "Orders"}
                   </span>
                 </span>
               )}
             </div>
-            <div className="mt-5 h-px" style={{ background:"linear-gradient(90deg, rgba(201,168,106,0.4), transparent)" }} />
+            <div className="mt-5 h-px" style={{ background:"linear-gradient(90deg, rgba(168,121,53,0.4), transparent)" }} />
           </motion.div>
 
           {/* ── EMPTY STATE ── */}
@@ -330,7 +380,7 @@ export default function OrdersPage() {
               </div>
               <h2 className="font-light text-white mb-3"
                   style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"1.8rem", letterSpacing:"0.06em" }}>
-                No orders <em style={{ color:"#C9A86A" }}>yet</em>
+                No orders <em style={{ color:"#A87935" }}>yet</em>
               </h2>
               <p className="text-white/25 text-sm font-light tracking-widest mb-10 max-w-xs">
                 You haven't made any purchases. Explore the collection and find your favorites.
@@ -340,8 +390,8 @@ export default function OrdersPage() {
                 onClick={() => router.push("/shop")}
                 whileHover={{ scale:1.02 }}
                 whileTap={{ scale:0.97 }}
-                className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-full px-6 py-3.5 text-[10px] font-light uppercase tracking-[0.3em] text-[#C9A86A] transition-all duration-500 sm:gap-3 sm:px-8"
-                style={{ background:"linear-gradient(135deg, rgba(201,168,106,0.14), rgba(201,168,106,0.04))", border:"1px solid rgba(201,168,106,0.25)", backdropFilter:"blur(16px)" }}
+                className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-full px-6 py-3.5 text-[10px] font-light uppercase tracking-[0.3em] text-[#A87935] transition-all duration-500 sm:gap-3 sm:px-8"
+                style={{ background:"linear-gradient(135deg, rgba(168,121,53,0.14), rgba(168,121,53,0.04))", border:"1px solid rgba(168,121,53,0.25)", backdropFilter:"blur(16px)" }}
               >
                 Browse Collection
                 <ArrowRight strokeWidth={1.3} className="w-3.5 h-3.5" />

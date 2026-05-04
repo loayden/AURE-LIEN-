@@ -259,3 +259,55 @@ export async function updateUserRole(id: string, role: "customer" | "admin"): Pr
     await writeUserSnapshots(users);
   }
 }
+
+export async function updateUserProfile(
+  id: string,
+  data: Partial<Pick<UserRecord, "name" | "phone" | "address" | "apartment" | "city" | "postalCode" | "country">>
+): Promise<UserRecord | null> {
+  const updates = {
+    name: data.name?.trim(),
+    phone: data.phone?.trim(),
+    address: data.address?.trim(),
+    apartment: data.apartment?.trim(),
+    city: data.city?.trim(),
+    postalCode: data.postalCode?.trim(),
+    country: data.country?.trim(),
+  };
+
+  Object.keys(updates).forEach((key) => {
+    if (updates[key as keyof typeof updates] === undefined) {
+      delete updates[key as keyof typeof updates];
+    }
+  });
+
+  if (updates.name === "") return null;
+
+  if (useMongoStorage()) {
+    try {
+      await connectDB();
+      await User.findOneAndUpdate({ $or: [{ id }, { _id: id }] }, updates);
+      try {
+        await syncUserSnapshotsFromMongo();
+      } catch (error) {
+        console.warn(
+          "⚠️ MongoDB user profile updated but snapshot sync failed:",
+          error instanceof Error ? error.message : String(error)
+        );
+      }
+      return findUserById(id);
+    } catch (error) {
+      console.warn(
+        "⚠️ MongoDB user profile update failed, falling back to snapshot storage:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
+  }
+
+  const users = await readUserSnapshots();
+  const idx = users.findIndex((u) => u.id === id);
+  if (idx === -1) return null;
+
+  users[idx] = normalizeUser({ ...users[idx], ...updates });
+  await writeUserSnapshots(users);
+  return users[idx];
+}

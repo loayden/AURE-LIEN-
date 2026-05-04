@@ -8,7 +8,7 @@ export default function ProductGrid() {
         <ProductCard
           key={product._id}
           product={product}
-          className="transition-transform duration-300 hover:scale-[1.03] hover:shadow-lg hover:shadow-[#C9A86A]/25 rounded-xl"
+          className="transition-transform duration-300 hover:scale-[1.03] hover:shadow-lg hover:shadow-[#A87935]/25 rounded-xl"
         />
       ))}
     </section>

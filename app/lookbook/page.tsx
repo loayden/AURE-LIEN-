@@ -82,16 +82,16 @@ function LookbookSection({ section, index }: { section: Section; index: number }
               >
                 {/* Pulse ring */}
                 <span className="absolute inset-0 rounded-full animate-ping opacity-30"
-                      style={{ background:"rgba(201,168,106,0.5)" }} />
+                      style={{ background:"rgba(168,121,53,0.5)" }} />
                 <span
                   className="relative flex items-center justify-center w-8 h-8 rounded-full transition-all duration-300 group/dot-hover:scale-110"
                   style={{
-                    background:"linear-gradient(135deg, rgba(201,168,106,0.25), rgba(201,168,106,0.10))",
+                    background:"linear-gradient(135deg, rgba(168,121,53,0.25), rgba(168,121,53,0.10))",
                     backdropFilter:"blur(12px)",
-                    border:"1px solid rgba(201,168,106,0.5)",
+                    border:"1px solid rgba(168,121,53,0.5)",
                   }}
                 >
-                  <Plus strokeWidth={1.5} className="w-3.5 h-3.5" style={{ color:"#C9A86A" }} />
+                  <Plus strokeWidth={1.5} className="w-3.5 h-3.5" style={{ color:"#A87935" }} />
                 </span>
                 {/* Tooltip */}
                 <div
@@ -158,14 +158,14 @@ function LookbookSection({ section, index }: { section: Section; index: number }
           >
             {section.title.split(" ").map((word, wi) =>
               wi === section.title.split(" ").length - 1
-                ? <em key={wi} style={{ color:"#C9A86A", fontStyle:"italic" }}>{word}</em>
+                ? <em key={wi} style={{ color:"#A87935", fontStyle:"italic" }}>{word}</em>
                 : <span key={wi}>{word} </span>
             )}
           </h2>
 
           {/* Gold divider */}
           <div className="mb-6 w-10 h-px"
-               style={{ background:"linear-gradient(90deg, rgba(201,168,106,0.6), transparent)" }} />
+               style={{ background:"linear-gradient(90deg, rgba(168,121,53,0.6), transparent)" }} />
 
           {/* Description */}
           <p className="text-white/35 font-light leading-relaxed mb-8 max-w-sm"
@@ -178,11 +178,11 @@ function LookbookSection({ section, index }: { section: Section; index: number }
             href="/shop"
             className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-full px-5 py-3.5 font-light transition-all duration-500 hover:scale-[1.02] sm:gap-3 sm:px-7"
             style={{
-              background:"linear-gradient(135deg, rgba(201,168,106,0.18) 0%, rgba(201,168,106,0.06) 100%)",
+              background:"linear-gradient(135deg, rgba(168,121,53,0.18) 0%, rgba(168,121,53,0.06) 100%)",
               backdropFilter:"blur(16px)",
-              border:"1px solid rgba(201,168,106,0.28)",
-              boxShadow:"0 8px 28px rgba(201,168,106,0.08)",
-              color:"#C9A86A",
+              border:"1px solid rgba(168,121,53,0.28)",
+              boxShadow:"0 8px 28px rgba(168,121,53,0.08)",
+              color:"#A87935",
               fontSize:"10px",
               letterSpacing:"0.3em",
               fontFamily:"'Jost', sans-serif",
@@ -228,10 +228,10 @@ export default function LookbookPage() {
   return (
     <>
       <style>{`
-        body { background: #0A0908; }
+        body { background: #F5F1E8; }
       `}</style>
 
-      <main className="relative min-h-screen bg-[#0A0908] text-white" style={{ fontFamily:"'Jost', sans-serif" }}>
+      <main className="relative min-h-screen bg-[#F5F1E8] text-white" style={{ fontFamily:"'Jost', sans-serif" }}>
         {error ? (
           <div className="relative z-20 mx-auto max-w-6xl px-4 pt-20 sm:px-6 md:px-10">
             <div
@@ -263,9 +263,9 @@ export default function LookbookPage() {
           <div className="absolute inset-0"
                style={{ background:"radial-gradient(ellipse at 50% 60%, transparent 20%, rgba(0,0,0,0.7) 100%)" }} />
           <div className="absolute inset-x-0 bottom-0 h-56"
-               style={{ background:"linear-gradient(to top, #0A0908, transparent)" }} />
+               style={{ background:"linear-gradient(to top, #F5F1E8, transparent)" }} />
           <div className="absolute inset-x-0 top-0 h-24"
-               style={{ background:"linear-gradient(to bottom, rgba(8,8,8,0.5), transparent)" }} />
+               style={{ background:"linear-gradient(to bottom, rgba(61,48,37,0.5), transparent)" }} />
 
           <motion.div style={{ opacity:heroOpacity }} className="relative z-10 flex flex-col items-center px-4 text-center sm:px-6 md:px-10">
             <div className="mb-7">
@@ -290,7 +290,7 @@ export default function LookbookPage() {
                 textShadow:"0 4px 48px rgba(0,0,0,0.5)",
               }}
             >
-              Look<em style={{ color:"#C9A86A", fontStyle:"italic" }}>book</em>
+              Look<em style={{ color:"#A87935", fontStyle:"italic" }}>book</em>
             </h1>
             <p className="text-white/35 font-light max-w-xs leading-relaxed"
                style={{ fontSize:"0.82rem", letterSpacing:"0.16em" }}>
@@ -318,12 +318,12 @@ export default function LookbookPage() {
               <a key={i} href={`#${s.slug}`}
                  className="group flex items-center gap-2.5 text-white/25 hover:text-white/65 transition-all duration-300">
                 <span
-                  className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:border-[rgba(201,168,106,0.4)]"
+                  className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:border-[rgba(168,121,53,0.4)]"
                   style={{
                     background:"rgba(255,248,236,0.04)",
                     border:"1px solid rgba(255,248,236,0.07)",
                     fontSize:"8px",
-                    color:"rgba(201,168,106,0.5)",
+                    color:"rgba(122,88,31,0.88)",
                     fontFamily:"'Cormorant Garamond', serif",
                   }}
                 >
@@ -334,7 +334,7 @@ export default function LookbookPage() {
             ))}
           </motion.div>
           <div className="mt-8 mx-auto max-w-xs h-px"
-               style={{ background:"linear-gradient(90deg, transparent, rgba(201,168,106,0.2), transparent)" }} />
+               style={{ background:"linear-gradient(90deg, transparent, rgba(168,121,53,0.2), transparent)" }} />
         </section>
 
         {/* ── SECTIONS ── */}
@@ -348,11 +348,11 @@ export default function LookbookPage() {
 
         {/* ── FOOTER CTA ── */}
         <section className="relative z-10 overflow-hidden px-4 py-16 text-center sm:px-6 sm:py-24 md:px-10"
-                 style={{ background:"#14110F" }}>
+                 style={{ background:"#FFF9EF" }}>
           <div className="absolute inset-0 pointer-events-none"
-               style={{ background:"radial-gradient(ellipse at 50% 100%, rgba(201,168,106,0.05) 0%, transparent 60%)" }} />
+               style={{ background:"radial-gradient(ellipse at 50% 100%, rgba(168,121,53,0.05) 0%, transparent 60%)" }} />
           <div className="absolute inset-x-0 top-0 h-px"
-               style={{ background:"linear-gradient(90deg, transparent, rgba(201,168,106,0.2), transparent)" }} />
+               style={{ background:"linear-gradient(90deg, transparent, rgba(168,121,53,0.2), transparent)" }} />
           <motion.div
             initial={false}
             whileInView={{ opacity:1, y:0 }}
@@ -365,16 +365,16 @@ export default function LookbookPage() {
               className="font-light text-white mb-8"
               style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.8rem, 4vw, 3.2rem)", letterSpacing:"0.06em" }}
             >
-              Own the <em style={{ color:"#C9A86A" }}>Look.</em>
+              Own the <em style={{ color:"#A87935" }}>Look.</em>
             </h2>
             <Link
               href="/shop"
               className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full transition-all duration-500 hover:scale-[1.02]"
               style={{
-                background:"linear-gradient(135deg, rgba(201,168,106,0.18) 0%, rgba(201,168,106,0.06) 100%)",
+                background:"linear-gradient(135deg, rgba(168,121,53,0.18) 0%, rgba(168,121,53,0.06) 100%)",
                 backdropFilter:"blur(16px)",
-                border:"1px solid rgba(201,168,106,0.28)",
-                color:"#C9A86A",
+                border:"1px solid rgba(168,121,53,0.28)",
+                color:"#A87935",
                 fontSize:"10px",
                 letterSpacing:"0.3em",
                 fontFamily:"'Jost', sans-serif",

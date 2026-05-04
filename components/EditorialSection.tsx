@@ -2,7 +2,7 @@ import Image from "next/image";
 
 export default function EditorialSection() {
   return (
-    <section className="section-padding luxury-container grid items-center gap-8 bg-[#14110F] tracking-wide text-[#FFF8EC] md:grid-cols-2 lg:gap-16">
+    <section className="section-padding luxury-container grid items-center gap-8 bg-[#FFF9EF] tracking-wide text-[#FFF8EC] md:grid-cols-2 lg:gap-16">
 
       <div className="relative h-[320px] overflow-hidden rounded-3xl border border-[#FFF8EC]/10 shadow-lg sm:h-[440px] lg:h-[600px]">
         <Image
@@ -16,7 +16,7 @@ export default function EditorialSection() {
 
       <div>
         <h2 className="mb-6 text-3xl font-light tracking-[0.12em] sm:mb-8 sm:text-4xl">
-          Craftsmanship <span className="text-[#C9A86A]">Beyond Time</span>
+          Craftsmanship <span className="text-[#A87935]">Beyond Time</span>
         </h2>
 
         <p className="max-w-xl text-base leading-relaxed text-[#FFF8EC]/70 sm:text-lg">

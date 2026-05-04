@@ -5,11 +5,11 @@ import { motion } from "framer-motion";
 export default function Loading() {
   return (
     <div
-      className="relative flex min-h-[calc(100svh-54px)] items-center justify-center bg-[#0A0908] sm:min-h-[calc(100svh-58px)]"
+      className="relative flex min-h-[calc(100svh-54px)] items-center justify-center bg-[#F5F1E8] sm:min-h-[calc(100svh-58px)]"
       style={{
         fontFamily:"'Jost', sans-serif",
         background:
-          "radial-gradient(circle at 50% 50%, rgba(201,168,106,0.06) 0%, rgba(8,8,8,0.98) 55%, #0A0908 100%)",
+          "radial-gradient(circle at 50% 50%, rgba(168,121,53,0.06) 0%, rgba(61,48,37,0.98) 55%, #F5F1E8 100%)",
       }}
     >
       <div className="relative z-10 flex flex-col items-center gap-8">
@@ -21,21 +21,21 @@ export default function Loading() {
               animate={{ rotate: 360 }}
               transition={{ repeat: Infinity, duration: 3.5, ease: "linear" }}
               className="absolute inset-0 rounded-full"
-              style={{ border:"1px solid rgba(201,168,106,0.15)", borderTopColor:"rgba(201,168,106,0.7)" }}
+              style={{ border:"1px solid rgba(168,121,53,0.15)", borderTopColor:"rgba(168,121,53,0.7)" }}
             />
             {/* Mid ring — medium */}
             <motion.div
               animate={{ rotate: -360 }}
               transition={{ repeat: Infinity, duration: 2.2, ease: "linear" }}
               className="absolute inset-2 rounded-full"
-              style={{ border:"1px solid rgba(255,248,236,0.06)", borderTopColor:"rgba(201,168,106,0.35)" }}
+              style={{ border:"1px solid rgba(255,248,236,0.06)", borderTopColor:"rgba(168,121,53,0.35)" }}
             />
             {/* Inner dot */}
             <motion.div
               animate={{ scale:[1, 1.3, 1], opacity:[0.4, 0.8, 0.4] }}
               transition={{ repeat:Infinity, duration:1.8, ease:"easeInOut" }}
               className="absolute inset-[22px] rounded-full"
-              style={{ background:"rgba(201,168,106,0.6)" }}
+              style={{ background:"rgba(168,121,53,0.6)" }}
             />
           </div>
 

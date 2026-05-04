@@ -3,7 +3,7 @@ import { getAuthFromRequest } from "@/lib/auth";
 import { getOrdersJson } from "@/lib/orderStorage";
 import { getUsersJson } from "@/lib/usersJson";
 import { buildAdminCustomerIndex } from "@/lib/adminCustomers";
-import productsData from "@/lib/productsData";
+import { getAllProducts } from "@/lib/getAllProducts";
 
 interface OrderRecord {
   id?: string;
@@ -16,6 +16,8 @@ interface OrderRecord {
   createdAt?: string;
   userId?: string;
   totalPrice?: number;
+  paymentStatus?: string;
+  paymentMethod?: string;
 }
 
 const NO_STORE_HEADERS = {
@@ -29,9 +31,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ message: "Not authorized" }, { status: 403 });
     }
 
-    const [orders, users] = await Promise.all([
+    const [orders, users, products] = await Promise.all([
       getOrdersJson() as Promise<OrderRecord[]>,
       getUsersJson(),
+      getAllProducts(),
     ]);
 
     const customerIndex = buildAdminCustomerIndex(users, orders);
@@ -43,10 +46,17 @@ export async function GET(req: NextRequest) {
     let ordersToday = 0;
     const revenueByMonth: Record<string, number> = {};
     const productCount: Record<string, number> = {};
+    let pendingPayments = 0;
 
     for (const order of orders) {
       const total = Number(order.totalPrice ?? order.total ?? 0);
       totalRevenue += total;
+
+      const paymentStatus = String(order.paymentStatus ?? "").toLowerCase();
+      const status = String(order.status ?? "").toLowerCase();
+      if (paymentStatus === "pending" || paymentStatus === "unpaid" || status === "pending") {
+        pendingPayments += 1;
+      }
 
       const created = order.createdAt ? new Date(order.createdAt) : null;
       if (created && created >= todayStart) {
@@ -81,9 +91,37 @@ export async function GET(req: NextRequest) {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 10)
       .map(([id, quantity]) => {
-        const product = productsData.find((item) => item._id === id);
+        const product = products.find((item) => item._id === id);
         return { id, name: product?.name || "Unknown", quantity };
       });
+
+    const lowStockProducts = products
+      .filter((product) => typeof product.stock === "number" && product.stock > 0 && product.stock <= 5)
+      .slice(0, 8)
+      .map((product) => ({
+        id: product._id,
+        name: product.name,
+        stock: product.stock,
+        category: product.category,
+      }));
+
+    const recentOrders = orders
+      .slice()
+      .sort((a, b) => {
+        const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return bTime - aTime;
+      })
+      .slice(0, 6)
+      .map((order) => ({
+        id: order._id ?? order.id ?? "",
+        total: Number(order.totalPrice ?? order.total ?? 0),
+        status: order.status ?? "pending",
+        paymentStatus: order.paymentStatus ?? "pending",
+        paymentMethod: order.paymentMethod ?? "",
+        createdAt: order.createdAt ?? "",
+        email: order.customer?.email ?? order.userId ?? "guest",
+      }));
 
     const revenueChart = Object.entries(revenueByMonth)
       .sort((a, b) => a[0].localeCompare(b[0]))
@@ -108,6 +146,9 @@ export async function GET(req: NextRequest) {
         ordersToday,
         totalOrders: orders.length,
         totalCustomers: customerIndex.customers.length,
+        pendingPayments,
+        lowStockProducts,
+        recentOrders,
         bestSellingProducts: topProducts,
         revenueByMonth: revenueChart,
         recentCustomers,
@@ -122,6 +163,9 @@ export async function GET(req: NextRequest) {
         ordersToday: 0,
         totalOrders: 0,
         totalCustomers: 0,
+        pendingPayments: 0,
+        lowStockProducts: [],
+        recentOrders: [],
         bestSellingProducts: [],
         revenueByMonth: [],
         recentCustomers: [],

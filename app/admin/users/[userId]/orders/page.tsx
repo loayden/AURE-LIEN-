@@ -136,11 +136,11 @@ export default function AdminUserOrdersPage() {
           </div>
           <div className="admin-stat-card p-4">
             <p className="eyebrow mb-3">Orders</p>
-            <p className="font-light text-[#C9A86A]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.6rem" }}>{user.orders ?? orders.length}</p>
+            <p className="font-light text-[#A87935]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.6rem" }}>{user.orders ?? orders.length}</p>
           </div>
           <div className="admin-stat-card p-4">
             <p className="eyebrow mb-3">Total Spent</p>
-            <p className="font-light text-[#C9A86A]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.6rem" }}>EGP {Number(user.totalSpent ?? totalSpent).toLocaleString()}</p>
+            <p className="font-light text-[#A87935]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.6rem" }}>EGP {Number(user.totalSpent ?? totalSpent).toLocaleString()}</p>
           </div>
           <div className="admin-stat-card p-4">
             <p className="eyebrow mb-3">Location</p>
@@ -176,7 +176,7 @@ export default function AdminUserOrdersPage() {
                     Status: <span className="text-white/84">{order.status}</span>
                   </p>
                 </div>
-                <p className="font-light text-[#C9A86A]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.4rem" }}>
+                <p className="font-light text-[#A87935]" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "1.4rem" }}>
                   EGP {Number(order.totalPrice).toLocaleString()}
                 </p>
               </div>
@@ -201,7 +201,7 @@ export default function AdminUserOrdersPage() {
                       <p className="body-copy body-copy-strong">{item.name}</p>
                       <p className="body-copy text-sm">Qty: {item.quantity}</p>
                     </div>
-                    <p className="text-[#C9A86A]">EGP {(item.price * item.quantity).toLocaleString()}</p>
+                    <p className="text-[#A87935]">EGP {(item.price * item.quantity).toLocaleString()}</p>
                   </div>
                 ))}
               </div>

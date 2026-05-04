@@ -1,5 +1,5 @@
 import { withPublicAssetVersion } from "@/lib/publicAsset";
-import { ArrowRight, Check, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -102,7 +102,7 @@ function DiscoverCard({
     <div className="gold-panel rounded-[24px] p-5 sm:p-6">
       <p className="eyebrow mb-4 text-gold">{label}</p>
       <h3
-        className="mb-3 font-light text-white"
+        className="mb-3 font-light text-[#3D3025]"
         style={{
           fontFamily: "var(--font-serif)",
           fontSize: "clamp(1.15rem, 2.5vw, 1.6rem)",
@@ -128,16 +128,16 @@ export default function DiscoverPage() {
           sizes="100vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(10,9,8,0.94)_0%,rgba(10,9,8,0.74)_45%,rgba(10,9,8,0.48)_100%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(201,168,106,0.16),transparent_40%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(61,48,37,0.94)_0%,rgba(61,48,37,0.74)_45%,rgba(61,48,37,0.48)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(168,121,53,0.16),transparent_40%)]" />
 
         <div className="page-wrap relative z-10 flex min-h-[72svh] items-center py-16 sm:py-20 lg:py-24">
           <div className="max-w-3xl">
             <p className="eyebrow mb-5">Discover BOUT</p>
-            <h1 className="title-display text-[clamp(2.7rem,8vw,5.8rem)] leading-[0.92]">
+            <h1 className="title-display text-[clamp(2.7rem,8vw,5.8rem)] leading-[0.92]" style={{ color: "#FFF9EF" }}>
               The brand, platform, and thinking behind the <em className="gold-italic">experience</em>
             </h1>
-            <p className="hero-body-copy mt-5 max-w-2xl text-white/62">
+            <p className="hero-body-copy mt-5 max-w-2xl" style={{ color: "rgba(255,249,239,0.74)" }}>
               This page now holds the company and platform context that used to sit on the homepage, so the homepage can stay focused on shopping, clarity, and trust.
             </p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
@@ -158,7 +158,7 @@ export default function DiscoverPage() {
       >
         <div className="page-wrap grid gap-5 lg:grid-cols-[1.08fr_0.92fr]">
           <div className="warm-panel overflow-hidden rounded-[30px]">
-            <div className="relative min-h-[420px]">
+            <div className="relative min-h-[520px]">
               <Image
                 src={withPublicAssetVersion("/uploads/main.jpg")}
                 alt="BOUT brand perspective"
@@ -166,13 +166,13 @@ export default function DiscoverPage() {
                 sizes="(max-width: 1024px) 100vw, 56vw"
                 className="object-cover"
               />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,9,8,0.16),rgba(10,9,8,0.88))]" />
-              <div className="relative z-10 flex h-full flex-col justify-end p-6 sm:p-8 md:p-10">
-                <p className="eyebrow mb-4">Platform Perspective</p>
-                <h2 className="title-display max-w-2xl text-[clamp(2rem,4vw,3.4rem)]">
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(61,48,37,0.08)_0%,rgba(61,48,37,0.34)_45%,rgba(61,48,37,0.86)_100%)]" />
+              <div className="absolute inset-x-0 bottom-0 z-10 flex flex-col justify-end p-6 sm:p-8 md:p-10">
+                <p className="eyebrow mb-4" style={{ color: "rgba(255,249,239,0.70)" }}>Platform Perspective</p>
+                <h2 className="title-display max-w-2xl text-[clamp(2rem,4vw,3.4rem)]" style={{ color: "#FFF9EF" }}>
                   Designed to feel easier to trust, easier to scan, and easier to <em className="gold-italic">buy</em>
                 </h2>
-                <p className="body-copy mt-4 max-w-xl text-white/56">
+                <p className="body-copy mt-4 max-w-xl" style={{ color: "rgba(255,249,239,0.72)" }}>
                   The redesign direction is simple: the homepage should feel more like the first screen of a strong commerce site, while the brand and platform explanation live in a calmer place for users who want to read deeper.
                 </p>
               </div>
@@ -215,11 +215,11 @@ export default function DiscoverPage() {
           <div className="grid gap-4 lg:grid-cols-3">
             {BENEFITS.map((item) => (
               <div key={item.title} className="glass-panel rounded-[24px] p-6 sm:p-7">
-                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgba(201,168,106,0.14)] text-gold">
+                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgba(168,121,53,0.14)] text-gold">
                   <Sparkles className="h-5 w-5" strokeWidth={1.4} />
                 </div>
                 <h3
-                  className="mb-3 font-light text-white"
+                  className="mb-3 font-light text-[#3D3025]"
                   style={{
                     fontFamily: "var(--font-serif)",
                     fontSize: "clamp(1.2rem, 2.5vw, 1.7rem)",
@@ -251,7 +251,7 @@ export default function DiscoverPage() {
             {JOURNEY.map((item) => (
               <div key={item.number} className="gold-panel rounded-[24px] p-6 sm:p-7">
                 <p
-                  className="mb-5 font-light text-white/20"
+                  className="mb-5 font-light text-[rgba(168,121,53,0.34)]"
                   style={{
                     fontFamily: "var(--font-serif)",
                     fontSize: "3rem",
@@ -261,7 +261,7 @@ export default function DiscoverPage() {
                   {item.number}
                 </p>
                 <h3
-                  className="mb-2 font-light text-white"
+                  className="mb-2 font-light text-[#3D3025]"
                   style={{
                     fontFamily: "var(--font-serif)",
                     fontSize: "clamp(1.25rem, 2.6vw, 1.8rem)",
@@ -295,11 +295,11 @@ export default function DiscoverPage() {
           <div className="grid gap-4 md:grid-cols-2">
             {STANDARDS.map((item) => (
               <div key={item.title} className="glass-panel rounded-[24px] p-6 sm:p-7">
-                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgba(201,168,106,0.14)] text-gold">
+                <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgba(168,121,53,0.14)] text-gold">
                   <Check className="h-5 w-5" strokeWidth={1.5} />
                 </div>
                 <h3
-                  className="mb-3 font-light text-white"
+                  className="mb-3 font-light text-[#3D3025]"
                   style={{
                     fontFamily: "var(--font-serif)",
                     fontSize: "clamp(1.2rem, 2.5vw, 1.65rem)",
@@ -329,13 +329,13 @@ export default function DiscoverPage() {
                 sizes="100vw"
                 className="object-cover"
               />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,9,8,0.25),rgba(10,9,8,0.88))]" />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(61,48,37,0.12)_0%,rgba(61,48,37,0.36)_45%,rgba(61,48,37,0.86)_100%)]" />
               <div className="relative z-10 flex h-full flex-col items-start justify-end p-6 sm:p-8 md:p-10">
-                <p className="eyebrow mb-4">Next Step</p>
-                <h2 className="title-display max-w-3xl text-[clamp(2rem,4vw,3.6rem)]">
+                <p className="eyebrow mb-4" style={{ color: "rgba(255,249,239,0.70)" }}>Next Step</p>
+                <h2 className="title-display max-w-3xl text-[clamp(2rem,4vw,3.6rem)]" style={{ color: "#FFF9EF" }}>
                   If the homepage is for shopping first, this page is for understanding the wider <em className="gold-italic">intent</em>
                 </h2>
-                <p className="body-copy mt-4 max-w-2xl text-white/56">
+                <p className="body-copy mt-4 max-w-2xl" style={{ color: "rgba(255,249,239,0.72)" }}>
                   The split is deliberate: less resistance for people who came to buy, and a calmer place for anyone who wants to understand the company, the structure, and the platform thinking behind the site.
                 </p>
                 <div className="mt-6 flex flex-col gap-3 sm:flex-row">

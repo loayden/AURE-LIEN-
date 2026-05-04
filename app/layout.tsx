@@ -3,7 +3,9 @@ import ClientErrorBoundary from '@/components/ClientErrorBoundary'
 import Cursor from '@/components/Cursor'
 import DeferredAIChatStylist from '@/components/DeferredAIChatStylist'
 import Footer from '@/components/Footer'
+import MobileBottomNav from '@/components/MobileBottomNav'
 import Navbar from '@/components/Navbar'
+import ToastProvider from '@/components/ToastProvider'
 import { Cormorant_Garamond, Jost } from 'next/font/google'
 import './globals.css'
 
@@ -34,8 +36,8 @@ const jost = Jost({
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${jost.variable}`}>
-      <body className="bg-[#0A0908] text-white">
+    <html lang="en" className={`${cormorant.variable} ${jost.variable}`} suppressHydrationWarning>
+      <body className="bg-[#F5F1E8] text-[#3D3025]">
         <AmbientBackdrop />
         <ClientErrorBoundary fallback={null}>
           <Cursor />
@@ -51,7 +53,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <DeferredAIChatStylist />
           </ClientErrorBoundary>
           <Footer />
+          <ClientErrorBoundary fallback={null}>
+            <MobileBottomNav />
+          </ClientErrorBoundary>
         </div>
+        <ToastProvider />
       </body>
     </html>
   )

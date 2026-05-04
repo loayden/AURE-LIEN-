@@ -7,9 +7,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendEmailAsync } from "@/lib/email/sender";
 import { getWelcomeEmailHtml } from "@/lib/email/templates/welcome";
+import { getAuthFromRequest } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await getAuthFromRequest(req);
+    const internalToken = req.headers.get("x-internal-token");
+    const expectedToken = process.env.INTERNAL_API_TOKEN;
+    const allowedByToken = Boolean(expectedToken && internalToken === expectedToken);
+    if (!allowedByToken && (!auth || auth.role !== "admin")) {
+      return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+    }
+
     const body = await req.json();
     const { email, name } = body;
 

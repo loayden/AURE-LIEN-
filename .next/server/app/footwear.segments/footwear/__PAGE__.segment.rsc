@@ -1,9 +1,6 @@
 1:"$Sreact.fragment"
-2:I[47257,["/_next/static/chunks/09og47wx3livn.js","/_next/static/chunks/0bu_fytumrspx.js","/_next/static/chunks/1860zsbcg5z1o.js"],"ClientPageRoot"]
-3:I[63451,["/_next/static/chunks/09og47wx3livn.js","/_next/static/chunks/0bu_fytumrspx.js","/_next/static/chunks/1860zsbcg5z1o.js","/_next/static/chunks/0-t27a37~--t0.js","/_next/static/chunks/0acf2u.zgn5-6.js"],"default"]
-6:I[97367,["/_next/static/chunks/09og47wx3livn.js","/_next/static/chunks/0bu_fytumrspx.js","/_next/static/chunks/1860zsbcg5z1o.js"],"OutletBoundary"]
-7:"$Sreact.suspense"
-0:{"rsc":["$","$1","c",{"children":[["$","$L2",null,{"Component":"$3","serverProvidedParams":{"searchParams":{},"params":{},"promises":["$@4","$@5"]}}],[["$","script","script-0",{"src":"/_next/static/chunks/0-t27a37~--t0.js","async":true}],["$","script","script-1",{"src":"/_next/static/chunks/0acf2u.zgn5-6.js","async":true}]],["$","$L6",null,{"children":["$","$7",null,{"name":"Next.MetadataOutlet","children":"$@8"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"FjVpxViTOVCDbuWKKLQvg"}
-4:{}
-5:"$0:rsc:props:children:0:props:serverProvidedParams:params"
-8:null
+2:I[38890,["/_next/static/chunks/134jiui8ngs-_.js","/_next/static/chunks/0f_itp2malml8.js","/_next/static/chunks/03p~z1kd15pfy.js","/_next/static/chunks/02vqmj_psw6px.js","/_next/static/chunks/1860zsbcg5z1o.js","/_next/static/chunks/01-94e79uaver.js","/_next/static/chunks/0l5yro3t8742e.js"],"default"]
+3:I[97367,["/_next/static/chunks/134jiui8ngs-_.js","/_next/static/chunks/0f_itp2malml8.js","/_next/static/chunks/03p~z1kd15pfy.js","/_next/static/chunks/02vqmj_psw6px.js","/_next/static/chunks/1860zsbcg5z1o.js","/_next/static/chunks/01-94e79uaver.js"],"OutletBoundary"]
+4:"$Sreact.suspense"
+0:{"rsc":["$","$1","c",{"children":[["$","$L2",null,{"title":"Footwear","description":"Footwear with precise silhouettes, clear stock states, and mobile-friendly product browsing.","category":"footwear","lockCategory":true,"heroImage":"/uploads/footwear.jpg?v=2026-04-03-1"}],[["$","script","script-0",{"src":"/_next/static/chunks/0l5yro3t8742e.js","async":true}]],["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"5xjpyGEBoYMDFogU99OS4"}
+5:null

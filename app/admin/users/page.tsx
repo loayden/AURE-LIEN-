@@ -155,7 +155,7 @@ export default function AdminUsersPage() {
                   >
                       <td>
                         <p className="body-copy body-copy-strong">{u.name}</p>
-                        <p className="eyebrow mt-2" style={{ color: "rgba(201,168,106,0.85)" }}>
+                        <p className="eyebrow mt-2" style={{ color: "rgba(168,121,53,0.85)" }}>
                           {formatSource(u)}
                         </p>
                       </td>
@@ -167,7 +167,7 @@ export default function AdminUsersPage() {
                         {formatLocation(u)}
                       </td>
                     <td className="text-center text-white/78">{u.orders}</td>
-                    <td className="text-right text-[#C9A86A]">EGP {u.totalSpent.toLocaleString()}</td>
+                    <td className="text-right text-[#A87935]">EGP {u.totalSpent.toLocaleString()}</td>
                     <td className="text-sm">
                       {formatDate(u.lastOrderAt || u.createdAt)}
                     </td>

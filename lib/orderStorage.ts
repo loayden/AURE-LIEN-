@@ -95,6 +95,8 @@ function normalizeOrder(order: any): any {
     totalPrice: Number(order?.totalPrice ?? order?.total ?? 0),
     total: Number(order?.total ?? order?.totalPrice ?? 0),
     status: order?.status ?? "pending",
+    paymentStatus: order?.paymentStatus ?? (order?.status === "completed" ? "paid" : "pending"),
+    paymentMethod: order?.paymentMethod ?? "",
     createdAt,
     customer: {
       email: customer.email ?? "",
@@ -121,6 +123,8 @@ function toOrdersDataRecord(order: any): any {
   return {
     id: normalized.id,
     status: normalized.status,
+    paymentStatus: normalized.paymentStatus,
+    paymentMethod: normalized.paymentMethod,
     products: normalized.products.map((item: any) => ({
       _id: item._id,
       name: item.name,
@@ -399,6 +403,8 @@ export async function setOrdersDataJson(ordersData: any[]): Promise<void> {
         totalPrice: record.totalPrice ?? record.total,
         total: record.total ?? record.totalPrice,
         status: record.status,
+        paymentStatus: record.paymentStatus,
+        paymentMethod: record.paymentMethod,
         createdAt: record.createdAt,
         customer: record.customer ?? record.user,
       }))
@@ -413,6 +419,8 @@ export async function setOrdersDataJson(ordersData: any[]): Promise<void> {
     totalPrice: record.totalPrice ?? record.total,
     total: record.total ?? record.totalPrice,
     status: record.status,
+    paymentStatus: record.paymentStatus,
+    paymentMethod: record.paymentMethod,
     createdAt: record.createdAt,
     customer: record.customer ?? record.user,
   }));

@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import ImageOverlayCard from "@/components/ui/ImageOverlayCard";
 import SectionHeader from "@/components/ui/SectionHeader";
 import type { CategoryCard } from "@/lib/types";

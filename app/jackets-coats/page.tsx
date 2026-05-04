@@ -1,5 +1,10 @@
 import CategoryCollectionPage from "@/components/CategoryCollectionPage";
 
+export const metadata = {
+  title: "Jackets & Coats | BOUT",
+  description: "Shop BOUT jackets and coats with clear stock, size, color, and price filters.",
+};
+
 export default function JacketsPage() {
   return (
     <CategoryCollectionPage

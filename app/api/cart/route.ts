@@ -17,6 +17,17 @@ type CartItem = {
   color?: string | null;
 };
 
+function isPositiveInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value > 0;
+}
+
+function stockError(stock: number | undefined, requested: number) {
+  if (typeof stock !== "number") return null;
+  if (stock <= 0) return "This product is sold out";
+  if (requested > stock) return `Only ${stock} available`;
+  return null;
+}
+
 // GET: fetch cart items
 export async function GET(req: NextRequest) {
   try {
@@ -34,6 +45,7 @@ export async function GET(req: NextRequest) {
         price: product?.price ?? 0,
         image: product?.images?.[0] ?? "/images/placeholder.svg",
         category: product?.category ?? "",
+        stock: product?.stock,
       };
     });
 
@@ -67,7 +79,7 @@ export async function POST(req: NextRequest) {
       color?: string | null;
     };
 
-    if (!productId || typeof productId !== "string" || typeof quantity !== "number") {
+    if (!productId || typeof productId !== "string" || !isPositiveInteger(quantity)) {
       return NextResponse.json({ error: "Invalid cart data" }, { status: 400 });
     }
 
@@ -82,6 +94,11 @@ export async function POST(req: NextRequest) {
         (item.size || null) === (size || null) &&
         (item.color || null) === (color || null)
     );
+    const requestedQuantity = (index !== -1 ? Number(cart[index].quantity || 0) : 0) + quantity;
+    const stockMessage = stockError(product.stock, requestedQuantity);
+    if (stockMessage) {
+      return NextResponse.json({ error: stockMessage }, { status: 409 });
+    }
 
     if (index !== -1) {
       cart[index].quantity += quantity;
@@ -93,6 +110,8 @@ export async function POST(req: NextRequest) {
           name: product.name,
           price: product.price,
           image: product.images?.[0] ?? "/images/placeholder.svg",
+          category: product.category,
+          stock: product.stock,
         },
       }, { status: 200 });
       if (isNew) attachUserCookie(res, userId);
@@ -115,6 +134,8 @@ export async function POST(req: NextRequest) {
         name: product.name,
         price: product.price,
         image: product.images?.[0] ?? "/images/placeholder.svg",
+        category: product.category,
+        stock: product.stock,
       },
     }, { status: 201 });
     if (isNew) attachUserCookie(res, userId);
@@ -138,8 +159,17 @@ export async function PUT(req: NextRequest) {
       color?: string | null;
     };
 
-    if (!productId || typeof productId !== "string" || typeof quantity !== "number") {
+    if (!productId || typeof productId !== "string" || !isPositiveInteger(quantity)) {
       return NextResponse.json({ error: "Invalid cart data" }, { status: 400 });
+    }
+
+    const product = await getProductById(productId);
+    if (!product) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+    const stockMessage = stockError(product.stock, quantity);
+    if (stockMessage) {
+      return NextResponse.json({ error: stockMessage }, { status: 409 });
     }
 
     const index = cart.findIndex(

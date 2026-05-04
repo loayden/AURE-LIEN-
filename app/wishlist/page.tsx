@@ -41,7 +41,7 @@ export default function WishlistPage() {
 
   /* ── Loading ── */
   if (loading) return (
-    <div className="min-h-screen bg-[#0A0908] flex items-center justify-center">
+    <div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center">
       <motion.p
         animate={{ opacity:[0.3,0.7,0.3] }}
         transition={{ repeat:Infinity, duration:1.8 }}
@@ -56,12 +56,12 @@ export default function WishlistPage() {
   return (
     <>
       <style>{`
-        body { background: #0A0908; }
-        ::selection { background: #C9A86A; color: #0A0908; }
+        body { background: #F5F1E8; }
+        ::selection { background: #A87935; color: #F5F1E8; }
       `}</style>
 
       <main
-        className="relative min-h-screen bg-[#0A0908] px-4 pb-16 pt-16 text-white sm:px-6 sm:pb-24 sm:pt-24 md:px-10 md:pb-32"
+        className="relative min-h-screen bg-[#F5F1E8] px-4 pb-16 pt-16 text-white sm:px-6 sm:pb-24 sm:pt-24 md:px-10 md:pb-32"
         style={{ fontFamily:"'Jost', sans-serif" }}
       >
 
@@ -94,7 +94,7 @@ export default function WishlistPage() {
                   letterSpacing:"0.04em",
                 }}
               >
-                My <em style={{ color:"#C9A86A", fontStyle:"italic" }}>Wishlist</em>
+                My <em style={{ color:"#A87935", fontStyle:"italic" }}>Wishlist</em>
               </h1>
 
               {/* Count pill */}
@@ -104,13 +104,13 @@ export default function WishlistPage() {
                   animate={{ opacity:1, scale:1 }}
                   className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 px-4 py-2 rounded-full"
                   style={{
-                    background:"linear-gradient(135deg, rgba(201,168,106,0.14), rgba(201,168,106,0.04))",
-                    border:"1px solid rgba(201,168,106,0.22)",
+                    background:"linear-gradient(135deg, rgba(168,121,53,0.14), rgba(168,121,53,0.04))",
+                    border:"1px solid rgba(168,121,53,0.22)",
                     backdropFilter:"blur(16px)",
                   }}
                 >
-                  <Heart strokeWidth={1.3} className="w-3 h-3" style={{ color:"#C9A86A" }} />
-                  <span className="text-[#C9A86A] text-[10px] tracking-[0.3em] uppercase font-light">
+                  <Heart strokeWidth={1.3} className="w-3 h-3" style={{ color:"#A87935" }} />
+                  <span className="text-[#A87935] text-[10px] tracking-[0.3em] uppercase font-light">
                     {items.length} {items.length === 1 ? "Piece" : "Pieces"}
                   </span>
                 </motion.span>
@@ -119,7 +119,7 @@ export default function WishlistPage() {
 
             {/* Gold divider */}
             <div className="mt-5 h-px"
-                 style={{ background:"linear-gradient(90deg, rgba(201,168,106,0.4), transparent)" }} />
+                 style={{ background:"linear-gradient(90deg, rgba(168,121,53,0.4), transparent)" }} />
           </motion.div>
 
           {/* ── EMPTY STATE ── */}
@@ -147,7 +147,7 @@ export default function WishlistPage() {
                   letterSpacing:"0.06em",
                 }}
               >
-                Your wishlist is <em style={{ color:"#C9A86A" }}>empty</em>
+                Your wishlist is <em style={{ color:"#A87935" }}>empty</em>
               </h2>
               <p className="text-white/25 text-sm font-light tracking-widest mb-10 max-w-xs">
                 Save pieces you love and come back to them any time.
@@ -155,10 +155,10 @@ export default function WishlistPage() {
               <motion.div whileHover={{ scale:1.02 }} whileTap={{ scale:0.97 }}>
                 <Link
                   href="/shop"
-                  className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-full px-6 py-3.5 text-[10px] font-light uppercase tracking-[0.3em] text-[#C9A86A] transition-all duration-500 sm:gap-3 sm:px-8"
+                  className="inline-flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-full px-6 py-3.5 text-[10px] font-light uppercase tracking-[0.3em] text-[#A87935] transition-all duration-500 sm:gap-3 sm:px-8"
                   style={{
-                    background:"linear-gradient(135deg, rgba(201,168,106,0.14), rgba(201,168,106,0.04))",
-                    border:"1px solid rgba(201,168,106,0.25)",
+                    background:"linear-gradient(135deg, rgba(168,121,53,0.14), rgba(168,121,53,0.04))",
+                    border:"1px solid rgba(168,121,53,0.25)",
                     backdropFilter:"blur(16px)",
                   }}
                 >

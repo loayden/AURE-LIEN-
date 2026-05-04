@@ -80,6 +80,11 @@
       "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
       "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
     ],
+    "[project]/app/checkout/confirmation/page": [
+      "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
+      "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
+      "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
+    ],
     "[project]/app/checkout/page": [
       "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
       "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
@@ -96,6 +101,11 @@
       "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
     ],
     "[project]/app/denim/page": [
+      "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
+      "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
+      "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
+    ],
+    "[project]/app/discover/page": [
       "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
       "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
       "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
@@ -145,6 +155,11 @@
       "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
       "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
     ],
+    "[project]/app/orders/[id]/page": [
+      "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
+      "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
+      "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
+    ],
     "[project]/app/orders/page": [
       "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
       "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
@@ -176,6 +191,11 @@
       "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
     ],
     "[project]/app/product/products/page": [
+      "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
+      "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
+      "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
+    ],
+    "[project]/app/returns/page": [
       "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
       "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
       "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { searchCatalogProducts, SEARCH_CATEGORIES } from "@/lib/searchProducts";
+import { ALL_CATEGORY_META, filterProducts } from "@/lib/commerce";
+import { getAllProducts } from "@/lib/getAllProducts";
 
 export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams.get("q") || "";
@@ -15,7 +16,9 @@ export async function GET(req: NextRequest) {
     maxPrice != null && maxPrice !== "" && !Number.isNaN(Number(maxPrice))
       ? Number(maxPrice)
       : null;
-  const results = searchCatalogProducts(q, {
+  const products = await getAllProducts();
+  const results = filterProducts(products, {
+    query: q,
     category,
     minPrice: normalizedMinPrice,
     maxPrice: normalizedMaxPrice,
@@ -24,6 +27,6 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     products: results,
-    categories: SEARCH_CATEGORIES,
+    categories: ALL_CATEGORY_META.map((item) => item.slug),
   });
 }

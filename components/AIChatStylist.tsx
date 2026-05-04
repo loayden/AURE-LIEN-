@@ -106,12 +106,12 @@ export default function AIChatStylist() {
           whileTap={{ scale: 0.95 }}
           aria-label="Open stylist chat"
           style={{
-            background: "linear-gradient(135deg, rgba(201,168,106,0.22), rgba(201,168,106,0.08))",
-            borderColor: "rgba(201,168,106,0.35)",
-            boxShadow: "0 0 28px rgba(201,168,106,0.12), inset 0 1px 0 rgba(255,248,236,0.14)",
+            background: "linear-gradient(135deg, rgba(168,121,53,0.22), rgba(168,121,53,0.08))",
+            borderColor: "rgba(168,121,53,0.35)",
+            boxShadow: "0 0 28px rgba(168,121,53,0.12), inset 0 1px 0 rgba(255,248,236,0.14)",
             backdropFilter: "blur(16px)",
             WebkitBackdropFilter: "blur(16px)",
-            color: "#C9A86A",
+            color: "#A87935",
           }}
         >
           <svg className="h-5 w-5 sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,7 +133,7 @@ export default function AIChatStylist() {
               aria-label="Stylist chat"
               data-overlay-root="true"
               style={{
-                background: "linear-gradient(160deg, rgba(30,24,22,0.94) 0%, rgba(20,17,15,0.97) 100%)",
+                background: "linear-gradient(160deg, rgba(255,255,255,0.94) 0%, rgba(255,249,239,0.97) 100%)",
                 borderColor: "rgba(255,248,236,0.09)",
                 boxShadow: "0 24px 64px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,248,236,0.10)",
                 backdropFilter: "blur(32px) saturate(180%)",
@@ -174,8 +174,8 @@ export default function AIChatStylist() {
                       style={
                         m.role === "user"
                           ? {
-                              background: "linear-gradient(135deg, rgba(201,168,106,0.18), rgba(201,168,106,0.06))",
-                              border: "1px solid rgba(201,168,106,0.22)",
+                              background: "linear-gradient(135deg, rgba(168,121,53,0.18), rgba(168,121,53,0.06))",
+                              border: "1px solid rgba(168,121,53,0.22)",
                               color: "rgba(255,248,236,0.88)",
                             }
                           : {
@@ -197,8 +197,8 @@ export default function AIChatStylist() {
                                 href={`/product/${p._id}`}
                                 className="flex max-w-full items-center gap-2 rounded-xl p-2 transition-colors"
                                 style={{
-                                  border: "1px solid rgba(201,168,106,0.18)",
-                                  background: "linear-gradient(135deg, rgba(201,168,106,0.1), rgba(201,168,106,0.03))",
+                                  border: "1px solid rgba(168,121,53,0.18)",
+                                  background: "linear-gradient(135deg, rgba(168,121,53,0.1), rgba(168,121,53,0.03))",
                                 }}
                               >
                                 {p.images?.[0] && (

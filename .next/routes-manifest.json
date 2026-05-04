@@ -55,6 +55,14 @@
       "namedRegex": "^/api/products/(?<nxtPid>[^/]+?)(?:/)?$"
     },
     {
+      "page": "/orders/[id]",
+      "regex": "^/orders/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/orders/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
       "page": "/product/[id]",
       "regex": "^/product/([^/]+?)(?:/)?$",
       "routeKeys": {
@@ -233,6 +241,12 @@
       "namedRegex": "^/api/lookbooks(?:/)?$"
     },
     {
+      "page": "/api/newsletter",
+      "regex": "^/api/newsletter(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/newsletter(?:/)?$"
+    },
+    {
       "page": "/api/orders",
       "regex": "^/api/orders(?:/)?$",
       "routeKeys": {},
@@ -341,6 +355,12 @@
       "namedRegex": "^/checkout(?:/)?$"
     },
     {
+      "page": "/checkout/confirmation",
+      "regex": "^/checkout/confirmation(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/checkout/confirmation(?:/)?$"
+    },
+    {
       "page": "/collection",
       "regex": "^/collection(?:/)?$",
       "routeKeys": {},
@@ -357,6 +377,12 @@
       "regex": "^/denim(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/denim(?:/)?$"
+    },
+    {
+      "page": "/discover",
+      "regex": "^/discover(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/discover(?:/)?$"
     },
     {
       "page": "/footwear",
@@ -441,6 +467,12 @@
       "regex": "^/product/products(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/product/products(?:/)?$"
+    },
+    {
+      "page": "/returns",
+      "regex": "^/returns(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/returns(?:/)?$"
     },
     {
       "page": "/robots.txt",

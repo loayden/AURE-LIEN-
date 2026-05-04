@@ -4,7 +4,14 @@
  */
 import { jwtVerify } from "jose";
 
-const JWT_SECRET = process.env.JWT_SECRET || "luxury-secret-change-in-production";
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET?.trim();
+  if (secret) return secret;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("JWT_SECRET is required in production");
+  }
+  return "dev-only-jwt-secret";
+}
 
 export interface JWTPayload {
   userId: string;
@@ -14,7 +21,7 @@ export interface JWTPayload {
 
 export async function verifyTokenEdge(token: string): Promise<JWTPayload | null> {
   try {
-    const secret = new TextEncoder().encode(JWT_SECRET);
+    const secret = new TextEncoder().encode(getJwtSecret());
     const { payload } = await jwtVerify(token, secret);
     return {
       userId: payload.userId as string,

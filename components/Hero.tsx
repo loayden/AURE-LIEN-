@@ -45,7 +45,7 @@ export default function Hero() {
           Founded in restraint. Refined without display.
         </p>
 
-        <button className="min-h-[44px] min-w-[44px] border border-[#FFF8EC]/60 px-5 py-3 text-[11px] tracking-[0.35em] uppercase text-[#FFF8EC] transition-all duration-700 hover:bg-[#FFF8EC] hover:text-[#14110F] sm:px-14 sm:py-4 sm:text-xs">
+        <button className="min-h-[44px] min-w-[44px] border border-[#FFF8EC]/60 px-5 py-3 text-[11px] tracking-[0.35em] uppercase text-[#FFF8EC] transition-all duration-700 hover:bg-[#FFF8EC] hover:text-[#3D3025] sm:px-14 sm:py-4 sm:text-xs">
           EXPLORE COLLECTION
         </button>
       </motion.div>

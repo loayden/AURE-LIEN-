@@ -2,10 +2,10 @@
 
 import productsData from "@/lib/productsData";
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckCircle2, ChevronRight, MapPin, Package, Truck, User } from "lucide-react";
+import { Banknote, CheckCircle2, ChevronRight, CreditCard, MapPin, Package, Truck, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface Product { _id: string; name: string; price: number; images: string[]; }
@@ -45,10 +45,10 @@ function GlassSection({ icon, title, children }: { icon: React.ReactNode; title:
       <div className="flex items-center gap-3 mb-5 sm:mb-6">
         <div className="p-2 rounded-xl"
              style={{
-               background: "linear-gradient(135deg, rgba(201,168,106,0.14), rgba(201,168,106,0.04))",
-               border: "1px solid rgba(201,168,106,0.2)",
+               background: "linear-gradient(135deg, rgba(168,121,53,0.14), rgba(168,121,53,0.04))",
+               border: "1px solid rgba(168,121,53,0.2)",
              }}>
-          <span style={{ color: "#C9A86A" }}>{icon}</span>
+          <span style={{ color: "#A87935" }}>{icon}</span>
         </div>
         <h2
           className="font-light text-white text-lg sm:text-xl"
@@ -64,12 +64,14 @@ function GlassSection({ icon, title, children }: { icon: React.ReactNode; title:
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [cart, setCart] = useState<FullCartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [fromCart, setFromCart] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"cod" | "card">("cod");
   const [form, setForm] = useState<FormData>({
     email: "", newsletter: false, country: "Egypt",
     firstName: "", lastName: "", address: "", apartment: "",
@@ -83,10 +85,16 @@ export default function CheckoutPage() {
       await fetch("/api/checkout-draft", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: items.map((i) => ({ _id: i._id, productId: i.productId, name: i.name, price: i.price, quantity: i.quantity, image: i.image })), form: formData }),
+        body: JSON.stringify({ items: items.map((i) => ({ _id: i._id, productId: i.productId, name: i.name, price: i.price, quantity: i.quantity, image: i.image, size: i.size, color: i.color })), form: formData, paymentMethod }),
       });
     } catch {}
-  }, []);
+  }, [paymentMethod]);
+
+  useEffect(() => {
+    if (searchParams.get("canceled") === "1") {
+      setError("Card payment was canceled. Your cart is still here.");
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     (async () => {
@@ -108,6 +116,9 @@ export default function CheckoutPage() {
           })));
           setFromCart(true);
           if (draft.form) setForm((prev) => ({ ...prev, ...draft.form }));
+          if (draft.paymentMethod === "card" || draft.paymentMethod === "cod") {
+            setPaymentMethod(draft.paymentMethod);
+          }
           setLoading(false); 
           return;
         }
@@ -284,6 +295,45 @@ export default function CheckoutPage() {
     });
 
     try {
+      if (paymentMethod === "card") {
+        const origin = typeof window !== "undefined" ? window.location.origin : "";
+        const res = await fetch("/api/checkout", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: items.map((item) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              size: item.size,
+              color: item.color,
+            })),
+            customerInfo: {
+              email: form.email,
+              firstName: form.firstName,
+              lastName: form.lastName,
+              name: `${form.firstName} ${form.lastName}`,
+              address: form.address,
+              apartment: form.apartment || undefined,
+              city: form.city,
+              postalCode: form.postalCode || undefined,
+              country: form.country,
+              phone: form.phone,
+              newsletter: form.newsletter,
+              shippingMethod: form.shippingMethod,
+              shippingCost,
+            },
+            successUrl: `${origin}/checkout/confirmation?paymentStatus=paid&session_id={CHECKOUT_SESSION_ID}`,
+            cancelUrl: `${origin}/checkout?canceled=1`,
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data?.url) {
+          throw new Error(data?.error || "Card payment is not available right now.");
+        }
+        window.location.href = data.url;
+        return;
+      }
+
       const res = await fetch("/api/saveorder", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -305,6 +355,7 @@ export default function CheckoutPage() {
             shippingMethod: form.shippingMethod,
             shippingCost,
           },
+          paymentMethod,
         }),
       });
 
@@ -324,17 +375,18 @@ export default function CheckoutPage() {
       }
       await fetch("/api/checkout-draft", { method: "DELETE" });
       
-      if (fromCart) await fetch("/api/cart", { method: "DELETE" });
+      if (fromCart) {
+        await fetch("/api/cart", { method: "DELETE" });
+        window.dispatchEvent(new Event("cart:changed"));
+      }
 
       const placedOrderId = typeof data?.orderId === "string" ? data.orderId : "";
 
-      setTimeout(() => {
-        router.push(
-          placedOrderId
-            ? `/orders?orderId=${encodeURIComponent(placedOrderId)}`
-            : "/orders"
-        );
-      }, 1800);
+      router.push(
+        placedOrderId
+          ? `/checkout/confirmation?orderId=${encodeURIComponent(placedOrderId)}&paymentStatus=${encodeURIComponent(data?.paymentStatus || "pending")}`
+          : "/checkout/confirmation?paymentStatus=pending"
+      );
     } catch (err: any) { 
       console.error("❌ Order error:", err);
       setError(err.message || "Failed to place order."); 
@@ -345,7 +397,7 @@ export default function CheckoutPage() {
   }
 
   if (loading) return (
-    <div className="min-h-screen bg-[#0A0908] flex items-center justify-center">
+    <div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center">
       <motion.p animate={{ opacity:[0.3,0.7,0.3] }} transition={{ repeat:Infinity, duration:1.8 }}
         className="text-white/30 text-[10px] tracking-[0.4em] uppercase"
         style={{ fontFamily:"'Jost', sans-serif" }}>
@@ -355,7 +407,7 @@ export default function CheckoutPage() {
   );
 
   if (success) return (
-    <div className="min-h-screen bg-[#0A0908] flex items-center justify-center px-4 sm:px-6">
+    <div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center px-4 sm:px-6">
       <motion.div
         initial={{ opacity:0, scale:0.95, y:20 }}
         animate={{ opacity:1, scale:1, y:0 }}
@@ -365,12 +417,12 @@ export default function CheckoutPage() {
       >
         <div className="flex justify-center mb-6">
           <div className="w-16 h-16 rounded-3xl flex items-center justify-center"
-               style={{ background:"linear-gradient(135deg, rgba(201,168,106,0.2), rgba(201,168,106,0.06))", border:"1px solid rgba(201,168,106,0.3)" }}>
-            <CheckCircle2 strokeWidth={1.2} className="w-8 h-8" style={{ color:"#C9A86A" }} />
+               style={{ background:"linear-gradient(135deg, rgba(168,121,53,0.2), rgba(168,121,53,0.06))", border:"1px solid rgba(168,121,53,0.3)" }}>
+            <CheckCircle2 strokeWidth={1.2} className="w-8 h-8" style={{ color:"#A87935" }} />
           </div>
         </div>
         <h2 className="font-light text-white mb-3" style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.8rem, 5vw, 2rem)", letterSpacing:"0.06em" }}>
-          Order <em style={{ color:"#C9A86A" }}>Confirmed</em>
+          Order <em style={{ color:"#A87935" }}>Confirmed</em>
         </h2>
         <p className="text-white/35 text-sm font-light tracking-widest">Redirecting to your orders…</p>
       </motion.div>
@@ -380,19 +432,19 @@ export default function CheckoutPage() {
   return (
     <>
       <style>{`
-        body { background: #0A0908; }
-        ::selection { background: #C9A86A; color: #0A0908; }
+        body { background: #F5F1E8; }
+        ::selection { background: #A87935; color: #F5F1E8; }
         select option { background: #1A1512; color: rgba(255,248,236,0.8); }
 
         input[type="checkbox"] {
-          accent-color: #C9A86A;
+          accent-color: #A87935;
           width: 14px !important; height: 14px !important;
           border-radius: 4px !important;
           padding: 0 !important;
           cursor: pointer;
         }
         input[type="radio"] {
-          accent-color: #C9A86A;
+          accent-color: #A87935;
           width: 14px !important; height: 14px !important;
           padding: 0 !important;
           cursor: pointer;
@@ -405,7 +457,7 @@ export default function CheckoutPage() {
         }
       `}</style>
 
-      <div className="relative min-h-screen bg-[#0A0908] text-white" style={{ fontFamily:"'Jost', sans-serif" }}>
+      <div className="relative min-h-screen bg-[#F5F1E8] text-white" style={{ fontFamily:"'Jost', sans-serif" }}>
 
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 md:px-10 pt-20 sm:pt-28 pb-24 sm:pb-32">
 
@@ -414,9 +466,9 @@ export default function CheckoutPage() {
             <p className="text-white/20 text-[8px] sm:text-[9px] tracking-[0.45em] uppercase mb-3 sm:mb-4">Final Step</p>
             <h1 className="font-light text-white leading-none mb-2"
                 style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(2rem, 7vw, 4.5rem)", letterSpacing:"0.04em" }}>
-              Check<em style={{ color:"#C9A86A", fontStyle:"italic" }}>out</em>
+              Check<em style={{ color:"#A87935", fontStyle:"italic" }}>out</em>
             </h1>
-            <div className="mt-4 sm:mt-5 h-px" style={{ background:"linear-gradient(90deg, rgba(201,168,106,0.4), transparent)" }} />
+            <div className="mt-4 sm:mt-5 h-px" style={{ background:"linear-gradient(90deg, rgba(168,121,53,0.4), transparent)" }} />
           </motion.div>
 
           {/* ── ERROR ── */}
@@ -442,7 +494,7 @@ export default function CheckoutPage() {
                     <div className="flex flex-col gap-3 max-w-lg">
                       <p className="text-white/25 text-[9px] sm:text-[10px] tracking-[0.25em] font-light">
                         Have an account?{" "}
-                        <Link href="/login" className="text-[#C9A86A] hover:underline transition-all">Sign in</Link>
+                        <Link href="/login" className="text-[#A87935] hover:underline transition-all">Sign in</Link>
                       </p>
                       <input type="email" placeholder="Email address" value={form.email} onChange={(e) => update("email", e.target.value)} autoComplete="email" required />
                       <label className="flex items-center gap-3 cursor-pointer group">
@@ -489,8 +541,8 @@ export default function CheckoutPage() {
                       <label
                         className="flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all duration-300 min-h-[56px]"
                         style={form.shippingMethod === "within_egypt" ? {
-                          background:"linear-gradient(135deg, rgba(201,168,106,0.12), rgba(201,168,106,0.04))",
-                          border:"1px solid rgba(201,168,106,0.3)",
+                          background:"linear-gradient(135deg, rgba(168,121,53,0.12), rgba(168,121,53,0.04))",
+                          border:"1px solid rgba(168,121,53,0.3)",
                         } : {
                           background:"rgba(255,248,236,0.03)",
                           border:"1px solid rgba(255,248,236,0.08)",
@@ -505,10 +557,62 @@ export default function CheckoutPage() {
                             <p className="text-white/30 text-[9px] tracking-[0.25em] uppercase mt-0.5">Standard Delivery · 2–3 days</p>
                           </div>
                         </div>
-                        <span className="font-light whitespace-nowrap ml-2" style={{ color:"#C9A86A", fontFamily:"'Cormorant Garamond', serif", fontSize:"1.1rem" }}>
+                        <span className="font-light whitespace-nowrap ml-2" style={{ color:"#A87935", fontFamily:"'Cormorant Garamond', serif", fontSize:"1.1rem" }}>
                           EGP 75
                         </span>
                       </label>
+                    </div>
+                  </GlassSection>
+                </motion.div>
+
+                {/* Payment */}
+                <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.3, duration:0.7 }}>
+                  <GlassSection icon={<CreditCard strokeWidth={1.3} className="w-4 h-4" />} title="Payment Method">
+                    <div className="grid gap-3">
+                      {[
+                        {
+                          value: "cod" as const,
+                          title: "Cash on delivery",
+                          detail: "Order is created with pending payment status.",
+                          icon: Banknote,
+                        },
+                        {
+                          value: "card" as const,
+                          title: "Card payment",
+                          detail: "Redirect to Stripe when payment keys are configured.",
+                          icon: CreditCard,
+                        },
+                      ].map((option) => {
+                        const Icon = option.icon;
+                        const active = paymentMethod === option.value;
+                        return (
+                          <button
+                            type="button"
+                            key={option.value}
+                            onClick={() => setPaymentMethod(option.value)}
+                            className="flex min-h-[64px] items-center justify-between gap-4 rounded-xl p-4 text-left transition-colors"
+                            style={active ? {
+                              background:"linear-gradient(135deg, rgba(168,121,53,0.12), rgba(168,121,53,0.04))",
+                              border:"1px solid rgba(168,121,53,0.3)",
+                            } : {
+                              background:"rgba(255,248,236,0.03)",
+                              border:"1px solid rgba(255,248,236,0.08)",
+                            }}
+                            aria-pressed={active}
+                          >
+                            <span className="flex items-center gap-3">
+                              <span className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-[#A87935]">
+                                <Icon className="h-4 w-4" strokeWidth={1.35} />
+                              </span>
+                              <span>
+                                <span className="block text-sm tracking-[0.06em] text-white/76">{option.title}</span>
+                                <span className="mt-1 block text-[10px] uppercase tracking-[0.18em] text-white/32">{option.detail}</span>
+                              </span>
+                            </span>
+                            <span className={`h-3 w-3 rounded-full ${active ? "bg-[#A87935]" : "bg-white/18"}`} />
+                          </button>
+                        );
+                      })}
                     </div>
                   </GlassSection>
                 </motion.div>
@@ -523,16 +627,16 @@ export default function CheckoutPage() {
                       whileTap={{ scale:0.985 }}
                       className="relative w-full overflow-hidden rounded-full py-4 flex items-center justify-center gap-3 disabled:opacity-50 min-h-[48px]"
                       style={{
-                        background:"linear-gradient(135deg, rgba(201,168,106,0.22), rgba(178,149,78,0.10))",
-                        border:"1px solid rgba(201,168,106,0.35)",
+                        background:"linear-gradient(135deg, rgba(168,121,53,0.22), rgba(178,149,78,0.10))",
+                        border:"1px solid rgba(168,121,53,0.35)",
                         backdropFilter:"blur(16px)",
-                        boxShadow:"0 0 28px rgba(201,168,106,0.12), inset 0 1px 0 rgba(255,248,236,0.14)",
+                        boxShadow:"0 0 28px rgba(168,121,53,0.12), inset 0 1px 0 rgba(255,248,236,0.14)",
                       }}
                     >
-                      <span className="text-[#C9A86A] text-[10px] tracking-[0.32em] uppercase font-light">
+                      <span className="text-[#A87935] text-[10px] tracking-[0.32em] uppercase font-light">
                         {submitting ? "Placing Order…" : "Place Order"}
                       </span>
-                      {!submitting && <ChevronRight strokeWidth={1.3} className="w-4 h-4 text-[#C9A86A]" />}
+                      {!submitting && <ChevronRight strokeWidth={1.3} className="w-4 h-4 text-[#A87935]" />}
                     </motion.button>
                     <button
                       type="button"
@@ -557,7 +661,7 @@ export default function CheckoutPage() {
 
                   <p className="text-white/20 text-[8px] sm:text-[9px] tracking-[0.4em] uppercase mb-4">Your Order</p>
                   <h3 className="font-light text-white mb-5" style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.2rem, 3vw, 1.4rem)", letterSpacing:"0.07em" }}>
-                    Order <em style={{ color:"#C9A86A" }}>Summary</em>
+                    Order <em style={{ color:"#A87935" }}>Summary</em>
                   </h3>
 
                   {/* Items */}
@@ -568,7 +672,7 @@ export default function CheckoutPage() {
                              style={{ boxShadow:"0 4px 16px rgba(0,0,0,0.4)" }}>
                           <Image src={item.image||"/images/placeholder.svg"} alt={item.name} fill className="object-cover" sizes="56px" />
                           <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-light"
-                               style={{ background:"rgba(201,168,106,0.9)", color:"#0A0908" }}>
+                               style={{ background:"rgba(168,121,53,0.9)", color:"#F5F1E8" }}>
                             {item.quantity}
                           </div>
                         </div>
@@ -605,9 +709,9 @@ export default function CheckoutPage() {
                   </div>
 
                   <div className="rounded-xl px-4 py-3.5 flex justify-between items-center"
-                       style={{ background:"linear-gradient(135deg, rgba(201,168,106,0.14), rgba(201,168,106,0.04))", border:"1px solid rgba(201,168,106,0.22)" }}>
-                    <p className="text-[#C9A86A] text-[9px] tracking-[0.35em] uppercase">Total</p>
-                    <p className="font-light" style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.1rem, 3vw, 1.3rem)", color:"#C9A86A", letterSpacing:"0.06em" }}>
+                       style={{ background:"linear-gradient(135deg, rgba(168,121,53,0.14), rgba(168,121,53,0.04))", border:"1px solid rgba(168,121,53,0.22)" }}>
+                    <p className="text-[#A87935] text-[9px] tracking-[0.35em] uppercase">Total</p>
+                    <p className="font-light" style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.1rem, 3vw, 1.3rem)", color:"#A87935", letterSpacing:"0.06em" }}>
                       EGP {total.toLocaleString()}
                     </p>
                   </div>
@@ -637,12 +741,12 @@ export default function CheckoutPage() {
               </div>
               <h2 className="font-light text-white mb-3"
                   style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.5rem, 5vw, 1.8rem)", letterSpacing:"0.06em" }}>
-                Nothing to <em style={{ color:"#C9A86A" }}>checkout</em>
+                Nothing to <em style={{ color:"#A87935" }}>checkout</em>
               </h2>
               <p className="text-white/25 text-sm font-light tracking-widest mb-8">Add items to your cart first.</p>
               <Link href="/shop"
-                className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full text-[#C9A86A] text-[10px] tracking-[0.3em] uppercase font-light transition-all duration-500 hover:scale-[1.02] min-h-[44px]"
-                style={{ background:"linear-gradient(135deg, rgba(201,168,106,0.14), rgba(201,168,106,0.04))", border:"1px solid rgba(201,168,106,0.25)", backdropFilter:"blur(16px)" }}>
+                className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full text-[#A87935] text-[10px] tracking-[0.3em] uppercase font-light transition-all duration-500 hover:scale-[1.02] min-h-[44px]"
+                style={{ background:"linear-gradient(135deg, rgba(168,121,53,0.14), rgba(168,121,53,0.04))", border:"1px solid rgba(168,121,53,0.25)", backdropFilter:"blur(16px)" }}>
                 Continue Shopping
               </Link>
             </motion.div>

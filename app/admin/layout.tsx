@@ -70,12 +70,12 @@ export default function AdminLayout({
                 prefetch={false}
                 className={`liquid-row-link ${
                   pathname === item.href
-                    ? "border-[rgba(201,168,106,0.24)] text-[#C9A86A]"
+                    ? "border-[rgba(168,121,53,0.24)] text-[#A87935]"
                     : ""
                 }`}
               >
                 <span className="inline-flex items-center gap-3">
-                  {Icon && <Icon className="h-4 w-4 shrink-0 text-[#C9A86A]" />}
+                  {Icon && <Icon className="h-4 w-4 shrink-0 text-[#A87935]" />}
                   <span className="text-[0.76rem] uppercase tracking-[0.24em]">{item.label}</span>
                 </span>
               </Link>
