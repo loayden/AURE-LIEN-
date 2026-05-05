@@ -273,20 +273,22 @@ function QuickViewModal({
 }
 
 export default function ProductBrowser({
+  initialProducts,
   title = "Shop",
   description = "Browse the live BOUT catalog with clearer filters, stock labels, and faster product decisions.",
   category,
   lockCategory = false,
   heroImage,
 }: {
+  initialProducts?: Product[];
   title?: string;
   description?: string;
   category?: string;
   lockCategory?: boolean;
   heroImage?: string;
 }) {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [products, setProducts] = useState<Product[]>(initialProducts ?? []);
+  const [loading, setLoading] = useState(!initialProducts);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [quickView, setQuickView] = useState<Product | null>(null);
   const [sort, setSort] = useState<SortValue>("featured");
@@ -302,6 +304,12 @@ export default function ProductBrowser({
   const deferredQuery = useDeferredValue(filters.query);
 
   useEffect(() => {
+    if (initialProducts) {
+      setProducts(initialProducts);
+      setLoading(false);
+      return;
+    }
+
     const controller = new AbortController();
     const url = category ? `/api/products?category=${encodeURIComponent(category)}` : "/api/products";
     setLoading(true);
@@ -322,7 +330,7 @@ export default function ProductBrowser({
       });
 
     return () => controller.abort();
-  }, [category]);
+  }, [category, initialProducts]);
 
   useEffect(() => {
     if (category) {

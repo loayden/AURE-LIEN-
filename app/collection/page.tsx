@@ -6,7 +6,7 @@ import { ArrowRight, Layers, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 export const metadata = {
   title: "BOUT Collections",

@@ -1,5 +1,7 @@
 import CategoryCollectionPage from "@/components/CategoryCollectionPage";
 
+export const revalidate = 30;
+
 export const metadata = {
   title: "Accessories | BOUT",
   description: "Shop BOUT accessories including sunglasses, belts, bags, and wallets.",

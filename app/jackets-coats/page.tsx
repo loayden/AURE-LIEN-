@@ -1,5 +1,7 @@
 import CategoryCollectionPage from "@/components/CategoryCollectionPage";
 
+export const revalidate = 30;
+
 export const metadata = {
   title: "Jackets & Coats | BOUT",
   description: "Shop BOUT jackets and coats with clear stock, size, color, and price filters.",

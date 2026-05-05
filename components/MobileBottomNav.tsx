@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { Home, Search, ShoppingBag, ShoppingCart, User } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
@@ -47,61 +48,120 @@ export default function MobileBottomNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-50 border-t px-3 pb-[max(env(safe-area-inset-bottom),0.45rem)] pt-2 backdrop-blur-2xl md:hidden"
-      style={{
-        background: "linear-gradient(135deg, rgba(255,255,255,0.84), rgba(255,249,239,0.74))",
-        borderColor: "rgba(123,103,82,0.18)",
-        boxShadow: "0 -10px 28px rgba(61,48,37,0.10), inset 0 1px 0 rgba(255,255,255,0.72)",
-      }}
+      className="pointer-events-none fixed bottom-0 left-1/2 z-50 w-[min(20rem,calc(100vw-1.5rem))] -translate-x-1/2 pb-[max(env(safe-area-inset-bottom),0.65rem)] pt-5 md:hidden"
       aria-label="Mobile commerce navigation"
     >
-      <div className="mx-auto grid max-w-sm grid-cols-5 gap-1.5">
+      <motion.div
+        initial={{ opacity: 0, y: 22 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+        className="pointer-events-auto w-full rounded-[28px] border p-2 backdrop-blur-2xl"
+        style={{
+          background: "linear-gradient(135deg, rgba(255,255,255,0.91), rgba(255,249,239,0.82))",
+          borderColor: "rgba(123,103,82,0.18)",
+          boxShadow: "0 -18px 48px rgba(61,48,37,0.16), 0 12px 32px rgba(61,48,37,0.08), inset 0 1px 0 rgba(255,255,255,0.78)",
+        }}
+      >
+        <div className="grid grid-cols-[1fr_1fr_3.8rem_1fr_1fr] items-end gap-0.5">
         {ITEMS.map((item) => {
           const Icon = item.icon;
+          const featured = item.label === "Search";
           const active =
             item.href === "/"
               ? pathname === "/"
               : pathname === item.href || pathname?.startsWith(`${item.href}/`);
           const content = (
             <>
-              <span className="relative flex h-5 items-center justify-center">
-                <Icon className="h-[18px] w-[18px]" strokeWidth={1.55} />
-                {item.label === "Cart" && cartCount > 0 ? (
-                  <span className="absolute -right-2 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#A87935] px-1 text-[9px] leading-none text-[#1D1815]">
-                    {cartCount > 9 ? "9+" : cartCount}
-                  </span>
+              <motion.span
+                className={`relative z-10 flex items-center justify-center ${
+                  featured
+                    ? "h-[52px] w-[52px] rounded-full bg-[#171513] text-[#F8F7F2] shadow-[0_12px_28px_rgba(23,21,19,0.24)]"
+                    : "h-7 w-7 rounded-full"
+                }`}
+                animate={active ? { y: -1 } : { y: 0 }}
+                transition={{ duration: 0.2 }}
+                style={
+                  !featured && active
+                    ? {
+                        background: "rgba(168,121,53,0.16)",
+                        color: "#3D3025",
+                      }
+                    : undefined
+                }
+              >
+                {featured ? (
+                  <motion.span
+                    aria-hidden="true"
+                    className="absolute inset-0 rounded-full border border-[#D8C08A]/30"
+                    initial={{ scale: 0.92, opacity: 0.42 }}
+                    animate={{ scale: 1.12, opacity: 0 }}
+                    transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                  />
                 ) : null}
+                <Icon className={featured ? "h-5 w-5" : "h-[19px] w-[19px]"} strokeWidth={featured ? 1.75 : 1.6} />
+                {item.label === "Cart" && cartCount > 0 ? (
+                  <motion.span
+                    initial={{ scale: 0.7 }}
+                    animate={{ scale: [1, 1.18, 1] }}
+                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    className="absolute -right-2 -top-2 flex h-[18px] min-w-[18px] items-center justify-center rounded-full border border-[#F8F7F2] bg-[#A87935] px-1 text-[9px] font-medium leading-none text-white"
+                  >
+                    {cartCount > 9 ? "9+" : cartCount}
+                  </motion.span>
+                ) : null}
+              </motion.span>
+              <span
+                className={`relative z-10 leading-none ${
+                  featured
+                    ? "mt-1 text-[9px] font-medium tracking-[0.04em] text-[#3D3025]"
+                    : "text-[9px] tracking-[0.05em]"
+                }`}
+              >
+                {item.label}
               </span>
-              <span className="text-[9px] leading-none tracking-[0.06em]">{item.label}</span>
             </>
           );
 
           const event = item.event;
           const itemClass =
-            "flex min-h-[44px] flex-col items-center justify-center gap-1 rounded-[18px] px-1 transition-colors";
+              featured
+              ? "relative isolate -mt-5 flex min-h-[70px] flex-col items-center justify-end gap-1 rounded-[22px] px-1 transition-colors"
+              : "relative isolate flex min-h-[50px] flex-col items-center justify-center gap-1 overflow-hidden rounded-[20px] px-1 transition-colors";
+          const activeBackground = active && !featured ? (
+            <motion.span
+              layoutId="mobile-bottom-nav-active"
+              className="absolute inset-0 rounded-[20px]"
+              style={{
+                background: "linear-gradient(135deg, rgba(168,121,53,0.18), rgba(255,249,239,0.56))",
+                border: "1px solid rgba(168,121,53,0.22)",
+              }}
+              transition={{ type: "spring", stiffness: 480, damping: 38 }}
+            />
+          ) : null;
           const itemStyle = active
             ? {
-                background: "linear-gradient(135deg, rgba(168,121,53,0.18), rgba(255,249,239,0.46))",
                 color: "#3D3025",
-                border: "1px solid rgba(168,121,53,0.20)",
               }
             : {
-                background: "rgba(255,255,255,0.28)",
+                background: featured ? "transparent" : "rgba(255,255,255,0.18)",
                 color: "#6F6254",
                 border: "1px solid transparent",
               };
 
           if (event) {
             return (
-              <button
+              <motion.button
                 key={item.label}
                 type="button"
                 onClick={() => window.dispatchEvent(new Event(event))}
+                whileTap={{ scale: featured ? 0.9 : 0.94 }}
                 className={itemClass}
                 style={itemStyle}
+                aria-label={item.label}
               >
+                {activeBackground}
                 {content}
-              </button>
+              </motion.button>
             );
           }
 
@@ -111,12 +171,15 @@ export default function MobileBottomNav() {
               href={item.href}
               className={itemClass}
               style={itemStyle}
+              aria-label={item.label}
             >
+              {activeBackground}
               {content}
             </Link>
           );
         })}
-      </div>
+        </div>
+      </motion.div>
     </nav>
   );
 }

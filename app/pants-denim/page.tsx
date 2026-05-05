@@ -1,5 +1,7 @@
 import CategoryCollectionPage from "@/components/CategoryCollectionPage";
 
+export const revalidate = 30;
+
 export const metadata = {
   title: "Pants & Denim | BOUT",
   description: "Browse BOUT trousers, denim, Korean pants, and relaxed silhouettes.",

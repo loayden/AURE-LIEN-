@@ -1,5 +1,7 @@
 import CategoryCollectionPage from "@/components/CategoryCollectionPage";
 
+export const revalidate = 30;
+
 export default function SneakersPage() {
   return (
     <CategoryCollectionPage
