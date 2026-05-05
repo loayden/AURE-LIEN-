@@ -7,7 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "seed:admin": "npx ts-node -P tsconfig.scripts.json -r tsconfig-paths/register scripts/seed-admin.ts"
+    "seed:admin": "npx ts-node -P tsconfig.scripts.json -r tsconfig-paths/register scripts/seed-admin.ts",
+    "audio:drape": "node scripts/generate-drape-audio.mjs",
+    "video:studio": "remotion studio remotion/index.ts",
+    "video:drape:preview": "npm run audio:drape && remotion render remotion/index.ts DrapeHeroFilmVertical public/examples/drape-hero-film-vertical-audio.mp4 --codec=h264 --scale=0.5 --crf=20",
+    "video:drape:render": "npm run audio:drape && remotion render remotion/index.ts DrapeHeroFilmVertical public/examples/drape-hero-film-vertical-4k-audio.mp4 --codec=h264 --crf=22",
+    "video:drape:still": "remotion still remotion/index.ts DrapeHeroFilmVertical public/examples/drape-hero-film-vertical-frame.png --frame=360 --scale=0.25"
   },
   "dependencies": {
     "@upstash/redis": "^1.37.0",
@@ -27,9 +32,11 @@
     "react-intersection-observer": "^10.0.3",
     "recharts": "^2.15.4",
     "stripe": "^20.4.1",
+    "three": "^0.184.0",
     "zustand": "^4.5.2"
   },
   "devDependencies": {
+    "@remotion/cli": "^4.0.457",
     "@types/bcrypt": "^6.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/mongoose": "^5.11.96",
@@ -37,11 +44,13 @@
     "@types/nodemailer": "^7.0.11",
     "@types/react": "18.2.66",
     "@types/react-dom": "18.2.22",
+    "@types/three": "^0.183.0",
     "autoprefixer": "^10.4.19",
     "dotenv": "^17.3.1",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.4",
     "postcss": "^8.5.13",
+    "remotion": "^4.0.457",
     "tailwindcss": "^3.4.3",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
