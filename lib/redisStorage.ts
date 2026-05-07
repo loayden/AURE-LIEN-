@@ -6,6 +6,8 @@ const CARTS_KEY = "aurelien:carts";
 const LEGACY_CARTS_KEY = "carts";
 const ORDERS_KEY = "aurelien:orders";
 const LEGACY_ORDERS_KEY = "orders";
+const PRODUCTS_KEY = "aurelien:products";
+const LEGACY_PRODUCTS_KEY = "products";
 const USERS_KEY = "aurelien:users";
 const LEGACY_USERS_KEY = "users";
 const WISHLISTS_KEY = "aurelien:wishlists";
@@ -372,6 +374,37 @@ export async function removeRedisOrder(orderId: string): Promise<void> {
     }
   }
   await redis.del(ORDERS_KEY);
+}
+
+function parseStoredArray(value: unknown): any[] | null {
+  if (value == null) {
+    return null;
+  }
+
+  const parsed = parseStoredJson<unknown>(value, null);
+  return Array.isArray(parsed) ? parsed : null;
+}
+
+export async function getRedisProducts(): Promise<any[] | null> {
+  const redis = getRedis();
+  if (!redis) {
+    return null;
+  }
+
+  const products =
+    parseStoredArray(await redis.get<unknown>(PRODUCTS_KEY)) ??
+    parseStoredArray(await redis.get<unknown>(LEGACY_PRODUCTS_KEY));
+
+  return products;
+}
+
+export async function setRedisProducts(products: any[]): Promise<void> {
+  const redis = getRedis();
+  if (!redis) {
+    throw new Error("Redis storage is not configured");
+  }
+
+  await redis.set(PRODUCTS_KEY, JSON.stringify(products));
 }
 
 export async function getRedisUsers(): Promise<any[] | null> {
