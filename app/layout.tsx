@@ -6,12 +6,21 @@ import Footer from '@/components/Footer'
 import MobileBottomNav from '@/components/MobileBottomNav'
 import Navbar from '@/components/Navbar'
 import ToastProvider from '@/components/ToastProvider'
+import type { Metadata } from 'next'
 import { Cormorant_Garamond, Jost } from 'next/font/google'
 import './globals.css'
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'BOUT — Luxury Menswear & Accessories',
   description: 'Crafted in silence. Designed for presence. Explore refined tailoring, footwear, and accessories for the modern man.',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/logo.png', type: 'image/png', sizes: '512x512' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: [{ url: '/logo.png', type: 'image/png', sizes: '512x512' }],
+  },
   openGraph: {
     title: 'BOUT — Luxury Menswear',
     description: 'Refined silhouettes and timeless design. Shop the collection.',
