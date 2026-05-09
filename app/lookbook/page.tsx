@@ -8,18 +8,42 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
-const STATIC_SECTIONS = [
-  { title: "Autumn Tailoring",  image: withPublicAssetVersion("/uploads/Jackets & Coats.jpg"), slug: "autumn-tailoring",  chapter: "I",   hotspots: [] as { productId: string; x: number; y: number }[] },
-  { title: "Summer Riviera",    image: withPublicAssetVersion("/uploads/Suits.jpg"),            slug: "summer-riviera",    chapter: "II",  hotspots: [] },
-  { title: "Modern Essentials", image: withPublicAssetVersion("/uploads/Sneakers.jpg"),         slug: "modern-essentials", chapter: "III", hotspots: [] },
-];
-
 interface Section {
   title: string;
   image: string;
   slug: string;
   chapter?: string;
   hotspots: { productId: string; x: number; y: number }[];
+}
+
+const STATIC_SECTIONS: Section[] = [
+  { title: "Tailored Arrival", image: withPublicAssetVersion("/uploads/lookbook-tailoring-pexels.jpg"), slug: "tailored-arrival", chapter: "I", hotspots: [] },
+  { title: "Boutique Fitting", image: withPublicAssetVersion("/uploads/lookbook-boutique-pexels.jpg"), slug: "boutique-fitting", chapter: "II", hotspots: [] },
+  { title: "Check Coat Edit", image: withPublicAssetVersion("/uploads/lookbook-checkered-coat-pexels.jpg"), slug: "check-coat-edit", chapter: "III", hotspots: [] },
+];
+
+const LEGACY_LOOKBOOK_IMAGES = new Set([
+  "/uploads/Jackets & Coats.jpg",
+  "/uploads/Suits.jpg",
+  "/uploads/Sneakers.jpg",
+]);
+
+function normalizeLookbookSections(sections: Section[]) {
+  return sections.map((section, index) => {
+    const fallback = STATIC_SECTIONS[index % STATIC_SECTIONS.length];
+    const imagePath = section.image?.split("?")[0] ?? "";
+    const shouldUseFallbackImage = !section.image || LEGACY_LOOKBOOK_IMAGES.has(imagePath);
+
+    return {
+      ...fallback,
+      ...section,
+      title: section.title || fallback.title,
+      slug: section.slug || fallback.slug,
+      chapter: section.chapter ?? fallback.chapter,
+      image: shouldUseFallbackImage ? fallback.image : section.image,
+      hotspots: section.hotspots ?? [],
+    };
+  });
 }
 
 /* ── Single lookbook section ── */
@@ -29,6 +53,7 @@ function LookbookSection({ section, index }: { section: Section; index: number }
   const imgY = useTransform(scrollYProgress, [0,1], ["0%","10%"]);
 
   const isReversed = index % 2 === 1;
+  const imageUrl = section.image || withPublicAssetVersion("/uploads/main.jpg");
 
   return (
     <motion.section
@@ -37,7 +62,7 @@ function LookbookSection({ section, index }: { section: Section; index: number }
       whileInView={{ opacity:1, y:0 }}
       viewport={{ once:true, margin:"-80px" }}
       transition={{ duration:0.9, ease:[0.22,1,0.36,1] }}
-      className={`grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-center ${isReversed ? "md:grid-flow-dense" : ""}`}
+      className={`relative grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-center ${isReversed ? "md:grid-flow-dense" : ""}`}
     >
       {/* Image column */}
       <div className={isReversed ? "md:col-start-2" : ""}>
@@ -54,19 +79,26 @@ function LookbookSection({ section, index }: { section: Section; index: number }
                style={{ background:"linear-gradient(90deg, transparent, rgba(255,248,236,0.2), transparent)" }} />
 
           {/* Parallax image */}
-          <motion.div style={{ y:imgY }} className="absolute inset-0 scale-110">
-            <Image
-              src={section.image || withPublicAssetVersion("/uploads/main.jpg")}
-              alt={section.title}
-              fill
-              className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-[1.03]"
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
-          </motion.div>
+          <motion.div
+            aria-label={section.title}
+            role="img"
+            style={{
+              y: imgY,
+              backgroundColor: "#171513",
+              backgroundImage: `url(${JSON.stringify(imageUrl)})`,
+              backgroundPosition: "center",
+              backgroundSize: "cover",
+            }}
+            className="absolute inset-0 scale-110 transition-transform duration-[2s] ease-out group-hover:scale-[1.13]"
+          />
 
           {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/10
-                          group-hover:from-black/40 transition-all duration-700" />
+          <div
+            className="absolute inset-0 transition-all duration-700"
+            style={{
+              background: "linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 52%, rgba(0,0,0,0.1) 100%)",
+            }}
+          />
 
           {/* Hotspots */}
           {section.hotspots?.map((h) => {
@@ -215,7 +247,7 @@ export default function LookbookPage() {
       })
       .then((lookbooks: { sections: Section[] }[]) => {
         if (lookbooks?.length > 0 && lookbooks[0].sections?.length > 0)
-          setSections(lookbooks[0].sections);
+          setSections(normalizeLookbookSections(lookbooks[0].sections));
       })
       .catch((requestError) => {
         if (controller.signal.aborted) return;
@@ -228,10 +260,10 @@ export default function LookbookPage() {
   return (
     <>
       <style>{`
-        body { background: #F5F1E8; }
+        body { background: #171513; }
       `}</style>
 
-      <main className="relative min-h-screen bg-[#F5F1E8] text-white" style={{ fontFamily:"'Jost', sans-serif" }}>
+      <main className="relative min-h-screen bg-[#171513] text-white" style={{ fontFamily:"'Jost', sans-serif" }}>
         {error ? (
           <div className="relative z-20 mx-auto max-w-6xl px-4 pt-20 sm:px-6 md:px-10">
             <div
@@ -250,27 +282,27 @@ export default function LookbookPage() {
           {/* Background — mosaic of lookbook images */}
           <motion.div style={{ y:heroY }} className="absolute inset-0 scale-110">
             <Image
-              src={sections[0]?.image || withPublicAssetVersion("/uploads/Jackets & Coats.jpg")}
+              src={sections[0]?.image || withPublicAssetVersion("/uploads/lookbook-tailoring-pexels.jpg")}
               alt="Lookbook"
               fill
               className="object-cover"
-              style={{ filter:"brightness(0.38) saturate(0.8)" }}
+              style={{ filter:"brightness(0.58) saturate(0.82)" }}
               priority
               sizes="100vw"
             />
           </motion.div>
 
           <div className="absolute inset-0"
-               style={{ background:"radial-gradient(ellipse at 50% 60%, transparent 20%, rgba(0,0,0,0.7) 100%)" }} />
+               style={{ background:"radial-gradient(ellipse at 50% 58%, rgba(0,0,0,0.08) 12%, rgba(0,0,0,0.52) 100%)" }} />
           <div className="absolute inset-x-0 bottom-0 h-56"
-               style={{ background:"linear-gradient(to top, #F5F1E8, transparent)" }} />
+               style={{ background:"linear-gradient(to top, #171513, transparent)" }} />
           <div className="absolute inset-x-0 top-0 h-24"
                style={{ background:"linear-gradient(to bottom, rgba(61,48,37,0.5), transparent)" }} />
 
           <motion.div style={{ opacity:heroOpacity }} className="relative z-10 flex flex-col items-center px-4 text-center sm:px-6 md:px-10">
             <div className="mb-7">
               <span
-                className="inline-block px-5 py-2 rounded-full text-[9px] text-white/45 tracking-[0.4em] uppercase font-light"
+                className="inline-block px-5 py-2 rounded-full text-[9px] text-white/70 tracking-[0.4em] uppercase font-light"
                 style={{
                   background:"linear-gradient(135deg, rgba(255,248,236,0.10), rgba(255,248,236,0.03))",
                   backdropFilter:"blur(20px)",
@@ -278,28 +310,29 @@ export default function LookbookPage() {
                   boxShadow:"inset 0 1px 0 rgba(255,248,236,0.14)",
                 }}
               >
-                2025 Season
+                2026 Edit
               </span>
             </div>
             <h1
-              className="font-light text-white leading-none mb-4"
+              className="font-light leading-none mb-4"
               style={{
+                color:"#F8F7F2",
                 fontFamily:"'Cormorant Garamond', serif",
                 fontSize:"clamp(4rem, 11vw, 9rem)",
                 letterSpacing:"0.05em",
-                textShadow:"0 4px 48px rgba(0,0,0,0.5)",
+                textShadow:"0 4px 48px rgba(0,0,0,0.72)",
               }}
             >
               Look<em style={{ color:"#A87935", fontStyle:"italic" }}>book</em>
             </h1>
-            <p className="text-white/35 font-light max-w-xs leading-relaxed"
+            <p className="text-white/76 font-light max-w-xs leading-relaxed"
                style={{ fontSize:"0.82rem", letterSpacing:"0.16em" }}>
               {sections.length} chapters. Each one a statement.
             </p>
           </motion.div>
 
           {/* Scroll indicator */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-25 z-10">
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-45 z-10">
             <span className="text-white text-[9px] tracking-[0.35em] uppercase">Scroll</span>
             <div className="w-px h-8 bg-gradient-to-b from-white/60 to-transparent" />
           </div>
@@ -316,14 +349,14 @@ export default function LookbookPage() {
           >
             {sections.map((s, i) => (
               <a key={i} href={`#${s.slug}`}
-                 className="group flex items-center gap-2.5 text-white/25 hover:text-white/65 transition-all duration-300">
+                 className="group flex items-center gap-2.5 text-[#D8C08A]/72 hover:text-[#F8F7F2] transition-all duration-300">
                 <span
                   className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-300 group-hover:border-[rgba(168,121,53,0.4)]"
                   style={{
                     background:"rgba(255,248,236,0.04)",
                     border:"1px solid rgba(255,248,236,0.07)",
                     fontSize:"8px",
-                    color:"rgba(122,88,31,0.88)",
+                    color:"#D8C08A",
                     fontFamily:"'Cormorant Garamond', serif",
                   }}
                 >
@@ -360,9 +393,9 @@ export default function LookbookPage() {
             transition={{ duration:0.9 }}
             className="relative z-10"
           >
-            <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase mb-5">The Full Edit</p>
+            <p className="mb-5 text-[9px] uppercase tracking-[0.45em] text-[#725D2C]">The Full Edit</p>
             <h2
-              className="font-light text-white mb-8"
+              className="mb-8 font-light text-[#171513]"
               style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(1.8rem, 4vw, 3.2rem)", letterSpacing:"0.06em" }}
             >
               Own the <em style={{ color:"#A87935" }}>Look.</em>
