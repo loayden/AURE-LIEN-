@@ -16,12 +16,6 @@ import type { Product } from "./types";
 const PLACEHOLDER_IMAGE = "/images/placeholder.svg";
 const DEFAULT_CATALOG_DISCOUNT = 40;
 
-const PRODUCT_CACHE_TTL_MS = 30_000;
-
-let cache: Product[] | null = null;
-let cacheExpiresAt = 0;
-let pendingLoad: Promise<Product[]> | null = null;
-
 function hasMongoConfig(): boolean {
   const uri = process.env.MONGO_URI?.trim() || process.env.MONGODB_URI?.trim();
   return Boolean(
@@ -129,21 +123,7 @@ async function loadAllProducts(): Promise<Product[]> {
 }
 
 export async function getAllProducts(): Promise<Product[]> {
-  const now = Date.now();
-  if (cache && now < cacheExpiresAt) return cache;
-  if (pendingLoad) return pendingLoad;
-
-  pendingLoad = loadAllProducts()
-    .then((products) => {
-      cache = products;
-      cacheExpiresAt = Date.now() + PRODUCT_CACHE_TTL_MS;
-      return products;
-    })
-    .finally(() => {
-      pendingLoad = null;
-    });
-
-  return pendingLoad;
+  return loadAllProducts();
 }
 
 export async function getProductById(id: string): Promise<Product | null> {
@@ -153,7 +133,5 @@ export async function getProductById(id: string): Promise<Product | null> {
 }
 
 export function clearProductsCache() {
-  cache = null;
-  cacheExpiresAt = 0;
-  pendingLoad = null;
+  // Product freshness is controlled by storefront route revalidation.
 }

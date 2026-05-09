@@ -1,13 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getAuthFromRequest } from "@/lib/auth";
 import connectDB from "@/lib/connectDB";
 import Product from "@/models/Product";
 import { appendProductJson, readProductsJson, removeProductJson } from "@/lib/productsJson";
 import { clearProductsCache, getAllProducts } from "@/lib/getAllProducts";
+import { ALL_CATEGORY_META } from "@/lib/commerce";
 
 const NO_STORE_HEADERS = {
   "Cache-Control": "no-store, max-age=0",
 };
+
+const CATALOG_REVALIDATION_PATHS = [
+  "/",
+  "/shop",
+  "/collection",
+  ...ALL_CATEGORY_META.map((category) => category.href),
+];
+
+function revalidateCatalogPages(productId?: string) {
+  for (const path of new Set(CATALOG_REVALIDATION_PATHS)) {
+    revalidatePath(path);
+  }
+
+  if (productId) {
+    revalidatePath(`/product/${encodeURIComponent(productId)}`);
+  }
+}
 
 export async function GET(req: NextRequest) {
   const auth = await getAuthFromRequest(req);
@@ -90,6 +109,7 @@ export async function POST(req: NextRequest) {
 
     await appendProductJson(productData);
     clearProductsCache();
+    revalidateCatalogPages(_id);
 
     return NextResponse.json({ message: "Product added", product: productData }, { status: 201 });
   } catch (e) {
@@ -131,6 +151,8 @@ export async function DELETE(req: NextRequest) {
         { status: 409 }
       );
     }
+
+    revalidateCatalogPages(productId);
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -34,7 +34,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, memo, useCallback, useMemo, useState, useTransition } from "react";
 
-const HERO_PRODUCT_IDS = ["p-jc-016", "p-kn-005", "p-sh-003"];
 const EDIT_PRODUCT_IDS = ["p-jc-017", "p-kn-004", "p-denim-002", "p-baggy-001", "p-su-001", "p-sh-005", "p-korean-003", "p-jc-018"];
 const SPOTLIGHT_PRODUCT_IDS = ["p-jc-016", "p-kn-005", "p-denim-004"];
 
@@ -297,6 +296,50 @@ const ProductTile = memo(function ProductTile({
   );
 });
 
+const HeroMoodProductCard = memo(function HeroMoodProductCard({ product }: { product: Product }) {
+  return (
+    <motion.article
+      layout
+      initial={false}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      whileHover={{ y: -4 }}
+      transition={{ duration: 0.24, ease: easeOut }}
+      className="min-w-0"
+    >
+      <Link
+        href={productHref(product)}
+        className="group block h-full overflow-hidden rounded-lg border border-[#DEDAD2] bg-white shadow-[0_14px_32px_rgba(23,21,19,0.06)] transition hover:border-[#171513]"
+      >
+        <div className="relative aspect-[4/5] overflow-hidden bg-[#E9E7E1]">
+          <Image
+            src={productImage(product)}
+            alt={product.name}
+            fill
+            sizes="(max-width: 640px) 44vw, (max-width: 1280px) 18vw, 11vw"
+            className="object-cover transition duration-700 group-hover:scale-[1.04]"
+          />
+        </div>
+        <div className="flex min-h-[6.75rem] min-w-0 flex-col justify-between p-3">
+          <div className="min-w-0">
+            <p className="text-[11px] uppercase tracking-[0.12em] text-[#725D2C]">
+              {formatCategoryLabel(product.category)}
+            </p>
+            <h3 className="mt-1 line-clamp-2 font-serif text-xl font-light leading-[1.02] text-[#171513]">
+              {product.name}
+            </h3>
+          </div>
+          <div className="mt-3 flex items-end justify-between gap-2">
+            <p className="text-sm font-medium text-[#725D2C]">EGP {formatPrice(product.price)}</p>
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#D5D1C8] text-[#171513] transition group-hover:border-[#171513]">
+              <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+            </span>
+          </div>
+        </div>
+      </Link>
+    </motion.article>
+  );
+});
+
 export default function HomePageClient({ initialProducts }: { initialProducts: Product[] }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -305,9 +348,13 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
   const [, startTransition] = useTransition();
   const products = initialProducts;
 
-  const heroProducts = useMemo(() => pickProducts(products, HERO_PRODUCT_IDS, 3), [products]);
   const editProducts = useMemo(() => pickProducts(products, EDIT_PRODUCT_IDS, 8), [products]);
   const spotlightProducts = useMemo(() => pickProducts(products, SPOTLIGHT_PRODUCT_IDS, 3), [products]);
+
+  const activeMood = useMemo(
+    () => SHOPPING_MOODS.find((mood) => mood.value === selectedMood) ?? SHOPPING_MOODS[0],
+    [selectedMood]
+  );
 
   const moodProducts = useMemo(() => {
     const source =
@@ -317,6 +364,8 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
     const picked = pickProducts(source, EDIT_PRODUCT_IDS, 8);
     return picked.length ? picked : editProducts;
   }, [editProducts, products, selectedMood]);
+
+  const heroRailProducts = useMemo(() => moodProducts.slice(0, 4), [moodProducts]);
 
   const categoryCounts = useMemo(() => {
     return new Map(
@@ -449,6 +498,38 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
                 ))}
               </motion.div>
 
+              <motion.div
+                variants={fadeUp}
+                className="mt-4 hidden rounded-lg border border-[#DEDAD2] bg-[#F7F7F4]/78 p-3 shadow-[0_18px_44px_rgba(23,21,19,0.06)] sm:block"
+              >
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <p className="text-xs uppercase tracking-[0.18em] text-[#725D2C]">
+                    {activeMood.label}
+                  </p>
+                  <Link
+                    href={activeMood.href}
+                    className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-[#D5D1C8] bg-white px-3 text-xs text-[#171513] transition hover:border-[#171513]"
+                  >
+                    View
+                    <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+                  </Link>
+                </div>
+                <AnimatePresence mode="popLayout">
+                  <motion.div
+                    key={`hero-${selectedMood}`}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.28, ease: easeOut }}
+                    className="grid grid-cols-2 gap-3 xl:grid-cols-3"
+                  >
+                    {moodProducts.slice(0, 6).map((product) => (
+                      <HeroMoodProductCard key={product._id} product={product} />
+                    ))}
+                  </motion.div>
+                </AnimatePresence>
+              </motion.div>
+
               <motion.div variants={imageReveal} whileHover={{ y: -3 }} className="sm:hidden">
                 <Link href="/lookbook" className="group relative mt-5 block min-h-[18rem] overflow-hidden rounded-lg bg-[#171513]">
                   <motion.div
@@ -554,66 +635,34 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
               initial="hidden"
               animate="show"
               variants={heroStagger}
-              className="grid gap-3 sm:grid-rows-3"
+              className="hidden min-w-0 sm:flex sm:flex-col"
             >
-              {(heroProducts.length ? heroProducts : editProducts).length
-                ? (heroProducts.length ? heroProducts : editProducts).slice(0, 3).map((product) => (
-                    <motion.div
-                      key={product._id}
-                      whileHover={{ y: -4 }}
-                    >
-                      <Link
-                        href={productHref(product)}
-                        className="group grid grid-cols-[6rem_1fr] overflow-hidden rounded-lg border border-[#D5D1C8] bg-white p-2 transition hover:border-[#171513] sm:block"
-                      >
-                        <div className="relative min-h-[7rem] overflow-hidden rounded-md bg-[#E9E7E1] sm:aspect-[4/5] sm:min-h-0">
-                          <Image
-                            src={productImage(product)}
-                            alt={product.name}
-                            fill
-                            sizes="(max-width: 640px) 96px, 18vw"
-                            className="object-cover transition duration-700 group-hover:scale-[1.04]"
-                          />
-                        </div>
-                        <div className="flex min-w-0 flex-col justify-between p-3">
-                          <div>
-                            <p className="text-sm font-medium text-[#725D2C]">EGP {formatPrice(product.price)}</p>
-                            <h2 className="mt-1 line-clamp-2 font-serif text-xl font-light leading-none text-[#171513]">
-                              {product.name}
-                            </h2>
-                          </div>
-                          <p className="mt-3 text-xs text-[#69645E]">{stockLabel(product)}</p>
-                        </div>
-                      </Link>
-                    </motion.div>
-                  ))
-                : STYLE_PATHS.slice(0, 3).map((path) => (
-                    <motion.div
-                      key={path.href}
-                      whileHover={{ y: -4 }}
-                    >
-                      <Link
-                        href={path.href}
-                        className="group block overflow-hidden rounded-lg border border-[#D5D1C8] bg-white p-2 transition hover:border-[#171513]"
-                      >
-                        <div className="relative aspect-[4/5] overflow-hidden rounded-md bg-[#E9E7E1]">
-                          <Image
-                            src={path.image}
-                            alt={path.title}
-                            fill
-                            sizes="18vw"
-                            className="object-cover transition duration-700 group-hover:scale-[1.04]"
-                          />
-                        </div>
-                        <div className="p-3">
-                          <p className="text-sm font-medium text-[#725D2C]">{path.copy}</p>
-                          <h2 className="mt-1 font-serif text-xl font-light leading-none text-[#171513]">
-                            {path.title}
-                          </h2>
-                        </div>
-                      </Link>
-                    </motion.div>
+              <div className="mb-3 flex items-center justify-between gap-2 rounded-lg border border-[#D5D1C8] bg-white px-3 py-2">
+                <p className="truncate text-[11px] uppercase tracking-[0.16em] text-[#725D2C]">
+                  {activeMood.label}
+                </p>
+                <Link
+                  href={activeMood.href}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#D5D1C8] text-[#171513] transition hover:border-[#171513]"
+                  aria-label={`View ${activeMood.label}`}
+                >
+                  <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+                </Link>
+              </div>
+              <AnimatePresence mode="popLayout">
+                <motion.div
+                  key={`hero-rail-${selectedMood}`}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.28, ease: easeOut }}
+                  className="grid gap-3"
+                >
+                  {heroRailProducts.map((product) => (
+                    <HeroMoodProductCard key={product._id} product={product} />
                   ))}
+                </motion.div>
+              </AnimatePresence>
             </motion.div>
           </motion.div>
         </div>
