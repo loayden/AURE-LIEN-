@@ -4,7 +4,7 @@
  * - JSON-backed admin products
  * - Mongo-backed admin products when DB is configured
  */
-import connectDB from "./connectDB";
+import connectDB, { hasConfiguredMongoUri } from "./connectDB";
 import ProductModel from "@/models/Product";
 import { applyCatalogPriceOffset } from "./catalogPrice";
 import { resolveProductColors } from "./productColors";
@@ -15,14 +15,6 @@ import type { Product } from "./types";
 
 const PLACEHOLDER_IMAGE = "/images/placeholder.svg";
 const DEFAULT_CATALOG_DISCOUNT = 40;
-
-function hasMongoConfig(): boolean {
-  const uri = process.env.MONGO_URI?.trim() || process.env.MONGODB_URI?.trim();
-  return Boolean(
-    uri &&
-      (uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://"))
-  );
-}
 
 function normalizeImagePath(image: unknown): string {
   if (typeof image !== "string") return PLACEHOLDER_IMAGE;
@@ -102,7 +94,7 @@ function mergeProducts(lists: Product[][]): Product[] {
 }
 
 async function readMongoProducts(): Promise<Product[]> {
-  if (!hasMongoConfig()) return [];
+  if (!hasConfiguredMongoUri()) return [];
 
   try {
     await connectDB();

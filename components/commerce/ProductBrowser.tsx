@@ -304,15 +304,16 @@ export default function ProductBrowser({
   const deferredQuery = useDeferredValue(filters.query);
 
   useEffect(() => {
-    if (initialProducts) {
-      setProducts(initialProducts);
-      setLoading(false);
-      return;
-    }
-
     const controller = new AbortController();
     const url = category ? `/api/products?category=${encodeURIComponent(category)}` : "/api/products";
-    setLoading(true);
+    const hasInitialProducts = Array.isArray(initialProducts);
+
+    if (hasInitialProducts) {
+      setProducts(initialProducts);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
 
     fetch(url, { cache: "no-store", signal: controller.signal })
       .then((response) => {
@@ -322,8 +323,10 @@ export default function ProductBrowser({
       .then((data) => setProducts(Array.isArray(data) ? data : []))
       .catch((error) => {
         if (controller.signal.aborted) return;
-        showToast(error instanceof Error ? error.message : "Unable to load products.", "error");
-        setProducts([]);
+        if (!hasInitialProducts) {
+          showToast(error instanceof Error ? error.message : "Unable to load products.", "error");
+          setProducts([]);
+        }
       })
       .finally(() => {
         if (!controller.signal.aborted) setLoading(false);

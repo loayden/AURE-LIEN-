@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getAuthFromRequest } from "@/lib/auth";
-import connectDB from "@/lib/connectDB";
+import connectDB, { hasConfiguredMongoUri } from "@/lib/connectDB";
 import Product from "@/models/Product";
 import { CATALOG_PRICE_OFFSET_EGP } from "@/lib/catalogPrice";
 import { appendProductJson, ProductRecord, readProductsJson, removeProductJson, upsertProductJson } from "@/lib/productsJson";
@@ -171,11 +171,13 @@ export async function POST(req: NextRequest) {
       colors: colorList,
     };
 
-    try {
-      await connectDB();
-      await Product.create(productData);
-    } catch (dbError) {
-      console.error("Add product DB error (continuing with JSON only):", dbError);
+    if (hasConfiguredMongoUri()) {
+      try {
+        await connectDB();
+        await Product.create(productData);
+      } catch (dbError) {
+        console.error("Add product DB error (continuing with JSON only):", dbError);
+      }
     }
 
     await appendProductJson(productData);
@@ -213,15 +215,17 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: validationError }, { status: 400 });
     }
 
-    try {
-      await connectDB();
-      await Product.findOneAndUpdate(
-        { _id: productId },
-        { $set: productData },
-        { new: true }
-      );
-    } catch (dbError) {
-      console.error("Edit product DB error (continuing with JSON override):", dbError);
+    if (hasConfiguredMongoUri()) {
+      try {
+        await connectDB();
+        await Product.findOneAndUpdate(
+          { _id: productId },
+          { $set: productData },
+          { new: true }
+        );
+      } catch (dbError) {
+        console.error("Edit product DB error (continuing with JSON override):", dbError);
+      }
     }
 
     await upsertProductJson(productData);
@@ -261,12 +265,14 @@ export async function DELETE(req: NextRequest) {
     const jsonResult = await removeProductJson(productId);
     removedJson = jsonResult.removed;
     tombstonedJson = jsonResult.tombstoned;
-    try {
-      await connectDB();
-      const result = await Product.deleteOne({ _id: productId });
-      removedMongo = Boolean(result.deletedCount);
-    } catch (dbError) {
-      console.error("Delete product DB error (continuing with JSON result):", dbError);
+    if (hasConfiguredMongoUri()) {
+      try {
+        await connectDB();
+        const result = await Product.deleteOne({ _id: productId });
+        removedMongo = Boolean(result.deletedCount);
+      } catch (dbError) {
+        console.error("Delete product DB error (continuing with JSON result):", dbError);
+      }
     }
 
     clearProductsCache();

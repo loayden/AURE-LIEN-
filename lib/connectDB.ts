@@ -19,8 +19,16 @@ const opts = {
 
 const LOCAL_MONGODB_URI = "mongodb://127.0.0.1:27017/luxuryshop";
 
+function getConfiguredMongoUri(): string {
+  return process.env.MONGO_URI?.trim() || process.env.MONGODB_URI?.trim() || "";
+}
+
+export function hasConfiguredMongoUri(): boolean {
+  return Boolean(getConfiguredMongoUri());
+}
+
 function getMongoUri(): string {
-  const configuredUri = process.env.MONGO_URI?.trim() || process.env.MONGODB_URI?.trim();
+  const configuredUri = getConfiguredMongoUri();
 
   if (configuredUri) {
     if (

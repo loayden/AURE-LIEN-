@@ -6,7 +6,6 @@ import { useTimeoutRegistry } from "@/hooks/useTimeoutRegistry";
 import { stockLabel, stockState } from "@/lib/commerce";
 import { getProductColorHex as getColorHex } from "@/lib/productColors";
 import { getProductPageContent, type ProductPageSpecification } from "@/lib/productPageContent";
-import products from "@/lib/productsData";
 import type { Product } from "@/lib/types";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import {
@@ -29,8 +28,6 @@ import {
   FaLinkedinIn as Linkedin,
   FaTwitter as Twitter,
 } from "react-icons/fa";
-
-const catalogProducts = products as Product[];
 
 /* ────────────────────────────────────────────────────────────────── */
 /* DESIGN TOKENS */
@@ -67,6 +64,8 @@ const primaryCta = {
   border: "1px solid rgba(168,121,53,0.42)",
   boxShadow: "0 14px 30px rgba(61,48,37,0.16), inset 0 1px 0 rgba(255,255,255,0.30)",
 };
+
+type ProductDetail = Product & { media360?: string[]; videoUrl?: string };
 
 /* ────────────────────────────────────────────────────────────────── */
 /* HORIZONTAL SCROLL GALLERY COMPONENT */
@@ -425,13 +424,8 @@ export default function PremiumProductPage() {
   const params = useParams();
   const idParam = params?.id;
   const id = Array.isArray(idParam) ? idParam[0] : String(idParam ?? "");
-  const initialProduct =
-    (products.find((entry) => String(entry._id) === id) as
-      | (Product & { media360?: string[]; videoUrl?: string })
-      | undefined) ?? null;
-
-  const [product, setProduct] = useState<(Product & { media360?: string[]; videoUrl?: string }) | null>(initialProduct);
-  const [loadingProduct, setLoadingProduct] = useState(!initialProduct);
+  const [product, setProduct] = useState<ProductDetail | null>(null);
+  const [loadingProduct, setLoadingProduct] = useState(Boolean(id));
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [added, setAdded] = useState(false);
@@ -439,6 +433,7 @@ export default function PremiumProductPage() {
   const [activeTab, setActiveTab] = useState<"specs" | "details">("specs");
   const [actionError, setActionError] = useState<string | null>(null);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
   const { registerTimeout } = useTimeoutRegistry();
   const p = product;
@@ -451,58 +446,74 @@ export default function PremiumProductPage() {
 
     return media.length > 0 ? media : ["/images/placeholder.svg"];
   }, [p]);
-  const relatedProducts = useMemo(
-    () =>
-      p
-        ? catalogProducts.filter((r) => r.category === p.category && r._id !== p._id).slice(0, 4)
-        : [],
-    [p]
-  );
   const pageContent = useMemo(() => (p ? getProductPageContent(p) : null), [p]);
   const highlightIcons = useMemo(() => [Award, Star, Check, Box], []);
 
   useEffect(() => {
     if (!id) {
       setProduct(null);
+      setRelatedProducts([]);
       setLoadingProduct(false);
       return;
     }
 
-    const fallbackProduct =
-      (catalogProducts.find((entry) => String(entry._id) === id) as
-        | (Product & { media360?: string[]; videoUrl?: string })
-        | undefined) ?? null;
-
-    setProduct(fallbackProduct);
-    setLoadingProduct(!fallbackProduct);
-
-    if (fallbackProduct) {
-      return;
-    }
-
     const controller = new AbortController();
+    setProduct(null);
+    setRelatedProducts([]);
+    setLoadingProduct(true);
 
     (async () => {
       try {
-        const res = await fetch(`/api/products/${encodeURIComponent(id)}`, {
+        const productResponse = await fetch(`/api/products/${encodeURIComponent(id)}`, {
           cache: "no-store",
           signal: controller.signal,
         });
 
-        if (!res.ok) {
-          if (!controller.signal.aborted && !fallbackProduct) {
+        if (!productResponse.ok) {
+          if (!controller.signal.aborted) {
             setProduct(null);
+            setRelatedProducts([]);
           }
           return;
         }
 
-        const data = await res.json();
-        if (!controller.signal.aborted) {
-          setProduct(data);
+        const nextProduct = await productResponse.json() as ProductDetail;
+        if (controller.signal.aborted) return;
+
+        setProduct(nextProduct);
+
+        const relatedResponse = await fetch(
+          `/api/products?category=${encodeURIComponent(nextProduct.category)}`,
+          {
+            cache: "no-store",
+            signal: controller.signal,
+          }
+        );
+
+        if (!relatedResponse.ok) {
+          if (!controller.signal.aborted) {
+            setRelatedProducts([]);
+          }
+          return;
         }
+
+        const relatedData = await relatedResponse.json();
+        if (controller.signal.aborted) return;
+
+        setRelatedProducts(
+          Array.isArray(relatedData)
+            ? relatedData.filter(
+                (entry): entry is Product =>
+                  Boolean(entry) &&
+                  typeof entry._id === "string" &&
+                  entry._id !== nextProduct._id
+              ).slice(0, 4)
+            : []
+        );
       } catch {
-        if (!controller.signal.aborted && !fallbackProduct) {
+        if (!controller.signal.aborted) {
           setProduct(null);
+          setRelatedProducts([]);
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -518,6 +529,8 @@ export default function PremiumProductPage() {
 
   useEffect(() => {
     if (!p || typeof window === "undefined") return;
+
+    const controller = new AbortController();
     const key = "bout:recently-viewed";
     const existing = JSON.parse(window.localStorage.getItem(key) || "[]") as string[];
     const next = [p._id, ...existing.filter((item) => item !== p._id)].slice(0, 8);
@@ -526,13 +539,36 @@ export default function PremiumProductPage() {
     const previousIds = next.filter((item) => item !== p._id).slice(0, 4);
     if (!previousIds.length) {
       setRecentlyViewed([]);
-      return;
+      return () => controller.abort();
     }
 
-    const previous = previousIds
-      .map((item) => catalogProducts.find((entry) => entry._id === item))
-      .filter((item): item is Product => Boolean(item));
-    setRecentlyViewed(previous);
+    (async () => {
+      try {
+        const previous = await Promise.all(
+          previousIds.map(async (item) => {
+            const response = await fetch(`/api/products/${encodeURIComponent(item)}`, {
+              cache: "no-store",
+              signal: controller.signal,
+            });
+
+            if (!response.ok) return null;
+            return await response.json() as Product;
+          })
+        );
+
+        if (!controller.signal.aborted) {
+          setRecentlyViewed(previous.filter((item): item is Product => Boolean(item)));
+        }
+      } catch {
+        if (!controller.signal.aborted) {
+          setRecentlyViewed([]);
+        }
+      }
+    })();
+
+    return () => {
+      controller.abort();
+    };
   }, [p]);
 
   if (loadingProduct) {

@@ -1,6 +1,0 @@
-1:"$Sreact.fragment"
-2:I[38890,["/_next/static/chunks/17jr5rclufkn1.js","/_next/static/chunks/06vvsauwn6i.d.js","/_next/static/chunks/0jvfwmmr~oofz.js","/_next/static/chunks/02vqmj_psw6px.js","/_next/static/chunks/1860zsbcg5z1o.js","/_next/static/chunks/01-94e79uaver.js","/_next/static/chunks/0k03twzh0pf9c.js"],"default"]
-3:I[97367,["/_next/static/chunks/17jr5rclufkn1.js","/_next/static/chunks/06vvsauwn6i.d.js","/_next/static/chunks/0jvfwmmr~oofz.js","/_next/static/chunks/02vqmj_psw6px.js","/_next/static/chunks/1860zsbcg5z1o.js","/_next/static/chunks/01-94e79uaver.js"],"OutletBoundary"]
-4:"$Sreact.suspense"
-0:{"rsc":["$","$1","c",{"children":[["$","$L2",null,{"initialProducts":[],"title":"Sneakers","description":"Sneakers now sit inside a more comfortable catalog shell with responsive gutters and cleaner vertical rhythm.","category":"sneakers","lockCategory":true,"heroImage":"/uploads/Sneakers.jpg?v=2026-04-03-1"}],[["$","script","script-0",{"src":"/_next/static/chunks/0k03twzh0pf9c.js","async":true}]],["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"isPartial":false,"staleTime":300,"varyParams":null,"buildId":"4FBF9Q1CR4BXNJrWlGVxB"}
-5:null
