@@ -24,6 +24,7 @@
   "/api/cart/route": "/api/cart",
   "/api/chat/route": "/api/chat",
   "/api/checkout-draft/route": "/api/checkout-draft",
+  "/api/checkout/cancel/route": "/api/checkout/cancel",
   "/api/checkout/route": "/api/checkout",
   "/api/email/welcome/route": "/api/email/welcome",
   "/api/getorder/route": "/api/getorder",

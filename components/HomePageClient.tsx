@@ -296,7 +296,7 @@ const ProductTile = memo(function ProductTile({
   );
 });
 
-const HeroMoodProductCard = memo(function HeroMoodProductCard({ product }: { product: Product }) {
+const HeroMoodProductCard = memo(function HeroMoodProductCard({ product, className = "" }: { product: Product; className?: string }) {
   return (
     <motion.article
       layout
@@ -304,7 +304,7 @@ const HeroMoodProductCard = memo(function HeroMoodProductCard({ product }: { pro
       animate={{ opacity: 1, y: 0, scale: 1 }}
       whileHover={{ y: -4 }}
       transition={{ duration: 0.24, ease: easeOut }}
-      className="min-w-0"
+      className={`min-w-0 ${className}`}
     >
       <Link
         href={productHref(product)}
@@ -324,12 +324,12 @@ const HeroMoodProductCard = memo(function HeroMoodProductCard({ product }: { pro
             <p className="text-[11px] uppercase tracking-[0.12em] text-[#725D2C]">
               {formatCategoryLabel(product.category)}
             </p>
-            <h3 className="mt-1 line-clamp-2 font-serif text-xl font-light leading-[1.02] text-[#171513]">
+            <h3 className="mt-1 line-clamp-2 font-serif text-lg font-light leading-[1.02] text-[#171513] sm:text-xl">
               {product.name}
             </h3>
           </div>
           <div className="mt-3 flex items-end justify-between gap-2">
-            <p className="text-sm font-medium text-[#725D2C]">EGP {formatPrice(product.price)}</p>
+            <p className="text-xs font-medium text-[#725D2C] sm:text-sm">EGP {formatPrice(product.price)}</p>
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#D5D1C8] text-[#171513] transition group-hover:border-[#171513]">
               <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} />
             </span>
@@ -500,7 +500,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
 
               <motion.div
                 variants={fadeUp}
-                className="mt-4 hidden rounded-lg border border-[#DEDAD2] bg-[#F7F7F4]/78 p-3 shadow-[0_18px_44px_rgba(23,21,19,0.06)] sm:block"
+                className="mt-4 rounded-lg border border-[#DEDAD2] bg-[#F7F7F4]/78 p-3 shadow-[0_18px_44px_rgba(23,21,19,0.06)]"
               >
                 <div className="mb-3 flex items-center justify-between gap-3">
                   <p className="text-xs uppercase tracking-[0.18em] text-[#725D2C]">
@@ -521,10 +521,10 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.28, ease: easeOut }}
-                    className="grid grid-cols-2 gap-3 xl:grid-cols-3"
+                    className="-mx-1 flex snap-x gap-3 overflow-x-auto px-1 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 xl:grid-cols-3 [&::-webkit-scrollbar]:hidden"
                   >
                     {moodProducts.slice(0, 6).map((product) => (
-                      <HeroMoodProductCard key={product._id} product={product} />
+                      <HeroMoodProductCard key={product._id} product={product} className="w-[11.75rem] shrink-0 snap-start sm:w-auto sm:shrink" />
                     ))}
                   </motion.div>
                 </AnimatePresence>

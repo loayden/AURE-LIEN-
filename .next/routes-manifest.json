@@ -217,6 +217,12 @@
       "namedRegex": "^/api/checkout(?:/)?$"
     },
     {
+      "page": "/api/checkout/cancel",
+      "regex": "^/api/checkout/cancel(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/checkout/cancel(?:/)?$"
+    },
+    {
       "page": "/api/checkout-draft",
       "regex": "^/api/checkout\\-draft(?:/)?$",
       "routeKeys": {},

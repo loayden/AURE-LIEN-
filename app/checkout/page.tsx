@@ -79,17 +79,25 @@ export default function CheckoutPage() {
   });
   const saveDraftRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cancelOnLeaveReadyRef = useRef(false);
+  const paymentRedirectInProgressRef = useRef(false);
   const canceledParam = searchParams.get("canceled");
   const canceledOrderId = searchParams.get("orderId");
 
-  const clearCheckoutSession = useCallback(async (keepalive = false) => {
+  const cancelCheckoutSession = useCallback(async (keepalive = false, orderId?: string | null) => {
     if (typeof window !== "undefined") {
+      orderId = orderId || sessionStorage.getItem("checkoutOrderId");
       sessionStorage.removeItem("checkoutItems");
       sessionStorage.removeItem("selectedOrder");
+      sessionStorage.removeItem("checkoutOrderId");
     }
 
     try {
-      await fetch("/api/checkout-draft", { method: "DELETE", keepalive });
+      await fetch("/api/checkout/cancel", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: orderId || undefined }),
+        keepalive,
+      });
     } catch {
       // Leaving the page should never block navigation.
     }
@@ -109,12 +117,9 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (canceledParam === "1") {
       setError("Checkout was canceled. Your cart is still here.");
-      void clearCheckoutSession();
-      if (canceledOrderId) {
-        void fetch(`/api/orders?orderId=${encodeURIComponent(canceledOrderId)}`, { method: "DELETE" }).catch(() => {});
-      }
+      void cancelCheckoutSession(false, canceledOrderId);
     }
-  }, [canceledParam, canceledOrderId, clearCheckoutSession]);
+  }, [canceledParam, canceledOrderId, cancelCheckoutSession]);
 
   useEffect(() => {
     (async () => {
@@ -206,7 +211,8 @@ export default function CheckoutPage() {
   useEffect(() => {
     const cancelOnPageLeave = () => {
       if (!cancelOnLeaveReadyRef.current) return;
-      void clearCheckoutSession(true);
+      if (paymentRedirectInProgressRef.current) return;
+      void cancelCheckoutSession(true);
     };
     const readyTimer = window.setTimeout(() => {
       cancelOnLeaveReadyRef.current = true;
@@ -218,7 +224,7 @@ export default function CheckoutPage() {
       window.removeEventListener("pagehide", cancelOnPageLeave);
       cancelOnPageLeave();
     };
-  }, [clearCheckoutSession]);
+  }, [cancelCheckoutSession]);
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
   const shippingCost = form.shippingMethod === "within_egypt" ? SHIPPING_COST_CAIRO : 0;
@@ -229,7 +235,7 @@ export default function CheckoutPage() {
   async function handleCancel() {
     setError("");
     setSuccess("");
-    await clearCheckoutSession();
+    await cancelCheckoutSession();
     router.push("/cart");
   }
 
@@ -327,6 +333,10 @@ export default function CheckoutPage() {
         if (!res.ok || !data?.url) {
           throw new Error(data?.error || "Card payment is not available right now.");
         }
+        if (typeof data?.orderId === "string" && data.orderId) {
+          sessionStorage.setItem("checkoutOrderId", data.orderId);
+        }
+        paymentRedirectInProgressRef.current = true;
         window.location.href = data.url;
         return;
       }
@@ -371,6 +381,7 @@ export default function CheckoutPage() {
         sessionStorage.removeItem("selectedOrder"); 
       }
       await fetch("/api/checkout-draft", { method: "DELETE" });
+      sessionStorage.removeItem("checkoutOrderId");
       
       if (fromCart) {
         await fetch("/api/cart", { method: "DELETE" });

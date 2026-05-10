@@ -25,7 +25,7 @@
     "loaderFile": "",
     "domains": [],
     "disableStaticImages": false,
-    "minimumCacheTTL": 60,
+    "minimumCacheTTL": 2678400,
     "formats": [
       "image/avif",
       "image/webp"
@@ -57,7 +57,7 @@
       },
       {
         "protocol": "https",
-        "hostname": "^(?:^(?:aurelien\\-eta\\.vercel\\.app)$)$",
+        "hostname": "^(?:^(?:bout\\-clothes\\.vercel\\.app)$)$",
         "pathname": "^(?:(?!(?:^|\\/)\\.{1,2}(?:\\/|$))(?:(?:(?!(?:^|\\/)\\.{1,2}(?:\\/|$)).)*?)\\/?)$"
       },
       {

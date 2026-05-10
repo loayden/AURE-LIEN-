@@ -13,7 +13,8 @@
           "value": "multipart/form-data;.*"
         }
       ],
-      "initialRevalidateSeconds": false,
+      "initialRevalidateSeconds": 30,
+      "initialExpireSeconds": 31536000,
       "srcRoute": "/",
       "dataRoute": "/index.rsc",
       "allowHeader": [
@@ -110,7 +111,8 @@
           "value": "multipart/form-data;.*"
         }
       ],
-      "initialRevalidateSeconds": false,
+      "initialRevalidateSeconds": 30,
+      "initialExpireSeconds": 31536000,
       "srcRoute": "/accessories",
       "dataRoute": "/accessories.rsc",
       "allowHeader": [
@@ -326,7 +328,8 @@
           "value": "multipart/form-data;.*"
         }
       ],
-      "initialRevalidateSeconds": false,
+      "initialRevalidateSeconds": 30,
+      "initialExpireSeconds": 31536000,
       "srcRoute": "/bags-wallets",
       "dataRoute": "/bags-wallets.rsc",
       "allowHeader": [
@@ -350,7 +353,8 @@
           "value": "multipart/form-data;.*"
         }
       ],
-      "initialRevalidateSeconds": false,
+      "initialRevalidateSeconds": 30,
+      "initialExpireSeconds": 31536000,
       "srcRoute": "/belts",
       "dataRoute": "/belts.rsc",
       "allowHeader": [
@@ -374,7 +378,8 @@
           "value": "multipart/form-data;.*"
         }
       ],
-      "initialRevalidateSeconds": false,
+      "initialRevalidateSeconds": 30,
+      "initialExpireSeconds": 31536000,
       "srcRoute": "/boots",
       "dataRoute": "/boots.rsc",
       "allowHeader": [
@@ -458,6 +463,31 @@
         "x-next-revalidate-tag-token"
       ]
     },
+    "/collection": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "next-action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": 30,
+      "initialExpireSeconds": 31536000,
+      "srcRoute": "/collection",
+      "dataRoute": "/collection.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
+    },
     "/cookies": {
       "experimentalBypassFor": [
         {
@@ -494,7 +524,8 @@
           "value": "multipart/form-data;.*"
         }
       ],
-      "initialRevalidateSeconds": false,
+      "initialRevalidateSeconds": 30,
+      "initialExpireSeconds": 31536000,
       "srcRoute": "/denim",
       "dataRoute": "/denim.rsc",
       "allowHeader": [
@@ -542,7 +573,8 @@
           "value": "multipart/form-data;.*"
         }
       ],
-      "initialRevalidateSeconds": false,
+      "initialRevalidateSeconds": 30,
+      "initialExpireSeconds": 31536000,
       "srcRoute": "/footwear",
       "dataRoute": "/footwear.rsc",
       "allowHeader": [
@@ -566,7 +598,8 @@
           "value": "multipart/form-data;.*"
         }
       ],
-      "initialRevalidateSeconds": false,
+      "initialRevalidateSeconds": 30,
+      "initialExpireSeconds": 31536000,
       "srcRoute": "/jackets-coats",
       "dataRoute": "/jackets-coats.rsc",
       "allowHeader": [
@@ -590,7 +623,8 @@
           "value": "multipart/form-data;.*"
         }
       ],
-      "initialRevalidateSeconds": false,
+      "initialRevalidateSeconds": 30,
+      "initialExpireSeconds": 31536000,
       "srcRoute": "/jeans",
       "dataRoute": "/jeans.rsc",
       "allowHeader": [
@@ -614,7 +648,8 @@
           "value": "multipart/form-data;.*"
         }
       ],
-      "initialRevalidateSeconds": false,
+      "initialRevalidateSeconds": 30,
+      "initialExpireSeconds": 31536000,
       "srcRoute": "/knitwear",
       "dataRoute": "/knitwear.rsc",
       "allowHeader": [
@@ -638,7 +673,8 @@
           "value": "multipart/form-data;.*"
         }
       ],
-      "initialRevalidateSeconds": false,
+      "initialRevalidateSeconds": 30,
+      "initialExpireSeconds": 31536000,
       "srcRoute": "/korean",
       "dataRoute": "/korean.rsc",
       "allowHeader": [
@@ -662,7 +698,8 @@
           "value": "multipart/form-data;.*"
         }
       ],
-      "initialRevalidateSeconds": false,
+      "initialRevalidateSeconds": 30,
+      "initialExpireSeconds": 31536000,
       "srcRoute": "/lace-ups",
       "dataRoute": "/lace-ups.rsc",
       "allowHeader": [
@@ -686,7 +723,8 @@
           "value": "multipart/form-data;.*"
         }
       ],
-      "initialRevalidateSeconds": false,
+      "initialRevalidateSeconds": 30,
+      "initialExpireSeconds": 31536000,
       "srcRoute": "/loafers",
       "dataRoute": "/loafers.rsc",
       "allowHeader": [
@@ -806,7 +844,8 @@
           "value": "multipart/form-data;.*"
         }
       ],
-      "initialRevalidateSeconds": false,
+      "initialRevalidateSeconds": 30,
+      "initialExpireSeconds": 31536000,
       "srcRoute": "/pants-denim",
       "dataRoute": "/pants-denim.rsc",
       "allowHeader": [
@@ -955,7 +994,8 @@
           "value": "multipart/form-data;.*"
         }
       ],
-      "initialRevalidateSeconds": false,
+      "initialRevalidateSeconds": 30,
+      "initialExpireSeconds": 31536000,
       "srcRoute": "/shirts",
       "dataRoute": "/shirts.rsc",
       "allowHeader": [
@@ -979,7 +1019,8 @@
           "value": "multipart/form-data;.*"
         }
       ],
-      "initialRevalidateSeconds": false,
+      "initialRevalidateSeconds": 30,
+      "initialExpireSeconds": 31536000,
       "srcRoute": "/shop",
       "dataRoute": "/shop.rsc",
       "allowHeader": [
@@ -1056,7 +1097,8 @@
           "value": "multipart/form-data;.*"
         }
       ],
-      "initialRevalidateSeconds": false,
+      "initialRevalidateSeconds": 30,
+      "initialExpireSeconds": 31536000,
       "srcRoute": "/sneakers",
       "dataRoute": "/sneakers.rsc",
       "allowHeader": [
@@ -1080,7 +1122,8 @@
           "value": "multipart/form-data;.*"
         }
       ],
-      "initialRevalidateSeconds": false,
+      "initialRevalidateSeconds": 30,
+      "initialExpireSeconds": 31536000,
       "srcRoute": "/suits",
       "dataRoute": "/suits.rsc",
       "allowHeader": [
@@ -1104,7 +1147,8 @@
           "value": "multipart/form-data;.*"
         }
       ],
-      "initialRevalidateSeconds": false,
+      "initialRevalidateSeconds": 30,
+      "initialExpireSeconds": 31536000,
       "srcRoute": "/sunglasses",
       "dataRoute": "/sunglasses.rsc",
       "allowHeader": [

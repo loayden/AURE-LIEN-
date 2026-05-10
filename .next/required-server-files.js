@@ -47,7 +47,7 @@ self.__SERVER_FILES_MANIFEST={
       "loaderFile": "",
       "domains": [],
       "disableStaticImages": false,
-      "minimumCacheTTL": 60,
+      "minimumCacheTTL": 2678400,
       "formats": [
         "image/avif",
         "image/webp"
@@ -78,7 +78,7 @@ self.__SERVER_FILES_MANIFEST={
         },
         {
           "protocol": "https",
-          "hostname": "aurelien-eta.vercel.app"
+          "hostname": "bout-clothes.vercel.app"
         },
         {
           "protocol": "https",

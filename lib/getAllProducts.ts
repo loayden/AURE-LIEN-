@@ -10,7 +10,7 @@ import { applyCatalogPriceOffset } from "./catalogPrice";
 import { resolveProductColors } from "./productColors";
 import { withPublicAssetVersion } from "./publicAsset";
 import { rawProductsData } from "./productsData";
-import { readProductsJson } from "./productsJson";
+import { readDeletedProductIds, readProductsJson } from "./productsJson";
 import type { Product } from "./types";
 
 const PLACEHOLDER_IMAGE = "/images/placeholder.svg";
@@ -118,8 +118,11 @@ async function loadAllProducts(): Promise<Product[]> {
   const builtInProducts = rawProductsData.map(normalizeProduct);
   const fromJson = (await readProductsJson()).map(normalizeProduct);
   const fromMongo = await readMongoProducts();
+  const deletedProductIds = await readDeletedProductIds();
 
-  return mergeProducts([builtInProducts, fromJson, fromMongo]);
+  return mergeProducts([builtInProducts, fromMongo, fromJson]).filter(
+    (product) => !deletedProductIds.has(String(product._id))
+  );
 }
 
 export async function getAllProducts(): Promise<Product[]> {

@@ -1,7 +1,7 @@
 var R=require("../../../chunks/ssr/[turbopack]_runtime.js")("server/app/admin/lookbooks/page.js")
 R.c("server/chunks/ssr/[root-of-the-server]__0jpse.9._.js")
 R.c("server/chunks/ssr/node_modules_next_dist_esm_build_templates_app-page_096vo6s.js")
-R.c("server/chunks/ssr/[root-of-the-server]__02uy3ku._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0if1cj-._.js")
 R.c("server/chunks/ssr/node_modules_next_dist_06hehg4._.js")
 R.c("server/chunks/ssr/[root-of-the-server]__0zwdxc1._.js")
 R.c("server/chunks/ssr/app_error_tsx_11t4ysq._.js")
