@@ -16,7 +16,7 @@ import {
 } from "@/lib/commerce";
 import { withPublicAssetVersion } from "@/lib/publicAsset";
 import type { Product } from "@/lib/types";
-import { AnimatePresence, MotionConfig, motion } from "framer-motion";
+import { AnimatePresence, LayoutGroup, MotionConfig, motion } from "framer-motion";
 import {
   ArrowRight,
   CheckCircle2,
@@ -208,6 +208,100 @@ function SectionIntro({
   );
 }
 
+function StorefrontOpeningOverlay() {
+  return (
+    <motion.div
+      aria-hidden="true"
+      data-testid="storefront-opening-overlay"
+      className="fixed inset-0 z-[140] overflow-hidden bg-[#F6F2EA]"
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: { duration: 0.28, ease: easeOut } }}
+    >
+      <motion.div
+        className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(216,192,138,0.18),transparent_58%)]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.28, ease: easeOut }}
+      />
+      <motion.div
+        className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.62),rgba(255,255,255,0.12)_30%,transparent_62%,rgba(216,192,138,0.08))]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.32, ease: easeOut }}
+      />
+      <div className="absolute inset-0 flex items-center justify-center px-6">
+        <motion.div
+          layoutId="storefront-shared-shell"
+          data-testid="intro-storefront-shared"
+          className="relative aspect-[1.44/1] w-full max-w-[18rem] sm:max-w-[22rem] lg:max-w-[26rem]"
+          initial={{ opacity: 0, scale: 0.9, y: 18, filter: "blur(10px)" }}
+          animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 0.58, delay: 0.06, ease: easeOut, layout: { duration: 0.68, ease: easeOut } }}
+        >
+          <motion.div
+            className="absolute inset-x-[10%] top-[12%] h-[72%] rounded-full bg-[radial-gradient(circle,rgba(216,192,138,0.24),rgba(216,192,138,0.1)_46%,transparent_76%)] blur-3xl"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.54, delay: 0.16, ease: easeOut }}
+          />
+          <motion.div
+            className="absolute inset-y-[16%] left-1/2 w-[12%] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,248,230,0.88),rgba(255,248,230,0.24)_48%,transparent_80%)] blur-2xl"
+            initial={{ opacity: 0, scaleX: 0.15 }}
+            animate={{ opacity: [0, 0.82, 0], scaleX: [0.15, 1.35, 1.8] }}
+            transition={{ duration: 0.72, delay: 0.48, ease: easeOut }}
+          />
+          <motion.div
+            className="relative h-full w-full"
+            initial={{ filter: "drop-shadow(0 0 0 rgba(168,121,53,0))" }}
+            animate={{ filter: "drop-shadow(0 22px 40px rgba(168,121,53,0.12))" }}
+            transition={{ duration: 0.58, delay: 0.14, ease: easeOut }}
+          >
+            <Image
+              src={withPublicAssetVersion("/uploads/boutique-storefront-home.webp")}
+              alt="BOUT boutique storefront illustration"
+              fill
+              priority
+              sizes="(max-width: 640px) 70vw, (max-width: 1024px) 22rem, 26rem"
+              className="object-contain object-center"
+            />
+          </motion.div>
+          <motion.div
+            className="pointer-events-none absolute inset-y-[10%] left-[-16%] w-[20%] skew-x-[-14deg] rounded-full bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.16),rgba(255,255,255,0.46),rgba(255,255,255,0.16),transparent)] mix-blend-screen blur-[1px]"
+            initial={{ x: "0%", opacity: 0 }}
+            animate={{ x: "385%", opacity: [0, 0.72, 0] }}
+            transition={{ duration: 0.84, delay: 0.58, ease: easeOut }}
+          />
+        </motion.div>
+      </div>
+      <motion.div
+        data-testid="storefront-left-door"
+        className="absolute inset-y-0 left-0 w-1/2 border-r border-[#D7C7A2]/55 bg-[linear-gradient(90deg,rgba(246,242,234,0.98),rgba(241,234,221,0.98)_58%,rgba(236,226,208,0.9))] shadow-[inset_-18px_0_28px_rgba(216,192,138,0.14)]"
+        initial={{ x: 0, opacity: 1 }}
+        animate={{ x: "-101%", opacity: 0.84 }}
+        transition={{ duration: 0.96, delay: 0.38, ease: [0.7, 0.02, 0.18, 1] }}
+      >
+        <div className="absolute right-5 top-1/2 h-12 w-px -translate-y-1/2 rounded-full bg-[#B89456]/50" />
+      </motion.div>
+      <motion.div
+        data-testid="storefront-right-door"
+        className="absolute inset-y-0 right-0 w-1/2 border-l border-[#D7C7A2]/55 bg-[linear-gradient(270deg,rgba(246,242,234,0.98),rgba(241,234,221,0.98)_58%,rgba(236,226,208,0.9))] shadow-[inset_18px_0_28px_rgba(216,192,138,0.14)]"
+        initial={{ x: 0, opacity: 1 }}
+        animate={{ x: "101%", opacity: 0.84 }}
+        transition={{ duration: 0.96, delay: 0.38, ease: [0.7, 0.02, 0.18, 1] }}
+      >
+        <div className="absolute left-5 top-1/2 h-12 w-px -translate-y-1/2 rounded-full bg-[#B89456]/50" />
+      </motion.div>
+      <motion.div
+        className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-[linear-gradient(180deg,transparent,rgba(214,186,132,0.92),transparent)]"
+        initial={{ opacity: 0.9, scaleY: 1 }}
+        animate={{ opacity: 0, scaleY: 1.16 }}
+        transition={{ duration: 0.58, delay: 0.42, ease: easeOut }}
+      />
+    </motion.div>
+  );
+}
+
 function ProductActionButton({
   product,
   busy,
@@ -350,6 +444,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
   const [addingId, setAddingId] = useState<string | null>(null);
   const [selectedMood, setSelectedMood] = useState<MoodValue>("all");
   const [mobileActiveIndex, setMobileActiveIndex] = useState(0);
+  const [showOpeningIntro, setShowOpeningIntro] = useState(true);
   const [, startTransition] = useTransition();
   const products = initialProducts;
 
@@ -452,6 +547,21 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
   }, []);
 
   useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setShowOpeningIntro(false);
+      return undefined;
+    }
+
+    const introTimer = window.setTimeout(() => {
+      setShowOpeningIntro(false);
+    }, 1850);
+
+    return () => window.clearTimeout(introTimer);
+  }, []);
+
+  useEffect(() => {
     setMobileActiveIndex(0);
     mobileCarouselRef.current?.scrollTo({ left: 0, behavior: "auto" });
     scheduleMobileActiveSync();
@@ -495,6 +605,11 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
 
   return (
     <MotionConfig reducedMotion="user">
+    <LayoutGroup id="storefront-handoff">
+    <>
+    <AnimatePresence>
+      {showOpeningIntro ? <StorefrontOpeningOverlay /> : null}
+    </AnimatePresence>
     <motion.main className="min-h-screen overflow-hidden bg-[#F7F7F4] pb-24 text-[#171513] md:pb-0">
       <section className="border-b border-[#DDDAD2] bg-[#F7F7F4] px-4 pt-[72px] sm:px-6 md:px-10">
         <div className="mx-auto grid w-full max-w-[92rem] gap-6 py-6 lg:grid-cols-[0.88fr_1.12fr] lg:items-stretch lg:py-8">
@@ -505,12 +620,38 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
             className="flex min-w-0 flex-col justify-between gap-8 lg:min-h-[650px]"
           >
             <div>
-              <motion.h1 variants={fadeUp} className="font-serif text-6xl font-light leading-none text-[#171513] sm:text-7xl lg:text-9xl">
-                BOUT
-              </motion.h1>
-              <motion.p variants={fadeUp} className="mt-5 max-w-[20rem] text-lg leading-8 text-[#4E4A45] sm:max-w-xl sm:text-xl">
-                Quiet luxury layers, sharp daily pieces, and polished essentials ready to shop.
-              </motion.p>
+              <motion.div
+                variants={fadeUp}
+                className="mx-auto w-full max-w-[20rem] sm:max-w-[24rem] lg:max-w-[30rem]"
+              >
+                <h1 className="sr-only">BOUT</h1>
+                <p className="sr-only">
+                  Quiet luxury layers, sharp daily pieces, and polished essentials ready to shop.
+                </p>
+                <motion.div
+                  layoutId="storefront-shared-shell"
+                  data-testid="hero-storefront-shared"
+                  className="relative aspect-[1.44/1] w-full overflow-hidden"
+                  transition={{ layout: { duration: 0.68, ease: easeOut } }}
+                >
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-x-[10%] top-[12%] h-[72%] rounded-full bg-[radial-gradient(circle,rgba(216,192,138,0.34),rgba(216,192,138,0.16)_44%,transparent_76%)] blur-3xl"
+                  />
+                  <div
+                    className="relative h-full w-full [filter:drop-shadow(0_22px_42px_rgba(168,121,53,0.16))]"
+                  >
+                    <Image
+                      src={withPublicAssetVersion("/uploads/boutique-storefront-home.webp")}
+                      alt="BOUT boutique storefront illustration"
+                      fill
+                      priority
+                      sizes="(max-width: 640px) 76vw, (max-width: 1024px) 24rem, 30rem"
+                      className="object-contain object-center"
+                    />
+                  </div>
+                </motion.div>
+              </motion.div>
 
               <motion.form
                 variants={fadeUp}
@@ -1087,6 +1228,8 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
         </div>
       </motion.section>
     </motion.main>
+    </>
+    </LayoutGroup>
     </MotionConfig>
   );
 }
