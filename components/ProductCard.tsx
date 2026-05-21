@@ -45,6 +45,7 @@ interface ProductCardProps {
   className?: string;
   onWishlistUpdate?: (productId: string) => void;
   showRemoveFromWishlist?: boolean;
+  disableMediaCarousel?: boolean;
 }
 
 type WishlistSnapshotListener = (ids: Set<string>) => void;
@@ -72,6 +73,7 @@ const slideVariants = {
 };
 
 interface ProductCardMediaProps {
+  galleryEnabled: boolean;
   images: string[];
   current: number;
   direction: number;
@@ -96,6 +98,7 @@ interface ProductCardMediaProps {
 }
 
 const ProductCardMedia = memo(function ProductCardMedia({
+  galleryEnabled,
   images,
   current,
   direction,
@@ -121,13 +124,13 @@ const ProductCardMedia = memo(function ProductCardMedia({
   return (
     <div
       className="relative z-10 overflow-hidden"
-      style={{ aspectRatio: "4/5", touchAction: "pan-y" }}
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-      onMouseDown={onMouseDown}
-      onMouseUp={onMouseUp}
-      onMouseEnter={onMouseEnter}
+      style={{ aspectRatio: "4/5", touchAction: galleryEnabled ? "pan-y" : "auto" }}
+      onTouchStart={galleryEnabled ? onTouchStart : undefined}
+      onTouchMove={galleryEnabled ? onTouchMove : undefined}
+      onTouchEnd={galleryEnabled ? onTouchEnd : undefined}
+      onMouseDown={galleryEnabled ? onMouseDown : undefined}
+      onMouseUp={galleryEnabled ? onMouseUp : undefined}
+      onMouseEnter={galleryEnabled ? onMouseEnter : undefined}
     >
       <AnimatePresence initial={false} custom={direction} mode="sync">
         <motion.div
@@ -217,7 +220,7 @@ const ProductCardMedia = memo(function ProductCardMedia({
         </div>
       )}
 
-      {count > 1 && (
+      {galleryEnabled && count > 1 && (
         <div className="absolute bottom-0 inset-x-0 z-20 flex gap-[3px] px-4 pb-[14px]">
           {images.map((_, i) => (
             <button
@@ -361,6 +364,7 @@ function ProductCardComponent({
   className = "",
   onWishlistUpdate,
   showRemoveFromWishlist,
+  disableMediaCarousel = false,
 }: ProductCardProps) {
   const router = useRouter();
   const cardRef = useRef<HTMLDivElement>(null);
@@ -421,9 +425,10 @@ function ProductCardComponent({
   const imageCounterLabel = count > 1
     ? `${String(current + 1).padStart(2, "0")} / ${String(count).padStart(2, "0")}`
     : "Single View";
+  const mediaGalleryEnabled = !disableMediaCarousel && count > 1;
   const tiltEnabled = finePointer && !isMobileViewport && !lowEndDevice && !prefersReducedMotion;
   const autoplayEnabled =
-    count > 1 &&
+    mediaGalleryEnabled &&
     isInViewport &&
     !paused &&
     !isMobileViewport &&
@@ -755,6 +760,7 @@ function ProductCardComponent({
       className={`group relative w-full flex flex-col overflow-hidden cursor-pointer select-none ${className}`}
     >
       <ProductCardMedia
+        galleryEnabled={mediaGalleryEnabled}
         images={images}
         current={current}
         direction={direction}
@@ -868,7 +874,7 @@ function ProductCardComponent({
               )}
             </div>
 
-            {count > 1 ? (
+            {mediaGalleryEnabled ? (
               <span className="text-right text-[9px] uppercase tracking-[0.18em] text-[#7B6E60]/56">
                 {imageCounterLabel}
               </span>

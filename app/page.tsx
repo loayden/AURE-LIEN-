@@ -6,5 +6,5 @@ export const revalidate = 30;
 export default async function HomePage() {
   const products = await getAllProducts();
 
-  return <HomePageClient initialProducts={products.slice(0, 50)} />;
+  return <HomePageClient initialProducts={products} />;
 }

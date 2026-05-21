@@ -1,6 +1,7 @@
 "use client";
 
 import NewsletterForm from "@/components/NewsletterForm";
+import ProductCard from "@/components/ProductCard";
 import { showToast } from "@/components/ToastProvider";
 import {
   CATEGORY_META,
@@ -32,7 +33,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, memo, useCallback, useMemo, useState, useTransition } from "react";
+import { FormEvent, memo, useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 const EDIT_PRODUCT_IDS = ["p-jc-017", "p-kn-004", "p-denim-002", "p-baggy-001", "p-su-001", "p-sh-005", "p-korean-003", "p-jc-018"];
 const SPOTLIGHT_PRODUCT_IDS = ["p-jc-016", "p-kn-005", "p-denim-004"];
@@ -342,9 +343,13 @@ const HeroMoodProductCard = memo(function HeroMoodProductCard({ product, classNa
 
 export default function HomePageClient({ initialProducts }: { initialProducts: Product[] }) {
   const router = useRouter();
+  const mobileCarouselRef = useRef<HTMLDivElement | null>(null);
+  const mobileCarouselCardRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const mobileScrollFrameRef = useRef<number | null>(null);
   const [query, setQuery] = useState("");
   const [addingId, setAddingId] = useState<string | null>(null);
   const [selectedMood, setSelectedMood] = useState<MoodValue>("all");
+  const [mobileActiveIndex, setMobileActiveIndex] = useState(0);
   const [, startTransition] = useTransition();
   const products = initialProducts;
 
@@ -356,14 +361,19 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
     [selectedMood]
   );
 
-  const moodProducts = useMemo(() => {
-    const source =
+  const filteredMoodProducts = useMemo(
+    () => (
       selectedMood === "all"
         ? products
-        : products.filter((product) => categoryMatches(product, selectedMood));
-    const picked = pickProducts(source, EDIT_PRODUCT_IDS, 8);
+        : products.filter((product) => categoryMatches(product, selectedMood))
+    ),
+    [products, selectedMood]
+  );
+
+  const moodProducts = useMemo(() => {
+    const picked = pickProducts(filteredMoodProducts, EDIT_PRODUCT_IDS, 8);
     return picked.length ? picked : editProducts;
-  }, [editProducts, products, selectedMood]);
+  }, [editProducts, filteredMoodProducts]);
 
   const heroRailProducts = useMemo(() => moodProducts.slice(0, 4), [moodProducts]);
 
@@ -379,6 +389,73 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
   const selectMood = useCallback((mood: MoodValue) => {
     startTransition(() => setSelectedMood(mood));
   }, [startTransition]);
+
+  const syncMobileActiveCard = useCallback(() => {
+    const container = mobileCarouselRef.current;
+    if (!container || filteredMoodProducts.length === 0) {
+      setMobileActiveIndex(0);
+      return;
+    }
+
+    const viewportCenter = container.scrollLeft + container.clientWidth / 2;
+    let nearestIndex = 0;
+    let smallestDistance = Number.POSITIVE_INFINITY;
+
+    for (let index = 0; index < filteredMoodProducts.length; index += 1) {
+      const card = mobileCarouselCardRefs.current[index];
+      if (!card) continue;
+      const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+      const distance = Math.abs(cardCenter - viewportCenter);
+      if (distance < smallestDistance) {
+        smallestDistance = distance;
+        nearestIndex = index;
+      }
+    }
+
+    setMobileActiveIndex((current) => (current === nearestIndex ? current : nearestIndex));
+  }, [filteredMoodProducts.length]);
+
+  const scheduleMobileActiveSync = useCallback(() => {
+    if (typeof window === "undefined") return;
+
+    if (mobileScrollFrameRef.current !== null) {
+      window.cancelAnimationFrame(mobileScrollFrameRef.current);
+    }
+
+    mobileScrollFrameRef.current = window.requestAnimationFrame(() => {
+      mobileScrollFrameRef.current = null;
+      syncMobileActiveCard();
+    });
+  }, [syncMobileActiveCard]);
+
+  const handleMobileCarouselScroll = useCallback(() => {
+    scheduleMobileActiveSync();
+  }, [scheduleMobileActiveSync]);
+
+  const scrollMobileCardIntoView = useCallback((index: number) => {
+    const nextIndex = Math.max(0, Math.min(index, filteredMoodProducts.length - 1));
+    const nextCard = mobileCarouselCardRefs.current[nextIndex];
+    if (!nextCard) return;
+
+    nextCard.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    setMobileActiveIndex(nextIndex);
+  }, [filteredMoodProducts.length]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+
+    return () => {
+      if (mobileScrollFrameRef.current !== null) {
+        window.cancelAnimationFrame(mobileScrollFrameRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    setMobileActiveIndex(0);
+    mobileCarouselRef.current?.scrollTo({ left: 0, behavior: "auto" });
+    scheduleMobileActiveSync();
+  }, [filteredMoodProducts.length, scheduleMobileActiveSync, selectedMood]);
 
   const handleSearch = useCallback((event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -500,7 +577,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
 
               <motion.div
                 variants={fadeUp}
-                className="mt-4 rounded-lg border border-[#DEDAD2] bg-[#F7F7F4]/78 p-3 shadow-[0_18px_44px_rgba(23,21,19,0.06)]"
+                className="mt-4 hidden rounded-lg border border-[#DEDAD2] bg-[#F7F7F4]/78 p-3 shadow-[0_18px_44px_rgba(23,21,19,0.06)] sm:block"
               >
                 <div className="mb-3 flex items-center justify-between gap-3">
                   <p className="text-xs uppercase tracking-[0.18em] text-[#725D2C]">
@@ -530,40 +607,132 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
                 </AnimatePresence>
               </motion.div>
 
-              <motion.div variants={imageReveal} whileHover={{ y: -3 }} className="sm:hidden">
-                <Link href="/lookbook" className="group relative mt-5 block min-h-[18rem] overflow-hidden rounded-lg bg-[#171513]">
-                  <motion.div
-                    className="absolute inset-0"
-                    initial={{ scale: 1.035, y: -8 }}
-                    animate={{ scale: 1, y: 0 }}
-                    transition={{ duration: 1.2, ease: easeOut }}
-                  >
-                    <Image
-                      src={withPublicAssetVersion("/uploads/collections.jpg")}
-                      alt="Black editorial outerwear look"
-                      fill
-                      priority
-                      sizes="100vw"
-                      className="object-cover transition duration-700 group-hover:scale-[1.03]"
-                    />
-                  </motion.div>
-                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(23,21,19,0.02)_0%,rgba(23,21,19,0.12)_44%,rgba(23,21,19,0.78)_100%)]" />
+              <motion.section variants={imageReveal} className="sm:hidden">
+                <div className="relative mt-5 overflow-hidden rounded-[28px] border border-[#D7D1C7] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.92),rgba(247,244,238,0.98)_48%,rgba(238,233,225,1)_100%)] p-4 shadow-[0_20px_56px_rgba(23,21,19,0.08)]">
                   <motion.div
                     aria-hidden="true"
-                    className="pointer-events-none absolute -left-1/2 top-0 h-full w-1/3 -skew-x-12 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.24),transparent)] mix-blend-screen"
-                    initial={{ x: "0%" }}
-                    animate={{ x: "520%" }}
-                    transition={{ duration: 1.8, ease: "easeInOut" }}
+                    className="pointer-events-none absolute inset-x-4 top-0 h-24 rounded-full bg-[radial-gradient(circle,rgba(216,192,138,0.28),transparent_72%)] blur-2xl"
+                    initial={{ opacity: 0.45, scale: 0.94 }}
+                    animate={{ opacity: 0.8, scale: 1.06 }}
+                    transition={{ duration: 1.3, ease: "easeInOut", repeat: Infinity, repeatType: "reverse" }}
                   />
-                  <div className="absolute inset-x-4 bottom-4 text-[#F8F7F2]">
-                    <p className="font-serif text-3xl font-light leading-none">The refined daily edit.</p>
-                    <span className="mt-4 inline-flex min-h-[42px] items-center gap-2 rounded-full bg-[#F8F7F2] px-4 py-2 text-sm text-[#171513]">
-                      Open lookbook
-                      <AnimatedArrow />
-                    </span>
+
+                  <div className="relative z-10 flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#725D2C]">
+                        {activeMood.label}
+                      </p>
+                      <h2 className="mt-2 font-serif text-[2rem] font-light leading-none text-[#171513]">
+                        Swipe the edit.
+                      </h2>
+                      <p className="mt-3 max-w-[15rem] text-sm leading-6 text-[#5A5650]">
+                        {selectedMood === "all"
+                          ? `Browse all ${filteredMoodProducts.length} pieces in the same card style used on the Shop page.`
+                          : `${filteredMoodProducts.length} ${activeMood.label.toLowerCase()} pieces, ready to swipe left and right.`}
+                      </p>
+                    </div>
+
+                    <Link
+                      href={activeMood.href}
+                      className="inline-flex min-h-[42px] shrink-0 items-center gap-1.5 rounded-full border border-[#D5D1C8] bg-white/80 px-4 text-[10px] uppercase tracking-[0.18em] text-[#171513] shadow-[0_10px_30px_rgba(23,21,19,0.06)] transition hover:border-[#171513]"
+                    >
+                      Open
+                      <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+                    </Link>
                   </div>
-                </Link>
-              </motion.div>
+
+                  {filteredMoodProducts.length ? (
+                    <>
+                      <div className="relative z-10 mt-5">
+                        <div className="mb-4 flex items-center gap-3">
+                          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[#E4DED3]">
+                            <motion.div
+                              className="h-full rounded-full bg-[#171513]"
+                              animate={{ width: `${((mobileActiveIndex + 1) / filteredMoodProducts.length) * 100}%` }}
+                              transition={{ duration: 0.34, ease: easeOut }}
+                            />
+                          </div>
+                          <span className="shrink-0 text-[10px] uppercase tracking-[0.18em] text-[#725D2C]">
+                            {mobileActiveIndex + 1} / {filteredMoodProducts.length}
+                          </span>
+                        </div>
+
+                        <div className="relative -mx-4">
+                          <div className="pointer-events-none absolute inset-y-0 left-0 z-20 w-8 bg-[linear-gradient(90deg,rgba(247,244,238,1),rgba(247,244,238,0))]" />
+                          <div className="pointer-events-none absolute inset-y-0 right-0 z-20 w-8 bg-[linear-gradient(270deg,rgba(247,244,238,1),rgba(247,244,238,0))]" />
+
+                          <AnimatePresence mode="wait" initial={false}>
+                            <motion.div
+                              key={`mobile-carousel-${selectedMood}`}
+                              initial={{ opacity: 0, x: 16 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              exit={{ opacity: 0, x: -16 }}
+                              transition={{ duration: 0.34, ease: easeOut }}
+                            >
+                              <div
+                                ref={mobileCarouselRef}
+                                onScroll={handleMobileCarouselScroll}
+                                className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                              >
+                                {filteredMoodProducts.map((product, index) => (
+                                  <motion.div
+                                    key={product._id}
+                                    ref={(node) => {
+                                      mobileCarouselCardRefs.current[index] = node;
+                                    }}
+                                    animate={
+                                      mobileActiveIndex === index
+                                        ? { opacity: 1, scale: 1, y: 0 }
+                                        : { opacity: 0.82, scale: 0.965, y: 8 }
+                                    }
+                                    transition={{ duration: 0.28, ease: easeOut }}
+                                    className="w-[82vw] max-w-[22rem] shrink-0 snap-center"
+                                  >
+                                    <ProductCard product={product} disableMediaCarousel className="h-full" />
+                                  </motion.div>
+                                ))}
+                              </div>
+                            </motion.div>
+                          </AnimatePresence>
+                        </div>
+                      </div>
+
+                      <div className="relative z-10 mt-3 flex items-center justify-between gap-3">
+                        <p className="text-xs text-[#6B655E]">
+                          Swipe left or right to move through products.
+                        </p>
+
+                        {filteredMoodProducts.length > 1 ? (
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => scrollMobileCardIntoView(mobileActiveIndex - 1)}
+                              disabled={mobileActiveIndex === 0}
+                              className="flex h-10 w-10 items-center justify-center rounded-full border border-[#D5D1C8] bg-white/80 text-[#171513] transition disabled:cursor-not-allowed disabled:opacity-35"
+                              aria-label="Show previous product"
+                            >
+                              <ChevronRight className="h-4 w-4 rotate-180" strokeWidth={1.5} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => scrollMobileCardIntoView(mobileActiveIndex + 1)}
+                              disabled={mobileActiveIndex === filteredMoodProducts.length - 1}
+                              className="flex h-10 w-10 items-center justify-center rounded-full border border-[#D5D1C8] bg-white/80 text-[#171513] transition disabled:cursor-not-allowed disabled:opacity-35"
+                              aria-label="Show next product"
+                            >
+                              <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
+                            </button>
+                          </div>
+                        ) : null}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="relative z-10 mt-5 rounded-[24px] border border-[#D9D4CA] bg-white/80 p-5 text-sm leading-6 text-[#5A5650]">
+                      No pieces are available in this category yet. Use the `Open` button to browse the full collection page.
+                    </div>
+                  )}
+                </div>
+              </motion.section>
             </div>
 
             <motion.div variants={fadeUp} className="grid grid-cols-2 overflow-hidden rounded-lg border border-[#D5D1C8] bg-white sm:grid-cols-4">
