@@ -88,6 +88,9 @@ const SERVICE_ITEMS = [
   { label: "Order support", detail: "Help, returns, and updates", icon: PackageCheck },
 ] as const;
 
+const REEL_AD_VIDEO_SRC = "/videos/boutique-reel-ad.mp4";
+const REEL_AD_POSTER_SRC = withPublicAssetVersion("/uploads/look3.jpg");
+
 type MoodValue = (typeof SHOPPING_MOODS)[number]["value"];
 
 const easeOut = [0.22, 1, 0.36, 1] as const;
@@ -299,6 +302,55 @@ function StorefrontOpeningOverlay() {
         transition={{ duration: 0.58, delay: 0.42, ease: easeOut }}
       />
     </motion.div>
+  );
+}
+
+function BoutiqueReelFeature() {
+  return (
+    <motion.section
+      variants={sectionReveal}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.18 }}
+      data-testid="boutique-reel-ad-section"
+      className="bg-[#171513] px-4 py-10 text-[#F8F7F2] [content-visibility:auto] [contain-intrinsic-size:980px] sm:px-6 sm:py-14 md:px-10"
+    >
+      <div className="mx-auto grid w-full max-w-[92rem] gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-center">
+        <motion.div variants={fadeUp}>
+          <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full border border-[#D8C08A]/35 bg-white/[0.06] text-[#D8C08A]">
+            <ShoppingBag className="h-5 w-5" strokeWidth={1.5} />
+          </div>
+          <p className="text-xs uppercase tracking-[0.18em] text-[#D8C08A]">Reels campaign</p>
+          <h2 className="mt-4 max-w-2xl font-serif text-4xl font-light leading-none text-[#F8F7F2] sm:text-5xl lg:text-6xl">
+            Boutique, without the mall chaos.
+          </h2>
+          <p className="mt-5 max-w-xl text-sm leading-7 text-[#C9C5B8] sm:text-base">
+            A vertical cinematic ad built for TikTok, Reels, and mobile-first landing pages.
+          </p>
+        </motion.div>
+
+        <motion.div variants={imageReveal} className="relative mx-auto w-full max-w-[24rem] lg:max-w-[28rem]">
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-[8%] top-[10%] h-[82%] rounded-full bg-[radial-gradient(circle,rgba(216,192,138,0.24),rgba(216,192,138,0.08)_48%,transparent_72%)] blur-3xl"
+          />
+          <div className="relative overflow-hidden rounded-[2rem] border border-white/[0.16] bg-black p-2 shadow-[0_34px_90px_rgba(0,0,0,0.38)]">
+            <video
+              data-testid="boutique-reel-ad-video"
+              className="aspect-[9/16] w-full rounded-[1.55rem] bg-[#090806] object-cover"
+              src={REEL_AD_VIDEO_SRC}
+              poster={REEL_AD_POSTER_SRC}
+              autoPlay
+              muted
+              loop
+              playsInline
+              controls
+              preload="metadata"
+            />
+          </div>
+        </motion.div>
+      </div>
+    </motion.section>
   );
 }
 
@@ -977,6 +1029,8 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
           </motion.div>
         </div>
       </section>
+
+      <BoutiqueReelFeature />
 
       <motion.section
         variants={sectionReveal}
