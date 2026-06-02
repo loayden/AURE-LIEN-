@@ -218,7 +218,7 @@ export async function PUT(req: NextRequest) {
       await Product.findOneAndUpdate(
         { _id: productId },
         { $set: productData },
-        { new: true }
+        { returnDocument: "after" }
       );
     } catch (dbError) {
       console.error("Edit product DB error (continuing with JSON override):", dbError);
