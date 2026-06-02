@@ -1,6 +1,8 @@
 import { promises as fs } from "fs";
 import { paths } from "./dataPaths";
 
+const BLOB_PRODUCTS_PATH = "products.json";
+
 export interface ProductRecord {
   _id: string;
   name: string;
@@ -75,6 +77,32 @@ function normalizeProductRecord(product: ProductRecord): ProductRecord {
   };
 }
 
+function normalizeProductStoreEntries(entries: unknown): ProductStoreEntry[] {
+  if (!Array.isArray(entries)) return [];
+  return entries.filter((entry) => isProductRecord(entry) || isDeletedProductRecord(entry));
+}
+
+function mergeProductStoreEntries(
+  primary: ProductStoreEntry[],
+  secondary: ProductStoreEntry[]
+): ProductStoreEntry[] {
+  const byId = new Map<string, ProductStoreEntry>();
+
+  for (const entry of secondary) {
+    byId.set(String(entry._id), entry);
+  }
+
+  for (const entry of primary) {
+    byId.set(String(entry._id), entry);
+  }
+
+  return Array.from(byId.values());
+}
+
+function useCloudStorage(): boolean {
+  return typeof process.env.BLOB_READ_WRITE_TOKEN === "string" && process.env.BLOB_READ_WRITE_TOKEN.length > 0;
+}
+
 export function getActiveProductRecords(entries: ProductStoreEntry[]): ProductRecord[] {
   return entries.filter(isProductRecord).map(normalizeProductRecord);
 }
@@ -120,19 +148,74 @@ export function applyProductDeletion(
   return { entries: next, removed: false, tombstoned: true };
 }
 
-export async function readProductStoreJson(): Promise<ProductStoreEntry[]> {
+async function readLocalProductStoreJson(): Promise<ProductStoreEntry[]> {
   try {
     const data = await fs.readFile(paths.products, "utf-8");
     const parsed = JSON.parse(data);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter((entry) => isProductRecord(entry) || isDeletedProductRecord(entry));
+    return normalizeProductStoreEntries(parsed);
   } catch {
     return [];
   }
 }
 
-async function writeProductStoreJson(entries: ProductStoreEntry[]): Promise<void> {
+async function writeLocalProductStoreJson(entries: ProductStoreEntry[]): Promise<void> {
   await fs.writeFile(paths.products, JSON.stringify(entries, null, 2));
+}
+
+async function readBlobProductStoreJson(): Promise<ProductStoreEntry[] | null> {
+  const token = process.env.BLOB_READ_WRITE_TOKEN;
+  if (!token) return null;
+
+  const { list } = await import("@vercel/blob");
+  const result = await list({ prefix: BLOB_PRODUCTS_PATH.replace(/\.[^/.]+$/, "") });
+  const blob = result.blobs.find((item) => item.pathname === BLOB_PRODUCTS_PATH);
+  if (!blob) return null;
+
+  const response = await fetch(blob.url, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!response.ok) return null;
+
+  try {
+    return normalizeProductStoreEntries(JSON.parse(await response.text()));
+  } catch {
+    return [];
+  }
+}
+
+async function writeBlobProductStoreJson(entries: ProductStoreEntry[]): Promise<void> {
+  const { put } = await import("@vercel/blob");
+  await put(BLOB_PRODUCTS_PATH, JSON.stringify(entries, null, 2), {
+    access: "public",
+    contentType: "application/json",
+  });
+}
+
+export async function readProductStoreJson(): Promise<ProductStoreEntry[]> {
+  if (useCloudStorage()) {
+    try {
+      const blobEntries = await readBlobProductStoreJson();
+      if (blobEntries) {
+        return mergeProductStoreEntries(blobEntries, await readLocalProductStoreJson());
+      }
+    } catch (error) {
+      console.error(
+        "Product Blob read failed, falling back to local snapshot:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
+  }
+
+  return readLocalProductStoreJson();
+}
+
+async function writeProductStoreJson(entries: ProductStoreEntry[]): Promise<void> {
+  if (useCloudStorage()) {
+    await writeBlobProductStoreJson(entries);
+    return;
+  }
+
+  await writeLocalProductStoreJson(entries);
 }
 
 export async function readProductsJson(): Promise<ProductRecord[]> {
