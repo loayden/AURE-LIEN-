@@ -4,7 +4,7 @@
  * - JSON-backed admin products
  * - Mongo-backed admin products when DB is configured
  */
-import connectDB from "./connectDB";
+import connectDB, { hasConfiguredMongoUri } from "./connectDB";
 import ProductModel from "@/models/Product";
 import { applyCatalogPriceOffset } from "./catalogPrice";
 import { resolveProductColors } from "./productColors";
@@ -15,14 +15,6 @@ import type { Product } from "./types";
 
 const PLACEHOLDER_IMAGE = "/images/placeholder.svg";
 const DEFAULT_CATALOG_DISCOUNT = 40;
-
-function hasMongoConfig(): boolean {
-  const uri = process.env.MONGO_URI?.trim() || process.env.MONGODB_URI?.trim();
-  return Boolean(
-    uri &&
-      (uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://"))
-  );
-}
 
 function normalizeImagePath(image: unknown): string {
   if (typeof image !== "string") return PLACEHOLDER_IMAGE;
@@ -101,10 +93,19 @@ function mergeProducts(lists: unknown[][]): Product[] {
   return Array.from(byId.values());
 }
 
-async function readMongoProducts(): Promise<unknown[]> {
-  if (!hasMongoConfig()) return [];
+function getDeletedMongoProductIds(products: unknown[]): Set<string> {
+  return new Set(
+    products
+      .filter((product: any) => product?.deleted === true)
+      .map((product: any) => String(product?._id ?? ""))
+      .filter(Boolean)
+  );
+}
 
+async function readMongoProducts(): Promise<unknown[]> {
   try {
+    if (!hasConfiguredMongoUri()) return [];
+
     await connectDB();
     const products = await ProductModel.find({}).sort({ createdAt: -1 }).lean();
     return products;
@@ -117,11 +118,17 @@ async function readMongoProducts(): Promise<unknown[]> {
 async function loadAllProducts(): Promise<Product[]> {
   const builtInProducts = rawProductsData;
   const fromJson = await readProductsJson();
-  const fromMongo = await readMongoProducts();
+  const mongoProducts = await readMongoProducts();
+  const fromMongo = mongoProducts.filter((product: any) => product?.deleted !== true);
+  const mongoDeletedProductIds = getDeletedMongoProductIds(mongoProducts);
   const deletedProductIds = await readDeletedProductIds();
+  const allDeletedProductIds = new Set([
+    ...Array.from(deletedProductIds),
+    ...Array.from(mongoDeletedProductIds),
+  ]);
 
   return mergeProducts([builtInProducts, fromMongo, fromJson]).filter(
-    (product) => !deletedProductIds.has(String(product._id))
+    (product) => !allDeletedProductIds.has(String(product._id))
   );
 }
 

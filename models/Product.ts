@@ -12,6 +12,8 @@ const ProductSchema = new mongoose.Schema(
     description: { type: String },
     material: { type: String },
     stock: { type: Number, default: 0 },
+    deleted: { type: Boolean, default: false },
+    deletedAt: { type: Date },
   },
   { timestamps: true }
 );

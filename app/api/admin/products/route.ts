@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getAuthFromRequest } from "@/lib/auth";
-import connectDB from "@/lib/connectDB";
+import connectDB, { hasConfiguredMongoUri } from "@/lib/connectDB";
 import Product from "@/models/Product";
 import { CATALOG_PRICE_OFFSET_EGP } from "@/lib/catalogPrice";
 import { appendProductJson, ProductRecord, readProductsJson, removeProductJson, upsertProductJson } from "@/lib/productsJson";
@@ -97,6 +97,63 @@ function validateProductRecord(product: ProductRecord): string | null {
   return null;
 }
 
+async function writeProductToMongo(productData: ProductRecord): Promise<boolean> {
+  try {
+    if (!hasConfiguredMongoUri()) return false;
+
+    await connectDB();
+    await Product.findOneAndUpdate(
+      { _id: productData._id },
+      {
+        $set: {
+          ...productData,
+          deleted: false,
+        },
+        $unset: { deletedAt: "" },
+      },
+      { upsert: true, returnDocument: "after" }
+    );
+    return true;
+  } catch (dbError) {
+    console.error("Product Mongo write failed:", dbError);
+    return false;
+  }
+}
+
+async function tombstoneProductInMongo(productId: string, existing?: Awaited<ReturnType<typeof getProductById>>): Promise<boolean> {
+  try {
+    if (!hasConfiguredMongoUri()) return false;
+
+    await connectDB();
+    await Product.findOneAndUpdate(
+      { _id: productId },
+      {
+        $set: {
+          _id: productId,
+          name: existing?.name ?? "Deleted product",
+          category: existing?.category ?? "deleted",
+          price: 0,
+          images: [],
+          size: [],
+          colors: [],
+          deleted: true,
+          deletedAt: new Date(),
+        },
+        $unset: {
+          description: "",
+          material: "",
+          stock: "",
+        },
+      },
+      { upsert: true, returnDocument: "after" }
+    );
+    return true;
+  } catch (dbError) {
+    console.error("Product Mongo delete tombstone failed:", dbError);
+    return false;
+  }
+}
+
 export async function GET(req: NextRequest) {
   const auth = await getAuthFromRequest(req);
   if (!auth || auth.role !== "admin") {
@@ -171,18 +228,26 @@ export async function POST(req: NextRequest) {
       colors: colorList,
     };
 
+    const savedToMongo = await writeProductToMongo(productData);
+    let savedToJson = false;
     try {
-      await connectDB();
-      await Product.create(productData);
-    } catch (dbError) {
-      console.error("Add product DB error (continuing with JSON only):", dbError);
+      await appendProductJson(productData);
+      savedToJson = true;
+    } catch (jsonError) {
+      console.error("Add product JSON write failed:", jsonError);
     }
 
-    await appendProductJson(productData);
+    if (!savedToMongo && !savedToJson) {
+      return NextResponse.json({ error: "Failed to persist product" }, { status: 500 });
+    }
+
     clearProductsCache();
     revalidateCatalogPages(_id);
 
-    return NextResponse.json({ message: "Product added", product: productData }, { status: 201 });
+    return NextResponse.json(
+      { message: "Product added", product: productData, savedToMongo, savedToJson },
+      { status: 201 }
+    );
   } catch (e) {
     console.error("Add product error:", e);
     return NextResponse.json({ error: "Failed to add product" }, { status: 500 });
@@ -213,23 +278,29 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: validationError }, { status: 400 });
     }
 
+    const savedToMongo = await writeProductToMongo(productData);
+    let savedToJson = false;
     try {
-      await connectDB();
-      await Product.findOneAndUpdate(
-        { _id: productId },
-        { $set: productData },
-        { returnDocument: "after" }
-      );
-    } catch (dbError) {
-      console.error("Edit product DB error (continuing with JSON override):", dbError);
+      await upsertProductJson(productData);
+      savedToJson = true;
+    } catch (jsonError) {
+      console.error("Edit product JSON write failed:", jsonError);
     }
 
-    await upsertProductJson(productData);
+    if (!savedToMongo && !savedToJson) {
+      return NextResponse.json({ error: "Failed to persist product update" }, { status: 500 });
+    }
+
     clearProductsCache();
     revalidateCatalogPages(productId);
 
     const updated = await getProductById(productId);
-    return NextResponse.json({ message: "Product updated", product: updated ?? productData });
+    return NextResponse.json({
+      message: "Product updated",
+      product: updated ?? productData,
+      savedToMongo,
+      savedToJson,
+    });
   } catch (error) {
     console.error("Edit product error:", error);
     return NextResponse.json({ error: "Failed to update product" }, { status: 500 });
@@ -254,26 +325,36 @@ export async function DELETE(req: NextRequest) {
 
   try {
     const existing = await getProductById(productId);
-    if (!existing) {
+    let savedToJson = false;
+    try {
+      const jsonResult = await removeProductJson(productId);
+      removedJson = jsonResult.removed;
+      tombstonedJson = jsonResult.tombstoned;
+      savedToJson = true;
+    } catch (jsonError) {
+      console.error("Delete product JSON write failed:", jsonError);
+    }
+    removedMongo = await tombstoneProductInMongo(productId, existing ?? undefined);
+
+    if (!existing && !savedToJson && !removedMongo) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    const jsonResult = await removeProductJson(productId);
-    removedJson = jsonResult.removed;
-    tombstonedJson = jsonResult.tombstoned;
-    try {
-      await connectDB();
-      const result = await Product.deleteOne({ _id: productId });
-      removedMongo = Boolean(result.deletedCount);
-    } catch (dbError) {
-      console.error("Delete product DB error (continuing with JSON result):", dbError);
+    if (existing && !savedToJson && !removedMongo) {
+      return NextResponse.json({ error: "Failed to persist product deletion" }, { status: 500 });
     }
 
     clearProductsCache();
 
     revalidateCatalogPages(productId);
 
-    return NextResponse.json({ success: true, removedJson, removedMongo, tombstonedJson });
+    return NextResponse.json({
+      success: true,
+      removedJson,
+      removedMongo,
+      tombstonedJson,
+      alreadyDeleted: !existing,
+    });
   } catch (error) {
     console.error("Delete product error:", error);
     return NextResponse.json({ error: "Failed to delete product" }, { status: 500 });
