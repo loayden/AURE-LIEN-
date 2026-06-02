@@ -8,6 +8,8 @@ const ORDERS_KEY = "aurelien:orders";
 const LEGACY_ORDERS_KEY = "orders";
 const USERS_KEY = "aurelien:users";
 const LEGACY_USERS_KEY = "users";
+const PRODUCTS_KEY = "aurelien:products";
+const LEGACY_PRODUCTS_KEY = "products";
 const WISHLISTS_KEY = "aurelien:wishlists";
 const LEGACY_WISHLISTS_KEY = "wishlists";
 
@@ -160,6 +162,45 @@ async function writeRedisHash<T>(key: string, values: Record<string, T>): Promis
 
 export function isRedisStorageAvailable(): boolean {
   return hasRedisEnv();
+}
+
+export async function getProductStoreEntries(): Promise<any[] | null> {
+  try {
+    const [legacyProducts, products] = await Promise.all([
+      readRedisKeyAsRecord<any>(LEGACY_PRODUCTS_KEY),
+      readRedisKeyAsRecord<any>(PRODUCTS_KEY),
+    ]);
+    const merged = { ...legacyProducts, ...products };
+    const entries = Object.values(merged);
+    return entries.length > 0 ? entries : null;
+  } catch (error) {
+    console.error(
+      "❌ Error reading products from Redis:",
+      error instanceof Error ? error.message : String(error)
+    );
+    return null;
+  }
+}
+
+export async function setProductStoreEntries(entries: any[]): Promise<void> {
+  try {
+    const products = Object.fromEntries(
+      entries
+        .map((entry) => {
+          const id = String(entry?._id ?? "").trim();
+          return id ? ([id, entry] as const) : null;
+        })
+        .filter((entry): entry is readonly [string, any] => entry !== null)
+    );
+
+    await writeRedisHash(PRODUCTS_KEY, products);
+  } catch (error) {
+    console.error(
+      "❌ Failed to write products to Redis:",
+      error instanceof Error ? error.message : String(error)
+    );
+    throw error;
+  }
 }
 
 export async function getDraftsJson(): Promise<Record<string, any>> {

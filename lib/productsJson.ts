@@ -1,5 +1,10 @@
 import { promises as fs } from "fs";
 import { paths } from "./dataPaths";
+import {
+  getProductStoreEntries,
+  isRedisStorageAvailable,
+  setProductStoreEntries,
+} from "./redisStorage";
 
 const BLOB_PRODUCTS_PATH = "products.json";
 
@@ -103,6 +108,17 @@ function useCloudStorage(): boolean {
   return typeof process.env.BLOB_READ_WRITE_TOKEN === "string" && process.env.BLOB_READ_WRITE_TOKEN.length > 0;
 }
 
+function useRedisStorage(): boolean {
+  return isRedisStorageAvailable();
+}
+
+function isProductionBuildPhase(): boolean {
+  return (
+    process.env.NEXT_PHASE === "phase-production-build" ||
+    process.env.npm_lifecycle_event === "build"
+  );
+}
+
 export function getActiveProductRecords(entries: ProductStoreEntry[]): ProductRecord[] {
   return entries.filter(isProductRecord).map(normalizeProductRecord);
 }
@@ -191,12 +207,26 @@ async function writeBlobProductStoreJson(entries: ProductStoreEntry[]): Promise<
   });
 }
 
+async function readRedisProductStoreJson(): Promise<ProductStoreEntry[] | null> {
+  const entries = await getProductStoreEntries();
+  return entries ? normalizeProductStoreEntries(entries) : null;
+}
+
+async function writeRedisProductStoreJson(entries: ProductStoreEntry[]): Promise<void> {
+  await setProductStoreEntries(entries);
+}
+
 export async function readProductStoreJson(): Promise<ProductStoreEntry[]> {
+  const localEntries = await readLocalProductStoreJson();
+  if (isProductionBuildPhase()) {
+    return localEntries;
+  }
+
   if (useCloudStorage()) {
     try {
       const blobEntries = await readBlobProductStoreJson();
       if (blobEntries) {
-        return mergeProductStoreEntries(blobEntries, await readLocalProductStoreJson());
+        return mergeProductStoreEntries(blobEntries, localEntries);
       }
     } catch (error) {
       console.error(
@@ -206,12 +236,31 @@ export async function readProductStoreJson(): Promise<ProductStoreEntry[]> {
     }
   }
 
-  return readLocalProductStoreJson();
+  if (useRedisStorage()) {
+    try {
+      const redisEntries = await readRedisProductStoreJson();
+      if (redisEntries) {
+        return mergeProductStoreEntries(redisEntries, localEntries);
+      }
+    } catch (error) {
+      console.error(
+        "Product Redis read failed, falling back to local snapshot:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
+  }
+
+  return localEntries;
 }
 
 async function writeProductStoreJson(entries: ProductStoreEntry[]): Promise<void> {
   if (useCloudStorage()) {
     await writeBlobProductStoreJson(entries);
+    return;
+  }
+
+  if (useRedisStorage()) {
+    await writeRedisProductStoreJson(entries);
     return;
   }
 
