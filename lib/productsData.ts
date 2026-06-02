@@ -5,6 +5,61 @@ import { withPublicAssetVersion } from "./publicAsset";
 const CATALOG_DISCOUNT = 40;
 
 export const rawProductsData = [
+  // Summer Essentials pieces
+  // Prices are stored before the catalog offset so the storefront displays the requested offer values.
+  {
+    _id: "p-summer-jacket-001",
+    name: "Premium Summer Jacket",
+    category: "jackets-coats",
+    price: 1200,
+    images: ["/uploads/image4.png", "/uploads/image1.png"],
+    size: ["M", "L", "XL", "2XL"],
+    description:
+      "A lightweight textured summer jacket with a dark bronze wash, sharp collar, and relaxed luxury fit.",
+    material: "Premium washed cotton blend.",
+    colors: ["black", "bronze"],
+    stock: 12,
+  },
+  {
+    _id: "p-summer-pants-001",
+    name: "Premium Tailored Pants",
+    category: "korean",
+    price: 1200,
+    images: ["/uploads/image3.png", "/uploads/image1.png"],
+    size: ["M", "L", "XL", "2XL"],
+    description:
+      "Cream tailored summer pants with clean drape, soft structure, and an easy elevated fit.",
+    material: "Soft stretch cotton twill.",
+    colors: ["cream", "ivory"],
+    stock: 14,
+  },
+  {
+    _id: "p-summer-sneakers-001",
+    name: "Premium Summer Sneakers",
+    category: "lace-ups",
+    price: 1200,
+    images: ["/uploads/image2.png", "/uploads/image1.png"],
+    size: ["40", "41", "42", "43", "44"],
+    description:
+      "Polished black lace-up shoes with a clean round toe and modern lug sole for day-to-night summer styling.",
+    material: "Smooth leather finish with a structured rubber sole.",
+    colors: ["black"],
+    stock: 10,
+  },
+  {
+    _id: "p-summer-tshirt-001",
+    name: "Essential Basic T-Shirt",
+    category: "shirts",
+    price: 200,
+    images: ["/uploads/d76ef0f9-2b5c-4fc1-8aed-a80392d4c131.jpeg", "/uploads/image1.png"],
+    size: ["M", "L", "XL", "2XL"],
+    description:
+      "A clean black basic T-shirt cut for layering under summer jackets or wearing alone with tailored pants.",
+    material: "Soft premium cotton jersey.",
+    colors: ["black"],
+    stock: 18,
+  },
+
   // Jackets & Coats
  
   {

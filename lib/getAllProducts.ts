@@ -88,7 +88,7 @@ function normalizeProduct(raw: any): Product {
   };
 }
 
-function mergeProducts(lists: Product[][]): Product[] {
+function mergeProducts(lists: unknown[][]): Product[] {
   const byId = new Map<string, Product>();
 
   for (const list of lists) {
@@ -101,13 +101,13 @@ function mergeProducts(lists: Product[][]): Product[] {
   return Array.from(byId.values());
 }
 
-async function readMongoProducts(): Promise<Product[]> {
+async function readMongoProducts(): Promise<unknown[]> {
   if (!hasMongoConfig()) return [];
 
   try {
     await connectDB();
     const products = await ProductModel.find({}).sort({ createdAt: -1 }).lean();
-    return products.map(normalizeProduct);
+    return products;
   } catch (error) {
     console.error("Failed to read products from MongoDB:", error);
     return [];
@@ -115,8 +115,8 @@ async function readMongoProducts(): Promise<Product[]> {
 }
 
 async function loadAllProducts(): Promise<Product[]> {
-  const builtInProducts = rawProductsData.map(normalizeProduct);
-  const fromJson = (await readProductsJson()).map(normalizeProduct);
+  const builtInProducts = rawProductsData;
+  const fromJson = await readProductsJson();
   const fromMongo = await readMongoProducts();
   const deletedProductIds = await readDeletedProductIds();
 

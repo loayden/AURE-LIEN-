@@ -91,6 +91,64 @@ const SERVICE_ITEMS = [
 const REEL_AD_VIDEO_SRC = "/videos/boutique-reel-ad.mp4";
 const REEL_AD_POSTER_SRC = withPublicAssetVersion("/uploads/look3.jpg");
 
+const SUMMER_COLLECTION = {
+  name: "Summer Essentials Luxury Set",
+  image: withPublicAssetVersion("/uploads/image1.png"),
+  offerPrice: 4999,
+  originalTotal: 7500,
+} as const;
+
+const SUMMER_COLLECTION_PRODUCTS = [
+  {
+    id: "jacket",
+    productId: "p-summer-jacket-001",
+    name: "Premium Summer Jacket",
+    category: "Jacket",
+    price: 1500,
+    href: "/product/p-summer-jacket-001",
+    image: withPublicAssetVersion("/uploads/image4.png"),
+    hotspot: { x: 58, y: 36 },
+    defaultSize: "M",
+    defaultColor: "black",
+  },
+  {
+    id: "tshirt",
+    productId: "p-summer-tshirt-001",
+    name: "Essential Basic T-Shirt",
+    category: "T-Shirt",
+    price: 500,
+    href: "/product/p-summer-tshirt-001",
+    image: withPublicAssetVersion("/uploads/d76ef0f9-2b5c-4fc1-8aed-a80392d4c131.jpeg"),
+    hotspot: { x: 51, y: 43 },
+    defaultSize: "M",
+    defaultColor: "black",
+  },
+  {
+    id: "pants",
+    productId: "p-summer-pants-001",
+    name: "Premium Tailored Pants",
+    category: "Pants",
+    price: 1500,
+    href: "/product/p-summer-pants-001",
+    image: withPublicAssetVersion("/uploads/image3.png"),
+    hotspot: { x: 50, y: 66 },
+    defaultSize: "M",
+    defaultColor: "cream",
+  },
+  {
+    id: "shoes",
+    productId: "p-summer-sneakers-001",
+    name: "Premium Summer Sneakers",
+    category: "Shoes",
+    price: 1500,
+    href: "/product/p-summer-sneakers-001",
+    image: withPublicAssetVersion("/uploads/image2.png"),
+    hotspot: { x: 42, y: 90 },
+    defaultSize: "42",
+    defaultColor: "black",
+  },
+] as const;
+
 type MoodValue = (typeof SHOPPING_MOODS)[number]["value"];
 
 const easeOut = [0.22, 1, 0.36, 1] as const;
@@ -305,6 +363,160 @@ function StorefrontOpeningOverlay() {
   );
 }
 
+function SummerCollectionSection({
+  addSetBusy,
+  onShopFullSet,
+}: {
+  addSetBusy: boolean;
+  onShopFullSet: () => void;
+}) {
+  return (
+    <motion.section
+      variants={sectionReveal}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.18 }}
+      data-testid="summer-collection-section"
+      className="border-y border-[#DDDAD2] bg-[#F7F7F4] px-4 pb-10 pt-24 [content-visibility:auto] [contain-intrinsic-size:1040px] sm:px-6 sm:pb-14 sm:pt-28 md:px-10"
+    >
+      <div className="mx-auto grid w-full max-w-[92rem] gap-7 lg:grid-cols-[1.08fr_0.92fr] lg:items-stretch">
+        <motion.div variants={imageReveal} className="relative min-w-0">
+          <div className="relative overflow-hidden rounded-lg border border-[#D5D1C8] bg-[#E9E7E1] shadow-[0_28px_74px_rgba(23,21,19,0.12)]">
+            <div
+              className="group relative block aspect-[2/3] min-h-[34rem] overflow-hidden sm:min-h-[44rem] lg:min-h-[52rem]"
+            >
+              <Image
+                src={SUMMER_COLLECTION.image}
+                alt="Complete Summer Essentials Luxury Set outfit with jacket, T-shirt, tailored pants, and black shoes"
+                fill
+                sizes="(max-width: 1024px) 100vw, 56vw"
+                className="object-cover object-center transition duration-700 group-hover:scale-[1.02]"
+              />
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(23,21,19,0.02)_0%,rgba(23,21,19,0.08)_48%,rgba(23,21,19,0.54)_100%)]" />
+              <div className="absolute left-4 top-4 rounded-full border border-white/35 bg-white/20 px-3 py-2 text-[10px] uppercase tracking-[0.18em] text-white shadow-[0_12px_34px_rgba(0,0,0,0.18)] backdrop-blur-md sm:left-5 sm:top-5">
+                Special offer
+              </div>
+              <div className="absolute inset-x-4 bottom-4 max-w-xl text-white sm:inset-x-6 sm:bottom-6">
+                <p className="text-xs uppercase tracking-[0.2em] text-[#D8C08A]">Shop the look</p>
+                <h2 className="mt-3 font-serif text-4xl font-light leading-none text-[#F8F7F2] drop-shadow-[0_3px_18px_rgba(0,0,0,0.36)] sm:text-5xl lg:text-6xl">
+                  {SUMMER_COLLECTION.name}
+                </h2>
+                <div className="mt-5 flex flex-wrap items-end gap-3">
+                  <span className="font-serif text-4xl font-light leading-none text-[#F8F7F2] sm:text-5xl">
+                    EGP {formatPrice(SUMMER_COLLECTION.offerPrice)}
+                  </span>
+                  <span className="pb-1 text-sm text-white/74 line-through">
+                    EGP {formatPrice(SUMMER_COLLECTION.originalTotal)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {SUMMER_COLLECTION_PRODUCTS.map((item) => (
+              <Link
+                key={item.id}
+                href={item.href}
+                aria-label={`Open ${item.name} product details`}
+                data-testid={`summer-hotspot-${item.id}`}
+                className="group/hotspot absolute z-20 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#171513]"
+                style={{ left: `${item.hotspot.x}%`, top: `${item.hotspot.y}%` }}
+              >
+                <span className="absolute h-12 w-12 rounded-full border border-white/40 bg-white/10 shadow-[0_16px_34px_rgba(0,0,0,0.2)] backdrop-blur-md transition duration-300 group-hover/hotspot:scale-110 group-hover/hotspot:bg-white/24" />
+                <span className="absolute h-9 w-9 animate-ping rounded-full border border-white/50 opacity-35" />
+                <span className="relative h-3.5 w-3.5 rounded-full bg-white shadow-[0_0_0_6px_rgba(255,255,255,0.16),0_10px_24px_rgba(0,0,0,0.24)]" />
+                <span className="pointer-events-none absolute left-1/2 top-[calc(100%+0.65rem)] hidden min-w-[15rem] -translate-x-1/2 rounded-lg border border-white/15 bg-[#171513]/90 px-4 py-3 text-left text-[#F8F7F2] shadow-[0_18px_42px_rgba(0,0,0,0.22)] backdrop-blur-xl transition duration-300 group-hover/hotspot:block sm:block sm:translate-y-2 sm:opacity-0 sm:group-hover/hotspot:translate-y-0 sm:group-hover/hotspot:opacity-100">
+                  <span className="block text-[10px] uppercase tracking-[0.18em] text-[#D8C08A]">{item.category}</span>
+                  <span className="mt-1 block text-sm font-medium">{item.name}</span>
+                  <span className="mt-1 block text-sm text-[#E9E4D8]">EGP {formatPrice(item.price)}</span>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </motion.div>
+
+        <motion.div variants={fadeUp} className="flex min-w-0 flex-col justify-between gap-7">
+          <div>
+            <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-[#171513] text-[#D8C08A]">
+              <Sparkles className="h-5 w-5" strokeWidth={1.5} />
+            </div>
+            <p className="text-xs uppercase tracking-[0.18em] text-[#725D2C]">Luxury summer collection</p>
+            <h2 className="mt-4 max-w-2xl font-serif text-5xl font-light leading-none text-[#171513] sm:text-6xl lg:text-7xl">
+              Explore the full outfit by touch.
+            </h2>
+            <p className="mt-5 max-w-xl text-sm leading-7 text-[#5A5650] sm:text-base">
+              One editorial summer look, split into four direct product paths. Tap the white points on the outfit to open the exact jacket, pants, shoes, or T-shirt details.
+            </p>
+
+            <div className="mt-7 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-lg border border-[#D5D1C8] bg-white p-5">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-[#725D2C]">Bundle price</p>
+                <p className="mt-3 font-serif text-4xl font-light leading-none text-[#171513]">
+                  EGP {formatPrice(SUMMER_COLLECTION.offerPrice)}
+                </p>
+                <p className="mt-2 text-sm text-[#69645E]">Special offer for the complete set.</p>
+              </div>
+              <div className="rounded-lg border border-[#D5D1C8] bg-[#171513] p-5 text-[#F8F7F2]">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-[#D8C08A]">Included pieces</p>
+                <p className="mt-3 font-serif text-4xl font-light leading-none">
+                  4 items
+                </p>
+                <p className="mt-2 text-sm text-[#C9C5B8]">Jacket, pants, shoes, and basic tee.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-3">
+            {SUMMER_COLLECTION_PRODUCTS.map((item) => (
+              <Link
+                key={item.id}
+                href={item.href}
+                className="group grid min-h-[6rem] grid-cols-[5.5rem_1fr_auto] items-center gap-4 rounded-lg border border-[#D5D1C8] bg-white p-3 text-[#171513] shadow-[0_14px_34px_rgba(23,21,19,0.05)] transition hover:border-[#171513]"
+              >
+                <span className="relative block aspect-[4/5] overflow-hidden rounded-md bg-[#E9E7E1]">
+                  <Image
+                    src={item.image}
+                    alt={item.name}
+                    fill
+                    sizes="6rem"
+                    className="object-contain p-1 transition duration-500 group-hover:scale-[1.04]"
+                  />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[10px] uppercase tracking-[0.18em] text-[#725D2C]">{item.category}</span>
+                  <span className="mt-1 block font-serif text-2xl font-light leading-none text-[#171513]">{item.name}</span>
+                  <span className="mt-2 block text-sm text-[#69645E]">EGP {formatPrice(item.price)}</span>
+                </span>
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#D5D1C8] text-[#171513] transition group-hover:border-[#171513]">
+                  <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
+                </span>
+              </Link>
+            ))}
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button
+              type="button"
+              onClick={onShopFullSet}
+              disabled={addSetBusy}
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-[#171513] px-6 py-3 text-sm text-[#F8F7F2] transition hover:bg-[#725D2C] disabled:cursor-not-allowed disabled:bg-[#D9D5CC] disabled:text-[#65605A]"
+            >
+              <ShoppingBag className="h-4 w-4" strokeWidth={1.5} />
+              {addSetBusy ? "Adding set" : "Shop full set"}
+            </button>
+            <Link
+              href="/shop"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-[#D5D1C8] bg-white px-6 py-3 text-sm text-[#171513] transition hover:border-[#171513]"
+            >
+              <ShoppingBag className="h-4 w-4" strokeWidth={1.5} />
+              View in shop
+            </Link>
+          </div>
+        </motion.div>
+      </div>
+    </motion.section>
+  );
+}
+
 function BoutiqueReelFeature() {
   return (
     <motion.section
@@ -494,6 +706,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
   const mobileScrollFrameRef = useRef<number | null>(null);
   const [query, setQuery] = useState("");
   const [addingId, setAddingId] = useState<string | null>(null);
+  const [addingSummerSet, setAddingSummerSet] = useState(false);
   const [selectedMood, setSelectedMood] = useState<MoodValue>("all");
   const [mobileActiveIndex, setMobileActiveIndex] = useState(0);
   const [showOpeningIntro, setShowOpeningIntro] = useState(true);
@@ -652,6 +865,38 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
       showToast("Unable to add this piece right now.", "error");
     } finally {
       setAddingId(null);
+    }
+  }, [router]);
+
+  const handleShopSummerSet = useCallback(async () => {
+    setAddingSummerSet(true);
+
+    try {
+      for (const item of SUMMER_COLLECTION_PRODUCTS) {
+        const response = await fetch("/api/cart", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productId: item.productId,
+            quantity: 1,
+            size: item.defaultSize,
+            color: item.defaultColor,
+          }),
+        });
+
+        if (!response.ok) {
+          const data = await response.json().catch(() => ({}));
+          throw new Error(data?.error || `Unable to add ${item.name}.`);
+        }
+      }
+
+      window.dispatchEvent(new Event("cart:changed"));
+      showToast("Full summer set added to cart.", "success");
+      router.push("/cart");
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "Unable to add the full set right now.", "error");
+    } finally {
+      setAddingSummerSet(false);
     }
   }, [router]);
 
@@ -1029,6 +1274,8 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
           </motion.div>
         </div>
       </section>
+
+      <SummerCollectionSection addSetBusy={addingSummerSet} onShopFullSet={handleShopSummerSet} />
 
       <BoutiqueReelFeature />
 
