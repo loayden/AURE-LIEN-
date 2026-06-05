@@ -4,6 +4,7 @@ import { getAuthFromRequest } from "@/lib/auth";
 import { attachUserCookie } from "@/lib/userSession";
 import { appendOrder, getOrdersJson } from "@/lib/orderStorage";
 import { getProductById } from "@/lib/getAllProducts";
+import { notifyOrderPlaced } from "@/lib/notifications";
 
 type OrderItem = {
   productId: string;
@@ -254,6 +255,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     try {
       await appendOrder(newOrder);
       console.log(`✅ Order ${newOrder._id} saved successfully to shared storage`);
+      notifyOrderPlaced(newOrder);
     } catch (writeError) {
       console.error("❌ Failed to save order to shared storage:", writeError instanceof Error ? writeError.message : String(writeError));
       return NextResponse.json(

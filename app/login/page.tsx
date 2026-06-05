@@ -5,6 +5,7 @@ import { AlertCircle, ArrowRight, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import GoogleSignInButton from "@/components/GoogleSignInButton";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -190,12 +191,14 @@ export default function LoginPage() {
             {/* Divider */}
             <div className="flex items-center gap-4 my-7">
               <div className="flex-1 h-px" style={{ background: "rgba(255,248,236,0.06)" }} />
-              <span className="text-white/15 text-[9px] tracking-[0.3em] uppercase">or</span>
+              <span className="text-white/15 text-[9px] tracking-[0.3em] uppercase">or continue with</span>
               <div className="flex-1 h-px" style={{ background: "rgba(255,248,236,0.06)" }} />
             </div>
 
+            <GoogleSignInButton mode="login" redirect={redirect || undefined} onError={setError} />
+
             {/* Sign up link */}
-            <p className="text-center text-white/25 text-[10px] tracking-[0.2em]">
+            <p className="mt-7 text-center text-white/25 text-[10px] tracking-[0.2em]">
               No account?{" "}
               <Link
                 href="/signup"

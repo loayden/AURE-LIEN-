@@ -7,6 +7,7 @@ import {
   normalizePayoutProfile,
   type BoutiquePayoutProfile,
 } from "@/lib/boutiqueApplications";
+import { notifyPartnerApplicationReceived } from "@/lib/notifications";
 
 const NO_STORE_HEADERS = {
   "Cache-Control": "no-store, max-age=0",
@@ -117,6 +118,7 @@ export async function POST(req: NextRequest) {
       sampleProducts: cleanString(body.sampleProducts) || undefined,
       notes: cleanString(body.notes) || undefined,
     });
+    notifyPartnerApplicationReceived(application);
 
     return NextResponse.json(
       {

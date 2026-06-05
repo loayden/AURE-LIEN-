@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { getAuthFromRequest } from "@/lib/auth";
 import { ALL_CATEGORY_META } from "@/lib/commerce";
 import { getPartnerProducts, reviewPartnerProduct } from "@/lib/partnerProducts";
+import { notifyPartnerProductReviewed } from "@/lib/notifications";
 
 const NO_STORE_HEADERS = {
   "Cache-Control": "no-store, max-age=0",
@@ -72,6 +73,7 @@ export async function PATCH(req: NextRequest) {
     if (product.status === "approved") {
       revalidateCatalog(product.productId);
     }
+    notifyPartnerProductReviewed(product);
 
     return NextResponse.json({ success: true, product }, { headers: NO_STORE_HEADERS });
   } catch (error) {

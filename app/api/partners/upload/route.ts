@@ -35,9 +35,27 @@ async function saveLocally(file: File, filename: string) {
   return `/uploads/partners/${filename}`;
 }
 
+function isHostedVercelRuntime(): boolean {
+  return Boolean(process.env.VERCEL);
+}
+
+function hasBlobWriteConfig(): boolean {
+  return Boolean(
+    process.env.BLOB_READ_WRITE_TOKEN?.trim() ||
+      (process.env.BLOB_STORE_ID?.trim() && process.env.VERCEL_OIDC_TOKEN?.trim())
+  );
+}
+
 export async function POST(request: NextRequest) {
   try {
     const auth = await getAuthFromRequest(request);
+    if (!auth) {
+      return NextResponse.json(
+        { error: "Sign in with the partner account before uploading product images." },
+        { status: 401 }
+      );
+    }
+
     const formData = await request.formData();
     const applicationId = cleanString(formData.get("applicationId"));
     const file = formData.get("file");
@@ -48,10 +66,21 @@ export async function POST(request: NextRequest) {
 
     const application = (await getBoutiqueApplications()).find((item) => item._id === applicationId);
     if (!application) {
-      return NextResponse.json({ error: "Boutique application was not found." }, { status: 404 });
+      return NextResponse.json(
+        {
+          code: "application_not_found",
+          error: "We could not find this boutique application. Choose your boutique from the partner desk, or submit the partnership request first.",
+        },
+        { status: 404 }
+      );
     }
 
-    if (application.partnerUserId && auth?.userId !== application.partnerUserId) {
+    const ownsApplication =
+      application.partnerUserId === auth.userId ||
+      (!application.partnerUserId && application.email && application.email.toLowerCase() === auth.email?.toLowerCase()) ||
+      auth.role === "admin";
+
+    if (!ownsApplication) {
       return NextResponse.json({ error: "Not authorized for this boutique application." }, { status: 403 });
     }
 
@@ -78,7 +107,7 @@ export async function POST(request: NextRequest) {
     const safeApplicationId = applicationId.replace(/[^a-z0-9-]/gi, "").slice(0, 42);
     const filename = `${safeApplicationId}-${Date.now()}-${randomUUID().slice(0, 8)}-${safeBaseName}.${extension}`;
 
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
+    if (hasBlobWriteConfig()) {
       const { put } = await import("@vercel/blob");
       const blob = await put(`uploads/partners/${filename}`, file, {
         access: "public",
@@ -87,10 +116,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ url: blob.url });
     }
 
-    if (process.env.NODE_ENV === "production") {
+    if (isHostedVercelRuntime()) {
       return NextResponse.json(
-        { error: "Upload storage is not configured. Set BLOB_READ_WRITE_TOKEN for production." },
-        { status: 500 }
+        {
+          code: "upload_storage_not_configured",
+          error: "Image uploads need storage setup on the hosted site. Connect Vercel Blob, or paste an image URL for now.",
+        },
+        { status: 503 }
       );
     }
 

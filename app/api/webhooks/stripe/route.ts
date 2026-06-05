@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { clearCartByUser } from "@/lib/cartStorage";
 import { getOrdersJson, setOrdersJson } from "@/lib/orderStorage";
+import { notifyOrderPlaced } from "@/lib/notifications";
 
 function getStripe(): Stripe | null {
   const key = process.env.STRIPE_SECRET_KEY;
@@ -30,6 +31,7 @@ export async function POST(req: NextRequest) {
         const index = orders.findIndex((order: any) => String(order._id ?? order.id) === String(orderId));
 
         if (index !== -1) {
+          const wasAlreadyPaid = orders[index]?.paymentStatus === "paid";
           orders[index] = {
             ...orders[index],
             status: "paid",
@@ -38,6 +40,7 @@ export async function POST(req: NextRequest) {
             paidAt: new Date().toISOString(),
           };
           await setOrdersJson(orders);
+          if (!wasAlreadyPaid) notifyOrderPlaced(orders[index]);
         }
       }
 

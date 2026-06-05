@@ -41,7 +41,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
 
   try {
     await transporter.sendMail({
-      from: `"Maison Aurelia" <${EMAIL_USER}>`,
+      from: `"BOUT" <${EMAIL_USER}>`,
       to: options.to,
       subject: options.subject,
       html: options.html,

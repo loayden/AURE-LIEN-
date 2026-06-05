@@ -118,6 +118,19 @@ type PartnerWalletData = {
   }>;
 };
 
+type PartnerApplicationSummary = {
+  _id: string;
+  boutiqueName: string;
+  ownerName: string;
+  phone: string;
+  planName: string;
+  status: "pending" | "contacted" | "approved" | "declined";
+  city: string;
+  area: string;
+  createdAt: string;
+  payoutStatus: string;
+};
+
 const initialPayoutForm: PayoutFormState = {
   method: "mobile_wallet",
   accountHolderName: "",
@@ -150,10 +163,12 @@ export default function PartnerProductsPage() {
   const [applicationId, setApplicationId] = useState(searchParams.get("applicationId") || "");
   const [form, setForm] = useState<FormState>(initialForm);
   const [payoutForm, setPayoutForm] = useState<PayoutFormState>(initialPayoutForm);
+  const [applications, setApplications] = useState<PartnerApplicationSummary[]>([]);
   const [products, setProducts] = useState<PartnerProductDraft[]>([]);
   const [wallet, setWallet] = useState<PartnerWalletData | null>(null);
   const [images, setImages] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
+  const [applicationsLoading, setApplicationsLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [walletLoading, setWalletLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -167,6 +182,11 @@ export default function PartnerProductsPage() {
     () => products.filter((product) => product.status === "pending").length,
     [products]
   );
+  const selectedApplication = useMemo(
+    () => applications.find((application) => application._id === applicationId.trim()) ?? null,
+    [applicationId, applications]
+  );
+  const canUseApplication = Boolean(selectedApplication && selectedApplication.status !== "declined");
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -217,7 +237,17 @@ export default function PartnerProductsPage() {
     }
   }
 
-  async function loadProducts(id = applicationId) {
+  function getFriendlyApplicationError(message: string) {
+    if (/not found/i.test(message)) {
+      return "We could not find this boutique application. Choose your boutique from the list or submit the partnership request first.";
+    }
+    if (/not authorized/i.test(message)) {
+      return "This boutique is connected to another account. Sign in with the original partner account or ask admin to review it.";
+    }
+    return message;
+  }
+
+  async function loadProducts(id = applicationId, options: { silent?: boolean } = {}) {
     if (!id.trim()) return;
     setLoading(true);
     setError("");
@@ -229,16 +259,17 @@ export default function PartnerProductsPage() {
       if (!response.ok) throw new Error(data?.error || "Unable to load submitted products");
       setProducts(Array.isArray(data.products) ? data.products : []);
     } catch (requestError) {
-      const message = requestError instanceof Error ? requestError.message : "Unable to load submitted products";
+      const rawMessage = requestError instanceof Error ? requestError.message : "Unable to load submitted products";
+      const message = getFriendlyApplicationError(rawMessage);
       setError(message);
-      showToast(message, "error");
+      if (!options.silent) showToast(message, "error");
       setProducts([]);
     } finally {
       setLoading(false);
     }
   }
 
-  async function loadWallet(id = applicationId) {
+  async function loadWallet(id = applicationId, options: { silent?: boolean } = {}) {
     if (!id.trim()) return;
     setWalletLoading(true);
     setWalletError("");
@@ -253,29 +284,82 @@ export default function PartnerProductsPage() {
         syncPayoutForm(data.wallet);
       }
     } catch (requestError) {
-      const message = requestError instanceof Error ? requestError.message : "Unable to load partner wallet";
+      const rawMessage = requestError instanceof Error ? requestError.message : "Unable to load partner wallet";
+      const message = getFriendlyApplicationError(rawMessage);
       setWallet(null);
       setWalletError(message);
+      if (!options.silent && !/not found/i.test(rawMessage)) showToast(message, "error");
     } finally {
       setWalletLoading(false);
     }
   }
 
-  useEffect(() => {
-    const id = searchParams.get("applicationId") || "";
-    setApplicationId(id);
-    if (id) {
-      void loadProducts(id);
-      void loadWallet(id);
+  async function loadApplications(preferredId = searchParams.get("applicationId") || "") {
+    setApplicationsLoading(true);
+    setError("");
+    try {
+      const response = await fetch("/api/partners/applications", { cache: "no-store" });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data?.error || "Unable to load boutique applications");
+
+      const nextApplications = Array.isArray(data.applications) ? data.applications as PartnerApplicationSummary[] : [];
+      setApplications(nextApplications);
+
+      const normalizedPreferredId = preferredId.trim();
+      const preferredApplication = nextApplications.find((application) => application._id === normalizedPreferredId);
+      const nextApplication = preferredApplication ?? nextApplications[0] ?? null;
+      const nextId = nextApplication?._id ?? "";
+      setApplicationId(nextId);
+
+      if (normalizedPreferredId && !preferredApplication && nextApplications.length > 0) {
+        showToast("That application link is not connected to this account. We selected your latest boutique instead.", "error");
+      }
+
+      if (nextId) {
+        await Promise.all([
+          loadProducts(nextId, { silent: true }),
+          loadWallet(nextId, { silent: true }),
+        ]);
+      } else {
+        setProducts([]);
+        setWallet(null);
+        setWalletError("Submit a boutique partnership request before adding products.");
+      }
+    } catch (requestError) {
+      const message = requestError instanceof Error ? requestError.message : "Unable to load boutique applications";
+      setApplications([]);
+      setApplicationId("");
+      setProducts([]);
+      setWallet(null);
+      setError(message);
+      setWalletError(message);
+      showToast(message, "error");
+    } finally {
+      setApplicationsLoading(false);
     }
+  }
+
+  function selectApplication(nextId: string) {
+    setApplicationId(nextId);
+    if (nextId) {
+      void loadProducts(nextId);
+      void loadWallet(nextId);
+    } else {
+      setProducts([]);
+      setWallet(null);
+    }
+  }
+
+  useEffect(() => {
+    void loadApplications(searchParams.get("applicationId") || "");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   async function savePayoutProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const id = applicationId.trim();
-    if (!id) {
-      showToast("Application id is required before saving payout details.", "error");
+    if (!canUseApplication) {
+      showToast("Choose your boutique application before saving payout details.", "error");
       return;
     }
 
@@ -291,7 +375,7 @@ export default function PartnerProductsPage() {
         }),
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data?.error || "Unable to save payout profile");
+      if (!response.ok) throw new Error(getFriendlyApplicationError(data?.error || "Unable to save payout profile"));
       showToast("Payout profile saved for admin review.", "success");
       await loadWallet(id);
     } catch (requestError) {
@@ -304,6 +388,10 @@ export default function PartnerProductsPage() {
   }
 
   async function uploadSelectedImages(id: string) {
+    if (!canUseApplication) {
+      throw new Error("Choose your boutique application before uploading images.");
+    }
+
     setUploading(true);
     setError("");
     try {
@@ -318,7 +406,9 @@ export default function PartnerProductsPage() {
           body: payload,
         });
         const data = await response.json().catch(() => ({}));
-        if (!response.ok || !data?.url) throw new Error(data?.error || "Upload failed");
+        if (!response.ok || !data?.url) {
+          throw new Error(getFriendlyApplicationError(data?.error || "Upload failed"));
+        }
         uploadedUrls.push(data.url);
       }
 
@@ -332,8 +422,8 @@ export default function PartnerProductsPage() {
 
   async function uploadImage() {
     const id = applicationId.trim();
-    if (!id) {
-      showToast("Application id is required before uploading images.", "error");
+    if (!id || !canUseApplication) {
+      showToast("Choose your boutique application before uploading images.", "error");
       return;
     }
     if (!files.length) {
@@ -354,8 +444,8 @@ export default function PartnerProductsPage() {
   async function submitProduct(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const id = applicationId.trim();
-    if (!id) {
-      showToast("Paste the application id first.", "error");
+    if (!id || !canUseApplication) {
+      showToast("Choose your boutique application before sending a product.", "error");
       return;
     }
 
@@ -397,7 +487,7 @@ export default function PartnerProductsPage() {
         }),
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data?.error || "Unable to submit product");
+      if (!response.ok) throw new Error(getFriendlyApplicationError(data?.error || "Unable to submit product"));
       setForm(initialForm);
       setImages([]);
       resetFileInput();
@@ -415,8 +505,8 @@ export default function PartnerProductsPage() {
 
   async function startPaymobPayment() {
     const id = applicationId.trim();
-    if (!id) {
-      showToast("Application id is required before payment.", "error");
+    if (!id || !canUseApplication) {
+      showToast("Choose your boutique application before payment.", "error");
       return;
     }
 
@@ -431,7 +521,7 @@ export default function PartnerProductsPage() {
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
         const missing = Array.isArray(data?.missing) ? ` Missing: ${data.missing.join(", ")}` : "";
-        throw new Error(`${data?.error || "Unable to start Paymob checkout."}${missing}`);
+        throw new Error(`${getFriendlyApplicationError(data?.error || "Unable to start Paymob checkout.")}${missing}`);
       }
       if (!data?.redirectUrl) throw new Error("Paymob did not return a checkout link.");
       window.location.href = data.redirectUrl;
@@ -481,7 +571,11 @@ export default function PartnerProductsPage() {
 
         <section className="mb-5 grid grid-cols-2 gap-2 sm:mb-7 sm:gap-4 md:grid-cols-4">
           {[
-            { label: "Application", value: applicationId ? "Connected" : "Missing", copy: applicationId || "Submit boutique form first" },
+            {
+              label: "Boutique",
+              value: selectedApplication ? selectedApplication.status : applicationsLoading ? "Loading" : "Missing",
+              copy: selectedApplication ? selectedApplication.boutiqueName : "Submit boutique form first",
+            },
             { label: "Pending", value: String(pendingCount), copy: "Waiting for admin review" },
             {
               label: "Available",
@@ -506,8 +600,8 @@ export default function PartnerProductsPage() {
           <section className="glass-panel p-4 sm:p-7">
             <div className="mb-5 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
               <div>
-                <p className="eyebrow mb-3">Application ID</p>
-                <h2 className="title-display text-[1.85rem] leading-none sm:text-[2.25rem]">اربط المنتجات بالطلب</h2>
+                <p className="eyebrow mb-3">Boutique Application</p>
+                <h2 className="title-display text-[1.85rem] leading-none sm:text-[2.25rem]">اختار البوتيك</h2>
               </div>
               <Link href="/boutiques#boutique-application" className="btn-ghost justify-center">
                 طلب شراكة جديد
@@ -515,27 +609,55 @@ export default function PartnerProductsPage() {
               </Link>
             </div>
 
-            <div className="mb-5 grid gap-2 sm:mb-7 sm:grid-cols-[1fr_auto] sm:gap-3">
-              <input
-                value={applicationId}
-                onChange={(event) => setApplicationId(event.target.value)}
-                placeholder="boutique-..."
-                dir="ltr"
-                aria-label="Boutique application id"
-              />
+            <div className="mb-5 grid gap-3 sm:mb-7 sm:grid-cols-[1fr_auto]">
+              {applications.length ? (
+                <label className="block">
+                  <span className="sr-only">Your boutique application</span>
+                  <select
+                    value={applicationId}
+                    onChange={(event) => selectApplication(event.target.value)}
+                    className="luxury-select"
+                    aria-label="Your boutique application"
+                  >
+                    {applications.map((application) => (
+                      <option key={application._id} value={application._id}>
+                        {application.boutiqueName} — {application.status} — {application.planName}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : (
+                <div className="rounded-[18px] border border-[#A87935]/18 bg-[#A87935]/[0.06] px-4 py-3 text-xs leading-6 text-[#6F6254]">
+                  {applicationsLoading
+                    ? "Loading your boutique applications..."
+                    : "No boutique application is connected to this account yet. Submit the partnership request first, then come back to upload products."}
+                </div>
+              )}
               <button
                 type="button"
                 onClick={() => {
-                  void loadProducts();
-                  void loadWallet();
+                  if (applicationId) {
+                    void loadProducts();
+                    void loadWallet();
+                    return;
+                  }
+                  void loadApplications();
                 }}
-                disabled={loading || walletLoading || !applicationId.trim()}
+                disabled={loading || walletLoading || applicationsLoading || (!applicationId.trim() && applications.length > 0)}
                 className="btn-gold justify-center"
               >
                 <RefreshCw className="h-4 w-4" />
-                {loading || walletLoading ? "Loading" : "Load"}
+                {loading || walletLoading || applicationsLoading ? "Loading" : "Refresh"}
               </button>
             </div>
+            {selectedApplication ? (
+              <div className="mb-5 rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-white/40 p-3 text-xs leading-6 text-[#6F6254] sm:mb-7 sm:p-4">
+                <span className="font-medium text-[#3D3025]">{selectedApplication.boutiqueName}</span>
+                {" "}is connected to this product desk. Status:{" "}
+                <span className="font-medium text-[#7A581F]">{selectedApplication.status}</span>.
+                Products will stay pending until admin approval.
+              </div>
+            ) : null}
 
             <form onSubmit={submitProduct} className="space-y-4 sm:space-y-5">
               <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
@@ -619,7 +741,7 @@ export default function PartnerProductsPage() {
                   <button
                     type="button"
                     onClick={uploadImage}
-                    disabled={uploading || !files.length || !applicationId.trim()}
+                    disabled={uploading || !files.length || !canUseApplication}
                     className="btn-ghost min-h-[3rem] justify-center !rounded-[16px] sm:min-h-[8rem] sm:!rounded-[18px]"
                   >
                     <UploadCloud className="h-4 w-4" />
@@ -665,7 +787,7 @@ export default function PartnerProductsPage() {
                 ) : null}
               </div>
 
-              <button type="submit" disabled={submitting || !applicationId.trim()} className="btn-gold w-full justify-center">
+              <button type="submit" disabled={submitting || !canUseApplication} className="btn-gold w-full justify-center">
                 <PackageCheck className="h-4 w-4" />
                 {submitting ? "Submitting" : "Send Product for Approval"}
               </button>
@@ -780,7 +902,7 @@ export default function PartnerProductsPage() {
                   <span className="eyebrow mb-2 block">Tax ID optional</span>
                   <input value={payoutForm.taxId} onChange={(event) => updatePayout("taxId", event.target.value)} placeholder="Tax or commercial registration" dir="ltr" />
                 </label>
-                <button type="submit" disabled={savingPayout || !applicationId.trim()} className="btn-gold w-full justify-center">
+                <button type="submit" disabled={savingPayout || !canUseApplication} className="btn-gold w-full justify-center">
                   <Landmark className="h-4 w-4" />
                   {savingPayout ? "Saving" : "Save Payout Profile"}
                 </button>
@@ -795,7 +917,7 @@ export default function PartnerProductsPage() {
               <p className="body-copy mt-3 sm:mt-4">
                 الدفع يتم من خلال صفحة Paymob المستضافة. لو المفاتيح غير مضافة في الإعدادات، الزر هيعرض رسالة واضحة للأدمن.
               </p>
-              <button type="button" onClick={startPaymobPayment} disabled={paying || !applicationId.trim()} className="btn-gold mt-4 w-full justify-center sm:mt-5">
+              <button type="button" onClick={startPaymobPayment} disabled={paying || !canUseApplication} className="btn-gold mt-4 w-full justify-center sm:mt-5">
                 <CreditCard className="h-4 w-4" />
                 {paying ? "Opening Paymob" : "Pay With Paymob"}
               </button>

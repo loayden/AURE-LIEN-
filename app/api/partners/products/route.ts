@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthFromRequest } from "@/lib/auth";
 import { getBoutiqueApplications } from "@/lib/boutiqueApplications";
 import { createPartnerProductDraft, getPartnerProducts } from "@/lib/partnerProducts";
+import { notifyPartnerProductSubmitted } from "@/lib/notifications";
 
 const NO_STORE_HEADERS = {
   "Cache-Control": "no-store, max-age=0",
@@ -23,14 +24,35 @@ function parseList(value: unknown): string[] {
   return [];
 }
 
+function ownsApplication(application: { partnerUserId?: string; email?: string }, auth: NonNullable<Awaited<ReturnType<typeof getAuthFromRequest>>>): boolean {
+  if (auth.role === "admin") return true;
+  if (application.partnerUserId && application.partnerUserId === auth.userId) return true;
+  return Boolean(
+    !application.partnerUserId &&
+      application.email &&
+      application.email.toLowerCase() === auth.email?.toLowerCase()
+  );
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const auth = await getAuthFromRequest(req);
+  if (!auth) {
+    return NextResponse.json(
+      { error: "Sign in with the partner account to view submitted products." },
+      { status: 401, headers: NO_STORE_HEADERS }
+    );
+  }
+
   const applicationId = cleanString(searchParams.get("applicationId"));
   const applications = await getBoutiqueApplications();
   const application = applications.find((item) => item._id === applicationId);
 
-  if (application?.partnerUserId && auth?.userId !== application.partnerUserId) {
+  if (applicationId && !application) {
+    return NextResponse.json({ error: "Boutique application was not found" }, { status: 404, headers: NO_STORE_HEADERS });
+  }
+
+  if (application && !ownsApplication(application, auth)) {
     return NextResponse.json({ error: "Not authorized for this boutique application" }, { status: 403, headers: NO_STORE_HEADERS });
   }
 
@@ -45,6 +67,13 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const auth = await getAuthFromRequest(req);
+    if (!auth) {
+      return NextResponse.json(
+        { error: "Sign in with the partner account before sending products for approval." },
+        { status: 401, headers: NO_STORE_HEADERS }
+      );
+    }
+
     const body = await req.json();
     const applicationId = cleanString(body.applicationId);
 
@@ -58,7 +87,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Boutique application was not found" }, { status: 404, headers: NO_STORE_HEADERS });
     }
 
-    if (application.partnerUserId && auth?.userId !== application.partnerUserId) {
+    if (!ownsApplication(application, auth)) {
       return NextResponse.json(
         { error: "Not authorized for this boutique application" },
         { status: 403, headers: NO_STORE_HEADERS }
@@ -78,8 +107,8 @@ export async function POST(req: NextRequest) {
 
     const product = await createPartnerProductDraft({
       applicationId,
-      partnerUserId: auth?.userId ?? application.partnerUserId,
-      partnerEmail: auth?.email ?? application.email,
+      partnerUserId: auth.userId ?? application.partnerUserId,
+      partnerEmail: auth.email ?? application.email,
       boutiqueName: application.boutiqueName,
       partnerName: application.ownerName,
       phone: application.phone,
@@ -93,6 +122,7 @@ export async function POST(req: NextRequest) {
       material: cleanString(body.material) || undefined,
       stock: Number.isFinite(Number(body.stock)) ? Math.max(0, Math.floor(Number(body.stock))) : undefined,
     });
+    notifyPartnerProductSubmitted(product);
 
     return NextResponse.json({ success: true, product }, { status: 201, headers: NO_STORE_HEADERS });
   } catch (error) {

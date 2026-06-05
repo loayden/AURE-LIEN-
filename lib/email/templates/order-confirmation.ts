@@ -19,10 +19,11 @@ export interface OrderConfirmationEmailData {
   products: OrderProduct[];
   totalPrice: number;
   shippingAddress?: string;
+  deliveryWindow?: string;
 }
 
 export function getOrderConfirmationEmailHtml(data: OrderConfirmationEmailData): string {
-  const { orderId, customerName, products, totalPrice, shippingAddress } = data;
+  const { orderId, customerName, products, totalPrice, shippingAddress, deliveryWindow } = data;
 
   const productRows = products
     .map(
@@ -68,6 +69,10 @@ export function getOrderConfirmationEmailHtml(data: OrderConfirmationEmailData):
               ${shippingAddress ? `
               <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.1em;color:#B0B0B0;">Shipping Address</p>
               <p style="margin:0 0 24px;font-size:15px;color:#EAE6DF;line-height:1.5;">${escapeHtml(shippingAddress)}</p>
+              ` : ""}
+              ${deliveryWindow ? `
+              <p style="margin:0 0 8px;font-size:12px;letter-spacing:0.1em;color:#B0B0B0;">Estimated Delivery</p>
+              <p style="margin:0 0 24px;font-size:15px;color:#EAE6DF;line-height:1.5;">${escapeHtml(deliveryWindow)}</p>
               ` : ""}
             </td>
           </tr>

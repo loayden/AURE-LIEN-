@@ -1,4 +1,6 @@
 import { promises as fs } from "fs";
+import { randomUUID } from "crypto";
+import bcrypt from "bcrypt";
 import connectDB from "@/lib/connectDB";
 import User from "@/models/User";
 import { paths } from "./dataPaths";
@@ -15,6 +17,9 @@ export interface UserRecord {
   password: string;
   role: "customer" | "admin";
   accountIntent: "buyer" | "partner" | "both";
+  authProvider?: "password" | "google" | "mixed";
+  googleSub?: string;
+  avatar?: string;
   createdAt: string;
   phone?: string;
   address?: string;
@@ -50,6 +55,13 @@ function normalizeUser(user: any): UserRecord {
     accountIntent: ["buyer", "partner", "both"].includes(String(user?.accountIntent))
       ? user.accountIntent
       : "buyer",
+    authProvider: ["password", "google", "mixed"].includes(String(user?.authProvider))
+      ? user.authProvider
+      : user?.googleSub
+        ? "google"
+        : "password",
+    googleSub: String(user?.googleSub ?? "").trim(),
+    avatar: String(user?.avatar ?? user?.picture ?? "").trim(),
     createdAt: user?.createdAt
       ? new Date(user.createdAt).toISOString()
       : new Date().toISOString(),
@@ -251,6 +263,77 @@ export async function createUser(
   const users = await readUserSnapshots();
   await writeUserSnapshots(mergeUsers([user], users));
   return user;
+}
+
+export async function upsertGoogleUser(
+  profile: { sub: string; email: string; name?: string; picture?: string },
+  options: {
+    accountIntent?: "buyer" | "partner" | "both";
+    deviceId?: string;
+    deviceAccountWarning?: string;
+  } = {}
+): Promise<{ user: UserRecord; created: boolean }> {
+  const email = String(profile.email ?? "").toLowerCase().trim();
+  const googleSub = String(profile.sub ?? "").trim();
+  if (!email || !googleSub) {
+    throw new Error("Google profile is missing email or subject");
+  }
+
+  const existing = await findUserByEmail(email);
+  const created = !existing;
+  const password = existing?.password || await bcrypt.hash(randomUUID(), 12);
+  const requestedIntent = options.accountIntent;
+  const accountIntent = ["buyer", "partner", "both"].includes(String(requestedIntent))
+    ? requestedIntent
+    : undefined;
+  const nextUser = normalizeUser({
+    ...existing,
+    id: existing?.id || `user-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+    name: existing?.name || String(profile.name ?? "").trim() || email.split("@")[0],
+    email,
+    password,
+    role: existing?.role || "customer",
+    accountIntent: existing?.accountIntent || accountIntent || "buyer",
+    authProvider: existing
+      ? existing.authProvider === "google"
+        ? "google"
+        : "mixed"
+      : "google",
+    googleSub,
+    avatar: profile.picture,
+    createdAt: existing?.createdAt || new Date().toISOString(),
+    deviceId: options.deviceId || existing?.deviceId,
+    deviceAccountWarning: options.deviceAccountWarning || existing?.deviceAccountWarning,
+  });
+
+  if (useMongoStorage()) {
+    try {
+      await connectDB();
+      await User.findOneAndUpdate(
+        { email: nextUser.email },
+        nextUser,
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
+      try {
+        await syncUserSnapshotsFromMongo();
+      } catch (error) {
+        console.warn(
+          "⚠️ Google user saved to MongoDB but snapshot sync failed:",
+          error instanceof Error ? error.message : String(error)
+        );
+      }
+      return { user: nextUser, created };
+    } catch (error) {
+      console.warn(
+        "⚠️ MongoDB Google user save failed, falling back to snapshot storage:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
+  }
+
+  const users = await readUserSnapshots();
+  await writeUserSnapshots(mergeUsers([nextUser], users));
+  return { user: nextUser, created };
 }
 
 export async function updateUserRole(id: string, role: "customer" | "admin"): Promise<void> {

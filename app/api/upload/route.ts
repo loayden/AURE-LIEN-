@@ -35,6 +35,17 @@ async function saveLocally(file: File, filename: string) {
   return `/uploads/${filename}`;
 }
 
+function isHostedVercelRuntime(): boolean {
+  return Boolean(process.env.VERCEL);
+}
+
+function hasBlobWriteConfig(): boolean {
+  return Boolean(
+    process.env.BLOB_READ_WRITE_TOKEN?.trim() ||
+      (process.env.BLOB_STORE_ID?.trim() && process.env.VERCEL_OIDC_TOKEN?.trim())
+  );
+}
+
 export async function POST(request: NextRequest) {
   try {
     const auth = await getAuthFromRequest(request);
@@ -67,7 +78,7 @@ export async function POST(request: NextRequest) {
     const safeBaseName = sanitizeBaseName(file.name) || "upload";
     const filename = `${Date.now()}-${randomUUID().slice(0, 8)}-${safeBaseName}.${extension}`;
 
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
+    if (hasBlobWriteConfig()) {
       const { put } = await import("@vercel/blob");
       const blob = await put(`uploads/${filename}`, file, {
         access: "public",
@@ -76,13 +87,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ url: blob.url });
     }
 
-    // Keep the local filesystem fallback out of production bundles.
-    // Otherwise Next/Vercel output tracing pulls the entire public/uploads
-    // directory into this function, which blows past the serverless size limit.
-    if (process.env.NODE_ENV === "production") {
+    // Keep local filesystem uploads out of Vercel serverless functions.
+    // Local production preview can still save to public/uploads for QA.
+    if (isHostedVercelRuntime()) {
       return NextResponse.json(
-        { error: "Upload storage is not configured. Set BLOB_READ_WRITE_TOKEN for production." },
-        { status: 500 }
+        {
+          code: "upload_storage_not_configured",
+          error: "Image uploads need storage setup on the hosted site. Connect Vercel Blob, or paste an image URL for now.",
+        },
+        { status: 503 }
       );
     }
 

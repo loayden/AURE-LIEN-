@@ -25,6 +25,13 @@ export async function POST(req: NextRequest) {
     }
 
     const auth = await getAuthFromRequest(req);
+    if (!auth) {
+      return NextResponse.json(
+        { error: "Sign in with the partner account before starting Paymob checkout." },
+        { status: 401, headers: NO_STORE_HEADERS }
+      );
+    }
+
     const body = await req.json().catch(() => ({}));
     const applicationId = cleanString(body.applicationId);
 
@@ -37,7 +44,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Boutique application was not found" }, { status: 404, headers: NO_STORE_HEADERS });
     }
 
-    if (application.partnerUserId && auth?.userId !== application.partnerUserId) {
+    const ownsApplication =
+      application.partnerUserId === auth.userId ||
+      (!application.partnerUserId && application.email && application.email.toLowerCase() === auth.email?.toLowerCase()) ||
+      auth.role === "admin";
+
+    if (!ownsApplication) {
       return NextResponse.json(
         { error: "Not authorized for this boutique application" },
         { status: 403, headers: NO_STORE_HEADERS }
