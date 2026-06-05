@@ -213,16 +213,16 @@ export default function SignupPage() {
                         key={option.value}
                         type="button"
                         onClick={() => setAccountIntent(option.value)}
-                        className="min-h-[92px] rounded-2xl border p-3 text-left transition-colors"
+                        className="account-intent-card aspect-square min-w-0 overflow-hidden border p-2 text-left transition-colors sm:p-3"
                         style={{
                           background: active ? "rgba(168,121,53,0.13)" : "rgba(255,248,236,0.035)",
                           borderColor: active ? "rgba(168,121,53,0.36)" : "rgba(255,248,236,0.08)",
                         }}
                         aria-pressed={active}
                       >
-                        <Icon className="mb-3 h-4 w-4 text-[#A87935]" strokeWidth={1.25} />
-                        <span className="block text-[9px] uppercase tracking-[0.24em] text-[#A87935]">{option.label}</span>
-                        <span className="mt-2 block text-[10px] leading-5 text-white/28">{option.copy}</span>
+                        <Icon className="mb-2 h-4 w-4 text-[#A87935] sm:mb-3" strokeWidth={1.25} />
+                        <span className="block text-[8px] uppercase tracking-[0.2em] text-[#A87935] sm:text-[9px] sm:tracking-[0.24em]">{option.label}</span>
+                        <span className="mt-1.5 block text-[9px] leading-4 text-white/28 sm:mt-2 sm:text-[10px] sm:leading-5">{option.copy}</span>
                       </button>
                     );
                   })}
