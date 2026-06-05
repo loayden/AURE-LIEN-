@@ -1,6 +1,7 @@
 import type { UserRecord } from "@/lib/usersJson";
 
 export type AdminOrderCustomer = {
+  dataCleared?: boolean;
   email?: string;
   firstName?: string;
   lastName?: string;
@@ -16,6 +17,7 @@ export type AdminOrderCustomer = {
 export type AdminOrderLike = {
   _id?: string;
   id?: string;
+  customerDataCleared?: boolean;
   userId?: string;
   customer?: AdminOrderCustomer;
   total?: number;
@@ -51,6 +53,10 @@ export type AdminCustomerIndex = {
 
 function cleanString(value: unknown): string {
   return String(value ?? "").trim();
+}
+
+function isCustomerDataCleared(order: AdminOrderLike): boolean {
+  return Boolean(order.customerDataCleared || order.customer?.dataCleared);
 }
 
 function normalizeEmail(value: unknown): string {
@@ -199,6 +205,10 @@ export function buildAdminCustomerIndex(
   const usersByEmail = new Map<string, UserRecord>();
 
   for (const user of users) {
+    if (user.role === "admin") {
+      continue;
+    }
+
     usersById.set(user.id, user);
 
     const email = normalizeEmail(user.email);
@@ -216,6 +226,10 @@ export function buildAdminCustomerIndex(
   }
 
   for (const order of orders) {
+    if (isCustomerDataCleared(order)) {
+      continue;
+    }
+
     const orderId = cleanString(order._id || order.id) || `guest-${byOrderId.size + 1}`;
     const userId = cleanString(order.userId);
     const userById = userId ? usersById.get(userId) : undefined;
@@ -278,6 +292,10 @@ export function getCustomerForOrder(
   index: AdminCustomerIndex,
   order: AdminOrderLike
 ): AdminCustomerSummary | null {
+  if (isCustomerDataCleared(order)) {
+    return null;
+  }
+
   const orderId = cleanString(order._id || order.id);
   if (orderId && index.byOrderId.has(orderId)) {
     return index.byOrderId.get(orderId) ?? null;

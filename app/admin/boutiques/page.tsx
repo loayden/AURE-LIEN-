@@ -29,6 +29,7 @@ export default function AdminBoutiquesPage() {
   const [applications, setApplications] = useState<BoutiqueApplication[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [sort, setSort] = useState("newest");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -62,6 +63,20 @@ export default function AdminBoutiquesPage() {
     const estimatedMonthly = applications.reduce((sum, application) => sum + Number(application.monthlyFee || 0), 0);
     return { pending, estimatedMonthly };
   }, [applications]);
+
+  const sortedApplications = useMemo(() => {
+    return [...applications].sort((a, b) => {
+      if (sort === "status") {
+        const order = { pending: 0, contacted: 1, approved: 2, declined: 3 };
+        return order[a.status] - order[b.status];
+      }
+      if (sort === "fee-high") return Number(b.monthlyFee ?? 0) - Number(a.monthlyFee ?? 0);
+      if (sort === "trial-long") return Number(b.trialDays ?? 0) - Number(a.trialDays ?? 0);
+      if (sort === "city") return String(a.city ?? "").localeCompare(String(b.city ?? ""));
+      if (sort === "name") return String(a.boutiqueName ?? "").localeCompare(String(b.boutiqueName ?? ""));
+      return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+    });
+  }, [applications, sort]);
 
   function payoutCopy(application: BoutiqueApplication) {
     const profile = application.payoutProfile;
@@ -101,6 +116,27 @@ export default function AdminBoutiquesPage() {
         </AdminPanel>
       ) : null}
 
+      {!loading && applications.length > 0 ? (
+        <div className="flex justify-end">
+          <label className="sr-only" htmlFor="boutique-sort">
+            Sort boutique applications
+          </label>
+          <select
+            id="boutique-sort"
+            value={sort}
+            onChange={(event) => setSort(event.target.value)}
+            className="luxury-select w-full sm:max-w-xs"
+          >
+            <option value="newest">Newest first</option>
+            <option value="status">Pending first</option>
+            <option value="fee-high">Highest monthly fee</option>
+            <option value="trial-long">Longest trial</option>
+            <option value="city">City A-Z</option>
+            <option value="name">Boutique A-Z</option>
+          </select>
+        </div>
+      ) : null}
+
       {loading ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
@@ -115,7 +151,7 @@ export default function AdminBoutiquesPage() {
         />
       ) : (
         <div className="grid gap-3 sm:gap-4 xl:grid-cols-2">
-          {applications.map((application) => (
+          {sortedApplications.map((application) => (
             <AdminPanel key={application._id} className="p-4 sm:p-5">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                 <div>

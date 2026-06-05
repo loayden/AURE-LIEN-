@@ -23,6 +23,7 @@ export default function AdminPartnerProductsPage() {
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [status, setStatus] = useState("");
+  const [sort, setSort] = useState("newest");
   const [error, setError] = useState("");
 
   async function loadProducts() {
@@ -74,6 +75,16 @@ export default function AdminPartnerProductsPage() {
     };
   }, [products]);
 
+  const sortedProducts = useMemo(() => {
+    return [...products].sort((a, b) => {
+      if (sort === "price-high") return Number(b.price ?? 0) - Number(a.price ?? 0);
+      if (sort === "price-low") return Number(a.price ?? 0) - Number(b.price ?? 0);
+      if (sort === "boutique") return String(a.boutiqueName ?? "").localeCompare(String(b.boutiqueName ?? ""));
+      if (sort === "status") return String(a.status ?? "").localeCompare(String(b.status ?? ""));
+      return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+    });
+  }, [products, sort]);
+
   return (
     <div className="space-y-5 sm:space-y-8">
       <AdminPageHeader
@@ -95,17 +106,39 @@ export default function AdminPartnerProductsPage() {
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <select
-          value={status}
-          onChange={(event) => setStatus(event.target.value)}
-          className="luxury-select sm:max-w-xs"
-        >
-          {STATUS_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="sr-only" htmlFor="partner-product-status">
+            Filter partner products by status
+          </label>
+          <select
+            id="partner-product-status"
+            value={status}
+            onChange={(event) => setStatus(event.target.value)}
+            className="luxury-select sm:max-w-xs"
+          >
+            {STATUS_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+
+          <label className="sr-only" htmlFor="partner-product-sort">
+            Sort partner products
+          </label>
+          <select
+            id="partner-product-sort"
+            value={sort}
+            onChange={(event) => setSort(event.target.value)}
+            className="luxury-select sm:max-w-xs"
+          >
+            <option value="newest">Newest first</option>
+            <option value="price-high">Highest price</option>
+            <option value="price-low">Lowest price</option>
+            <option value="boutique">Boutique A-Z</option>
+            <option value="status">Status A-Z</option>
+          </select>
+        </div>
         <button type="button" onClick={loadProducts} className="btn-ghost justify-center">
           <RefreshCw className="h-4 w-4" />
           Refresh
@@ -128,7 +161,7 @@ export default function AdminPartnerProductsPage() {
         />
       ) : (
         <div className="grid gap-3 sm:gap-4 xl:grid-cols-2">
-          {products.map((product) => (
+          {sortedProducts.map((product) => (
             <AdminPanel key={product._id} className="overflow-hidden p-0">
               <div className="grid gap-0 sm:grid-cols-[10rem_1fr]">
                 <div className="relative min-h-[11rem] bg-[#F5F1E8] sm:min-h-[16rem]">

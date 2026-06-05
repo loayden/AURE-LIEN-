@@ -70,6 +70,7 @@ function normalizeOrder(order: any): any {
         color: item.color ?? null,
       }));
   const customer = order?.customer ?? order?.customerInfo ?? {};
+  const customerDataCleared = Boolean(order?.customerDataCleared || customer?.dataCleared);
   const orderId = String(order?._id ?? order?.id ?? `order-${Date.now()}`);
   const createdAt = order?.createdAt
     ? new Date(order.createdAt).toISOString()
@@ -78,7 +79,10 @@ function normalizeOrder(order: any): any {
   return {
     _id: orderId,
     id: String(order?.id ?? orderId),
-    userId: String(order?.userId ?? customer.email ?? "guest"),
+    userId: customerDataCleared
+      ? "customer-data-cleared"
+      : String(order?.userId ?? customer.email ?? "guest"),
+    customerDataCleared,
     items: items.map((item: any) => ({
       productId: String(item.productId ?? item._id ?? ""),
       name: item.name ?? "",
@@ -104,19 +108,20 @@ function normalizeOrder(order: any): any {
     paymentMethod: order?.paymentMethod ?? "",
     createdAt,
     customer: {
-      email: customer.email ?? "",
-      firstName: customer.firstName ?? "",
-      lastName: customer.lastName ?? "",
-      name:
-        customer.name ??
-        [customer.firstName, customer.lastName].filter(Boolean).join(" ").trim(),
-      phone: customer.phone ?? "",
-      address: customer.address ?? "",
-      apartment: customer.apartment ?? "",
-      city: customer.city ?? "",
-      postalCode: customer.postalCode ?? customer.zipCode ?? "",
-      country: customer.country ?? "",
-      newsletter: Boolean(customer.newsletter),
+      dataCleared: customerDataCleared,
+      email: customerDataCleared ? "" : customer.email ?? "",
+      firstName: customerDataCleared ? "" : customer.firstName ?? "",
+      lastName: customerDataCleared ? "" : customer.lastName ?? "",
+      name: customerDataCleared
+        ? ""
+        : customer.name ?? [customer.firstName, customer.lastName].filter(Boolean).join(" ").trim(),
+      phone: customerDataCleared ? "" : customer.phone ?? "",
+      address: customerDataCleared ? "" : customer.address ?? "",
+      apartment: customerDataCleared ? "" : customer.apartment ?? "",
+      city: customerDataCleared ? "" : customer.city ?? "",
+      postalCode: customerDataCleared ? "" : customer.postalCode ?? customer.zipCode ?? "",
+      country: customerDataCleared ? "" : customer.country ?? "",
+      newsletter: customerDataCleared ? false : Boolean(customer.newsletter),
       shippingMethod: customer.shippingMethod ?? "",
       shippingCost: Number(customer.shippingCost ?? 0),
     },
@@ -142,6 +147,7 @@ function toOrdersDataRecord(order: any): any {
     totalPrice: normalized.totalPrice,
     total: normalized.total,
     user: {
+      dataCleared: normalized.customerDataCleared,
       name: normalized.customer.name,
       email: normalized.customer.email,
       phone: normalized.customer.phone,
@@ -153,6 +159,7 @@ function toOrdersDataRecord(order: any): any {
       country: normalized.customer.country,
     },
     customer: normalized.customer,
+    customerDataCleared: normalized.customerDataCleared,
     userId: normalized.userId,
     createdAt: normalized.createdAt,
   };
@@ -284,6 +291,41 @@ export async function appendOrder(order: any): Promise<any> {
   orders.push(normalized);
   await setOrdersJson(orders);
   return normalized;
+}
+
+function anonymizeOrderCustomerData(order: any): any {
+  const normalized = normalizeOrder(order);
+
+  return normalizeOrder({
+    ...normalized,
+    userId: "customer-data-cleared",
+    customerDataCleared: true,
+    customer: {
+      ...normalized.customer,
+      dataCleared: true,
+      email: "",
+      firstName: "",
+      lastName: "",
+      name: "",
+      phone: "",
+      address: "",
+      apartment: "",
+      city: "",
+      postalCode: "",
+      country: "",
+      newsletter: false,
+    },
+  });
+}
+
+export async function clearOrderCustomerData(): Promise<{ updatedOrders: number; totalOrders: number }> {
+  const orders = await getOrdersJson();
+  const updatedOrders = orders.filter(
+    (order) => !Boolean(order?.customerDataCleared || order?.customer?.dataCleared)
+  ).length;
+
+  await setOrdersJson(orders.map(anonymizeOrderCustomerData));
+  return { updatedOrders, totalOrders: orders.length };
 }
 
 export async function removeOrderById(orderId: string, userId?: string): Promise<boolean> {

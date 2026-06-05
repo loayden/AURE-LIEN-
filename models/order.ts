@@ -28,6 +28,7 @@ const legacyProductSchema = new Schema(
 
 const customerSchema = new Schema(
   {
+    dataCleared: { type: Boolean, default: false },
     email: { type: String, default: "" },
     firstName: { type: String, default: "" },
     lastName: { type: String, default: "" },
@@ -57,6 +58,7 @@ const orderSchema = new Schema(
     status: { type: String, default: "pending" },
     paymentStatus: { type: String, default: "pending" },
     paymentMethod: { type: String, default: "" },
+    customerDataCleared: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
     customer: { type: customerSchema, default: {} },
   },

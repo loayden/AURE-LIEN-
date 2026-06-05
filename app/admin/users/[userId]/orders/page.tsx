@@ -4,7 +4,7 @@ import AdminBanner from "@/components/admin/AdminBanner";
 import AdminEmptyState from "@/components/admin/AdminEmptyState";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminPanel from "@/components/admin/AdminPanel";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useParams } from "next/navigation";
@@ -49,6 +49,7 @@ export default function AdminUserOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [sort, setSort] = useState("newest");
 
   useEffect(() => {
     if (!userId) return;
@@ -102,6 +103,17 @@ export default function AdminUserOrdersPage() {
   };
 
   const totalSpent = orders.reduce((sum, order) => sum + Number(order.totalPrice || 0), 0);
+  const sortedOrders = useMemo(() => {
+    return [...orders].sort((a, b) => {
+      if (sort === "oldest") {
+        return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+      }
+      if (sort === "total-high") return Number(b.totalPrice ?? 0) - Number(a.totalPrice ?? 0);
+      if (sort === "total-low") return Number(a.totalPrice ?? 0) - Number(b.totalPrice ?? 0);
+      if (sort === "status") return String(a.status ?? "").localeCompare(String(b.status ?? ""));
+      return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+    });
+  }, [orders, sort]);
 
   return (
     <div className="space-y-8">
@@ -155,6 +167,26 @@ export default function AdminUserOrdersPage() {
         </div>
       )}
 
+      {!loading && orders.length > 0 ? (
+        <div className="flex justify-end">
+          <label className="sr-only" htmlFor="user-orders-sort">
+            Sort order history
+          </label>
+          <select
+            id="user-orders-sort"
+            value={sort}
+            onChange={(event) => setSort(event.target.value)}
+            className="luxury-select w-full sm:max-w-xs"
+          >
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+            <option value="total-high">Highest total</option>
+            <option value="total-low">Lowest total</option>
+            <option value="status">Status A-Z</option>
+          </select>
+        </div>
+      ) : null}
+
       {loading ? (
         <p className="eyebrow">Loading Order History</p>
       ) : orders.length === 0 ? (
@@ -167,7 +199,7 @@ export default function AdminUserOrdersPage() {
         </AdminPanel>
       ) : (
         <div className="space-y-6">
-          {orders.map((order) => (
+          {sortedOrders.map((order) => (
             <AdminPanel key={order._id} className="p-6">
               <div className="flex flex-wrap justify-between items-start gap-4 mb-6">
                 <div>

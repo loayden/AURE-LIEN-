@@ -33,6 +33,7 @@ export default function AdminProductsPage() {
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
+  const [sort, setSort] = useState("name-asc");
   const [page, setPage] = useState(1);
   const [pendingDelete, setPendingDelete] = useState<AdminProduct | null>(null);
   const [editingProduct, setEditingProduct] = useState<AdminProduct | null>(null);
@@ -68,7 +69,7 @@ export default function AdminProductsPage() {
 
   const filtered = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    return products.filter((product) => {
+    const result = products.filter((product) => {
       const matchesQuery =
         !normalizedQuery ||
         [product.name, product.category, product._id]
@@ -77,14 +78,24 @@ export default function AdminProductsPage() {
       const matchesCategory = category === "all" || product.category === category;
       return matchesQuery && matchesCategory;
     });
-  }, [category, products, query]);
+
+    result.sort((a, b) => {
+      if (sort === "price-high") return Number(b.price ?? 0) - Number(a.price ?? 0);
+      if (sort === "price-low") return Number(a.price ?? 0) - Number(b.price ?? 0);
+      if (sort === "stock-low") return Number(a.stock ?? Number.MAX_SAFE_INTEGER) - Number(b.stock ?? Number.MAX_SAFE_INTEGER);
+      if (sort === "category") return String(a.category ?? "").localeCompare(String(b.category ?? ""));
+      return String(a.name ?? "").localeCompare(String(b.name ?? ""));
+    });
+
+    return result;
+  }, [category, products, query, sort]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const visibleProducts = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   useEffect(() => {
     setPage(1);
-  }, [category, query]);
+  }, [category, query, sort]);
 
   async function confirmDelete() {
     if (!pendingDelete) return;
@@ -187,7 +198,7 @@ export default function AdminProductsPage() {
       {error ? <AdminBanner message={error} /> : null}
 
       <AdminPanel className="p-4 sm:p-6">
-        <div className="mb-5 grid gap-3 lg:grid-cols-[1fr_14rem_auto]">
+        <div className="mb-5 grid gap-3 lg:grid-cols-[1fr_14rem_14rem_auto]">
           <label className="flex min-h-[44px] items-center gap-3 rounded-full border border-[rgba(123,103,82,0.16)] bg-[rgba(255,255,255,0.48)] px-4">
             <Search className="h-4 w-4 text-[#A87935]" strokeWidth={1.4} />
             <span className="sr-only">Search products</span>
@@ -214,6 +225,22 @@ export default function AdminProductsPage() {
                 {formatCategoryLabel(item)}
               </option>
             ))}
+          </select>
+
+          <label className="sr-only" htmlFor="product-sort">
+            Sort products
+          </label>
+          <select
+            id="product-sort"
+            value={sort}
+            onChange={(event) => setSort(event.target.value)}
+            className="min-h-[44px] rounded-full border border-[rgba(123,103,82,0.16)] bg-[#FFF9EF] px-4 text-[11px] uppercase tracking-[0.18em] text-[#3D3025] outline-none"
+          >
+            <option value="name-asc">Name A-Z</option>
+            <option value="price-high">Price high</option>
+            <option value="price-low">Price low</option>
+            <option value="stock-low">Low stock</option>
+            <option value="category">Category</option>
           </select>
 
           <div className="flex min-h-[44px] items-center rounded-full border border-[#A87935]/25 px-4 text-[10px] uppercase tracking-[0.2em] text-[#A87935]">

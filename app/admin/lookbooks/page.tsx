@@ -5,7 +5,7 @@ import AdminEmptyState from "@/components/admin/AdminEmptyState";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminPanel from "@/components/admin/AdminPanel";
 import { BookOpen } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import productsData from "@/lib/productsData";
 
 interface Hotspot {
@@ -34,6 +34,7 @@ export default function AdminLookbooksPage() {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Lookbook | null>(null);
   const [error, setError] = useState("");
+  const [sort, setSort] = useState("title");
   const [form, setForm] = useState({ title: "", slug: "", sections: [] as Section[] });
 
   useEffect(() => {
@@ -133,6 +134,16 @@ export default function AdminLookbooksPage() {
     }
   }
 
+  const sortedLookbooks = useMemo(() => {
+    return [...lookbooks].sort((a, b) => {
+      if (sort === "published") return Number(b.published) - Number(a.published);
+      if (sort === "drafts") return Number(a.published) - Number(b.published);
+      if (sort === "sections") return Number(b.sections?.length ?? 0) - Number(a.sections?.length ?? 0);
+      if (sort === "slug") return String(a.slug ?? "").localeCompare(String(b.slug ?? ""));
+      return String(a.title ?? "").localeCompare(String(b.title ?? ""));
+    });
+  }, [lookbooks, sort]);
+
   if (loading) {
     return <p className="eyebrow">Loading Lookbooks</p>;
   }
@@ -145,6 +156,26 @@ export default function AdminLookbooksPage() {
       />
 
       {error ? <AdminBanner message={error} /> : null}
+
+      {lookbooks.length > 0 ? (
+        <div className="mb-6 flex justify-end sm:mb-8">
+          <label className="sr-only" htmlFor="lookbook-sort">
+            Sort lookbooks
+          </label>
+          <select
+            id="lookbook-sort"
+            value={sort}
+            onChange={(event) => setSort(event.target.value)}
+            className="luxury-select w-full sm:max-w-xs"
+          >
+            <option value="title">Title A-Z</option>
+            <option value="published">Published first</option>
+            <option value="drafts">Drafts first</option>
+            <option value="sections">Most sections</option>
+            <option value="slug">Slug A-Z</option>
+          </select>
+        </div>
+      ) : null}
 
       <AdminPanel className="mb-6 p-4 sm:mb-8 sm:p-6 md:mb-10">
         <h2 className="title-display mb-6 text-[2rem]">Create <em className="gold-italic">Lookbook</em></h2>
@@ -227,7 +258,7 @@ export default function AdminLookbooksPage() {
       </AdminPanel>
 
       <div className="space-y-6">
-        {lookbooks.map((lb) => (
+        {sortedLookbooks.map((lb) => (
           <div
             key={lb._id}
             className="glass-panel flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between"

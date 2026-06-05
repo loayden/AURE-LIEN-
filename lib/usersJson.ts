@@ -475,3 +475,31 @@ export async function updateUserDeviceInfo(
   await writeUserSnapshots(snapshotUsers);
   return snapshotUsers[idx];
 }
+
+export async function clearCustomerUserRecords(): Promise<{
+  removedUsers: number;
+  preservedAdmins: number;
+}> {
+  const existingUsers = await getUsersJson();
+  const adminUsers = existingUsers.filter((user) => user.role === "admin").map(normalizeUser);
+  let removedUsers = Math.max(0, existingUsers.length - adminUsers.length);
+
+  if (useMongoStorage()) {
+    try {
+      await connectDB();
+      const result = await User.deleteMany({ role: { $ne: "admin" } });
+      removedUsers = Math.max(removedUsers, result.deletedCount ?? 0);
+    } catch (error) {
+      console.warn(
+        "⚠️ MongoDB customer user cleanup failed, falling back to snapshot cleanup:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
+  }
+
+  await writeUserSnapshots(adminUsers);
+  return {
+    removedUsers,
+    preservedAdmins: adminUsers.length,
+  };
+}
