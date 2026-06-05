@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@upstash/redis": "^1.37.0",
-    "@vercel/blob": "^2.3.1",
+    "@vercel/blob": "^2.4.0",
     "bcrypt": "^6.0.0",
     "framer-motion": "^12.34.3",
     "jose": "^5.10.0",

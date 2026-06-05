@@ -6,6 +6,11 @@ import {
   isRedisStorageAvailable,
   setRedisBoutiqueApplications,
 } from "@/lib/redisStorage";
+import {
+  hasVercelBlobStorage,
+  readBlobTextWithLegacyPublicFallback,
+  writeBlobText,
+} from "@/lib/blobStorage";
 
 const BLOB_BOUTIQUE_APPLICATIONS_PATH = "boutiqueApplications.json";
 
@@ -85,7 +90,7 @@ export const BOUTIQUE_PARTNER_PLANS = [
 ] as const;
 
 function useCloudStorage(): boolean {
-  return typeof process.env.BLOB_READ_WRITE_TOKEN === "string" && process.env.BLOB_READ_WRITE_TOKEN.length > 0;
+  return hasVercelBlobStorage();
 }
 
 function parseList(value: unknown): string[] {
@@ -254,30 +259,21 @@ async function writeLocalApplications(applications: BoutiqueApplication[]): Prom
 }
 
 async function readBlobApplications(): Promise<BoutiqueApplication[] | null> {
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
-  if (!token) return null;
-
-  const { list } = await import("@vercel/blob");
-  const result = await list({ prefix: BLOB_BOUTIQUE_APPLICATIONS_PATH.replace(/\.[^/.]+$/, "") });
-  const blob = result.blobs.find((item) => item.pathname === BLOB_BOUTIQUE_APPLICATIONS_PATH);
-  if (!blob) return null;
-
-  const response = await fetch(blob.url, {
-    headers: { Authorization: `Bearer ${token}` },
+  const text = await readBlobTextWithLegacyPublicFallback(BLOB_BOUTIQUE_APPLICATIONS_PATH, {
+    access: "private",
   });
-  if (!response.ok) return null;
+  if (!text) return null;
 
   try {
-    return normalizeApplications(JSON.parse(await response.text()));
+    return normalizeApplications(JSON.parse(text));
   } catch {
     return [];
   }
 }
 
 async function writeBlobApplications(applications: BoutiqueApplication[]): Promise<void> {
-  const { put } = await import("@vercel/blob");
-  await put(BLOB_BOUTIQUE_APPLICATIONS_PATH, JSON.stringify(applications, null, 2), {
-    access: "public",
+  await writeBlobText(BLOB_BOUTIQUE_APPLICATIONS_PATH, JSON.stringify(applications, null, 2), {
+    access: "private",
     contentType: "application/json",
   });
 }

@@ -15,6 +15,11 @@ import {
   removeRedisOrder,
   setRedisOrders,
 } from "@/lib/redisStorage";
+import {
+  hasVercelBlobStorage,
+  readBlobTextWithLegacyPublicFallback,
+  writeBlobText,
+} from "@/lib/blobStorage";
 
 const BLOB_ORDERS_PATH = "orders.json";
 const BLOB_ORDERS_DATA_PATH = "ordersData.json";
@@ -28,7 +33,7 @@ function useMongoStorage(): boolean {
 }
 
 function useCloudStorage(): boolean {
-  return typeof process.env.BLOB_READ_WRITE_TOKEN === "string" && process.env.BLOB_READ_WRITE_TOKEN.length > 0;
+  return hasVercelBlobStorage();
 }
 
 function sortOrdersByDateDesc(orders: any[]): any[] {
@@ -191,14 +196,13 @@ async function writeOrderSnapshots(orders: any[]): Promise<void> {
   const ordersData = normalized.map(toOrdersDataRecord);
 
   if (useCloudStorage()) {
-    const { put } = await import("@vercel/blob");
     await Promise.all([
-      put(BLOB_ORDERS_PATH, JSON.stringify(normalized, null, 2), {
-        access: "public",
+      writeBlobText(BLOB_ORDERS_PATH, JSON.stringify(normalized, null, 2), {
+        access: "private",
         contentType: "application/json",
       }),
-      put(BLOB_ORDERS_DATA_PATH, JSON.stringify(ordersData, null, 2), {
-        access: "public",
+      writeBlobText(BLOB_ORDERS_DATA_PATH, JSON.stringify(ordersData, null, 2), {
+        access: "private",
         contentType: "application/json",
       }),
     ]);
@@ -231,17 +235,7 @@ async function syncOrderSnapshotsFromMongo(excludedOrderIds: string[] = []): Pro
 }
 
 async function readBlobByPathname(pathname: string): Promise<string | null> {
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
-  if (!token) return null;
-  const { list } = await import("@vercel/blob");
-  const result = await list({ prefix: pathname.replace(/\.[^/.]+$/, "") });
-  const blob = result.blobs.find((b) => b.pathname === pathname);
-  if (!blob) return null;
-  const res = await fetch(blob.url, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) return null;
-  return res.text();
+  return readBlobTextWithLegacyPublicFallback(pathname, { access: "private" });
 }
 
 /** Read orders array (used by /api/orders and /api/saveorder) */

@@ -10,6 +10,11 @@ import {
   isRedisStorageAvailable,
   setRedisPartnerProducts,
 } from "@/lib/redisStorage";
+import {
+  hasVercelBlobStorage,
+  readBlobTextWithLegacyPublicFallback,
+  writeBlobText,
+} from "@/lib/blobStorage";
 
 const BLOB_PARTNER_PRODUCTS_PATH = "partnerProducts.json";
 
@@ -42,7 +47,7 @@ export type PartnerProductDraft = {
 };
 
 function useCloudStorage(): boolean {
-  return typeof process.env.BLOB_READ_WRITE_TOKEN === "string" && process.env.BLOB_READ_WRITE_TOKEN.length > 0;
+  return hasVercelBlobStorage();
 }
 
 function cleanString(value: unknown): string {
@@ -148,30 +153,21 @@ async function writeLocalPartnerProducts(products: PartnerProductDraft[]): Promi
 }
 
 async function readBlobPartnerProducts(): Promise<PartnerProductDraft[] | null> {
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
-  if (!token) return null;
-
-  const { list } = await import("@vercel/blob");
-  const result = await list({ prefix: BLOB_PARTNER_PRODUCTS_PATH.replace(/\.[^/.]+$/, "") });
-  const blob = result.blobs.find((item) => item.pathname === BLOB_PARTNER_PRODUCTS_PATH);
-  if (!blob) return null;
-
-  const response = await fetch(blob.url, {
-    headers: { Authorization: `Bearer ${token}` },
+  const text = await readBlobTextWithLegacyPublicFallback(BLOB_PARTNER_PRODUCTS_PATH, {
+    access: "private",
   });
-  if (!response.ok) return null;
+  if (!text) return null;
 
   try {
-    return normalizePartnerProducts(JSON.parse(await response.text()));
+    return normalizePartnerProducts(JSON.parse(text));
   } catch {
     return [];
   }
 }
 
 async function writeBlobPartnerProducts(products: PartnerProductDraft[]): Promise<void> {
-  const { put } = await import("@vercel/blob");
-  await put(BLOB_PARTNER_PRODUCTS_PATH, JSON.stringify(products, null, 2), {
-    access: "public",
+  await writeBlobText(BLOB_PARTNER_PRODUCTS_PATH, JSON.stringify(products, null, 2), {
+    access: "private",
     contentType: "application/json",
   });
 }

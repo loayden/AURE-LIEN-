@@ -1,5 +1,6 @@
 import { randomUUID } from "crypto";
 import { getAuthFromRequest } from "@/lib/auth";
+import { hasVercelBlobStorage, isHostedVercelRuntime } from "@/lib/blobStorage";
 import { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
@@ -35,17 +36,6 @@ async function saveLocally(file: File, filename: string) {
   return `/uploads/${filename}`;
 }
 
-function isHostedVercelRuntime(): boolean {
-  return Boolean(process.env.VERCEL);
-}
-
-function hasBlobWriteConfig(): boolean {
-  return Boolean(
-    process.env.BLOB_READ_WRITE_TOKEN?.trim() ||
-      (process.env.BLOB_STORE_ID?.trim() && process.env.VERCEL_OIDC_TOKEN?.trim())
-  );
-}
-
 export async function POST(request: NextRequest) {
   try {
     const auth = await getAuthFromRequest(request);
@@ -78,11 +68,12 @@ export async function POST(request: NextRequest) {
     const safeBaseName = sanitizeBaseName(file.name) || "upload";
     const filename = `${Date.now()}-${randomUUID().slice(0, 8)}-${safeBaseName}.${extension}`;
 
-    if (hasBlobWriteConfig()) {
+    if (hasVercelBlobStorage()) {
       const { put } = await import("@vercel/blob");
       const blob = await put(`uploads/${filename}`, file, {
         access: "public",
         addRandomSuffix: false,
+        contentType: file.type,
       });
       return NextResponse.json({ url: blob.url });
     }
@@ -93,7 +84,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           code: "upload_storage_not_configured",
-          error: "Image uploads need storage setup on the hosted site. Connect Vercel Blob, or paste an image URL for now.",
+          error: "Image uploads need Vercel Blob storage on the hosted site. Connect Vercel Blob or add BLOB_READ_WRITE_TOKEN, then try again.",
         },
         { status: 503 }
       );

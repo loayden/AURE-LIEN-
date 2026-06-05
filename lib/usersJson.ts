@@ -9,6 +9,11 @@ import {
   isRedisStorageAvailable,
   setRedisUsers,
 } from "@/lib/redisStorage";
+import {
+  hasVercelBlobStorage,
+  readBlobTextWithLegacyPublicFallback,
+  writeBlobText,
+} from "@/lib/blobStorage";
 
 export interface UserRecord {
   id: string;
@@ -42,7 +47,7 @@ function useMongoStorage(): boolean {
 }
 
 function useCloudStorage(): boolean {
-  return typeof process.env.BLOB_READ_WRITE_TOKEN === "string" && process.env.BLOB_READ_WRITE_TOKEN.length > 0;
+  return hasVercelBlobStorage();
 }
 
 function normalizeUser(user: any): UserRecord {
@@ -111,17 +116,11 @@ async function writeLocalUsers(users: UserRecord[]) {
 }
 
 async function readBlobUsers(): Promise<UserRecord[]> {
-  const token = process.env.BLOB_READ_WRITE_TOKEN;
-  if (!token) return [];
-  const { list } = await import("@vercel/blob");
-  const result = await list({ prefix: BLOB_USERS_PATH.replace(/\.[^/.]+$/, "") });
-  const blob = result.blobs.find((b) => b.pathname === BLOB_USERS_PATH);
-  if (!blob) return [];
-  const res = await fetch(blob.url, {
-    headers: { Authorization: `Bearer ${token}` },
+  const text = await readBlobTextWithLegacyPublicFallback(BLOB_USERS_PATH, {
+    access: "private",
   });
-  if (!res.ok) return [];
-  const text = await res.text();
+  if (!text) return [];
+
   try {
     const parsed = JSON.parse(text);
     return Array.isArray(parsed) ? parsed.map(normalizeUser) : [];
@@ -131,9 +130,8 @@ async function readBlobUsers(): Promise<UserRecord[]> {
 }
 
 async function writeBlobUsers(users: UserRecord[]) {
-  const { put } = await import("@vercel/blob");
-  await put(BLOB_USERS_PATH, JSON.stringify(users, null, 2), {
-    access: "public",
+  await writeBlobText(BLOB_USERS_PATH, JSON.stringify(users, null, 2), {
+    access: "private",
     contentType: "application/json",
   });
 }
