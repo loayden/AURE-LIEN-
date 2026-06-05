@@ -1002,6 +1002,97 @@ select:-webkit-autofill:focus {
   transform: translateY(-1px);
 }
 
+@media (max-width: 640px) {
+  .mobile-comfort .page-wrap {
+    padding-inline: 0;
+  }
+
+  .mobile-comfort .glass-panel,
+  .mobile-comfort .gold-panel,
+  .mobile-comfort .dark-panel,
+  .mobile-comfort .warm-panel {
+    border-radius: 18px;
+    box-shadow: 0 12px 34px rgba(61,48,37,0.10), inset 0 1px 0 rgba(255,255,255,0.68);
+  }
+
+  .mobile-comfort .glass-panel::before,
+  .mobile-comfort .gold-panel::before,
+  .mobile-comfort .dark-panel::before,
+  .mobile-comfort .warm-panel::before {
+    inset-inline: 0.85rem;
+  }
+
+  .mobile-comfort .title-display {
+    letter-spacing: 0 !important;
+  }
+
+  .mobile-comfort h1.title-display {
+    font-size: clamp(2rem, 10.5vw, 2.85rem) !important;
+    line-height: 0.96 !important;
+  }
+
+  .mobile-comfort h2.title-display {
+    font-size: clamp(1.55rem, 7vw, 2.05rem) !important;
+    line-height: 1 !important;
+  }
+
+  .mobile-comfort .eyebrow {
+    font-size: 8px;
+    letter-spacing: 0.28em;
+  }
+
+  .mobile-comfort .body-copy {
+    font-size: 0.78rem;
+    line-height: 1.62;
+    letter-spacing: 0.02em;
+  }
+
+  .mobile-comfort input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="submit"]):not([type="reset"]):not([type="button"]),
+  .mobile-comfort textarea,
+  .mobile-comfort select {
+    min-height: 44px;
+    border-radius: 12px;
+    padding: 0.72rem 0.85rem;
+    line-height: 1.25;
+  }
+
+  .mobile-comfort textarea {
+    min-height: 5.75rem;
+  }
+
+  .mobile-comfort .luxury-select {
+    padding-right: 2.45rem;
+    background-position: right 0.85rem center;
+  }
+
+  .mobile-comfort .btn-gold,
+  .mobile-comfort .btn-ghost {
+    min-height: 44px;
+    padding: 0.72rem 0.9rem;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+  }
+
+  .mobile-comfort .liquid-row-link {
+    border-radius: 14px;
+    padding: 0.78rem 0.85rem;
+    gap: 0.55rem;
+  }
+
+  .mobile-comfort .empty-icon-panel {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.9rem;
+  }
+
+  .mobile-comfort .count-pill {
+    min-height: 2.25rem;
+    padding: 0.45rem 0.7rem;
+    font-size: 8px;
+    letter-spacing: 0.18em;
+  }
+}
+
 .luxury-container {
   width: min(100%, 80rem);
   margin-inline: auto;

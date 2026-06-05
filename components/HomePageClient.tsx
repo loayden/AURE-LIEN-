@@ -19,15 +19,20 @@ import type { Product } from "@/lib/types";
 import { AnimatePresence, LayoutGroup, MotionConfig, motion } from "framer-motion";
 import {
   ArrowRight,
+  Building2,
+  CalendarDays,
   CheckCircle2,
   ChevronRight,
   CreditCard,
   Heart,
+  MapPin,
   PackageCheck,
+  Percent,
   Search,
   ShieldCheck,
   ShoppingBag,
   Sparkles,
+  Store,
   Truck,
 } from "lucide-react";
 import Image from "next/image";
@@ -560,6 +565,74 @@ function BoutiqueReelFeature() {
               preload="metadata"
             />
           </div>
+        </motion.div>
+      </div>
+    </motion.section>
+  );
+}
+
+function BoutiquePartnerSection() {
+  return (
+    <motion.section
+      variants={sectionReveal}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.18 }}
+      className="border-y border-[#DDDAD2] bg-[#F5F1E8] px-4 py-10 [content-visibility:auto] [contain-intrinsic-size:640px] sm:px-6 sm:py-14 md:px-10"
+    >
+      <div className="mx-auto grid w-full max-w-[92rem] gap-6 lg:grid-cols-[0.88fr_1.12fr] lg:items-stretch">
+        <motion.div variants={fadeUp} className="flex min-w-0 flex-col justify-between rounded-lg border border-[#D5D1C8] bg-white p-6 shadow-[0_24px_60px_rgba(23,21,19,0.08)] sm:p-8">
+          <div>
+            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-[#171513] text-[#D8C08A]">
+              <Store className="h-5 w-5" strokeWidth={1.45} />
+            </div>
+            <p className="text-xs uppercase tracking-[0.2em] text-[#725D2C]">Boutique partners</p>
+            <h2 className="mt-4 max-w-3xl font-serif text-5xl font-light leading-none text-[#171513] sm:text-6xl lg:text-7xl">
+              Sell your boutique on BOUT.
+            </h2>
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-[#5A5650] sm:text-base">
+              A dedicated partner path for Egyptian boutiques: register the store name, location, product categories, free trial length, commission, and monthly plan.
+            </p>
+          </div>
+
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Link
+              href="/boutiques"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-[#171513] px-6 py-3 text-sm text-[#F8F7F2] transition hover:bg-[#725D2C]"
+            >
+              Apply as boutique
+              <AnimatedArrow />
+            </Link>
+            <Link
+              href="/boutiques#partner-plans"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-[#D5D1C8] bg-white px-6 py-3 text-sm text-[#171513] transition hover:border-[#171513]"
+            >
+              View partner model
+              <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
+            </Link>
+          </div>
+        </motion.div>
+
+        <motion.div variants={heroStagger} className="grid gap-3 sm:grid-cols-2">
+          {[
+            { icon: MapPin, label: "Store location", copy: "Boutiques submit their area, street address, and Google Maps link." },
+            { icon: CalendarDays, label: "Free trial", copy: "Start with a 7 or 14 day trial before the monthly subscription." },
+            { icon: Percent, label: "Commission", copy: "Clear sales percentage attached to each commercial plan." },
+            { icon: Building2, label: "Admin review", copy: "Requests land in the admin suite before products go live." },
+          ].map((item) => {
+            const Icon = item.icon;
+            return (
+              <motion.div
+                key={item.label}
+                variants={tileReveal}
+                className="rounded-lg border border-[#D5D1C8] bg-[#171513] p-5 text-[#F8F7F2] shadow-[0_20px_54px_rgba(23,21,19,0.12)]"
+              >
+                <Icon className="mb-7 h-5 w-5 text-[#D8C08A]" strokeWidth={1.45} />
+                <p className="text-[10px] uppercase tracking-[0.2em] text-[#D8C08A]">{item.label}</p>
+                <p className="mt-3 text-sm leading-7 text-[#D9D2C2]">{item.copy}</p>
+              </motion.div>
+            );
+          })}
         </motion.div>
       </div>
     </motion.section>
@@ -1278,6 +1351,8 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
       <SummerCollectionSection addSetBusy={addingSummerSet} onShopFullSet={handleShopSummerSet} />
 
       <BoutiqueReelFeature />
+
+      <BoutiquePartnerSection />
 
       <motion.section
         variants={sectionReveal}

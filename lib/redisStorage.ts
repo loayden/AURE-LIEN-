@@ -10,6 +10,10 @@ const USERS_KEY = "aurelien:users";
 const LEGACY_USERS_KEY = "users";
 const PRODUCTS_KEY = "aurelien:products";
 const LEGACY_PRODUCTS_KEY = "products";
+const BOUTIQUE_APPLICATIONS_KEY = "aurelien:boutique-applications";
+const LEGACY_BOUTIQUE_APPLICATIONS_KEY = "boutique-applications";
+const PARTNER_PRODUCTS_KEY = "aurelien:partner-products";
+const LEGACY_PARTNER_PRODUCTS_KEY = "partner-products";
 const WISHLISTS_KEY = "aurelien:wishlists";
 const LEGACY_WISHLISTS_KEY = "wishlists";
 
@@ -200,6 +204,111 @@ export async function setProductStoreEntries(entries: any[]): Promise<void> {
       error instanceof Error ? error.message : String(error)
     );
     throw error;
+  }
+}
+
+export async function getRedisBoutiqueApplications(): Promise<any[] | null> {
+  try {
+    const [legacyApplications, applications] = await Promise.all([
+      readRedisKeyAsRecord<any>(LEGACY_BOUTIQUE_APPLICATIONS_KEY),
+      readRedisKeyAsRecord<any>(BOUTIQUE_APPLICATIONS_KEY),
+    ]);
+    const merged = { ...legacyApplications, ...applications };
+    const entries = Object.values(merged);
+    return entries.length > 0 ? entries : null;
+  } catch (error) {
+    console.error(
+      "❌ Error reading boutique applications from Redis:",
+      error instanceof Error ? error.message : String(error)
+    );
+    return null;
+  }
+}
+
+export async function setRedisBoutiqueApplications(applications: any[]): Promise<void> {
+  const payload: Record<string, any> = {};
+  for (const application of applications) {
+    const applicationId = String(application?._id ?? application?.id ?? "");
+    if (!applicationId) continue;
+    payload[applicationId] = application;
+  }
+
+  await writeRedisHash(BOUTIQUE_APPLICATIONS_KEY, payload);
+}
+
+export async function appendRedisBoutiqueApplication(application: any): Promise<void> {
+  const redis = getRedis();
+  if (!redis) {
+    throw new Error("Redis storage is not configured");
+  }
+
+  const applicationId = String(application?._id ?? application?.id ?? "");
+  if (!applicationId) {
+    throw new Error("Boutique application is missing an id");
+  }
+
+  try {
+    await redis.hset(BOUTIQUE_APPLICATIONS_KEY, {
+      [applicationId]: JSON.stringify(application),
+    });
+  } catch (error) {
+    if (!isWrongTypeError(error)) {
+      throw error;
+    }
+    await redis.del(BOUTIQUE_APPLICATIONS_KEY);
+    await redis.hset(BOUTIQUE_APPLICATIONS_KEY, {
+      [applicationId]: JSON.stringify(application),
+    });
+  }
+}
+
+export async function getRedisPartnerProducts(): Promise<any[] | null> {
+  try {
+    const [legacyProducts, products] = await Promise.all([
+      readRedisKeyAsRecord<any>(LEGACY_PARTNER_PRODUCTS_KEY),
+      readRedisKeyAsRecord<any>(PARTNER_PRODUCTS_KEY),
+    ]);
+    const entries = Object.values({ ...legacyProducts, ...products });
+    return entries.length > 0 ? entries : null;
+  } catch (error) {
+    console.error(
+      "❌ Error reading partner products from Redis:",
+      error instanceof Error ? error.message : String(error)
+    );
+    return null;
+  }
+}
+
+export async function setRedisPartnerProducts(products: any[]): Promise<void> {
+  const payload: Record<string, any> = {};
+  for (const product of products) {
+    const productId = String(product?._id ?? product?.id ?? "");
+    if (!productId) continue;
+    payload[productId] = product;
+  }
+
+  await writeRedisHash(PARTNER_PRODUCTS_KEY, payload);
+}
+
+export async function appendRedisPartnerProduct(product: any): Promise<void> {
+  const redis = getRedis();
+  if (!redis) {
+    throw new Error("Redis storage is not configured");
+  }
+
+  const productId = String(product?._id ?? product?.id ?? "");
+  if (!productId) {
+    throw new Error("Partner product is missing an id");
+  }
+
+  try {
+    await redis.hset(PARTNER_PRODUCTS_KEY, { [productId]: JSON.stringify(product) });
+  } catch (error) {
+    if (!isWrongTypeError(error)) {
+      throw error;
+    }
+    await redis.del(PARTNER_PRODUCTS_KEY);
+    await redis.hset(PARTNER_PRODUCTS_KEY, { [productId]: JSON.stringify(product) });
   }
 }
 

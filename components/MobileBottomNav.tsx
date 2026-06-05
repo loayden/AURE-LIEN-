@@ -48,21 +48,21 @@ export default function MobileBottomNav() {
 
   return (
     <nav
-      className="pointer-events-none fixed bottom-0 left-1/2 z-50 w-[min(20rem,calc(100vw-1.5rem))] -translate-x-1/2 pb-[max(env(safe-area-inset-bottom),0.65rem)] pt-5 md:hidden"
+      className="pointer-events-none fixed bottom-0 left-1/2 z-50 w-[min(18.25rem,calc(100vw-1.25rem))] -translate-x-1/2 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-3 md:hidden"
       aria-label="Mobile commerce navigation"
     >
       <motion.div
         initial={{ opacity: 0, y: 22 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-        className="pointer-events-auto w-full rounded-[28px] border p-2 backdrop-blur-2xl"
+        className="pointer-events-auto w-full rounded-[24px] border p-1.5 backdrop-blur-2xl"
         style={{
           background: "linear-gradient(135deg, rgba(255,255,255,0.91), rgba(255,249,239,0.82))",
           borderColor: "rgba(123,103,82,0.18)",
           boxShadow: "0 -18px 48px rgba(61,48,37,0.16), 0 12px 32px rgba(61,48,37,0.08), inset 0 1px 0 rgba(255,255,255,0.78)",
         }}
       >
-        <div className="grid grid-cols-[1fr_1fr_3.8rem_1fr_1fr] items-end gap-0.5">
+        <div className="grid grid-cols-[1fr_1fr_3.35rem_1fr_1fr] items-end gap-0.5">
         {ITEMS.map((item) => {
           const Icon = item.icon;
           const featured = item.label === "Search";
@@ -75,7 +75,7 @@ export default function MobileBottomNav() {
               <motion.span
                 className={`relative z-10 flex items-center justify-center ${
                   featured
-                    ? "h-[52px] w-[52px] rounded-full bg-[#171513] text-[#F8F7F2] shadow-[0_12px_28px_rgba(23,21,19,0.24)]"
+                    ? "h-[46px] w-[46px] rounded-full bg-[#171513] text-[#F8F7F2] shadow-[0_12px_28px_rgba(23,21,19,0.24)]"
                     : "h-7 w-7 rounded-full"
                 }`}
                 animate={active ? { y: -1 } : { y: 0 }}
@@ -98,7 +98,7 @@ export default function MobileBottomNav() {
                     transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
                   />
                 ) : null}
-                <Icon className={featured ? "h-5 w-5" : "h-[19px] w-[19px]"} strokeWidth={featured ? 1.75 : 1.6} />
+                <Icon className={featured ? "h-[18px] w-[18px]" : "h-[18px] w-[18px]"} strokeWidth={featured ? 1.75 : 1.6} />
                 {item.label === "Cart" && cartCount > 0 ? (
                   <motion.span
                     initial={{ scale: 0.7 }}
@@ -113,8 +113,8 @@ export default function MobileBottomNav() {
               <span
                 className={`relative z-10 leading-none ${
                   featured
-                    ? "mt-1 text-[9px] font-medium tracking-[0.04em] text-[#3D3025]"
-                    : "text-[9px] tracking-[0.05em]"
+                    ? "mt-0.5 text-[8px] font-medium tracking-[0.04em] text-[#3D3025]"
+                    : "text-[8px] tracking-[0.04em]"
                 }`}
               >
                 {item.label}
@@ -125,8 +125,8 @@ export default function MobileBottomNav() {
           const event = item.event;
           const itemClass =
               featured
-              ? "relative isolate -mt-5 flex min-h-[70px] flex-col items-center justify-end gap-1 rounded-[22px] px-1 transition-colors"
-              : "relative isolate flex min-h-[50px] flex-col items-center justify-center gap-1 overflow-hidden rounded-[20px] px-1 transition-colors";
+              ? "relative isolate -mt-4 flex min-h-[62px] flex-col items-center justify-end gap-1 rounded-[20px] px-1 transition-colors"
+              : "relative isolate flex min-h-[46px] flex-col items-center justify-center gap-1 overflow-hidden rounded-[18px] px-1 transition-colors";
           const activeBackground = active && !featured ? (
             <motion.span
               layoutId="mobile-bottom-nav-active"

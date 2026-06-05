@@ -4,13 +4,15 @@ import AdminBanner from "@/components/admin/AdminBanner";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Download, LayoutDashboard, Package, Plus, ShoppingBag, Users } from "lucide-react";
+import { Building2, Download, LayoutDashboard, Package, PackageCheck, Plus, ShoppingBag, Users } from "lucide-react";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/products", label: "Products", icon: Package },
   { href: "/admin/orders", label: "Orders", icon: ShoppingBag },
+  { href: "/admin/boutiques", label: "Boutiques", icon: Building2 },
+  { href: "/admin/partner-products", label: "Partner Products", icon: PackageCheck },
   { href: "/admin/add-product", label: "Add Product", icon: Plus },
 ];
 
@@ -44,23 +46,23 @@ export default function AdminLayout({
   };
 
   return (
-    <main className="admin-shell liquid-page px-4 pb-16 pt-16 sm:px-6 sm:pb-20 sm:pt-24 md:px-10">
+    <main className="admin-shell liquid-page mobile-comfort px-3 pb-[calc(7.25rem+env(safe-area-inset-bottom))] pt-14 sm:px-6 sm:pb-20 sm:pt-24 md:px-10">
       <div className="page-wrap max-w-[90rem]">
-        <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
-          <aside className="dark-panel flex flex-col gap-5 p-5 sm:p-6">
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
+          <aside className="dark-panel flex flex-col gap-3 p-3 sm:gap-5 sm:p-6">
             <div>
-              <p className="eyebrow mb-4">Maison Control</p>
-              <h2 className="title-display text-[2.15rem]">
+              <p className="eyebrow mb-2 sm:mb-4">Maison Control</p>
+              <h2 className="title-display text-[1.55rem] sm:text-[2.15rem]">
                 Admin <em className="gold-italic">Suite</em>
               </h2>
-              <p className="body-copy mt-4">
+              <p className="body-copy mt-3 hidden sm:mt-4 sm:block">
                 Every operational route now sits inside the same liquid shell as the storefront.
               </p>
             </div>
 
-            <div className="page-header-divider" />
+            <div className="page-header-divider hidden sm:block" />
 
-            <nav className="flex-1 space-y-2">
+            <nav className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 lg:mx-0 lg:block lg:flex-1 lg:overflow-visible lg:px-0 lg:pb-0 lg:space-y-2">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -68,15 +70,15 @@ export default function AdminLayout({
                 key={item.href}
                 href={item.href}
                 prefetch={false}
-                className={`liquid-row-link ${
+                className={`liquid-row-link min-w-[7.25rem] shrink-0 justify-center px-3 lg:min-w-0 lg:justify-between lg:px-4 ${
                   pathname === item.href
                     ? "border-[rgba(168,121,53,0.24)] text-[#A87935]"
                     : ""
                 }`}
               >
-                <span className="inline-flex items-center gap-3">
+                <span className="inline-flex items-center gap-2 lg:gap-3">
                   {Icon && <Icon className="h-4 w-4 shrink-0 text-[#A87935]" />}
-                  <span className="text-[0.76rem] uppercase tracking-[0.24em]">{item.label}</span>
+                  <span className="whitespace-nowrap text-[0.64rem] uppercase tracking-[0.16em] sm:text-[0.76rem] sm:tracking-[0.24em]">{item.label}</span>
                 </span>
               </Link>
             );
@@ -96,7 +98,7 @@ export default function AdminLayout({
             </button>
           </aside>
 
-          <section className="glass-panel p-5 sm:p-7 md:p-8">{children}</section>
+          <section className="glass-panel p-4 sm:p-7 md:p-8">{children}</section>
         </div>
       </div>
     </main>

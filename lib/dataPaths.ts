@@ -15,4 +15,6 @@ export const paths = {
   users: path.join(DATA_DIR, "users.json"),
   wishlist: path.join(DATA_DIR, "wishlist.json"),
   products: path.join(DATA_DIR, "products.json"),
+  boutiqueApplications: path.join(DATA_DIR, "boutiqueApplications.json"),
+  partnerProducts: path.join(DATA_DIR, "partnerProducts.json"),
 } as const;

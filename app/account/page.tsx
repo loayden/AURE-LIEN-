@@ -4,9 +4,11 @@ import { showToast } from "@/components/ToastProvider";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
+  Building2,
   Calendar,
   CheckCircle2,
   Clock,
+  CreditCard,
   Edit3,
   Heart,
   LogOut,
@@ -17,7 +19,9 @@ import {
   Save,
   ShieldCheck,
   ShoppingBag,
+  Store,
   User2,
+  Wallet,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -29,6 +33,7 @@ type AccountUser = {
   name: string;
   email: string;
   role?: string;
+  accountIntent?: "buyer" | "partner" | "both";
   createdAt?: string;
   phone?: string;
   address?: string;
@@ -81,6 +86,32 @@ const completionFields: Array<keyof AccountUser> = [
   "country",
 ];
 
+const accountIntentOptions: Array<{
+  value: "buyer" | "partner" | "both";
+  title: string;
+  copy: string;
+  icon: typeof ShoppingBag;
+}> = [
+  {
+    value: "buyer",
+    title: "Buy from BOUT",
+    copy: "Use the account for shopping, wishlist, delivery, and orders.",
+    icon: ShoppingBag,
+  },
+  {
+    value: "partner",
+    title: "List a boutique",
+    copy: "Use the account to apply, upload products, and manage partner review.",
+    icon: Building2,
+  },
+  {
+    value: "both",
+    title: "Buy and partner",
+    copy: "Keep shopping while also submitting boutique products for review.",
+    icon: Store,
+  },
+];
+
 function formatDate(value?: string) {
   if (!value) return "Not set";
   const date = new Date(value);
@@ -127,6 +158,12 @@ function getProfileCompletion(user: AccountUser | null) {
   if (!user) return 0;
   const completed = completionFields.filter((field) => Boolean(String(user[field] ?? "").trim())).length;
   return Math.round((completed / completionFields.length) * 100);
+}
+
+function accountIntentLabel(value?: AccountUser["accountIntent"]) {
+  if (value === "partner") return "Boutique";
+  if (value === "both") return "Both";
+  return "Buyer";
 }
 
 function getMissingProfileFields(user: AccountUser | null) {
@@ -179,7 +216,7 @@ function AccountField({
       </span>
       <input
         autoComplete={config.autoComplete}
-        className={`min-h-[48px] w-full rounded-[14px] border px-4 text-[0.92rem] tracking-[0.04em] text-[#3D3025] outline-none transition ${
+        className={`min-h-[44px] w-full rounded-[12px] border px-3 text-[0.86rem] tracking-[0.02em] text-[#3D3025] outline-none transition sm:min-h-[48px] sm:rounded-[14px] sm:px-4 sm:text-[0.92rem] sm:tracking-[0.04em] ${
           locked
             ? "border-[#7B6752]/10 bg-white/20 shadow-none"
             : "border-[#A87935]/28 bg-[#FFF9EF]/72 shadow-[0_10px_24px_rgba(61,48,37,0.08)] focus:border-[#A87935]/55"
@@ -328,7 +365,7 @@ export default function AccountPage() {
 
   if (loading) {
     return (
-      <main className="liquid-page pt-24">
+      <main className="liquid-page mobile-comfort pt-20 sm:pt-24">
         <div className="page-wrap flex min-h-[55vh] items-center justify-center">
           <motion.p
             animate={{ opacity: [0.35, 0.78, 0.35] }}
@@ -344,7 +381,7 @@ export default function AccountPage() {
 
   if (!user || !draft) {
     return (
-      <main className="liquid-page px-4 pb-16 pt-16 sm:px-6 sm:pb-20 sm:pt-24 md:px-10">
+      <main className="liquid-page mobile-comfort px-3 pb-[calc(7.25rem+env(safe-area-inset-bottom))] pt-14 sm:px-6 sm:pb-20 sm:pt-24 md:px-10">
         <div className="page-wrap max-w-3xl">
           <div className="glass-panel p-6 sm:p-8">
             <p className="eyebrow mb-4">Private Account</p>
@@ -370,11 +407,12 @@ export default function AccountPage() {
     { label: "Orders", value: String(orders.length), detail: recentOrder ? "Recent activity loaded" : "No purchases yet" },
     { label: "Wishlist", value: String(wishlistCount), detail: wishlistCount === 1 ? "Saved piece" : "Saved pieces" },
     { label: "Lifetime", value: formatCurrency(totalSpend), detail: "Tracked spend" },
+    { label: "Mode", value: accountIntentLabel(user.accountIntent), detail: user.accountIntent === "partner" ? "Boutique partner" : user.accountIntent === "both" ? "Shop and sell" : "Shopping profile" },
     { label: "Profile", value: `${profileCompletion}%`, detail: deliveryReady ? "Checkout ready" : "Details missing" },
   ];
 
   return (
-    <main className="liquid-page px-4 pb-16 pt-16 sm:px-6 sm:pb-20 sm:pt-24 md:px-10">
+    <main className="liquid-page mobile-comfort px-3 pb-[calc(7.25rem+env(safe-area-inset-bottom))] pt-14 sm:px-6 sm:pb-20 sm:pt-24 md:px-10">
       <div className="page-wrap max-w-6xl">
         {error ? (
           <div
@@ -387,25 +425,25 @@ export default function AccountPage() {
           </div>
         ) : null}
 
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-7 sm:mb-9">
-          <p className="eyebrow mb-4">Private Account</p>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-5 sm:mb-9">
+          <p className="eyebrow mb-3 sm:mb-4">Private Account</p>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <h1 className="title-display" style={{ fontSize: "clamp(2.45rem, 6vw, 4.9rem)" }}>
               Maison <em className="gold-italic">Account</em>
             </h1>
             <span className="count-pill">{profileCompletion}% Ready</span>
           </div>
-          <div className="page-header-divider mt-6" />
+          <div className="page-header-divider mt-4 sm:mt-6" />
         </motion.div>
 
-        <section className="glass-panel mb-5 p-5 sm:p-7">
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-center">
-            <div className="flex items-start gap-4 sm:gap-5 lg:items-center">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.15rem] border border-[#A87935]/25 bg-[#A87935]/10 text-[1.2rem] uppercase tracking-[0.12em] text-[#7A581F] sm:h-20 sm:w-20 sm:rounded-[1.4rem] sm:text-[1.55rem]">
+        <section className="glass-panel mb-4 p-4 sm:mb-5 sm:p-7">
+          <div className="grid gap-4 sm:gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-center">
+            <div className="flex items-start gap-3 sm:gap-5 lg:items-center">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[0.95rem] border border-[#A87935]/25 bg-[#A87935]/10 text-[0.98rem] uppercase tracking-[0.08em] text-[#7A581F] sm:h-20 sm:w-20 sm:rounded-[1.4rem] sm:text-[1.55rem]">
                 {getInitials(user)}
               </div>
               <div className="min-w-0">
-                <div className="mb-3 flex flex-wrap items-center gap-2">
+                <div className="mb-2 flex flex-wrap items-center gap-2 sm:mb-3">
                   <span className="inline-flex min-h-[34px] items-center gap-2 rounded-full border border-[#A87935]/20 bg-[#A87935]/10 px-3 text-[9px] uppercase tracking-[0.24em] text-[#7A581F]">
                     <ShieldCheck className="h-3.5 w-3.5" strokeWidth={1.3} />
                     {user.role === "admin" ? "Admin Profile" : "Client Profile"}
@@ -415,13 +453,13 @@ export default function AccountPage() {
                     Since {formatDate(user.createdAt)}
                   </span>
                 </div>
-                <h2 className="title-display text-[2rem] sm:text-[2.35rem]">
+                <h2 className="title-display text-[1.65rem] sm:text-[2.35rem]">
                   {user.name || "Your profile"}
                 </h2>
-                <div className="mt-3 flex flex-col gap-2 text-[0.82rem] tracking-[0.06em] text-[#6F6254] sm:flex-row sm:flex-wrap sm:items-center">
-                  <span className="inline-flex items-center gap-2">
+                <div className="mt-2 flex flex-col gap-1.5 text-[0.78rem] tracking-[0.03em] text-[#6F6254] sm:mt-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2 sm:text-[0.82rem]">
+                  <span className="inline-flex min-w-0 items-center gap-2">
                     <Mail className="h-4 w-4 text-[#A87935]" strokeWidth={1.3} />
-                    {user.email}
+                    <span className="truncate">{user.email}</span>
                   </span>
                   {user.phone ? (
                     <span className="inline-flex items-center gap-2">
@@ -446,7 +484,7 @@ export default function AccountPage() {
                   transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                 />
               </div>
-              <p className="body-copy mt-3 text-[0.78rem]">
+              <p className="body-copy mt-2 text-[0.78rem] sm:mt-3">
                 {missingFields.length > 0
                   ? `${missingFields.slice(0, 3).join(", ")} ${missingFields.length > 3 ? "and more " : ""}still need attention.`
                   : "Your profile is ready for faster checkout and delivery."}
@@ -455,31 +493,30 @@ export default function AccountPage() {
           </div>
         </section>
 
-        <div className="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-5 sm:gap-3 lg:grid-cols-5">
           {stats.map((stat) => (
             <motion.div
               key={stat.label}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="glass-panel p-4 sm:p-5"
+              className="glass-panel p-3 sm:p-5"
             >
-              <p className="eyebrow mb-3">{stat.label}</p>
-              <p className="title-display text-[1.4rem] sm:text-[1.75rem]">{stat.value}</p>
-              <p className="mt-2 text-[0.74rem] tracking-[0.08em] text-[#6F6254]">{stat.detail}</p>
+              <p className="eyebrow mb-2 sm:mb-3">{stat.label}</p>
+              <p className="title-display text-[1.18rem] leading-none sm:text-[1.75rem]">{stat.value}</p>
+              <p className="mt-1.5 text-[0.68rem] leading-5 tracking-[0.03em] text-[#6F6254] sm:mt-2 sm:text-[0.74rem] sm:tracking-[0.08em]">{stat.detail}</p>
             </motion.div>
           ))}
         </div>
-        <div aria-hidden="true" className="h-44 md:hidden" />
 
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(20rem,0.65fr)]">
-          <section className="glass-panel p-5 sm:p-7">
+        <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(20rem,0.65fr)]">
+          <section className="glass-panel p-4 sm:p-7">
             <form
               onSubmit={(event) => {
                 event.preventDefault();
                 saveProfile();
               }}
             >
-              <div className="mb-7 flex flex-wrap items-start justify-between gap-4">
+              <div className="mb-5 flex flex-wrap items-start justify-between gap-3 sm:mb-7 sm:gap-4">
                 <div className="flex items-center gap-3">
                   <div className="empty-icon-panel h-12 w-12 rounded-[1rem]">
                     <User2 strokeWidth={1.2} className="h-5 w-5 text-[#A87935]" />
@@ -511,7 +548,7 @@ export default function AccountPage() {
                 )}
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
                 {profileFields.map((field) => (
                   <AccountField
                     key={field.key}
@@ -523,8 +560,70 @@ export default function AccountPage() {
                 ))}
               </div>
 
-              <div className="mt-8 border-t border-[#7B6752]/14 pt-7">
-                <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+              <div className="mt-6 border-t border-[#7B6752]/14 pt-5 sm:mt-8 sm:pt-7">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3 sm:mb-5">
+                  <div className="flex items-center gap-3">
+                    <div className="empty-icon-panel h-11 w-11 rounded-[1rem]">
+                      <Building2 strokeWidth={1.2} className="h-5 w-5 text-[#A87935]" />
+                    </div>
+                    <div>
+                      <p className="eyebrow mb-2">Account Purpose</p>
+                      <p className="body-copy body-copy-strong">Choose whether this account is for buying, boutique selling, or both.</p>
+                    </div>
+                  </div>
+                  <span className="inline-flex min-h-[34px] items-center rounded-full border border-[#A87935]/22 bg-[#A87935]/10 px-3 text-[9px] uppercase tracking-[0.24em] text-[#7A581F]">
+                    {accountIntentLabel(draft.accountIntent)}
+                  </span>
+                </div>
+
+                <div className="grid gap-2.5 md:grid-cols-3">
+                  {accountIntentOptions.map((option) => {
+                    const Icon = option.icon;
+                    const active = (draft.accountIntent ?? "buyer") === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        aria-pressed={active}
+                        disabled={!editing}
+                        onClick={() => updateDraft("accountIntent", option.value)}
+                        className={`group relative flex min-h-[5.35rem] items-start gap-3 overflow-hidden !rounded-lg border px-3 py-3 pr-10 text-left transition sm:min-h-[6.25rem] sm:px-4 sm:py-4 sm:pr-11 ${
+                          active
+                            ? "border-[#A87935]/45 bg-[#FFF9EF]/72 shadow-[0_14px_34px_rgba(61,48,37,0.08)]"
+                            : "border-[#7B6752]/14 bg-white/30"
+                        } ${editing ? "hover:-translate-y-0.5 hover:border-[#A87935]/38 hover:bg-[#FFF9EF]/60" : "cursor-default"}`}
+                      >
+                        <span
+                          className={`mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border transition ${
+                            active
+                              ? "border-[#A87935]/28 bg-[#A87935]/12 text-[#7A581F]"
+                              : "border-[#7B6752]/14 bg-white/54 text-[#A87935]"
+                          }`}
+                        >
+                          <Icon className="h-4 w-4" strokeWidth={1.25} />
+                        </span>
+                        <span className="block min-w-0 pt-0.5">
+                          <span className="block text-[10px] uppercase tracking-[0.22em] text-[#7A581F]">{option.title}</span>
+                          <span className="mt-2 block text-xs leading-5 tracking-[0.02em] text-[#6F6254]">{option.copy}</span>
+                        </span>
+                        <span
+                          className={`absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full border transition ${
+                            active
+                              ? "border-[#A87935]/35 bg-[#A87935]/14 text-[#7A581F]"
+                              : "border-[#7B6752]/16 bg-white/40 text-transparent"
+                          }`}
+                          aria-hidden="true"
+                        >
+                          <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.45} />
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="mt-6 border-t border-[#7B6752]/14 pt-5 sm:mt-8 sm:pt-7">
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3 sm:mb-5">
                   <div className="flex items-center gap-3">
                     <div className="empty-icon-panel h-11 w-11 rounded-[1rem]">
                       <MapPin strokeWidth={1.2} className="h-5 w-5 text-[#A87935]" />
@@ -546,7 +645,7 @@ export default function AccountPage() {
                   </span>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
                   {deliveryFields.map((field) => (
                     <AccountField
                       key={field.key}
@@ -577,12 +676,12 @@ export default function AccountPage() {
             </form>
           </section>
 
-          <aside className="flex flex-col gap-5">
-            <section className="dark-panel p-5 sm:p-6">
-              <div className="mb-5 flex items-start justify-between gap-4">
+          <aside className="flex flex-col gap-4 sm:gap-5">
+            <section className="dark-panel p-4 sm:p-6">
+              <div className="mb-4 flex items-start justify-between gap-4 sm:mb-5">
                 <div>
-                  <p className="eyebrow mb-3">Recent Activity</p>
-                  <h2 className="title-display text-[2rem]">
+                  <p className="eyebrow mb-2 sm:mb-3">Recent Activity</p>
+                  <h2 className="title-display text-[1.7rem] sm:text-[2rem]">
                     Order <em className="gold-italic">Snapshot</em>
                   </h2>
                 </div>
@@ -592,14 +691,14 @@ export default function AccountPage() {
               </div>
 
               {recentOrder ? (
-                <div className="space-y-5">
+                <div className="space-y-4 sm:space-y-5">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <StatusPill order={recentOrder} />
                     <span className="text-[10px] uppercase tracking-[0.22em] text-[#6F6254]">
                       {formatDate(recentOrder.createdAt)}
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-3 border-y border-[#7B6752]/12 py-4">
+                  <div className="grid grid-cols-2 gap-2 border-y border-[#7B6752]/12 py-3 sm:gap-3 sm:py-4">
                     <div>
                       <p className="eyebrow mb-2">Items</p>
                       <p className="title-display text-[1.45rem]">{orderItemCount(recentOrder)}</p>
@@ -625,7 +724,7 @@ export default function AccountPage() {
                   <p className="body-copy">
                     Your first order will appear here with status, items, and total spend after checkout.
                   </p>
-                  <Link href="/shop" className="btn-gold mt-5 w-full justify-center">
+                  <Link href="/shop" className="btn-gold mt-4 w-full justify-center sm:mt-5">
                     Browse Shop
                     <ArrowRight strokeWidth={1.2} className="h-4 w-4" />
                   </Link>
@@ -633,15 +732,58 @@ export default function AccountPage() {
               )}
             </section>
 
-            <section className="dark-panel flex flex-col gap-4 p-5 sm:p-6">
+            <section className="dark-panel flex flex-col gap-3 p-4 sm:gap-4 sm:p-6">
               <div>
-                <p className="eyebrow mb-3">Client Services</p>
-                <h2 className="title-display text-[2rem]">
+                <p className="eyebrow mb-2 sm:mb-3">Boutique Partner</p>
+                <h2 className="title-display text-[1.7rem] sm:text-[2rem]">
+                  Sell on <em className="gold-italic">BOUT</em>
+                </h2>
+                <p className="body-copy mt-3">
+                  Apply as a boutique, submit products for admin review, and use Paymob for the monthly partner plan when configured.
+                </p>
+              </div>
+
+              <nav className="flex flex-col gap-2 sm:gap-3">
+                <Link href="/boutiques" className="liquid-row-link">
+                  <span className="inline-flex items-center gap-3">
+                    <Building2 strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
+                    <span className="text-[0.78rem] uppercase tracking-[0.22em]">Apply Boutique</span>
+                  </span>
+                  <ArrowRight strokeWidth={1.2} className="h-4 w-4 text-[#7B6752]/45" />
+                </Link>
+                <Link href="/partners/products" className="liquid-row-link">
+                  <span className="inline-flex items-center gap-3">
+                    <Package2 strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
+                    <span className="text-[0.78rem] uppercase tracking-[0.22em]">Upload Products</span>
+                  </span>
+                  <ArrowRight strokeWidth={1.2} className="h-4 w-4 text-[#7B6752]/45" />
+                </Link>
+                <Link href="/partners/products" className="liquid-row-link">
+                  <span className="inline-flex items-center gap-3">
+                    <CreditCard strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
+                    <span className="text-[0.78rem] uppercase tracking-[0.22em]">Pay Partner Plan</span>
+                  </span>
+                  <ArrowRight strokeWidth={1.2} className="h-4 w-4 text-[#7B6752]/45" />
+                </Link>
+                <Link href="/partners/products" className="liquid-row-link">
+                  <span className="inline-flex items-center gap-3">
+                    <Wallet strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
+                    <span className="text-[0.78rem] uppercase tracking-[0.22em]">Partner Wallet</span>
+                  </span>
+                  <ArrowRight strokeWidth={1.2} className="h-4 w-4 text-[#7B6752]/45" />
+                </Link>
+              </nav>
+            </section>
+
+            <section className="dark-panel flex flex-col gap-3 p-4 sm:gap-4 sm:p-6">
+              <div>
+                <p className="eyebrow mb-2 sm:mb-3">Client Services</p>
+                <h2 className="title-display text-[1.7rem] sm:text-[2rem]">
                   Account <em className="gold-italic">Access</em>
                 </h2>
               </div>
 
-              <nav className="flex flex-col gap-3">
+              <nav className="flex flex-col gap-2 sm:gap-3">
                 <Link href="/orders" className="liquid-row-link">
                   <span className="inline-flex items-center gap-3">
                     <Package2 strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
@@ -669,7 +811,7 @@ export default function AccountPage() {
                 whileHover={{ scale: 1.015 }}
                 whileTap={{ scale: 0.985 }}
                 onClick={handleLogout}
-                className="mt-2 inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-full border border-[#9A2222]/18 bg-[#9A2222]/[0.04] px-5 text-[10px] uppercase tracking-[0.26em] text-[#9A2222] transition-colors hover:border-[#9A2222]/34"
+                className="mt-1 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border border-[#9A2222]/18 bg-[#9A2222]/[0.04] px-4 text-[9px] uppercase tracking-[0.22em] text-[#9A2222] transition-colors hover:border-[#9A2222]/34 sm:mt-2 sm:min-h-[48px] sm:px-5 sm:text-[10px] sm:tracking-[0.26em]"
               >
                 <LogOut strokeWidth={1.2} className="h-4 w-4" />
                 Sign Out

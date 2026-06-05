@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, ArrowRight, CheckCircle2, Eye, EyeOff } from "lucide-react";
+import { AlertCircle, ArrowRight, Building2, CheckCircle2, Eye, EyeOff, ShoppingBag, Store } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -12,6 +12,27 @@ const STRENGTH_CONFIG = [
   { label: "Fair",   color: "#7A581F", bg: "rgba(168,121,53,0.14)"  },
   { label: "Strong", color: "#256944", bg: "rgba(37,105,68,0.12)"  },
 ];
+
+const ACCOUNT_INTENT_OPTIONS = [
+  {
+    value: "buyer",
+    label: "Buy",
+    copy: "Shop, wishlist, and track orders.",
+    icon: ShoppingBag,
+  },
+  {
+    value: "partner",
+    label: "Boutique",
+    copy: "Apply and submit products.",
+    icon: Building2,
+  },
+  {
+    value: "both",
+    label: "Both",
+    copy: "Shop and sell on BOUT.",
+    icon: Store,
+  },
+] as const;
 
 function StrengthBar({ password }: { password: string }) {
   const strength = password.length === 0 ? -1 : password.length < 8 ? 0 : password.length < 12 ? 1 : 2;
@@ -59,6 +80,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [accountIntent, setAccountIntent] = useState<(typeof ACCOUNT_INTENT_OPTIONS)[number]["value"]>("buyer");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
@@ -77,7 +99,7 @@ export default function SignupPage() {
       const res = await fetch("/api/auth/signup", {
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ name, email, password, confirmPassword }),
+        body: JSON.stringify({ name, email, password, confirmPassword, accountIntent }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Sign up failed");
@@ -178,6 +200,32 @@ export default function SignupPage() {
                   required
                   className="glass-input"
                 />
+              </Field>
+
+              <Field label="Account Purpose">
+                <div className="grid grid-cols-3 gap-2">
+                  {ACCOUNT_INTENT_OPTIONS.map((option) => {
+                    const Icon = option.icon;
+                    const active = accountIntent === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setAccountIntent(option.value)}
+                        className="min-h-[92px] rounded-2xl border p-3 text-left transition-colors"
+                        style={{
+                          background: active ? "rgba(168,121,53,0.13)" : "rgba(255,248,236,0.035)",
+                          borderColor: active ? "rgba(168,121,53,0.36)" : "rgba(255,248,236,0.08)",
+                        }}
+                        aria-pressed={active}
+                      >
+                        <Icon className="mb-3 h-4 w-4 text-[#A87935]" strokeWidth={1.25} />
+                        <span className="block text-[9px] uppercase tracking-[0.24em] text-[#A87935]">{option.label}</span>
+                        <span className="mt-2 block text-[10px] leading-5 text-white/28">{option.copy}</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </Field>
 
               {/* Password */}

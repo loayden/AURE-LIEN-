@@ -37,6 +37,8 @@ export type AdminCustomerSummary = {
   city: string;
   postalCode: string;
   country: string;
+  accountIntent: "buyer" | "partner" | "both";
+  deviceAccountWarning: string;
   source: "account" | "guest";
 };
 
@@ -117,6 +119,8 @@ function createAccountSummary(user: UserRecord): AdminCustomerSummary {
     city: cleanString(user.city),
     postalCode: cleanString(user.postalCode),
     country: cleanString(user.country),
+    accountIntent: user.accountIntent ?? "buyer",
+    deviceAccountWarning: cleanString(user.deviceAccountWarning),
     source: "account",
   };
 }
@@ -136,6 +140,8 @@ function createGuestSummary(orderId: string, email: string): AdminCustomerSummar
     city: "",
     postalCode: "",
     country: "",
+    accountIntent: "buyer",
+    deviceAccountWarning: "",
     source: "guest",
   };
 }
@@ -155,6 +161,8 @@ function hydrateSummaryFromSources(
     summary.source = "account";
     summary.email = cleanString(user.email) || summary.email || orderEmail;
     summary.createdAt = toIsoDate(user.createdAt);
+    summary.accountIntent = user.accountIntent ?? "buyer";
+    summary.deviceAccountWarning = cleanString(user.deviceAccountWarning);
     if (cleanString(user.name)) {
       summary.name = cleanString(user.name);
     }

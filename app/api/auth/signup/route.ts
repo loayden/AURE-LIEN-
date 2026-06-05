@@ -1,8 +1,9 @@
-import { createUser, findUserByEmail } from "@/lib/usersJson";
+import { createUser, findUserByEmail, findUsersByDeviceId } from "@/lib/usersJson";
 import { hashPassword } from "@/lib/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { sendEmailAsync } from "@/lib/email/sender";
 import { getWelcomeEmailHtml } from "@/lib/email/templates/welcome";
+import { attachDeviceCookie, getOrCreateDeviceId } from "@/lib/deviceIdentity";
 
 export async function POST(req: NextRequest) {
   try {
@@ -36,12 +37,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const requestedIntent = String(body.accountIntent ?? "buyer");
+    const accountIntent = ["buyer", "partner", "both"].includes(requestedIntent)
+      ? requestedIntent as "buyer" | "partner" | "both"
+      : "buyer";
+    const { deviceId } = getOrCreateDeviceId(req);
+    const duplicateDeviceAccounts = await findUsersByDeviceId(
+      deviceId,
+      String(email).toLowerCase().trim()
+    );
+    const deviceAccountWarning = duplicateDeviceAccounts.length > 0
+      ? `Same device has already created ${duplicateDeviceAccounts.length} account(s). Review before approving partner access.`
+      : "";
+
     const hashed = await hashPassword(password);
     const user = await createUser({
       name: (name as string).trim(),
       email: (email as string).toLowerCase().trim(),
       password: hashed,
       role: "customer",
+      accountIntent,
+      deviceId,
+      deviceAccountWarning,
     });
 
     sendEmailAsync({
@@ -50,10 +67,13 @@ export async function POST(req: NextRequest) {
       html: getWelcomeEmailHtml({ userName: user.name }),
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       message: "Account created",
       user: { id: user.id, name: user.name, email: user.email, role: user.role },
     }, { status: 201 });
+    attachDeviceCookie(response, deviceId);
+
+    return response;
   } catch (e) {
     console.error("Signup error:", e);
     return NextResponse.json({ error: "Failed to create account" }, { status: 500 });

@@ -9,6 +9,7 @@ function publicUser(user: any) {
     name: user.name,
     email: user.email,
     role: user.role,
+    accountIntent: user.accountIntent ?? "buyer",
     createdAt: user.createdAt,
     phone: user.phone ?? "",
     address: user.address ?? "",
@@ -55,6 +56,7 @@ export async function PATCH(req: NextRequest) {
       city: typeof body.city === "string" ? body.city : undefined,
       postalCode: typeof body.postalCode === "string" ? body.postalCode : undefined,
       country: typeof body.country === "string" ? body.country : undefined,
+      accountIntent: typeof body.accountIntent === "string" ? body.accountIntent : undefined,
     });
 
     if (!updated) {

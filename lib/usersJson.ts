@@ -14,6 +14,7 @@ export interface UserRecord {
   email: string;
   password: string;
   role: "customer" | "admin";
+  accountIntent: "buyer" | "partner" | "both";
   createdAt: string;
   phone?: string;
   address?: string;
@@ -21,6 +22,8 @@ export interface UserRecord {
   city?: string;
   postalCode?: string;
   country?: string;
+  deviceId?: string;
+  deviceAccountWarning?: string;
 }
 
 const BLOB_USERS_PATH = "users.json";
@@ -44,6 +47,9 @@ function normalizeUser(user: any): UserRecord {
     email: String(user?.email ?? "").toLowerCase().trim(),
     password: String(user?.password ?? ""),
     role: user?.role === "admin" ? "admin" : "customer",
+    accountIntent: ["buyer", "partner", "both"].includes(String(user?.accountIntent))
+      ? user.accountIntent
+      : "buyer",
     createdAt: user?.createdAt
       ? new Date(user.createdAt).toISOString()
       : new Date().toISOString(),
@@ -53,6 +59,8 @@ function normalizeUser(user: any): UserRecord {
     city: String(user?.city ?? "").trim(),
     postalCode: String(user?.postalCode ?? user?.zipCode ?? "").trim(),
     country: String(user?.country ?? "").trim(),
+    deviceId: String(user?.deviceId ?? "").trim(),
+    deviceAccountWarning: String(user?.deviceAccountWarning ?? "").trim(),
   };
 }
 
@@ -189,7 +197,25 @@ export async function findUserById(id: string): Promise<UserRecord | null> {
   return users.find((u) => u.id === id) || null;
 }
 
-export async function createUser(data: Omit<UserRecord, "id" | "createdAt">): Promise<UserRecord> {
+export async function findUsersByDeviceId(
+  deviceId: string,
+  excludeEmail?: string
+): Promise<UserRecord[]> {
+  const normalizedDeviceId = String(deviceId ?? "").trim();
+  if (!normalizedDeviceId) return [];
+
+  const normalizedEmail = String(excludeEmail ?? "").trim().toLowerCase();
+  const users = await getUsersJson();
+  return users.filter((user) => {
+    if (String(user.deviceId ?? "").trim() !== normalizedDeviceId) return false;
+    if (normalizedEmail && user.email.toLowerCase() === normalizedEmail) return false;
+    return true;
+  });
+}
+
+export async function createUser(
+  data: Omit<UserRecord, "id" | "createdAt" | "accountIntent"> & Partial<Pick<UserRecord, "accountIntent">>
+): Promise<UserRecord> {
   const id = `user-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
   const user = normalizeUser({
     ...data,
@@ -262,7 +288,7 @@ export async function updateUserRole(id: string, role: "customer" | "admin"): Pr
 
 export async function updateUserProfile(
   id: string,
-  data: Partial<Pick<UserRecord, "name" | "phone" | "address" | "apartment" | "city" | "postalCode" | "country">>
+  data: Partial<Pick<UserRecord, "name" | "phone" | "address" | "apartment" | "city" | "postalCode" | "country" | "accountIntent">>
 ): Promise<UserRecord | null> {
   const updates = {
     name: data.name?.trim(),
@@ -272,6 +298,9 @@ export async function updateUserProfile(
     city: data.city?.trim(),
     postalCode: data.postalCode?.trim(),
     country: data.country?.trim(),
+    accountIntent: ["buyer", "partner", "both"].includes(String(data.accountIntent))
+      ? data.accountIntent
+      : undefined,
   };
 
   Object.keys(updates).forEach((key) => {
@@ -310,4 +339,58 @@ export async function updateUserProfile(
   users[idx] = normalizeUser({ ...users[idx], ...updates });
   await writeUserSnapshots(users);
   return users[idx];
+}
+
+export async function updateUserDeviceInfo(
+  id: string,
+  deviceId: string
+): Promise<UserRecord | null> {
+  const normalizedDeviceId = String(deviceId ?? "").trim();
+  if (!id || !normalizedDeviceId) return null;
+
+  const users = await getUsersJson();
+  const currentUser = users.find((user) => user.id === id);
+  if (!currentUser) return null;
+
+  const duplicateCount = users.filter(
+    (user) =>
+      user.id !== id &&
+      String(user.deviceId ?? "").trim() === normalizedDeviceId
+  ).length;
+  const deviceAccountWarning = duplicateCount > 0
+    ? `Same device has already signed in or created ${duplicateCount} other account(s). Review before approving partner access.`
+    : currentUser.deviceAccountWarning;
+  const updates: Partial<UserRecord> = {
+    deviceId: normalizedDeviceId,
+    deviceAccountWarning,
+  };
+
+  if (useMongoStorage()) {
+    try {
+      await connectDB();
+      await User.findOneAndUpdate({ $or: [{ id }, { _id: id }] }, updates);
+      try {
+        await syncUserSnapshotsFromMongo();
+      } catch (error) {
+        console.warn(
+          "⚠️ MongoDB user device updated but snapshot sync failed:",
+          error instanceof Error ? error.message : String(error)
+        );
+      }
+      return findUserById(id);
+    } catch (error) {
+      console.warn(
+        "⚠️ MongoDB user device update failed, falling back to snapshot storage:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
+  }
+
+  const snapshotUsers = await readUserSnapshots();
+  const idx = snapshotUsers.findIndex((user) => user.id === id);
+  if (idx === -1) return null;
+
+  snapshotUsers[idx] = normalizeUser({ ...snapshotUsers[idx], ...updates });
+  await writeUserSnapshots(snapshotUsers);
+  return snapshotUsers[idx];
 }

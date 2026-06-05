@@ -16,6 +16,7 @@ import {
   Shirt,
   ShoppingBag,
   ShoppingCart,
+  Store,
   User,
   Watch,
   X,
@@ -39,6 +40,7 @@ type MenuItem = {
 const mainMenuItems: MenuItem[] = [
   { title: "Home", link: "/", icon: <Home strokeWidth={1.4} className="h-3.5 w-3.5" /> },
   { title: "Discover", link: "/discover", icon: <Compass strokeWidth={1.4} className="h-3.5 w-3.5" /> },
+  { title: "Boutiques", link: "/boutiques", icon: <Store strokeWidth={1.4} className="h-3.5 w-3.5" /> },
   { title: "Shop", link: "/shop", icon: <ShoppingBag strokeWidth={1.4} className="h-3.5 w-3.5" /> },
   {
     title: "Collection",

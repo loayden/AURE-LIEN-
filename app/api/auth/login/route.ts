@@ -1,7 +1,8 @@
-import { findUserByEmail } from "@/lib/usersJson";
+import { findUserByEmail, updateUserDeviceInfo } from "@/lib/usersJson";
 import { verifyPassword, signToken, TOKEN_COOKIE } from "@/lib/auth";
 import { getEnvAdminUser, isEnvAdminLogin } from "@/lib/adminAuth";
 import { NextRequest, NextResponse } from "next/server";
+import { attachDeviceCookie, getOrCreateDeviceId } from "@/lib/deviceIdentity";
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,6 +39,7 @@ export async function POST(req: NextRequest) {
         path: "/",
         maxAge: 60 * 60 * 24 * 7,
       });
+      attachDeviceCookie(res, getOrCreateDeviceId(req).deviceId);
 
       return res;
     }
@@ -77,6 +79,15 @@ export async function POST(req: NextRequest) {
       secure: process.env.NODE_ENV === "production",
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
+    });
+    const { deviceId } = getOrCreateDeviceId(req);
+    attachDeviceCookie(res, deviceId);
+
+    await updateUserDeviceInfo(user.id, deviceId).catch((error) => {
+      console.warn(
+        "User device signal update failed:",
+        error instanceof Error ? error.message : String(error)
+      );
     });
 
     return res;

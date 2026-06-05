@@ -3,7 +3,7 @@
 import AdminBanner from "@/components/admin/AdminBanner";
 import AdminEmptyState from "@/components/admin/AdminEmptyState";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
-import { Eye, Search } from "lucide-react";
+import { AlertTriangle, Eye, Search } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -21,6 +21,8 @@ interface AdminUser {
   city: string;
   postalCode: string;
   country: string;
+  accountIntent: "buyer" | "partner" | "both";
+  deviceAccountWarning: string;
   source: "account" | "guest";
 }
 
@@ -142,6 +144,7 @@ export default function AdminUsersPage() {
                   <th>Email</th>
                   <th>Phone</th>
                   <th>Address</th>
+                  <th>Intent</th>
                   <th className="text-center">Orders</th>
                   <th className="text-right">Total Spent</th>
                   <th>Last Activity</th>
@@ -166,6 +169,17 @@ export default function AdminUsersPage() {
                       <td className="min-w-[240px] text-sm">
                         {formatLocation(u)}
                       </td>
+                    <td className="min-w-[180px] text-sm">
+                      <span className="inline-flex rounded-full border border-[rgba(168,121,53,0.22)] bg-[rgba(168,121,53,0.08)] px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] text-[#A87935]">
+                        {u.accountIntent || "buyer"}
+                      </span>
+                      {u.deviceAccountWarning ? (
+                        <p className="mt-2 inline-flex items-start gap-1.5 text-[11px] leading-5 text-[#D8A24D]">
+                          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                          {u.deviceAccountWarning}
+                        </p>
+                      ) : null}
+                    </td>
                     <td className="text-center text-white/78">{u.orders}</td>
                     <td className="text-right text-[#A87935]">EGP {u.totalSpent.toLocaleString()}</td>
                     <td className="text-sm">

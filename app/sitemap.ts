@@ -9,6 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/collection`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.9 },
     { url: `${base}/lookbook`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.8 },
     { url: `${base}/outfit-generator`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
+    { url: `${base}/boutiques`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.7 },
     { url: `${base}/about`, lastModified: new Date(), changeFrequency: "monthly", priority: 0.5 },
     { url: `${base}/cart`, lastModified: new Date(), changeFrequency: "always", priority: 0.6 },
     { url: `${base}/search`, lastModified: new Date(), changeFrequency: "always", priority: 0.6 },
