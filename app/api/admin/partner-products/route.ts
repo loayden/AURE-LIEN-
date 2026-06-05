@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getAuthFromRequest } from "@/lib/auth";
 import { ALL_CATEGORY_META } from "@/lib/commerce";
+import { getProductById } from "@/lib/getAllProducts";
 import { getPartnerProducts, reviewPartnerProduct } from "@/lib/partnerProducts";
 import { notifyPartnerProductReviewed } from "@/lib/notifications";
 
@@ -70,12 +71,21 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Partner product not found" }, { status: 404, headers: NO_STORE_HEADERS });
     }
 
+    let liveProduct = null;
     if (product.status === "approved") {
+      liveProduct = await getProductById(product.productId);
+      if (!liveProduct) {
+        return NextResponse.json(
+          { error: "Product was approved but could not be published to Shop. Try republishing it." },
+          { status: 500, headers: NO_STORE_HEADERS }
+        );
+      }
+
       revalidateCatalog(product.productId);
     }
     notifyPartnerProductReviewed(product);
 
-    return NextResponse.json({ success: true, product }, { headers: NO_STORE_HEADERS });
+    return NextResponse.json({ success: true, product, liveProduct }, { headers: NO_STORE_HEADERS });
   } catch (error) {
     console.error("Partner product review error:", error);
     return NextResponse.json(
