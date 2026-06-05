@@ -1,7 +1,8 @@
 import ProductBrowser from "@/components/commerce/ProductBrowser";
 import { getAllProducts } from "@/lib/getAllProducts";
 
-export const revalidate = 30;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const metadata = {
   title: "Shop BOUT",
@@ -13,7 +14,7 @@ export default async function ShopPage() {
 
   return (
     <ProductBrowser
-      initialProducts={products.slice(0, 50)}
+      initialProducts={products}
       title="Shop BOUT"
       description="The full live catalog, rebuilt for faster browsing: category filters, price range, size, color, stock state, sorting, quick view, and clear empty states."
     />

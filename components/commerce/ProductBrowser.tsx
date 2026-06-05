@@ -287,8 +287,9 @@ export default function ProductBrowser({
   lockCategory?: boolean;
   heroImage?: string;
 }) {
+  const hasInitialProducts = Array.isArray(initialProducts);
   const [products, setProducts] = useState<Product[]>(initialProducts ?? []);
-  const [loading, setLoading] = useState(!initialProducts);
+  const [loading, setLoading] = useState(!hasInitialProducts);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [quickView, setQuickView] = useState<Product | null>(null);
   const [sort, setSort] = useState<SortValue>("featured");
@@ -304,15 +305,14 @@ export default function ProductBrowser({
   const deferredQuery = useDeferredValue(filters.query);
 
   useEffect(() => {
-    if (initialProducts) {
-      setProducts(initialProducts);
-      setLoading(false);
-      return;
-    }
-
     const controller = new AbortController();
     const url = category ? `/api/products?category=${encodeURIComponent(category)}` : "/api/products";
-    setLoading(true);
+    if (hasInitialProducts) {
+      setProducts(initialProducts ?? []);
+      setLoading(false);
+    } else {
+      setLoading(true);
+    }
 
     fetch(url, { cache: "no-store", signal: controller.signal })
       .then((response) => {
@@ -323,14 +323,16 @@ export default function ProductBrowser({
       .catch((error) => {
         if (controller.signal.aborted) return;
         showToast(error instanceof Error ? error.message : "Unable to load products.", "error");
-        setProducts([]);
+        if (!hasInitialProducts) {
+          setProducts([]);
+        }
       })
       .finally(() => {
         if (!controller.signal.aborted) setLoading(false);
       });
 
     return () => controller.abort();
-  }, [category, initialProducts]);
+  }, [category, hasInitialProducts, initialProducts]);
 
   useEffect(() => {
     if (category) {

@@ -18,9 +18,7 @@ export default async function CategoryCollectionPage({
   emptyMessage = "No products found in this category.",
 }: CategoryCollectionPageProps) {
   const products = await getAllProducts();
-  const initialProducts = products
-    .filter((product) => categoryMatches(product, category))
-    .slice(0, 50);
+  const initialProducts = products.filter((product) => categoryMatches(product, category));
 
   return (
     <ProductBrowser

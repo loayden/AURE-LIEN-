@@ -120,11 +120,12 @@ async function loadAllProducts(): Promise<Product[]> {
   const fromJson = await readProductsJson();
   const mongoProducts = await readMongoProducts();
   const fromMongo = mongoProducts.filter((product: any) => product?.deleted !== true);
+  const activeJsonProductIds = new Set(fromJson.map((product) => String(product._id)).filter(Boolean));
   const mongoDeletedProductIds = getDeletedMongoProductIds(mongoProducts);
   const deletedProductIds = await readDeletedProductIds();
   const allDeletedProductIds = new Set([
     ...Array.from(deletedProductIds),
-    ...Array.from(mongoDeletedProductIds),
+    ...Array.from(mongoDeletedProductIds).filter((id) => !activeJsonProductIds.has(id)),
   ]);
 
   return mergeProducts([builtInProducts, fromMongo, fromJson]).filter(

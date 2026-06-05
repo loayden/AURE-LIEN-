@@ -2,6 +2,9 @@ import { getAllProducts } from "@/lib/getAllProducts";
 import { categoryMatches } from "@/lib/commerce";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const categoryMap: Record<string, string> = {
   "jackets-coats": "Jackets & Coats",
   "bags-wallets": "Bags & Wallets",
@@ -66,7 +69,7 @@ export async function GET(req: Request) {
       );
     }
 
-    return NextResponse.json(productsList.slice(0, 50), {
+    return NextResponse.json(productsList, {
       status: 200,
       headers: {
         "Cache-Control": "no-store, max-age=0",
