@@ -11,7 +11,7 @@ import {
   setRedisPartnerProducts,
 } from "@/lib/redisStorage";
 import {
-  hasVercelBlobStorage,
+  hasVercelBlobJsonSnapshotStorage,
   readBlobTextWithLegacyPublicFallback,
   writeBlobText,
 } from "@/lib/blobStorage";
@@ -47,7 +47,7 @@ export type PartnerProductDraft = {
 };
 
 function useCloudStorage(): boolean {
-  return hasVercelBlobStorage();
+  return hasVercelBlobJsonSnapshotStorage();
 }
 
 function cleanString(value: unknown): string {
@@ -190,9 +190,16 @@ export async function getPartnerProducts(): Promise<PartnerProductDraft[]> {
   }
 
   if (isRedisStorageAvailable()) {
-    const redisProducts = await getRedisPartnerProducts();
-    if (redisProducts) {
-      return mergePartnerProducts(normalizePartnerProducts(redisProducts), localProducts);
+    try {
+      const redisProducts = await getRedisPartnerProducts();
+      if (redisProducts) {
+        return mergePartnerProducts(normalizePartnerProducts(redisProducts), localProducts);
+      }
+    } catch (error) {
+      console.error(
+        "Partner product Redis read failed, falling back to local products:",
+        error instanceof Error ? error.message : String(error)
+      );
     }
   }
 
@@ -203,13 +210,27 @@ async function setPartnerProducts(products: PartnerProductDraft[]): Promise<void
   const normalized = normalizePartnerProducts(products);
 
   if (useCloudStorage()) {
-    await writeBlobPartnerProducts(normalized);
-    return;
+    try {
+      await writeBlobPartnerProducts(normalized);
+      return;
+    } catch (error) {
+      console.error(
+        "Partner product Blob write failed, falling back to Redis/local products:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
   }
 
   if (isRedisStorageAvailable()) {
-    await setRedisPartnerProducts(normalized);
-    return;
+    try {
+      await setRedisPartnerProducts(normalized);
+      return;
+    } catch (error) {
+      console.error(
+        "Partner product Redis write failed, falling back to local products:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
   }
 
   await writeLocalPartnerProducts(normalized);

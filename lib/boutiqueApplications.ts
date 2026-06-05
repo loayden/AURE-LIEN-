@@ -7,7 +7,7 @@ import {
   setRedisBoutiqueApplications,
 } from "@/lib/redisStorage";
 import {
-  hasVercelBlobStorage,
+  hasVercelBlobJsonSnapshotStorage,
   readBlobTextWithLegacyPublicFallback,
   writeBlobText,
 } from "@/lib/blobStorage";
@@ -90,7 +90,7 @@ export const BOUTIQUE_PARTNER_PLANS = [
 ] as const;
 
 function useCloudStorage(): boolean {
-  return hasVercelBlobStorage();
+  return hasVercelBlobJsonSnapshotStorage();
 }
 
 function parseList(value: unknown): string[] {
@@ -312,9 +312,16 @@ export async function getBoutiqueApplications(): Promise<BoutiqueApplication[]> 
   }
 
   if (isRedisStorageAvailable()) {
-    const redisApplications = await getRedisBoutiqueApplications();
-    if (redisApplications) {
-      return mergeApplications(normalizeApplications(redisApplications), localApplications);
+    try {
+      const redisApplications = await getRedisBoutiqueApplications();
+      if (redisApplications) {
+        return mergeApplications(normalizeApplications(redisApplications), localApplications);
+      }
+    } catch (error) {
+      console.error(
+        "Boutique Redis read failed, falling back to local applications:",
+        error instanceof Error ? error.message : String(error)
+      );
     }
   }
 
@@ -325,13 +332,27 @@ async function setBoutiqueApplications(applications: BoutiqueApplication[]): Pro
   const normalized = normalizeApplications(applications);
 
   if (useCloudStorage()) {
-    await writeBlobApplications(normalized);
-    return;
+    try {
+      await writeBlobApplications(normalized);
+      return;
+    } catch (error) {
+      console.error(
+        "Boutique Blob write failed, falling back to Redis/local applications:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
   }
 
   if (isRedisStorageAvailable()) {
-    await setRedisBoutiqueApplications(normalized);
-    return;
+    try {
+      await setRedisBoutiqueApplications(normalized);
+      return;
+    } catch (error) {
+      console.error(
+        "Boutique Redis write failed, falling back to local applications:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
   }
 
   await writeLocalApplications(normalized);

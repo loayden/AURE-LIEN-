@@ -17,6 +17,15 @@ export function hasVercelBlobStorage(): boolean {
   return Boolean(readWriteToken || (storeId && (oidcToken || isHostedVercelRuntime())));
 }
 
+export function hasVercelBlobReadWriteToken(): boolean {
+  return Boolean(process.env.BLOB_READ_WRITE_TOKEN?.trim());
+}
+
+export function hasVercelBlobJsonSnapshotStorage(): boolean {
+  const enabled = String(process.env.BLOB_JSON_SNAPSHOTS ?? "").trim().toLowerCase();
+  return hasVercelBlobReadWriteToken() && ["1", "true", "yes"].includes(enabled);
+}
+
 export async function readBlobText(
   pathname: string,
   options: Pick<BlobTextOptions, "access">

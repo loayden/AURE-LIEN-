@@ -16,7 +16,7 @@ import {
   setRedisOrders,
 } from "@/lib/redisStorage";
 import {
-  hasVercelBlobStorage,
+  hasVercelBlobJsonSnapshotStorage,
   readBlobTextWithLegacyPublicFallback,
   writeBlobText,
 } from "@/lib/blobStorage";
@@ -33,7 +33,7 @@ function useMongoStorage(): boolean {
 }
 
 function useCloudStorage(): boolean {
-  return hasVercelBlobStorage();
+  return hasVercelBlobJsonSnapshotStorage();
 }
 
 function sortOrdersByDateDesc(orders: any[]): any[] {
@@ -182,17 +182,28 @@ async function readOrderSnapshots(): Promise<any[]> {
   if (useCloudStorage()) {
     try {
       const text = await readBlobByPathname(BLOB_ORDERS_PATH);
-      if (!text) return [];
-      const parsed = JSON.parse(text);
-      return Array.isArray(parsed) ? parsed.map(normalizeOrder) : [];
-    } catch {
-      return [];
+      if (text) {
+        const parsed = JSON.parse(text);
+        return Array.isArray(parsed) ? parsed.map(normalizeOrder) : [];
+      }
+    } catch (error) {
+      console.error(
+        "Order Blob read failed, falling back to Redis/local snapshot:",
+        error instanceof Error ? error.message : String(error)
+      );
     }
   }
 
   if (isRedisStorageAvailable()) {
-    const redisOrders = await getRedisOrders();
-    return Array.isArray(redisOrders) ? redisOrders.map(normalizeOrder) : [];
+    try {
+      const redisOrders = await getRedisOrders();
+      return Array.isArray(redisOrders) ? redisOrders.map(normalizeOrder) : [];
+    } catch (error) {
+      console.error(
+        "Order Redis read failed, falling back to local snapshot:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
   }
 
   return readLocalJson<any[]>(paths.orders);
@@ -203,22 +214,36 @@ async function writeOrderSnapshots(orders: any[]): Promise<void> {
   const ordersData = normalized.map(toOrdersDataRecord);
 
   if (useCloudStorage()) {
-    await Promise.all([
-      writeBlobText(BLOB_ORDERS_PATH, JSON.stringify(normalized, null, 2), {
-        access: "private",
-        contentType: "application/json",
-      }),
-      writeBlobText(BLOB_ORDERS_DATA_PATH, JSON.stringify(ordersData, null, 2), {
-        access: "private",
-        contentType: "application/json",
-      }),
-    ]);
-    return;
+    try {
+      await Promise.all([
+        writeBlobText(BLOB_ORDERS_PATH, JSON.stringify(normalized, null, 2), {
+          access: "private",
+          contentType: "application/json",
+        }),
+        writeBlobText(BLOB_ORDERS_DATA_PATH, JSON.stringify(ordersData, null, 2), {
+          access: "private",
+          contentType: "application/json",
+        }),
+      ]);
+      return;
+    } catch (error) {
+      console.error(
+        "Order Blob write failed, falling back to Redis/local snapshot:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
   }
 
   if (isRedisStorageAvailable()) {
-    await setRedisOrders(normalized);
-    return;
+    try {
+      await setRedisOrders(normalized);
+      return;
+    } catch (error) {
+      console.error(
+        "Order Redis write failed, falling back to local snapshot:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
   }
 
   await writeLocalJson(paths.orders, normalized);

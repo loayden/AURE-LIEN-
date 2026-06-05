@@ -5,7 +5,7 @@ import {
   isRedisStorageAvailable,
   setProductStoreEntries,
 } from "./redisStorage";
-import { hasVercelBlobStorage, readBlobText, writeBlobText } from "@/lib/blobStorage";
+import { hasVercelBlobJsonSnapshotStorage, readBlobText, writeBlobText } from "@/lib/blobStorage";
 
 const BLOB_PRODUCTS_PATH = "products.json";
 
@@ -106,7 +106,7 @@ function mergeProductStoreEntries(
 }
 
 function useCloudStorage(): boolean {
-  return hasVercelBlobStorage();
+  return hasVercelBlobJsonSnapshotStorage();
 }
 
 function useRedisStorage(): boolean {
@@ -245,13 +245,27 @@ export async function readProductStoreJson(): Promise<ProductStoreEntry[]> {
 
 async function writeProductStoreJson(entries: ProductStoreEntry[]): Promise<void> {
   if (useCloudStorage()) {
-    await writeBlobProductStoreJson(entries);
-    return;
+    try {
+      await writeBlobProductStoreJson(entries);
+      return;
+    } catch (error) {
+      console.error(
+        "Product Blob write failed, falling back to Redis/local snapshot:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
   }
 
   if (useRedisStorage()) {
-    await writeRedisProductStoreJson(entries);
-    return;
+    try {
+      await writeRedisProductStoreJson(entries);
+      return;
+    } catch (error) {
+      console.error(
+        "Product Redis write failed, falling back to local snapshot:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
   }
 
   await writeLocalProductStoreJson(entries);

@@ -10,7 +10,7 @@ import {
   setRedisUsers,
 } from "@/lib/redisStorage";
 import {
-  hasVercelBlobStorage,
+  hasVercelBlobJsonSnapshotStorage,
   readBlobTextWithLegacyPublicFallback,
   writeBlobText,
 } from "@/lib/blobStorage";
@@ -47,7 +47,7 @@ function useMongoStorage(): boolean {
 }
 
 function useCloudStorage(): boolean {
-  return hasVercelBlobStorage();
+  return hasVercelBlobJsonSnapshotStorage();
 }
 
 function normalizeUser(user: any): UserRecord {
@@ -144,16 +144,30 @@ async function readMongoUsers(): Promise<UserRecord[]> {
 
 async function readUserSnapshots(): Promise<UserRecord[]> {
   if (useCloudStorage()) {
-    const blobUsers = await readBlobUsers();
-    if (blobUsers.length > 0) {
-      return blobUsers;
+    try {
+      const blobUsers = await readBlobUsers();
+      if (blobUsers.length > 0) {
+        return blobUsers;
+      }
+    } catch (error) {
+      console.error(
+        "User Blob read failed, falling back to Redis/local snapshot:",
+        error instanceof Error ? error.message : String(error)
+      );
     }
   }
 
   if (isRedisStorageAvailable()) {
-    const redisUsers = await getRedisUsers();
-    if (redisUsers && redisUsers.length > 0) {
-      return redisUsers.map(normalizeUser);
+    try {
+      const redisUsers = await getRedisUsers();
+      if (redisUsers && redisUsers.length > 0) {
+        return redisUsers.map(normalizeUser);
+      }
+    } catch (error) {
+      console.error(
+        "User Redis read failed, falling back to local snapshot:",
+        error instanceof Error ? error.message : String(error)
+      );
     }
   }
 
@@ -162,13 +176,27 @@ async function readUserSnapshots(): Promise<UserRecord[]> {
 
 async function writeUserSnapshots(users: UserRecord[]) {
   if (useCloudStorage()) {
-    await writeBlobUsers(users);
-    return;
+    try {
+      await writeBlobUsers(users);
+      return;
+    } catch (error) {
+      console.error(
+        "User Blob write failed, falling back to Redis/local snapshot:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
   }
 
   if (isRedisStorageAvailable()) {
-    await setRedisUsers(users);
-    return;
+    try {
+      await setRedisUsers(users);
+      return;
+    } catch (error) {
+      console.error(
+        "User Redis write failed, falling back to local snapshot:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
   }
 
   await writeLocalUsers(users);
