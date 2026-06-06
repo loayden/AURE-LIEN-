@@ -6,7 +6,7 @@ import Footer from '@/components/Footer'
 import MobileBottomNav from '@/components/MobileBottomNav'
 import Navbar from '@/components/Navbar'
 import ToastProvider from '@/components/ToastProvider'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Cormorant_Garamond, Jost } from 'next/font/google'
 import './globals.css'
 
@@ -28,6 +28,12 @@ export const metadata: Metadata = {
   },
   twitter: { card: 'summary_large_image' },
   metadataBase: new URL(process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'),
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
 }
 
 const cormorant = Cormorant_Garamond({
