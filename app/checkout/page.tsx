@@ -77,7 +77,6 @@ export default function CheckoutPage() {
     firstName: "", lastName: "", address: "", apartment: "",
     city: "", postalCode: "", phone: "", shippingMethod: "within_egypt",
   });
-  const saveDraftRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cancelOnLeaveReadyRef = useRef(false);
   const paymentRedirectInProgressRef = useRef(false);
   const canceledParam = searchParams.get("canceled");
@@ -103,17 +102,6 @@ export default function CheckoutPage() {
     }
   }, []);
 
-  const saveDraft = useCallback(async (items: FullCartItem[], formData: FormData) => {
-    if (items.length === 0) return;
-    try {
-      await fetch("/api/checkout-draft", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: items.map((i) => ({ _id: i._id, productId: i.productId, name: i.name, price: i.price, quantity: i.quantity, image: i.image, size: i.size, color: i.color })), form: formData, paymentMethod }),
-      });
-    } catch {}
-  }, [paymentMethod]);
-
   useEffect(() => {
     if (canceledParam === "1") {
       setError("Checkout was canceled. Your cart is still here.");
@@ -125,29 +113,6 @@ export default function CheckoutPage() {
     (async () => {
       setLoading(true);
       try {
-        const draftRes = await fetch("/api/checkout-draft");
-        const draftData = await draftRes.json();
-        const draft = draftData.draft;
-        if (draft?.items?.length > 0) {
-          setCart(draft.items.map((i: any) => ({
-            _id: i._id||i.productId,
-            productId: i.productId||i._id,
-            name: i.name??"Unknown",
-            price: Number(i.price??0),
-            quantity: i.quantity??1,
-            image: i.image||"/images/placeholder.svg",
-            size: i.size ?? null,
-            color: i.color ?? null,
-          })));
-          setFromCart(true);
-          if (draft.form) setForm((prev) => ({ ...prev, ...draft.form }));
-          if (draft.paymentMethod === "card" || draft.paymentMethod === "cod") {
-            setPaymentMethod(draft.paymentMethod);
-          }
-          setLoading(false); 
-          return;
-        }
-
         const checkoutJson = typeof window !== "undefined" ? sessionStorage.getItem("checkoutItems") : null;
         if (checkoutJson) {
           const items = JSON.parse(checkoutJson);
@@ -200,13 +165,6 @@ export default function CheckoutPage() {
       finally { setLoading(false); }
     })();
   }, []);
-
-  useEffect(() => {
-    if (cart.length === 0) return;
-    if (saveDraftRef.current) clearTimeout(saveDraftRef.current);
-    saveDraftRef.current = setTimeout(() => { saveDraft(cart, form); saveDraftRef.current = null; }, 800);
-    return () => { if (saveDraftRef.current) clearTimeout(saveDraftRef.current); };
-  }, [cart, form, saveDraft]);
 
   useEffect(() => {
     const cancelOnPageLeave = () => {
@@ -380,7 +338,6 @@ export default function CheckoutPage() {
         sessionStorage.removeItem("checkoutItems"); 
         sessionStorage.removeItem("selectedOrder"); 
       }
-      await fetch("/api/checkout-draft", { method: "DELETE" });
       sessionStorage.removeItem("checkoutOrderId");
       
       if (fromCart) {
