@@ -5,7 +5,7 @@ import { ArrowRight, Calendar, CheckCircle2, Clock, CreditCard, Hash, ShoppingBa
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 /* ── Status badge ── */
 function StatusBadge({ status }: { status: string }) {
@@ -242,7 +242,7 @@ function OrderCard({ order, index }: { order: any; index: number }) {
   );
 }
 
-export default function OrdersPage() {
+function OrdersContent() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -367,5 +367,19 @@ export default function OrdersPage() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function OrdersPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-[#F5F1E8]">
+          <p className="text-[10px] uppercase tracking-[0.32em] text-[#A87935]">Loading orders</p>
+        </div>
+      }
+    >
+      <OrdersContent />
+    </Suspense>
   );
 }

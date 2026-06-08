@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
 const CATEGORY_OPTIONS = [
@@ -123,12 +123,29 @@ type PartnerApplicationSummary = {
   boutiqueName: string;
   ownerName: string;
   phone: string;
+  email: string;
+  planId: "starter" | "growth" | "signature";
   planName: string;
+  monthlyFee: number;
+  commissionRate: number;
+  trialDays: number;
+  subscriptionStatus: string;
   status: "pending" | "contacted" | "approved" | "declined";
   city: string;
   area: string;
+  streetAddress: string;
+  noPhysicalShop: boolean;
+  googleMapsUrl: string;
   createdAt: string;
   payoutStatus: string;
+  access: {
+    canManageProducts: boolean;
+    reason: string;
+    message: string;
+    trialEndsAt?: string;
+    daysRemaining: number;
+    subscriptionUrl: string;
+  };
 };
 
 const initialPayoutForm: PayoutFormState = {
@@ -159,6 +176,7 @@ function payoutStatusCopy(status?: string) {
 
 export default function PartnerProductsPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [applicationId, setApplicationId] = useState(searchParams.get("applicationId") || "");
   const [form, setForm] = useState<FormState>(initialForm);
@@ -186,7 +204,21 @@ export default function PartnerProductsPage() {
     () => applications.find((application) => application._id === applicationId.trim()) ?? null,
     [applicationId, applications]
   );
-  const canUseApplication = Boolean(selectedApplication && selectedApplication.status !== "declined");
+  const canUseApplication = Boolean(
+    selectedApplication &&
+      selectedApplication.status !== "declined" &&
+      selectedApplication.access?.canManageProducts
+  );
+
+  function shouldOpenSubscription(access?: PartnerApplicationSummary["access"]) {
+    return access?.reason === "trial_expired" || access?.reason === "checkout_required" || access?.reason === "checkout_pending";
+  }
+
+  function openSubscriptionFor(application: PartnerApplicationSummary) {
+    const href = application.access?.subscriptionUrl || `/partners/subscription?applicationId=${encodeURIComponent(application._id)}`;
+    showToast(application.access?.message || "Subscribe before uploading products.", "error");
+    router.replace(href);
+  }
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -256,6 +288,12 @@ export default function PartnerProductsPage() {
         cache: "no-store",
       });
       const data = await response.json().catch(() => ({}));
+      if (response.status === 402 && data?.access?.subscriptionUrl) {
+        showToast(data?.error || "Subscribe before uploading products.", "error");
+        router.replace(data.access.subscriptionUrl);
+        setProducts([]);
+        return;
+      }
       if (!response.ok) throw new Error(data?.error || "Unable to load submitted products");
       setProducts(Array.isArray(data.products) ? data.products : []);
     } catch (requestError) {
@@ -315,7 +353,12 @@ export default function PartnerProductsPage() {
         showToast("That application link is not connected to this account. We selected your latest boutique instead.", "error");
       }
 
-      if (nextId) {
+      if (nextApplication && shouldOpenSubscription(nextApplication.access)) {
+        setProducts([]);
+        setWallet(null);
+        setWalletError(nextApplication.access.message);
+        openSubscriptionFor(nextApplication);
+      } else if (nextId) {
         await Promise.all([
           loadProducts(nextId, { silent: true }),
           loadWallet(nextId, { silent: true }),
@@ -341,6 +384,14 @@ export default function PartnerProductsPage() {
 
   function selectApplication(nextId: string) {
     setApplicationId(nextId);
+    const nextApplication = applications.find((application) => application._id === nextId);
+    if (nextApplication && shouldOpenSubscription(nextApplication.access)) {
+      setProducts([]);
+      setWallet(null);
+      setWalletError(nextApplication.access.message);
+      openSubscriptionFor(nextApplication);
+      return;
+    }
     if (nextId) {
       void loadProducts(nextId);
       void loadWallet(nextId);
@@ -603,7 +654,7 @@ export default function PartnerProductsPage() {
                 <p className="eyebrow mb-3">Boutique Application</p>
                 <h2 className="title-display text-[1.85rem] leading-none sm:text-[2.25rem]">اختار البوتيك</h2>
               </div>
-              <Link href="/boutiques#boutique-application" className="btn-ghost justify-center">
+              <Link href="/boutiques/apply" className="btn-ghost justify-center">
                 طلب شراكة جديد
                 <ArrowRight className="h-4 w-4 rotate-180" />
               </Link>
@@ -656,6 +707,12 @@ export default function PartnerProductsPage() {
                 {" "}is connected to this product desk. Status:{" "}
                 <span className="font-medium text-[#7A581F]">{selectedApplication.status}</span>.
                 Products will stay pending until admin approval.
+                {selectedApplication.access?.canManageProducts ? (
+                  <span>
+                    {" "}Trial/subscription access:{" "}
+                    <span className="font-medium text-[#7A581F]">{selectedApplication.access.message}</span>
+                  </span>
+                ) : null}
               </div>
             ) : null}
 

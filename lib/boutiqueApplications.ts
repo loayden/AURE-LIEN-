@@ -1,7 +1,6 @@
 import { promises as fs } from "fs";
 import { paths } from "@/lib/dataPaths";
 import {
-  appendRedisBoutiqueApplication,
   getRedisBoutiqueApplications,
   isRedisStorageAvailable,
   setRedisBoutiqueApplications,
@@ -14,13 +13,22 @@ import {
 
 const BLOB_BOUTIQUE_APPLICATIONS_PATH = "boutiqueApplications.json";
 
-export type BoutiqueApplicationStatus = "pending" | "contacted" | "approved" | "declined";
+export type BoutiqueApplicationStatus = "draft" | "pending" | "contacted" | "approved" | "declined";
 
 export type BoutiquePlanId = "starter" | "growth" | "signature";
 
 export type BoutiquePayoutMethod = "bank_account" | "mobile_wallet" | "paymob_merchant";
 
 export type BoutiquePayoutStatus = "missing" | "pending_review" | "verified";
+
+export type BoutiqueSubscriptionFlow = "trial" | "paid";
+
+export type BoutiqueSubscriptionStatus =
+  | "trial_draft"
+  | "trial_submitted"
+  | "checkout_draft"
+  | "checkout_started"
+  | "subscribed";
 
 export type BoutiquePayoutProfile = {
   method?: BoutiquePayoutMethod;
@@ -37,6 +45,7 @@ export type BoutiquePayoutProfile = {
 export type BoutiqueApplication = {
   _id: string;
   partnerUserId?: string;
+  draftOwnerId?: string;
   boutiqueName: string;
   ownerName: string;
   phone: string;
@@ -44,6 +53,7 @@ export type BoutiqueApplication = {
   city: string;
   area: string;
   streetAddress: string;
+  noPhysicalShop?: boolean;
   googleMapsUrl?: string;
   instagram?: string;
   categories: string[];
@@ -53,13 +63,33 @@ export type BoutiqueApplication = {
   planName: string;
   monthlyFee: number;
   commissionRate: number;
-  trialDays: 7 | 14;
+  trialDays: 0 | 7;
+  subscriptionFlow: BoutiqueSubscriptionFlow;
+  subscriptionStatus: BoutiqueSubscriptionStatus;
   payoutProfile?: BoutiquePayoutProfile;
   sampleProducts?: string;
   notes?: string;
   status: BoutiqueApplicationStatus;
   createdAt: string;
   updatedAt: string;
+};
+
+export type BoutiquePartnerAccessReason =
+  | "subscribed"
+  | "trial_active"
+  | "trial_expired"
+  | "checkout_pending"
+  | "checkout_required"
+  | "draft"
+  | "declined";
+
+export type BoutiquePartnerAccess = {
+  canManageProducts: boolean;
+  reason: BoutiquePartnerAccessReason;
+  message: string;
+  trialEndsAt?: string;
+  daysRemaining: number;
+  subscriptionUrl: string;
 };
 
 export const BOUTIQUE_PARTNER_PLANS = [
@@ -69,25 +99,109 @@ export const BOUTIQUE_PARTNER_PLANS = [
     monthlyFee: 1500,
     commissionRate: 10,
     trialDays: 7,
-    copy: "For small shops testing their first online drop.",
+    copy: "Required starting plan. Free for 7 days, then EGP 1,500 monthly.",
   },
   {
     id: "growth",
     name: "Growth Boutique",
     monthlyFee: 2500,
     commissionRate: 7,
-    trialDays: 14,
-    copy: "For boutiques with regular stock and weekly uploads.",
+    trialDays: 0,
+    copy: "Paid upgrade for boutiques with regular stock and weekly uploads.",
   },
   {
     id: "signature",
     name: "Signature Boutique",
     monthlyFee: 4500,
     commissionRate: 5,
-    trialDays: 14,
-    copy: "For premium stores that need priority product placement.",
+    trialDays: 0,
+    copy: "Paid upgrade for premium stores that need priority product placement.",
   },
 ] as const;
+
+export function getBoutiquePartnerPlan(planId: unknown = "starter") {
+  return normalizePlan(planId);
+}
+
+export function getBoutiquePartnerAccess(
+  application: Pick<
+    BoutiqueApplication,
+    "_id" | "status" | "createdAt" | "trialDays" | "subscriptionStatus"
+  >,
+  now = new Date()
+): BoutiquePartnerAccess {
+  const subscriptionUrl = `/partners/subscription?applicationId=${encodeURIComponent(application._id)}`;
+
+  if (application.status === "draft") {
+    return {
+      canManageProducts: false,
+      reason: "draft",
+      message: "Finish the boutique application before uploading products.",
+      daysRemaining: 0,
+      subscriptionUrl,
+    };
+  }
+
+  if (application.status === "declined") {
+    return {
+      canManageProducts: false,
+      reason: "declined",
+      message: "This boutique application was declined. Contact admin before uploading products.",
+      daysRemaining: 0,
+      subscriptionUrl,
+    };
+  }
+
+  if (application.subscriptionStatus === "subscribed") {
+    return {
+      canManageProducts: true,
+      reason: "subscribed",
+      message: "Subscription active.",
+      daysRemaining: 0,
+      subscriptionUrl,
+    };
+  }
+
+  const createdAtTime = new Date(application.createdAt).getTime();
+  const trialMs = Math.max(0, Number(application.trialDays || 0)) * 24 * 60 * 60 * 1000;
+  const trialEndsAtTime = Number.isFinite(createdAtTime) ? createdAtTime + trialMs : 0;
+  const trialEndsAt = trialEndsAtTime ? new Date(trialEndsAtTime).toISOString() : undefined;
+  const msRemaining = trialEndsAtTime - now.getTime();
+  const daysRemaining = Math.max(0, Math.ceil(msRemaining / (24 * 60 * 60 * 1000)));
+
+  if (trialMs > 0 && msRemaining > 0) {
+    return {
+      canManageProducts: true,
+      reason: "trial_active",
+      message: `Starter trial active. ${daysRemaining} day${daysRemaining === 1 ? "" : "s"} remaining.`,
+      trialEndsAt,
+      daysRemaining,
+      subscriptionUrl,
+    };
+  }
+
+  if (application.subscriptionStatus === "checkout_started") {
+    return {
+      canManageProducts: false,
+      reason: "checkout_pending",
+      message: "Subscription payment is pending confirmation. Complete Paymob checkout or contact admin if you already paid.",
+      trialEndsAt,
+      daysRemaining: 0,
+      subscriptionUrl,
+    };
+  }
+
+  return {
+    canManageProducts: false,
+    reason: trialMs > 0 ? "trial_expired" : "checkout_required",
+    message: trialMs > 0
+      ? "Your 7-day Starter trial has finished. Subscribe to continue uploading products."
+      : "Subscribe before uploading products.",
+    trialEndsAt,
+    daysRemaining: 0,
+    subscriptionUrl,
+  };
+}
 
 function useCloudStorage(): boolean {
   return hasVercelBlobJsonSnapshotStorage();
@@ -107,11 +221,37 @@ function parseList(value: unknown): string[] {
 
 function normalizePlan(planId: unknown) {
   const requested = String(planId ?? "").trim();
-  return BOUTIQUE_PARTNER_PLANS.find((plan) => plan.id === requested) ?? BOUTIQUE_PARTNER_PLANS[1];
+  return BOUTIQUE_PARTNER_PLANS.find((plan) => plan.id === requested) ?? BOUTIQUE_PARTNER_PLANS[0];
 }
 
 function cleanString(value: unknown): string {
   return String(value ?? "").trim();
+}
+
+function normalizeStatus(value: unknown): BoutiqueApplicationStatus {
+  const status = cleanString(value);
+  return (["draft", "pending", "contacted", "approved", "declined"].includes(status)
+    ? status
+    : "pending") as BoutiqueApplicationStatus;
+}
+
+function normalizeSubscriptionFlow(value: unknown, planId: BoutiquePlanId): BoutiqueSubscriptionFlow {
+  const flow = cleanString(value);
+  if (flow === "paid" || flow === "trial") return flow;
+  return planId === "starter" ? "trial" : "paid";
+}
+
+function normalizeSubscriptionStatus(
+  value: unknown,
+  status: BoutiqueApplicationStatus,
+  flow: BoutiqueSubscriptionFlow
+): BoutiqueSubscriptionStatus {
+  const subscriptionStatus = cleanString(value);
+  if (["trial_draft", "trial_submitted", "checkout_draft", "checkout_started", "subscribed"].includes(subscriptionStatus)) {
+    return subscriptionStatus as BoutiqueSubscriptionStatus;
+  }
+  if (status === "draft") return flow === "trial" ? "trial_draft" : "checkout_draft";
+  return flow === "trial" ? "trial_submitted" : "checkout_started";
 }
 
 export function normalizePayoutMethod(value: unknown): BoutiquePayoutMethod | undefined {
@@ -191,12 +331,22 @@ function normalizeApplication(application: any): BoutiqueApplication | null {
   const city = String(application?.city ?? "").trim();
   const area = String(application?.area ?? "").trim();
   const streetAddress = String(application?.streetAddress ?? "").trim();
+  const status = normalizeStatus(application?.status);
+  const noPhysicalShop = Boolean(application?.noPhysicalShop);
 
-  if (!id || !boutiqueName || !ownerName || !phone || !city || !area || !streetAddress) {
+  if (!id) {
+    return null;
+  }
+
+  if (
+    status !== "draft" &&
+    (!boutiqueName || !ownerName || !phone || !city || !area || (!streetAddress && !noPhysicalShop))
+  ) {
     return null;
   }
 
   const plan = normalizePlan(application?.planId);
+  const subscriptionFlow = normalizeSubscriptionFlow(application?.subscriptionFlow, plan.id);
   const createdAt = application?.createdAt
     ? new Date(application.createdAt).toISOString()
     : new Date().toISOString();
@@ -204,6 +354,7 @@ function normalizeApplication(application: any): BoutiqueApplication | null {
   return {
     _id: id,
     partnerUserId: String(application?.partnerUserId ?? "").trim() || undefined,
+    draftOwnerId: String(application?.draftOwnerId ?? "").trim() || undefined,
     boutiqueName,
     ownerName,
     phone,
@@ -211,6 +362,7 @@ function normalizeApplication(application: any): BoutiqueApplication | null {
     city,
     area,
     streetAddress,
+    noPhysicalShop,
     googleMapsUrl: String(application?.googleMapsUrl ?? "").trim() || undefined,
     instagram: String(application?.instagram ?? "").trim() || undefined,
     categories: parseList(application?.categories),
@@ -222,13 +374,13 @@ function normalizeApplication(application: any): BoutiqueApplication | null {
     planName: plan.name,
     monthlyFee: Number(application?.monthlyFee ?? plan.monthlyFee),
     commissionRate: Number(application?.commissionRate ?? plan.commissionRate),
-    trialDays: Number(application?.trialDays) === 7 ? 7 : 14,
+    trialDays: plan.trialDays,
+    subscriptionFlow,
+    subscriptionStatus: normalizeSubscriptionStatus(application?.subscriptionStatus, status, subscriptionFlow),
     payoutProfile: normalizePayoutProfile(application?.payoutProfile ?? application),
     sampleProducts: String(application?.sampleProducts ?? "").trim() || undefined,
     notes: String(application?.notes ?? "").trim() || undefined,
-    status: (["pending", "contacted", "approved", "declined"].includes(String(application?.status))
-      ? application.status
-      : "pending") as BoutiqueApplicationStatus,
+    status,
     createdAt,
     updatedAt: application?.updatedAt
       ? new Date(application.updatedAt).toISOString()
@@ -359,35 +511,164 @@ async function setBoutiqueApplications(applications: BoutiqueApplication[]): Pro
 }
 
 export async function createBoutiqueApplication(
-  payload: Omit<BoutiqueApplication, "_id" | "createdAt" | "updatedAt" | "status">
+  payload: BoutiqueApplicationWritePayload
 ): Promise<BoutiqueApplication> {
+  return submitBoutiqueApplication(payload);
+}
+
+type BoutiqueApplicationWritePayload = Partial<Omit<BoutiqueApplication, "createdAt" | "updatedAt">> & {
+  _id?: string;
+};
+
+function getDraftMatchIndex(applications: BoutiqueApplication[], payload: BoutiqueApplicationWritePayload, planId: BoutiquePlanId) {
+  const explicitId = cleanString(payload._id);
+  if (explicitId) {
+    const explicitIndex = applications.findIndex((application) => application._id === explicitId);
+    if (explicitIndex !== -1) return explicitIndex;
+  }
+
+  const partnerUserId = cleanString(payload.partnerUserId);
+  if (partnerUserId) {
+    const partnerIndex = applications.findIndex(
+      (application) => application.status === "draft" && application.partnerUserId === partnerUserId && application.planId === planId
+    );
+    if (partnerIndex !== -1) return partnerIndex;
+  }
+
+  const draftOwnerId = cleanString(payload.draftOwnerId);
+  if (draftOwnerId) {
+    const ownerIndex = applications.findIndex(
+      (application) => application.status === "draft" && application.draftOwnerId === draftOwnerId && application.planId === planId
+    );
+    if (ownerIndex !== -1) return ownerIndex;
+  }
+
+  const email = cleanString(payload.email).toLowerCase();
+  if (email) {
+    const emailIndex = applications.findIndex(
+      (application) => application.status === "draft" && application.email.toLowerCase() === email && application.planId === planId
+    );
+    if (emailIndex !== -1) return emailIndex;
+  }
+
+  return -1;
+}
+
+async function saveBoutiqueApplicationRecord(
+  payload: BoutiqueApplicationWritePayload,
+  status: BoutiqueApplicationStatus,
+  subscriptionStatus?: BoutiqueSubscriptionStatus
+): Promise<BoutiqueApplication> {
+  const applications = await getBoutiqueApplications();
+  const plan = normalizePlan(payload.planId);
+  const index = status === "draft"
+    ? getDraftMatchIndex(applications, payload, plan.id)
+    : cleanString(payload._id)
+      ? applications.findIndex((application) => application._id === cleanString(payload._id))
+      : -1;
+  const existing = index === -1 ? null : applications[index];
   const now = new Date().toISOString();
-  const application = normalizeApplication({
+  const startsSubmittedLifecycle = Boolean(existing?.status === "draft" && status !== "draft");
+  const next = normalizeApplication({
+    ...existing,
     ...payload,
-    _id: `boutique-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-    status: "pending",
-    createdAt: now,
+    _id: existing?._id || cleanString(payload._id) || `boutique-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+    planId: plan.id,
+    planName: plan.name,
+    monthlyFee: plan.monthlyFee,
+    commissionRate: plan.commissionRate,
+    trialDays: plan.trialDays,
+    subscriptionFlow: payload.subscriptionFlow ?? existing?.subscriptionFlow ?? (plan.id === "starter" ? "trial" : "paid"),
+    subscriptionStatus: subscriptionStatus ?? payload.subscriptionStatus ?? existing?.subscriptionStatus,
+    status,
+    createdAt: startsSubmittedLifecycle ? now : existing?.createdAt || now,
     updatedAt: now,
   });
 
-  if (!application) {
+  if (!next) {
     throw new Error("Invalid boutique application");
   }
 
-  if (useCloudStorage()) {
-    const existing = await getBoutiqueApplications();
-    await setBoutiqueApplications([application, ...existing]);
-    return application;
+  const nextApplications = [...applications];
+  if (index === -1) {
+    nextApplications.unshift(next);
+  } else {
+    nextApplications[index] = next;
   }
 
-  if (isRedisStorageAvailable()) {
-    await appendRedisBoutiqueApplication(application);
-    return application;
-  }
+  await setBoutiqueApplications(nextApplications);
+  return next;
+}
 
-  const existing = await readLocalApplications();
-  await writeLocalApplications([application, ...existing]);
-  return application;
+export async function upsertBoutiqueApplicationDraft(
+  payload: BoutiqueApplicationWritePayload
+): Promise<BoutiqueApplication> {
+  return saveBoutiqueApplicationRecord(payload, "draft");
+}
+
+export async function submitBoutiqueApplication(
+  payload: BoutiqueApplicationWritePayload
+): Promise<BoutiqueApplication> {
+  const plan = normalizePlan(payload.planId);
+  return saveBoutiqueApplicationRecord(
+    payload,
+    "pending",
+    plan.id === "starter" ? "trial_submitted" : "checkout_started"
+  );
+}
+
+export async function markBoutiqueSubscriptionCheckoutStarted(
+  applicationId: string,
+  planId?: BoutiquePlanId,
+  payload: BoutiqueApplicationWritePayload = {}
+): Promise<BoutiqueApplication | null> {
+  const applications = await getBoutiqueApplications();
+  const application = applications.find((item) => item._id === applicationId);
+  if (!application) return null;
+  const plan = normalizePlan(planId ?? application.planId);
+  const noPhysicalShop = typeof payload.noPhysicalShop === "boolean"
+    ? payload.noPhysicalShop
+    : Boolean(application.noPhysicalShop);
+
+  return saveBoutiqueApplicationRecord(
+    {
+      ...application,
+      ...payload,
+      _id: application._id,
+      planId: plan.id,
+      planName: plan.name,
+      monthlyFee: plan.monthlyFee,
+      commissionRate: plan.commissionRate,
+      trialDays: plan.trialDays,
+      subscriptionFlow: "paid",
+      subscriptionStatus: "checkout_started",
+      noPhysicalShop,
+      streetAddress: noPhysicalShop ? "" : cleanString(payload.streetAddress ?? application.streetAddress),
+    },
+    application.status,
+    "checkout_started"
+  );
+}
+
+export async function findBoutiqueApplicationDraft(options: {
+  partnerUserId?: string;
+  draftOwnerId?: string;
+  email?: string;
+  planId?: BoutiquePlanId;
+}): Promise<BoutiqueApplication | null> {
+  const applications = await getBoutiqueApplications();
+  const planId = options.planId;
+  const email = cleanString(options.email).toLowerCase();
+  const draft = applications.find((application) => {
+    if (application.status !== "draft") return false;
+    if (planId && application.planId !== planId) return false;
+    if (options.partnerUserId && application.partnerUserId === options.partnerUserId) return true;
+    if (options.draftOwnerId && application.draftOwnerId === options.draftOwnerId) return true;
+    if (email && application.email.toLowerCase() === email) return true;
+    return false;
+  });
+
+  return draft ?? null;
 }
 
 export async function updateBoutiquePayoutProfile(

@@ -591,7 +591,7 @@ function BoutiquePartnerSection() {
               Sell your boutique on BOUT.
             </h2>
             <p className="mt-5 max-w-2xl text-sm leading-7 text-[#5A5650] sm:text-base">
-              A dedicated partner path for Egyptian boutiques: register the store name, location, product categories, free trial length, commission, and monthly plan.
+              A dedicated partner path for Egyptian boutiques: every partner starts on Starter for 7 free days, then continues monthly or upgrades to a paid tier.
             </p>
           </div>
 
@@ -616,7 +616,7 @@ function BoutiquePartnerSection() {
         <motion.div variants={heroStagger} className="grid gap-3 sm:grid-cols-2">
           {[
             { icon: MapPin, label: "Store location", copy: "Boutiques submit their area, street address, and Google Maps link." },
-            { icon: CalendarDays, label: "Free trial", copy: "Start with a 7 or 14 day trial before the monthly subscription." },
+            { icon: CalendarDays, label: "Starter trial", copy: "Start with Starter Boutique free for 7 days, then continue monthly or upgrade." },
             { icon: Percent, label: "Commission", copy: "Clear sales percentage attached to each commercial plan." },
             { icon: Building2, label: "Admin review", copy: "Requests land in the admin suite before products go live." },
           ].map((item) => {
@@ -1284,8 +1284,8 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
                 transition={{ duration: 1.2, ease: easeOut }}
               >
                 <Image
-                  src={withPublicAssetVersion("/uploads/collections.jpg")}
-                  alt="Black editorial outerwear look"
+                  src={withPublicAssetVersion("/uploads/formal_lines.jpg")}
+                  alt="Man wearing a refined striped jacket on a city street"
                   fill
                   priority
                   sizes="(max-width: 1024px) 100vw, 56vw"

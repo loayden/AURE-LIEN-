@@ -6,7 +6,7 @@ import { Banknote, CheckCircle2, ChevronRight, CreditCard, MapPin, Package, Truc
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 
 interface Product { _id: string; name: string; price: number; images: string[]; }
 interface FullCartItem {
@@ -62,7 +62,7 @@ function GlassSection({ icon, title, children }: { icon: React.ReactNode; title:
   );
 }
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [cart, setCart] = useState<FullCartItem[]>([]);
@@ -719,5 +719,19 @@ export default function CheckoutPage() {
         </div>
       </div>
     </>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-[#F5F1E8]">
+          <p className="text-[10px] uppercase tracking-[0.32em] text-[#A87935]">Loading checkout</p>
+        </div>
+      }
+    >
+      <CheckoutContent />
+    </Suspense>
   );
 }

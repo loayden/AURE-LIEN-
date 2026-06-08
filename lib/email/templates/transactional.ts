@@ -84,15 +84,19 @@ export function getPartnerApplicationEmailHtml(data: {
   trialDays: number;
   reviewWindow: string;
 }): string {
+  const planValue = data.trialDays > 0
+    ? `${data.planName} · ${data.trialDays} day starter trial`
+    : `${data.planName} · paid plan`;
+
   return baseEmailTemplate({
     title: "Boutique application received",
     eyebrow: "Partner Application",
     greeting: `Hello ${data.ownerName || "Boutique partner"},`,
-    intro: "Thank you for applying to sell on BOUT. We received your boutique request and the team will review your store details, location, payout profile, and product quality.",
+    intro: "Thank you for applying to sell on BOUT. We received your boutique request and the team will review your store details, location, and product quality.",
     rows: [
       { label: "Boutique", value: data.boutiqueName },
       { label: "Application ID", value: data.applicationId },
-      { label: "Plan", value: `${data.planName} · ${data.trialDays} day trial` },
+      { label: "Plan", value: planValue },
       { label: "Review Time", value: data.reviewWindow },
       { label: "Next Step", value: "After review, continue by adding products from the partner product desk." },
     ],

@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ message: "Not authorized" }, { status: 403 });
   }
 
-  const applications = await getBoutiqueApplications();
+  const applications = (await getBoutiqueApplications()).filter((application) => application.status !== "draft");
 
   return NextResponse.json({ applications }, { headers: NO_STORE_HEADERS });
 }

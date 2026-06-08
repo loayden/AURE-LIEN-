@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthFromRequest } from "@/lib/auth";
-import { getBoutiqueApplications, type BoutiqueApplication } from "@/lib/boutiqueApplications";
+import {
+  getBoutiqueApplications,
+  getBoutiquePartnerAccess,
+  type BoutiqueApplication,
+} from "@/lib/boutiqueApplications";
 
 const NO_STORE_HEADERS = {
   "Cache-Control": "no-store, max-age=0",
@@ -27,17 +31,28 @@ export async function GET(req: NextRequest) {
 
   const applications = (await getBoutiqueApplications())
     .filter((application) => ownsApplication(application, auth))
+    .filter((application) => application.status !== "draft")
     .map((application) => ({
       _id: application._id,
       boutiqueName: application.boutiqueName,
       ownerName: application.ownerName,
       phone: application.phone,
+      email: application.email,
       planName: application.planName,
+      planId: application.planId,
+      monthlyFee: application.monthlyFee,
+      commissionRate: application.commissionRate,
+      trialDays: application.trialDays,
+      subscriptionStatus: application.subscriptionStatus,
       status: application.status,
       city: application.city,
       area: application.area,
+      streetAddress: application.streetAddress,
+      noPhysicalShop: Boolean(application.noPhysicalShop),
+      googleMapsUrl: application.googleMapsUrl ?? "",
       createdAt: application.createdAt,
       payoutStatus: application.payoutProfile?.status ?? "missing",
+      access: getBoutiquePartnerAccess(application),
     }));
 
   return NextResponse.json({ applications }, { headers: NO_STORE_HEADERS });

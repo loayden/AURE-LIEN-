@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthFromRequest } from "@/lib/auth";
-import { getBoutiqueApplications } from "@/lib/boutiqueApplications";
+import { getBoutiqueApplications, getBoutiquePartnerAccess } from "@/lib/boutiqueApplications";
 import { createPartnerProductDraft, getPartnerProducts } from "@/lib/partnerProducts";
 import { notifyPartnerProductSubmitted } from "@/lib/notifications";
 
@@ -56,6 +56,20 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Not authorized for this boutique application" }, { status: 403, headers: NO_STORE_HEADERS });
   }
 
+  if (application) {
+    const access = getBoutiquePartnerAccess(application);
+    if (!access.canManageProducts) {
+      return NextResponse.json(
+        {
+          code: access.reason,
+          error: access.message,
+          access,
+        },
+        { status: 402, headers: NO_STORE_HEADERS }
+      );
+    }
+  }
+
   const products = await getPartnerProducts();
   const filtered = applicationId
     ? products.filter((product) => product.applicationId === applicationId)
@@ -91,6 +105,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "Not authorized for this boutique application" },
         { status: 403, headers: NO_STORE_HEADERS }
+      );
+    }
+
+    const access = getBoutiquePartnerAccess(application);
+    if (!access.canManageProducts) {
+      return NextResponse.json(
+        {
+          code: access.reason,
+          error: access.message,
+          access,
+        },
+        { status: 402, headers: NO_STORE_HEADERS }
       );
     }
 

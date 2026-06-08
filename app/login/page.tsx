@@ -4,10 +4,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, ArrowRight, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
 
-export default function LoginPage() {
+function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect");
@@ -213,5 +213,19 @@ export default function LoginPage() {
 
       </main>
     </>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="relative flex min-h-screen items-center justify-center bg-[#F5F1E8] px-4 py-16">
+          <p className="text-[10px] uppercase tracking-[0.32em] text-[#A87935]">Loading sign in</p>
+        </main>
+      }
+    >
+      <LoginContent />
+    </Suspense>
   );
 }

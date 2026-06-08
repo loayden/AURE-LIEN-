@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthFromRequest } from "@/lib/auth";
-import { getBoutiqueApplications } from "@/lib/boutiqueApplications";
+import {
+  getBoutiqueApplications,
+  getBoutiquePartnerPlan,
+  markBoutiqueSubscriptionCheckoutStarted,
+} from "@/lib/boutiqueApplications";
 import { createPaymobPartnerCheckout, getPaymobSetupStatus } from "@/lib/paymob";
 
 const NO_STORE_HEADERS = {
@@ -9,6 +13,13 @@ const NO_STORE_HEADERS = {
 
 function cleanString(value: unknown): string {
   return String(value ?? "").trim();
+}
+
+function normalizeUrl(value: unknown): string | undefined {
+  const text = cleanString(value);
+  if (!text) return undefined;
+  if (/^https?:\/\//i.test(text)) return text;
+  return `https://${text}`;
 }
 
 export async function POST(req: NextRequest) {
@@ -34,6 +45,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json().catch(() => ({}));
     const applicationId = cleanString(body.applicationId);
+    const plan = getBoutiquePartnerPlan(body.planId);
 
     if (!applicationId) {
       return NextResponse.json({ error: "Application id is required" }, { status: 400, headers: NO_STORE_HEADERS });
@@ -56,22 +68,36 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const noPhysicalShop = Boolean(body.noPhysicalShop ?? application.noPhysicalShop);
+    const applicationPatch = {
+      boutiqueName: cleanString(body.boutiqueName) || application.boutiqueName,
+      ownerName: cleanString(body.ownerName) || application.ownerName,
+      phone: cleanString(body.phone) || application.phone,
+      email: cleanString(body.email) || application.email,
+      city: cleanString(body.city) || application.city,
+      area: cleanString(body.area) || application.area,
+      streetAddress: noPhysicalShop ? "" : cleanString(body.streetAddress) || application.streetAddress,
+      noPhysicalShop,
+      googleMapsUrl: normalizeUrl(body.googleMapsUrl) || application.googleMapsUrl,
+    };
+
     const origin = req.nextUrl.origin || process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
     const returnUrl = `${origin}/partners/products?applicationId=${encodeURIComponent(application._id)}&payment=returned`;
     const checkout = await createPaymobPartnerCheckout({
-      amountEgp: application.monthlyFee,
+      amountEgp: plan.monthlyFee,
       applicationId: application._id,
-      planId: application.planId,
-      planName: application.planName,
+      planId: plan.id,
+      planName: plan.name,
       customer: {
-        name: application.ownerName,
-        email: application.email,
-        phone: application.phone,
-        city: application.city,
-        streetAddress: application.streetAddress,
+        name: applicationPatch.ownerName,
+        email: applicationPatch.email,
+        phone: applicationPatch.phone,
+        city: applicationPatch.city,
+        streetAddress: applicationPatch.streetAddress,
       },
       returnUrl,
     });
+    await markBoutiqueSubscriptionCheckoutStarted(application._id, plan.id, applicationPatch);
 
     return NextResponse.json(
       {

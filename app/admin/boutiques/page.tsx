@@ -67,11 +67,10 @@ export default function AdminBoutiquesPage() {
   const sortedApplications = useMemo(() => {
     return [...applications].sort((a, b) => {
       if (sort === "status") {
-        const order = { pending: 0, contacted: 1, approved: 2, declined: 3 };
+        const order = { draft: 0, pending: 1, contacted: 2, approved: 3, declined: 4 };
         return order[a.status] - order[b.status];
       }
       if (sort === "fee-high") return Number(b.monthlyFee ?? 0) - Number(a.monthlyFee ?? 0);
-      if (sort === "trial-long") return Number(b.trialDays ?? 0) - Number(a.trialDays ?? 0);
       if (sort === "city") return String(a.city ?? "").localeCompare(String(b.city ?? ""));
       if (sort === "name") return String(a.boutiqueName ?? "").localeCompare(String(b.boutiqueName ?? ""));
       return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
@@ -94,7 +93,7 @@ export default function AdminBoutiquesPage() {
     <div className="space-y-5 sm:space-y-8">
       <AdminPageHeader
         title="Boutique Applications"
-        description="Review partner boutiques that want to sell through BOUT, including location, trial, commission, and monthly plan."
+        description="Review partner boutiques that want to sell through BOUT, including location, starter access, commission, and monthly plan."
       />
 
       <div className="grid grid-cols-3 gap-2 sm:gap-4">
@@ -130,7 +129,6 @@ export default function AdminBoutiquesPage() {
             <option value="newest">Newest first</option>
             <option value="status">Pending first</option>
             <option value="fee-high">Highest monthly fee</option>
-            <option value="trial-long">Longest trial</option>
             <option value="city">City A-Z</option>
             <option value="name">Boutique A-Z</option>
           </select>
@@ -164,7 +162,11 @@ export default function AdminBoutiquesPage() {
                   </p>
                 </div>
                 <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[rgba(168,121,53,0.22)] bg-[rgba(168,121,53,0.08)] px-3 py-1.5 text-[9px] uppercase tracking-[0.16em] text-[#A87935] sm:py-2 sm:text-[10px] sm:tracking-[0.2em]">
-                  {application.trialDays} day trial
+                    {application.status === "draft"
+                      ? "Draft"
+                      : application.trialDays > 0
+                        ? `${application.trialDays} day starter`
+                        : "Paid plan"}
                 </span>
               </div>
 
@@ -196,7 +198,7 @@ export default function AdminBoutiquesPage() {
               <div className="mt-4 rounded-[16px] border border-[rgba(123,103,82,0.14)] bg-white/44 p-3 sm:mt-5 sm:rounded-[22px] sm:p-4">
                 <p className="eyebrow mb-3">Location</p>
                 <p className="body-copy">
-                  {application.streetAddress}
+                  {application.noPhysicalShop ? "No physical shop yet" : application.streetAddress}
                 </p>
                 {application.googleMapsUrl ? (
                   <a

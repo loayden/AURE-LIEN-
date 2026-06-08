@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Boutique Partners Egypt | BOUT",
   description:
-    "Partner with BOUT in Egypt. Register a boutique location, product categories, free trial length, commission model, and monthly plan.",
+    "Partner with BOUT in Egypt. Start with Starter Boutique for 7 free days, then continue monthly or upgrade to a paid boutique plan.",
 };
 
 export default function BoutiquesPage() {

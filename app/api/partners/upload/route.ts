@@ -4,7 +4,7 @@ import { mkdir, writeFile } from "fs/promises";
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthFromRequest } from "@/lib/auth";
 import { hasVercelBlobStorage, isHostedVercelRuntime } from "@/lib/blobStorage";
-import { getBoutiqueApplications } from "@/lib/boutiqueApplications";
+import { getBoutiqueApplications, getBoutiquePartnerAccess } from "@/lib/boutiqueApplications";
 
 export const runtime = "nodejs";
 
@@ -72,6 +72,18 @@ export async function POST(request: NextRequest) {
 
     if (!ownsApplication) {
       return NextResponse.json({ error: "Not authorized for this boutique application." }, { status: 403 });
+    }
+
+    const access = getBoutiquePartnerAccess(application);
+    if (!access.canManageProducts) {
+      return NextResponse.json(
+        {
+          code: access.reason,
+          error: access.message,
+          access,
+        },
+        { status: 402 }
+      );
     }
 
     if (!(file instanceof File)) {

@@ -51,7 +51,7 @@ const jost = Jost({
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${jost.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${cormorant.variable} ${jost.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className="bg-[#F5F1E8] text-[#3D3025]">
         <AmbientBackdrop />
         <ClientErrorBoundary fallback={null}>
