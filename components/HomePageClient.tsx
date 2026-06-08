@@ -19,15 +19,12 @@ import type { Product } from "@/lib/types";
 import { AnimatePresence, LayoutGroup, MotionConfig, motion } from "framer-motion";
 import {
   ArrowRight,
-  Building2,
   CalendarDays,
   CheckCircle2,
   ChevronRight,
   CreditCard,
   Heart,
-  MapPin,
   PackageCheck,
-  Percent,
   Search,
   ShieldCheck,
   ShoppingBag,
@@ -578,16 +575,37 @@ function BoutiquePartnerSection() {
       initial="hidden"
       whileInView="show"
       viewport={{ once: true, amount: 0.18 }}
-      className="border-y border-[#DDDAD2] bg-[#F5F1E8] px-4 py-10 [content-visibility:auto] [contain-intrinsic-size:640px] sm:px-6 sm:py-14 md:px-10"
+      data-testid="home-boutiques-section"
+      className="border-y border-[#DDDAD2] bg-[#F5F1E8] px-4 py-10 [content-visibility:auto] [contain-intrinsic-size:820px] sm:px-6 sm:py-14 md:px-10"
     >
-      <div className="mx-auto grid w-full max-w-[92rem] gap-6 lg:grid-cols-[0.88fr_1.12fr] lg:items-stretch">
-        <motion.div variants={fadeUp} className="flex min-w-0 flex-col justify-between rounded-lg border border-[#D5D1C8] bg-white p-6 shadow-[0_24px_60px_rgba(23,21,19,0.08)] sm:p-8">
+      <div className="mx-auto grid w-full max-w-[92rem] gap-4 lg:grid-cols-[1.08fr_0.92fr] lg:items-stretch">
+        <motion.div variants={imageReveal} className="relative min-h-[28rem] overflow-hidden rounded-lg border border-[#D5D1C8] bg-[#171513] shadow-[0_28px_72px_rgba(23,21,19,0.14)] sm:min-h-[36rem]">
+          <Image
+            src={withPublicAssetVersion("/uploads/boutique-partner-interior.jpg")}
+            alt="Luxury boutique interior with clothing racks and curated local fashion"
+            fill
+            sizes="(max-width: 1024px) 100vw, 54vw"
+            className="object-cover transition duration-700 hover:scale-[1.02]"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(23,21,19,0.10),rgba(23,21,19,0.22)_46%,rgba(23,21,19,0.82))]" />
+          <div className="absolute inset-x-4 bottom-4 text-[#F8F7F2] sm:inset-x-6 sm:bottom-6">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-[#D8C08A] sm:text-xs">Boutique partners</p>
+            <h2 className="mt-3 max-w-2xl font-serif text-4xl font-light leading-none sm:text-6xl lg:text-7xl">
+              Bring your boutique online.
+            </h2>
+            <p className="mt-4 max-w-xl text-sm leading-7 text-[#E4DED3] sm:text-base">
+              BOUT gives local fashion stores a curated digital shelf, admin review, product approval, and a clear subscription path.
+            </p>
+          </div>
+        </motion.div>
+
+        <motion.div variants={fadeUp} className="flex min-w-0 flex-col justify-between rounded-lg border border-[#D5D1C8] bg-white p-5 shadow-[0_24px_60px_rgba(23,21,19,0.08)] sm:p-8">
           <div>
-            <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-[#171513] text-[#D8C08A]">
+            <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-[#171513] text-[#D8C08A]">
               <Store className="h-5 w-5" strokeWidth={1.45} />
             </div>
-            <p className="text-xs uppercase tracking-[0.2em] text-[#725D2C]">Boutique partners</p>
-            <h2 className="mt-4 max-w-3xl font-serif text-5xl font-light leading-none text-[#171513] sm:text-6xl lg:text-7xl">
+            <p className="text-xs uppercase tracking-[0.2em] text-[#725D2C]">For Egyptian boutiques</p>
+            <h2 className="mt-4 max-w-3xl font-serif text-4xl font-light leading-none text-[#171513] sm:text-6xl">
               Sell your boutique on BOUT.
             </h2>
             <p className="mt-5 max-w-2xl text-sm leading-7 text-[#5A5650] sm:text-base">
@@ -595,7 +613,28 @@ function BoutiquePartnerSection() {
             </p>
           </div>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-6 grid gap-2">
+            {[
+              { icon: CalendarDays, label: "Start with 7 days", copy: "Submit your boutique application and test the Starter plan first." },
+              { icon: PackageCheck, label: "Upload products", copy: "Add photos, prices, sizes, and colors for admin review." },
+              { icon: ShoppingBag, label: "Go live in shop", copy: "Approved products appear in Shop and product pages." },
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <div key={item.label} className="grid grid-cols-[2.75rem_1fr] gap-3 rounded-lg border border-[#E2DFD8] bg-[#F7F7F4] p-3">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-[#725D2C]">
+                    <Icon className="h-4 w-4" strokeWidth={1.45} />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-[10px] uppercase tracking-[0.18em] text-[#725D2C]">{item.label}</span>
+                    <span className="mt-1 block text-sm leading-6 text-[#5A5650]">{item.copy}</span>
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Link
               href="/boutiques"
               className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-[#171513] px-6 py-3 text-sm text-[#F8F7F2] transition hover:bg-[#725D2C]"
@@ -611,28 +650,6 @@ function BoutiquePartnerSection() {
               <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
             </Link>
           </div>
-        </motion.div>
-
-        <motion.div variants={heroStagger} className="grid gap-3 sm:grid-cols-2">
-          {[
-            { icon: MapPin, label: "Store location", copy: "Boutiques submit their area, street address, and Google Maps link." },
-            { icon: CalendarDays, label: "Starter trial", copy: "Start with Starter Boutique free for 7 days, then continue monthly or upgrade." },
-            { icon: Percent, label: "Commission", copy: "Clear sales percentage attached to each commercial plan." },
-            { icon: Building2, label: "Admin review", copy: "Requests land in the admin suite before products go live." },
-          ].map((item) => {
-            const Icon = item.icon;
-            return (
-              <motion.div
-                key={item.label}
-                variants={tileReveal}
-                className="rounded-lg border border-[#D5D1C8] bg-[#171513] p-5 text-[#F8F7F2] shadow-[0_20px_54px_rgba(23,21,19,0.12)]"
-              >
-                <Icon className="mb-7 h-5 w-5 text-[#D8C08A]" strokeWidth={1.45} />
-                <p className="text-[10px] uppercase tracking-[0.2em] text-[#D8C08A]">{item.label}</p>
-                <p className="mt-3 text-sm leading-7 text-[#D9D2C2]">{item.copy}</p>
-              </motion.div>
-            );
-          })}
         </motion.div>
       </div>
     </motion.section>

@@ -203,6 +203,22 @@ export const rawProductsData = [
     description: "Tan ribbed polo with a clean open-collar neckline.",
     colors: ["tan"],
   },
+  {
+    _id: "p-sh-006",
+    name: "Cafe Ribbed Zip Polo",
+    category: "shirts",
+    price: 699,
+    images: [
+      "/uploads/beige-ribbed-zip-polo-product.png",
+      "/uploads/beige-ribbed-zip-polo-editorial.png",
+    ],
+    size: ["M", "L", "XL", "2XL"],
+    description:
+      "Beige ribbed short-sleeve zip polo with a refined cafe-inspired summer fit.",
+    material: "Soft rib-knit cotton blend.",
+    colors: ["beige", "tan"],
+    stock: 16,
+  },
 
   // Knitwear
   {
