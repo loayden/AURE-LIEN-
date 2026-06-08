@@ -117,6 +117,8 @@ type SummerCollectionProduct = {
   hotspot: { x: number; y: number };
   defaultSize: string;
   defaultColor: string;
+  colorSummary: string;
+  sizeSummary: string;
 };
 
 type SummerCollectionSlide = {
@@ -132,122 +134,220 @@ type SummerCollectionSlide = {
   products: readonly SummerCollectionProduct[];
 };
 
-const SUMMER_ORIGINAL_PRODUCTS = [
-  {
-    id: "jacket",
-    productId: "p-summer-jacket-001",
-    name: "Premium Summer Jacket",
-    category: "Jacket",
-    price: 1500,
-    href: "/product/p-summer-jacket-001",
-    image: withPublicAssetVersion("/uploads/image4.png"),
-    hotspot: { x: 58, y: 36 },
-    defaultSize: "M",
-    defaultColor: "black",
-  },
-  {
-    id: "tshirt",
-    productId: "p-summer-tshirt-001",
-    name: "Essential Basic T-Shirt",
-    category: "T-Shirt",
-    price: 500,
-    href: "/product/p-summer-tshirt-001",
-    image: withPublicAssetVersion("/uploads/d76ef0f9-2b5c-4fc1-8aed-a80392d4c131.jpeg"),
-    hotspot: { x: 51, y: 43 },
-    defaultSize: "M",
-    defaultColor: "black",
-  },
-  {
-    id: "pants",
-    productId: "p-summer-pants-001",
-    name: "Premium Tailored Pants",
-    category: "Pants",
-    price: 1500,
-    href: "/product/p-summer-pants-001",
-    image: withPublicAssetVersion("/uploads/image3.png"),
-    hotspot: { x: 50, y: 66 },
-    defaultSize: "M",
-    defaultColor: "cream",
-  },
-  {
-    id: "shoes",
-    productId: "p-summer-sneakers-001",
-    name: "Premium Summer Sneakers",
-    category: "Shoes",
-    price: 1500,
-    href: "/product/p-summer-sneakers-001",
-    image: withPublicAssetVersion("/uploads/image2.png"),
-    hotspot: { x: 42, y: 90 },
-    defaultSize: "42",
-    defaultColor: "black",
-  },
-] as const satisfies readonly SummerCollectionProduct[];
+type ShowcaseProductConfig = {
+  productId: string;
+  label?: string;
+  hotspot: { x: number; y: number };
+  defaultSize?: string;
+  defaultColor?: string;
+};
 
-const SUMMER_POLO_PRODUCTS = [
-  {
-    id: "polo",
-    productId: "p-sh-006",
-    name: "Cafe Ribbed Zip Polo",
-    category: "Polo",
-    price: 999,
-    href: "/product/p-sh-006",
-    image: withPublicAssetVersion("/uploads/beige-ribbed-zip-polo-product.png"),
-    hotspot: { x: 52, y: 39 },
-    defaultSize: "M",
-    defaultColor: "beige",
-  },
-  {
-    id: "pants",
-    productId: "p-summer-pants-001",
-    name: "Premium Tailored Pants",
-    category: "Pants",
-    price: 1500,
-    href: "/product/p-summer-pants-001",
-    image: withPublicAssetVersion("/uploads/image3.png"),
-    hotspot: { x: 49, y: 65 },
-    defaultSize: "M",
-    defaultColor: "cream",
-  },
-  {
-    id: "shoes",
-    productId: "p-summer-sneakers-001",
-    name: "Premium Summer Sneakers",
-    category: "Shoes",
-    price: 1500,
-    href: "/product/p-summer-sneakers-001",
-    image: withPublicAssetVersion("/uploads/image2.png"),
-    hotspot: { x: 58, y: 84 },
-    defaultSize: "42",
-    defaultColor: "black",
-  },
-] as const satisfies readonly SummerCollectionProduct[];
+type ShowcaseSlideConfig = {
+  id: string;
+  name: string;
+  image: string;
+  alt: string;
+  label: string;
+  copy: string;
+  itemSummary: string;
+  products: readonly ShowcaseProductConfig[];
+  priceOverride?: number;
+  originalTotal?: number;
+};
 
-const SUMMER_COLLECTION_SLIDES = [
+const SHOWCASE_CATEGORY_LABELS: Record<string, string> = {
+  "p-summer-jacket-001": "Jacket",
+  "p-summer-tshirt-001": "T-Shirt",
+  "p-summer-pants-001": "Pants",
+  "p-summer-sneakers-001": "Shoes",
+  "p-sh-006": "Polo",
+};
+
+const SUMMER_SHOWCASE_CONFIGS = [
   {
     id: "summer-original",
     name: "Summer Essentials Luxury Set",
     image: withPublicAssetVersion("/uploads/image1.png"),
     alt: "Complete Summer Essentials Luxury Set outfit with jacket, T-shirt, tailored pants, and black shoes",
-    offerPrice: 4999,
-    originalTotal: 7500,
     label: "Shop the look",
-    copy: "Swipe through editorial summer looks. Each active image shows only the pieces on screen, with white points opening the exact product details.",
+    copy: "A complete summer look with every visible piece ready to shop from the active outfit.",
     itemSummary: "Jacket, T-shirt, pants, and shoes.",
-    products: SUMMER_ORIGINAL_PRODUCTS,
+    priceOverride: 4999,
+    originalTotal: 7500,
+    products: [
+      { productId: "p-summer-jacket-001", label: "Jacket", hotspot: { x: 58, y: 36 }, defaultSize: "M", defaultColor: "black" },
+      { productId: "p-summer-tshirt-001", label: "T-Shirt", hotspot: { x: 51, y: 43 }, defaultSize: "M", defaultColor: "black" },
+      { productId: "p-summer-pants-001", label: "Pants", hotspot: { x: 50, y: 66 }, defaultSize: "M", defaultColor: "cream" },
+      { productId: "p-summer-sneakers-001", label: "Shoes", hotspot: { x: 42, y: 90 }, defaultSize: "42", defaultColor: "black" },
+    ],
   },
   {
     id: "summer-polo",
     name: "Cafe Riviera Polo Edit",
     image: withPublicAssetVersion("/uploads/beige-ribbed-zip-polo-editorial.png"),
     alt: "Model wearing the beige Cafe Ribbed Zip Polo with white tailored pants and black shoes",
-    offerPrice: 3999,
-    originalTotal: 4500,
     label: "New outfit",
-    copy: "The beige knit polo replaces the black tee for a cleaner cafe summer look, paired with the same white pants and black shoes.",
+    copy: "Cafe-ready knit texture, clean cream tailoring, and polished black footwear for a softer summer mood.",
     itemSummary: "Beige knit polo, white pants, and black shoes.",
-    products: SUMMER_POLO_PRODUCTS,
+    products: [
+      { productId: "p-sh-006", label: "Polo", hotspot: { x: 52, y: 39 }, defaultSize: "M", defaultColor: "beige" },
+      { productId: "p-summer-pants-001", label: "Pants", hotspot: { x: 49, y: 65 }, defaultSize: "M", defaultColor: "cream" },
+      { productId: "p-summer-sneakers-001", label: "Shoes", hotspot: { x: 58, y: 84 }, defaultSize: "42", defaultColor: "black" },
+    ],
   },
-] as const satisfies readonly SummerCollectionSlide[];
+  {
+    id: "cream-utility-set",
+    name: "Cream Utility Street Set",
+    image: withPublicAssetVersion("/uploads/peig_suit2.jpg"),
+    alt: "Model wearing the Minimal Cream Street Set in a quiet city setting",
+    label: "Catalog look",
+    copy: "A clean cream set for quiet city days, styled with relaxed structure and easy movement.",
+    itemSummary: "Minimal Cream Street Set.",
+    products: [
+      { productId: "p-su-001", label: "Set", hotspot: { x: 48, y: 48 }, defaultSize: "40", defaultColor: "cream" },
+    ],
+  },
+  {
+    id: "mocha-street-set",
+    name: "Mocha Casual Street Set",
+    image: withPublicAssetVersion("/uploads/brown_suit.jpg"),
+    alt: "Model wearing the Mocha Casual Street Set while walking outside",
+    label: "Street edit",
+    copy: "Soft mocha tones in a relaxed street silhouette, built for warm days and evening plans.",
+    itemSummary: "Mocha Casual Street Set.",
+    products: [
+      { productId: "p-su-003", label: "Set", hotspot: { x: 51, y: 48 }, defaultSize: "40", defaultColor: "mocha" },
+    ],
+  },
+  {
+    id: "black-bomber-walk",
+    name: "Dark Urban Bomber Walk",
+    image: withPublicAssetVersion("/uploads/black_wind_jacket.jpg"),
+    alt: "Model wearing the Dark Urban Bomber Jacket on a city street",
+    label: "Outerwear",
+    copy: "A sharp black layer for city nights, balanced with a clean profile and easy everyday styling.",
+    itemSummary: "Dark Urban Bomber Jacket.",
+    products: [
+      { productId: "p-jc-012", label: "Jacket", hotspot: { x: 50, y: 36 }, defaultSize: "M", defaultColor: "black" },
+    ],
+  },
+  {
+    id: "brown-leather-street",
+    name: "Urban Brown Leather Street",
+    image: withPublicAssetVersion("/uploads/brown_wind_jacket.jpg"),
+    alt: "Model wearing the Urban Brown Leather Jacket in a city street look",
+    label: "Outerwear",
+    copy: "Warm leather texture with a refined casual attitude for strong, simple styling.",
+    itemSummary: "Urban Brown Leather Jacket.",
+    products: [
+      { productId: "p-jc-011", label: "Jacket", hotspot: { x: 43, y: 39 }, defaultSize: "M", defaultColor: "brown" },
+    ],
+  },
+  {
+    id: "cream-leather-street",
+    name: "Cream Leather City Walk",
+    image: withPublicAssetVersion("/uploads/peig_leather_jacket.jpg"),
+    alt: "Model wearing the Wool-Blend Trench Coat in a cream city outfit",
+    label: "City layer",
+    copy: "A light cream jacket styled over denim for a clean city walk.",
+    itemSummary: "Wool-Blend Trench Coat.",
+    products: [
+      { productId: "p-jc-003", label: "Jacket", hotspot: { x: 52, y: 35 }, defaultSize: "M", defaultColor: "cream" },
+    ],
+  },
+  {
+    id: "navy-bomber-street",
+    name: "Navy Embroidered Bomber",
+    image: withPublicAssetVersion("/uploads/italian_jacket.jpg"),
+    alt: "Model wearing the Navy Embroidered Bomber in a streetwear outfit",
+    label: "Statement piece",
+    copy: "A statement bomber with embroidered detail, made to carry the whole outfit.",
+    itemSummary: "Navy Embroidered Bomber.",
+    products: [
+      { productId: "p-jc-007", label: "Bomber", hotspot: { x: 46, y: 38 }, defaultSize: "M", defaultColor: "navy" },
+    ],
+  },
+  {
+    id: "gray-bomber-street",
+    name: "Gray Urban Bomber Walk",
+    image: withPublicAssetVersion("/uploads/greyjacket2.jpg"),
+    alt: "Model wearing the gray Urban Bomber Jacket in a street outfit",
+    label: "Street layer",
+    copy: "A gray bomber with relaxed movement, styled for an easy city day.",
+    itemSummary: "Gray Urban Bomber Jacket.",
+    products: [
+      { productId: "p-jc-014", label: "Jacket", hotspot: { x: 48, y: 38 }, defaultSize: "M", defaultColor: "gray" },
+    ],
+  },
+] as const satisfies readonly ShowcaseSlideConfig[];
+
+function stableProductKey(value: string) {
+  return value.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase() || "product";
+}
+
+function summarizeOptions(values?: readonly string[], fallback = "Available") {
+  const cleanValues = values?.filter(Boolean) ?? [];
+  if (cleanValues.length === 0) return fallback;
+  const preview = cleanValues.slice(0, 3).join(", ");
+  return cleanValues.length > 3 ? `${preview} +${cleanValues.length - 3}` : preview;
+}
+
+function resolveShowcaseProduct(product: Product, config: ShowcaseProductConfig): SummerCollectionProduct {
+  const productId = String(product._id);
+  const fallbackSize = firstAvailableValue(product.size) ?? "One size";
+  const fallbackColor = firstAvailableValue(product.colors) ?? "Default";
+
+  return {
+    id: stableProductKey(`${productId}-${config.label ?? product.category}`),
+    productId,
+    name: product.name,
+    category: config.label ?? SHOWCASE_CATEGORY_LABELS[productId] ?? formatCategoryLabel(product.category),
+    price: product.price,
+    href: productHref(product),
+    image: productImage(product),
+    hotspot: config.hotspot,
+    defaultSize: config.defaultSize ?? fallbackSize,
+    defaultColor: config.defaultColor ?? fallbackColor,
+    colorSummary: summarizeOptions(product.colors, "Default color"),
+    sizeSummary: summarizeOptions(product.size, "One size"),
+  };
+}
+
+function buildConfiguredShowcaseSlide(
+  config: ShowcaseSlideConfig,
+  productsById: Map<string, Product>
+): SummerCollectionSlide | null {
+  const resolvedProducts = config.products
+    .map((item) => {
+      const product = productsById.get(item.productId);
+      return product ? resolveShowcaseProduct(product, item) : null;
+    })
+    .filter((product): product is SummerCollectionProduct => Boolean(product));
+
+  if (resolvedProducts.length !== config.products.length) return null;
+
+  const catalogTotal = resolvedProducts.reduce((total, product) => total + product.price, 0);
+
+  return {
+    id: config.id,
+    name: config.name,
+    image: config.image,
+    alt: config.alt,
+    offerPrice: config.priceOverride ?? catalogTotal,
+    originalTotal: config.originalTotal ?? catalogTotal,
+    label: config.label,
+    copy: config.copy,
+    itemSummary: config.itemSummary,
+    products: resolvedProducts,
+  } satisfies SummerCollectionSlide;
+}
+
+function buildSummerCollectionSlides(products: Product[]): SummerCollectionSlide[] {
+  const productsById = new Map(products.map((product) => [String(product._id), product]));
+  return SUMMER_SHOWCASE_CONFIGS
+    .map((config) => buildConfiguredShowcaseSlide(config, productsById))
+    .filter((slide): slide is SummerCollectionSlide => Boolean(slide));
+}
 
 type MoodValue = (typeof SHOPPING_MOODS)[number]["value"];
 
@@ -488,9 +588,11 @@ function StorefrontOpeningOverlay() {
 }
 
 function SummerCollectionSection({
+  products,
   addSetBusy,
   onShopFullSet,
 }: {
+  products: Product[];
   addSetBusy: boolean;
   onShopFullSet: (items: readonly SummerCollectionProduct[]) => void;
 }) {
@@ -498,32 +600,42 @@ function SummerCollectionSection({
   const [slideDirection, setSlideDirection] = useState(1);
   const pointerStartXRef = useRef<number | null>(null);
   const lastWheelSwitchRef = useRef(0);
-  const activeSlide = SUMMER_COLLECTION_SLIDES[activeSlideIndex] ?? SUMMER_COLLECTION_SLIDES[0];
+  const showcaseSlides = useMemo(() => buildSummerCollectionSlides(products), [products]);
+  const activeSlide = showcaseSlides[activeSlideIndex] ?? showcaseSlides[0];
 
   const switchToSlide = useCallback((nextIndex: number, direction: number) => {
+    if (showcaseSlides.length === 0) return;
     setSlideDirection(direction);
     setActiveSlideIndex((current) => {
-      const normalized = (nextIndex + SUMMER_COLLECTION_SLIDES.length) % SUMMER_COLLECTION_SLIDES.length;
+      const normalized = (nextIndex + showcaseSlides.length) % showcaseSlides.length;
       if (normalized === current) return current;
       return normalized;
     });
-  }, []);
+  }, [showcaseSlides.length]);
 
   const switchByOffset = useCallback((offset: number) => {
+    if (showcaseSlides.length === 0) return;
     setSlideDirection(offset >= 0 ? 1 : -1);
     setActiveSlideIndex((current) => {
-      const nextIndex = (current + offset + SUMMER_COLLECTION_SLIDES.length) % SUMMER_COLLECTION_SLIDES.length;
+      const nextIndex = (current + offset + showcaseSlides.length) % showcaseSlides.length;
       return nextIndex;
     });
-  }, []);
+  }, [showcaseSlides.length]);
 
   useEffect(() => {
+    if (activeSlideIndex < showcaseSlides.length) return;
+    setActiveSlideIndex(0);
+  }, [activeSlideIndex, showcaseSlides.length]);
+
+  useEffect(() => {
+    if (showcaseSlides.length <= 1) return undefined;
+
     const timer = window.setInterval(() => {
       switchByOffset(1);
     }, 5000);
 
     return () => window.clearInterval(timer);
-  }, [switchByOffset, activeSlideIndex]);
+  }, [switchByOffset, activeSlideIndex, showcaseSlides.length]);
 
   const startShowcaseGesture = useCallback((clientX: number) => {
     pointerStartXRef.current = clientX;
@@ -566,6 +678,8 @@ function SummerCollectionSection({
     event.preventDefault();
     switchByOffset(event.deltaX > 0 ? 1 : -1);
   }, [switchByOffset]);
+
+  if (!activeSlide) return null;
 
   return (
     <motion.section
@@ -652,7 +766,7 @@ function SummerCollectionSection({
                 </div>
               </div>
               <div className="absolute bottom-4 right-4 flex gap-2 sm:bottom-6 sm:right-6">
-                {SUMMER_COLLECTION_SLIDES.map((slide, index) => (
+                {showcaseSlides.map((slide, index) => (
                   <button
                     key={slide.id}
                     type="button"
@@ -683,6 +797,7 @@ function SummerCollectionSection({
                   <span className="block text-[10px] uppercase tracking-[0.18em] text-[#D8C08A]">{item.category}</span>
                   <span className="mt-1 block text-sm font-medium">{item.name}</span>
                   <span className="mt-1 block text-sm text-[#E9E4D8]">EGP {formatPrice(item.price)}</span>
+                  <span className="mt-1 block text-xs text-[#D9D2C2]">{item.colorSummary}</span>
                 </span>
               </Link>
             ))}
@@ -749,6 +864,9 @@ function SummerCollectionSection({
                     <span className="block text-[10px] uppercase tracking-[0.18em] text-[#725D2C]">{item.category}</span>
                     <span className="mt-1 block font-serif text-2xl font-light leading-none text-[#171513]">{item.name}</span>
                     <span className="mt-2 block text-sm text-[#69645E]">EGP {formatPrice(item.price)}</span>
+                    <span className="mt-1 block text-xs text-[#8A8177]">
+                      {item.colorSummary} · {item.sizeSummary}
+                    </span>
                   </span>
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#D5D1C8] text-[#171513] transition group-hover:border-[#171513]">
                     <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
@@ -1628,7 +1746,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
         </div>
       </section>
 
-      <SummerCollectionSection addSetBusy={addingSummerSet} onShopFullSet={handleShopSummerSet} />
+      <SummerCollectionSection products={products} addSetBusy={addingSummerSet} onShopFullSet={handleShopSummerSet} />
 
       <BoutiqueReelFeature />
 

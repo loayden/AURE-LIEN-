@@ -279,6 +279,8 @@ export default function ProductBrowser({
   category,
   lockCategory = false,
   heroImage,
+  showIntro = true,
+  compactCards = false,
 }: {
   initialProducts?: Product[];
   title?: string;
@@ -286,6 +288,8 @@ export default function ProductBrowser({
   category?: string;
   lockCategory?: boolean;
   heroImage?: string;
+  showIntro?: boolean;
+  compactCards?: boolean;
 }) {
   const hasInitialProducts = Array.isArray(initialProducts);
   const [products, setProducts] = useState<Product[]>(initialProducts ?? []);
@@ -491,23 +495,25 @@ export default function ProductBrowser({
 
   return (
     <main className="liquid-page pb-24 md:pb-28">
-      <section className="relative isolate overflow-hidden border-b border-[rgba(123,103,82,0.16)] bg-[#F5F1E8] px-4 pb-10 pt-20 sm:px-6 sm:pb-14 sm:pt-28 md:px-10">
-        {heroImage ? (
-          <Image src={heroImage} alt="" fill priority sizes="100vw" className="pointer-events-none -z-10 object-cover opacity-34" />
-        ) : null}
-        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(255,249,239,0.96)_0%,rgba(245,241,232,0.86)_54%,rgba(245,241,232,0.68)_100%)]" />
-        <div className="page-wrap">
-          <div className="max-w-3xl">
-            <p className="eyebrow mb-4">BOUT Catalog</p>
-            <h1 className="title-display text-[clamp(2.7rem,8vw,6.4rem)] leading-[0.9]">
-              {title}
-            </h1>
-            <p className="hero-body-copy mt-5 max-w-2xl text-[#6F6254]">{description}</p>
+      {showIntro ? (
+        <section className="relative isolate overflow-hidden border-b border-[rgba(123,103,82,0.16)] bg-[#F5F1E8] px-4 pb-10 pt-20 sm:px-6 sm:pb-14 sm:pt-28 md:px-10">
+          {heroImage ? (
+            <Image src={heroImage} alt="" fill priority sizes="100vw" className="pointer-events-none -z-10 object-cover opacity-34" />
+          ) : null}
+          <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(255,249,239,0.96)_0%,rgba(245,241,232,0.86)_54%,rgba(245,241,232,0.68)_100%)]" />
+          <div className="page-wrap">
+            <div className="max-w-3xl">
+              <p className="eyebrow mb-4">BOUT Catalog</p>
+              <h1 className="title-display text-[clamp(2.7rem,8vw,6.4rem)] leading-[0.9]">
+                {title}
+              </h1>
+              <p className="hero-body-copy mt-5 max-w-2xl text-[#6F6254]">{description}</p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
-      <section className="sticky top-[54px] z-30 border-b border-[rgba(123,103,82,0.16)] bg-[#F5F1E8]/90 px-4 py-3 backdrop-blur-2xl sm:top-[58px] sm:px-6 md:px-10">
+      <section className={`border-b border-[rgba(123,103,82,0.16)] bg-[#F5F1E8]/90 px-4 py-3 backdrop-blur-2xl sm:px-6 md:px-10 ${showIntro ? "" : "mt-[4.75rem] sm:mt-[5.25rem]"}`}>
         <div className="page-wrap flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-3">
             <SlidersHorizontal className="h-4 w-4 text-[#7B6E60]" strokeWidth={1.4} />
@@ -542,7 +548,10 @@ export default function ProductBrowser({
         </div>
       </section>
 
-      <section className="page-wrap grid gap-6 px-4 py-8 sm:px-6 sm:py-10 md:px-10 lg:grid-cols-[18rem_1fr] lg:items-start">
+      <section
+        className="page-wrap grid gap-6 px-4 py-8 sm:px-6 sm:py-10 md:px-10 lg:grid-cols-[18rem_1fr] lg:items-start"
+        style={compactCards ? { background: "#FFFFFF" } : undefined}
+      >
         <aside className="sticky top-32 hidden rounded-[24px] border border-[rgba(123,103,82,0.16)] bg-white/60 p-4 lg:block">
           <div className="mb-4 flex items-center justify-between">
             <p className="eyebrow">Refine</p>
@@ -564,13 +573,13 @@ export default function ProductBrowser({
           ) : null}
 
           {loading ? (
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            <div className={`grid ${compactCards ? "gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5" : "gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"}`}>
               {Array.from({ length: 8 }).map((_, index) => (
-                <ProductCardSkeleton key={index} />
+                <ProductCardSkeleton key={index} compact={compactCards} />
               ))}
             </div>
           ) : visibleProducts.length ? (
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            <div className={`grid ${compactCards ? "gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5" : "gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"}`}>
               {visibleProducts.map((product, index) => (
                 <motion.div
                   key={product._id}
@@ -580,7 +589,7 @@ export default function ProductBrowser({
                   transition={{ delay: (index % 4) * 0.04, duration: 0.45 }}
                   className="group relative"
                 >
-                  <ProductCard product={product} />
+                  <ProductCard product={product} compact={compactCards} />
                   <button
                     type="button"
                     onClick={(event) => {

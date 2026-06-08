@@ -264,7 +264,7 @@ function MobileMenu({
         exit={{ x: "100%" }}
         transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         className="absolute bottom-0 right-0 top-0 flex flex-col overflow-y-auto overscroll-contain"
-        style={{ touchAction: "pan-y", width: "min(92vw, 372px)" }}
+        style={{ touchAction: "pan-y", width: "min(78vw, 318px)" }}
       >
         <div
           className="flex flex-1 flex-col"
@@ -294,17 +294,17 @@ function MobileMenu({
 
           <div className="mx-6 mb-3 h-px" style={{ background: softLine }} />
 
-          <ul className="flex flex-col gap-1 px-3 pb-2">
+          <ul className="flex flex-col gap-1 px-2.5 pb-2">
             {mainMenuItems.map((item, index) => (
               <li key={item.link}>
-                <div className="flex items-center justify-between rounded-2xl px-3 py-3 transition-all duration-300 hover:bg-[rgba(168,121,53,0.07)]">
+                <div className="flex items-center justify-between rounded-2xl px-2.5 py-2.5 transition-all duration-300 hover:bg-[rgba(168,121,53,0.07)]">
                   <Link
                     href={item.link}
                     onClick={!item.submenu ? closeMenu : undefined}
-                    className="flex min-h-[44px] min-w-[44px] flex-1 items-center gap-2 sm:gap-3"
+                    className="flex min-h-[44px] min-w-[44px] flex-1 items-center gap-2"
                   >
                     <span
-                      className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl"
+                      className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl"
                       style={{
                         background: "linear-gradient(135deg, rgba(255,255,255,0.62), rgba(168,121,53,0.08))",
                         border: `1px solid ${softLine}`,
@@ -322,7 +322,7 @@ function MobileMenu({
                     <motion.button
                       type="button"
                       onClick={() => setActiveSubmenu(activeSubmenu === index ? null : index)}
-                      className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full transition-all duration-300"
+                      className="flex h-10 w-10 min-h-[40px] min-w-[40px] items-center justify-center rounded-full transition-all duration-300"
                       style={{ background: "rgba(255,255,255,0.44)", color: "#7B6E60" }}
                       animate={{ rotate: activeSubmenu === index ? 180 : 0 }}
                       transition={{ duration: 0.3 }}
@@ -367,16 +367,16 @@ function MobileMenu({
 
           <div className="mx-6 my-3 h-px" style={{ background: softLine }} />
 
-          <ul className="flex flex-col gap-1 px-3 pb-6">
+          <ul className="flex flex-col gap-1 px-2.5 pb-6">
             {utilityItems.filter((item) => item.title !== "Cart" && item.title !== "Account").map((item) => (
               <li key={item.link}>
                 <Link
                   href={item.link}
                   onClick={closeMenu}
-                  className="flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-2xl px-3 py-3.5 transition-all duration-300 hover:bg-[rgba(168,121,53,0.07)] sm:gap-3"
+                  className="flex min-h-[44px] min-w-[44px] items-center gap-2 rounded-2xl px-2.5 py-3 transition-all duration-300 hover:bg-[rgba(168,121,53,0.07)]"
                 >
                   <span
-                    className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl"
+                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl"
                     style={{
                       background: "linear-gradient(135deg, rgba(255,255,255,0.62), rgba(168,121,53,0.08))",
                       border: `1px solid ${softLine}`,
@@ -528,41 +528,28 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center gap-1 md:hidden">
-            {[
-              { href: "/cart", label: "Cart", icon: <ShoppingCart strokeWidth={1.4} className="h-4 w-4" />, action: () => setMiniCartOpen(true) },
-              { href: "/account", label: "Account", icon: <User strokeWidth={1.4} className="h-4 w-4" /> },
-            ].map((button) => (
-              <motion.div key={button.label} whileTap={{ scale: 0.88 }}>
-                {button.action ? (
-                  <button type="button" onClick={button.action} aria-label={button.label} className={controlClass} style={{ color: navText }}>
-                    <span className="absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ background: hoverFill }} />
-                    <span className="relative z-10">{button.icon}</span>
-                    {cartCount > 0 ? (
-                      <span className="absolute -right-0.5 -top-0.5 z-20 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#A87935] px-1 text-[9px] leading-none text-[#1D1815]">
-                        {cartCount > 9 ? "9+" : cartCount}
-                      </span>
-                    ) : null}
-                  </button>
-                ) : (
-                  <Link href={button.href} aria-label={button.label} className={controlClass} style={{ color: navText }}>
-                    <span className="absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ background: hoverFill }} />
-                    <span className="relative z-10">{button.icon}</span>
-                  </Link>
-                )}
-              </motion.div>
-            ))}
+            <motion.div whileTap={{ scale: 0.88 }}>
+              <Link href="/boutiques" aria-label="Boutiques" className={controlClass} style={{ color: navText }}>
+                <span className="absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ background: hoverFill }} />
+                <Store strokeWidth={1.4} className="relative z-10 h-4 w-4" />
+              </Link>
+            </motion.div>
 
-            <motion.button
-              type="button"
-              onClick={() => setSearchOpen(true)}
+            <motion.div
               whileTap={{ scale: 0.88 }}
-              className={controlClass}
-              style={{ color: navText }}
-              aria-label="Open search"
             >
-              <span className="absolute inset-0 rounded-full opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ background: hoverFill }} />
-              <Search strokeWidth={1.4} className="relative z-10 h-4 w-4" />
-            </motion.button>
+              <Link
+                href="/boutiques/apply"
+                className="relative inline-flex min-h-[40px] items-center justify-center rounded-full border px-3.5 text-[10px] font-medium uppercase tracking-[0.16em] shadow-[0_10px_26px_rgba(61,48,37,0.08)] transition hover:border-[#A87935] hover:text-[#3D3025] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#A87935]/40"
+                style={{
+                  color: navText,
+                  borderColor: "rgba(168,121,53,0.28)",
+                  background: "linear-gradient(135deg, rgba(255,255,255,0.86), rgba(255,247,235,0.74))",
+                }}
+              >
+                7 Days Free Trial
+              </Link>
+            </motion.div>
 
             <motion.button
               type="button"

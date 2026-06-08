@@ -46,6 +46,7 @@ interface ProductCardProps {
   onWishlistUpdate?: (productId: string) => void;
   showRemoveFromWishlist?: boolean;
   disableMediaCarousel?: boolean;
+  compact?: boolean;
 }
 
 type WishlistSnapshotListener = (ids: Set<string>) => void;
@@ -74,6 +75,7 @@ const slideVariants = {
 
 interface ProductCardMediaProps {
   galleryEnabled: boolean;
+  compact: boolean;
   images: string[];
   current: number;
   direction: number;
@@ -99,6 +101,7 @@ interface ProductCardMediaProps {
 
 const ProductCardMedia = memo(function ProductCardMedia({
   galleryEnabled,
+  compact,
   images,
   current,
   direction,
@@ -124,7 +127,7 @@ const ProductCardMedia = memo(function ProductCardMedia({
   return (
     <div
       className="relative z-10 overflow-hidden"
-      style={{ aspectRatio: "4/5", touchAction: galleryEnabled ? "pan-y" : "auto" }}
+      style={{ aspectRatio: "3 / 4", touchAction: galleryEnabled ? "pan-y" : "auto" }}
       onTouchStart={galleryEnabled ? onTouchStart : undefined}
       onTouchMove={galleryEnabled ? onTouchMove : undefined}
       onTouchEnd={galleryEnabled ? onTouchEnd : undefined}
@@ -221,7 +224,7 @@ const ProductCardMedia = memo(function ProductCardMedia({
       )}
 
       {galleryEnabled && count > 1 && (
-        <div className="absolute bottom-0 inset-x-0 z-20 flex gap-[3px] px-4 pb-[14px]">
+        <div className={`absolute bottom-0 inset-x-0 z-20 flex gap-[3px] ${compact ? "px-3 pb-2.5" : "px-4 pb-[14px]"}`}>
           {images.map((_, i) => (
             <button
               key={i}
@@ -263,8 +266,8 @@ const ProductCardMedia = memo(function ProductCardMedia({
         onClick={onToggleWishlist}
         className="absolute right-3 top-3 z-30 flex items-center justify-center rounded-full"
         style={{
-          width: 44,
-          height: 44,
+          width: compact ? 38 : 44,
+          height: compact ? 38 : 44,
           background: inWishlist
             ? "rgba(168,121,53,0.22)"
             : "rgba(255,249,239,0.66)",
@@ -365,6 +368,7 @@ function ProductCardComponent({
   onWishlistUpdate,
   showRemoveFromWishlist,
   disableMediaCarousel = false,
+  compact = false,
 }: ProductCardProps) {
   const router = useRouter();
   const cardRef = useRef<HTMLDivElement>(null);
@@ -743,9 +747,9 @@ function ProductCardComponent({
       tabIndex={productHref ? 0 : -1}
       aria-label={productHref ? `Open ${product.name}` : undefined}
       style={{
-        borderRadius: 18,
-        background: "linear-gradient(145deg, rgba(255,255,255,0.76), rgba(245,241,232,0.72))",
-        boxShadow: "0 18px 46px rgba(61,48,37,0.12)",
+        borderRadius: compact ? 16 : 18,
+        background: compact ? "#FFFFFF" : "linear-gradient(145deg, rgba(255,255,255,0.76), rgba(245,241,232,0.72))",
+        boxShadow: compact ? "0 14px 34px rgba(61,48,37,0.10)" : "0 18px 46px rgba(61,48,37,0.12)",
         border: "1px solid rgba(123,103,82,0.16)",
       }}
       whileHover={
@@ -761,6 +765,7 @@ function ProductCardComponent({
     >
       <ProductCardMedia
         galleryEnabled={mediaGalleryEnabled}
+        compact={compact}
         images={images}
         current={current}
         direction={direction}
@@ -786,13 +791,13 @@ function ProductCardComponent({
 
       {/* ══════════ LABEL ══════════ */}
       <div
-        className="relative z-10 flex flex-col gap-3 px-4 pb-4 pt-4"
+        className={`relative z-10 flex flex-col ${compact ? "gap-1.5 px-3 pb-3 pt-3" : "gap-3 px-4 pb-4 pt-4"}`}
         style={{
-          background: "linear-gradient(180deg, rgba(255,249,239,0.96), rgba(245,241,232,0.94))",
+          background: compact ? "#FFFFFF" : "linear-gradient(180deg, rgba(255,249,239,0.96), rgba(245,241,232,0.94))",
           borderTop: "1px solid rgba(123,103,82,0.14)",
         }}
       >
-        <div className="space-y-3">
+        <div className={compact ? "space-y-2" : "space-y-3"}>
           <AnimatePresence>
             {feedbackError ? (
               <motion.div
@@ -815,7 +820,7 @@ function ProductCardComponent({
             ) : null}
           </AnimatePresence>
 
-          <div className="flex items-center justify-between gap-3 text-[9px] uppercase tracking-[0.18em]">
+          <div className={`flex items-center justify-between gap-3 uppercase ${compact ? "text-[7px] tracking-[0.14em]" : "text-[9px] tracking-[0.18em]"}`}>
             <span className="truncate text-[#A87935]" style={{ fontFamily: "'Jost', sans-serif" }}>
               {categoryLabel || "Catalog"}
             </span>
@@ -829,22 +834,24 @@ function ProductCardComponent({
             </span>
           </div>
 
-          <h3 className="min-h-[3rem] font-light leading-[1.05] line-clamp-2"
+          <h3
+            className="font-light leading-[1.05] line-clamp-2"
             style={{
               fontFamily: "'Cormorant Garamond', serif",
-              fontSize: "clamp(1.18rem, 4vw, 1.38rem)",
+              fontSize: compact ? "1rem" : "clamp(1.18rem, 4vw, 1.38rem)",
+              minHeight: compact ? "2.1rem" : "3rem",
               letterSpacing: "0.03em",
               color: "rgba(61,48,37,0.92)",
             }}>
             {product.name}
           </h3>
 
-          <div className="flex items-end justify-between gap-3 border-t border-[rgba(123,103,82,0.14)] pt-3">
+          <div className={`flex items-end justify-between gap-3 border-t border-[rgba(123,103,82,0.14)] ${compact ? "pt-2" : "pt-3"}`}>
             <div>
               {originalPrice ? (
                 <>
                   <p
-                    className="text-[10px] line-through text-[#7B6E60]/62"
+                    className={`${compact ? "text-[8px]" : "text-[10px]"} line-through text-[#7B6E60]/62`}
                     style={{ fontFamily: "'Jost', sans-serif", letterSpacing: "0.08em" }}
                   >
                     EGP {originalPrice.toLocaleString()}
@@ -853,7 +860,7 @@ function ProductCardComponent({
                     className="font-light text-[#A87935]"
                     style={{
                       fontFamily: "'Cormorant Garamond', serif",
-                      fontSize: "1.36rem",
+                      fontSize: compact ? "1.02rem" : "1.36rem",
                       letterSpacing: "0.04em",
                     }}
                   >
@@ -865,7 +872,7 @@ function ProductCardComponent({
                   className="font-light text-[#A87935]"
                   style={{
                     fontFamily: "'Cormorant Garamond', serif",
-                    fontSize: "1.36rem",
+                    fontSize: compact ? "1.02rem" : "1.36rem",
                     letterSpacing: "0.04em",
                   }}
                 >
@@ -875,17 +882,17 @@ function ProductCardComponent({
             </div>
 
             {mediaGalleryEnabled ? (
-              <span className="text-right text-[9px] uppercase tracking-[0.18em] text-[#7B6E60]/56">
+              <span className={`${compact ? "text-[7px] tracking-[0.14em]" : "text-[9px] tracking-[0.18em]"} text-right uppercase text-[#7B6E60]/56`}>
                 {imageCounterLabel}
               </span>
             ) : null}
           </div>
 
-          <div className="grid grid-cols-[1fr_auto] gap-2">
+          <div className={`grid grid-cols-[1fr_auto] ${compact ? "gap-1.5" : "gap-2"}`}>
             <button
               type="button"
               onClick={handleViewDetails}
-              className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-[rgba(123,103,82,0.16)] bg-[rgba(255,255,255,0.46)] px-4 text-[10px] uppercase tracking-[0.18em] text-[#5B4E42] transition-colors hover:border-[rgba(168,121,53,0.30)] hover:text-[#3D3025]"
+              className={`inline-flex min-w-[44px] items-center justify-center rounded-full border border-[rgba(123,103,82,0.16)] bg-[rgba(255,255,255,0.46)] uppercase tracking-[0.16em] text-[#5B4E42] transition-colors hover:border-[rgba(168,121,53,0.30)] hover:text-[#3D3025] ${compact ? "min-h-[34px] px-3 text-[8px]" : "min-h-[44px] px-4 text-[10px]"}`}
               style={{ fontFamily: "'Jost', sans-serif" }}
               aria-label={`View ${product.name}`}
             >
@@ -896,7 +903,7 @@ function ProductCardComponent({
               type="button"
               onClick={handleAddToCart}
               disabled={loading || outOfStock}
-              className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full px-4 py-3 text-[10px] uppercase tracking-[0.18em] transition-all disabled:cursor-not-allowed disabled:opacity-35"
+              className={`inline-flex min-w-[44px] items-center justify-center gap-2 rounded-full uppercase tracking-[0.16em] transition-all disabled:cursor-not-allowed disabled:opacity-35 ${compact ? "min-h-[34px] px-3 py-2 text-[8px]" : "min-h-[44px] px-4 py-3 text-[10px]"}`}
               style={{
                 fontFamily: "'Jost', sans-serif",
                 background: added
@@ -909,7 +916,7 @@ function ProductCardComponent({
               }}
               aria-label={added ? "Added" : `Add ${product.name} to cart`}
             >
-              <ShoppingBag strokeWidth={1.25} className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+              <ShoppingBag strokeWidth={1.25} className={`${compact ? "h-3.5 w-3.5" : "h-4 w-4"} ${loading ? "animate-spin" : ""}`} />
               {outOfStock ? "Sold Out" : added ? "Added" : "Add"}
             </button>
           </div>
@@ -920,13 +927,13 @@ function ProductCardComponent({
               onClick={toggleDetailsPanel}
               aria-expanded={detailsOpen}
               aria-label={detailsOpen ? "Collapse product options" : "Show product options"}
-              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-[rgba(123,103,82,0.16)] bg-[rgba(255,255,255,0.34)] px-4 text-[10px] uppercase tracking-[0.18em] text-[#6F6254] transition-colors hover:border-[rgba(168,121,53,0.28)] hover:text-[#3D3025]"
+              className={`inline-flex items-center justify-center gap-2 rounded-full border border-[rgba(123,103,82,0.16)] bg-[rgba(255,255,255,0.34)] uppercase tracking-[0.16em] text-[#6F6254] transition-colors hover:border-[rgba(168,121,53,0.28)] hover:text-[#3D3025] ${compact ? "min-h-[34px] px-3 text-[8px]" : "min-h-[44px] px-4 text-[10px]"}`}
               style={{ fontFamily: "'Jost', sans-serif" }}
             >
               Options
               <ChevronDown
                 strokeWidth={1.2}
-                className="h-3.5 w-3.5 transition-transform duration-300"
+                className={`${compact ? "h-3 w-3" : "h-3.5 w-3.5"} transition-transform duration-300`}
                 style={{ transform: `rotate(${detailsOpen ? 180 : 0}deg)` }}
               />
             </button>
@@ -1026,6 +1033,7 @@ const ProductCard = memo(
   (previousProps, nextProps) =>
     previousProps.product === nextProps.product &&
     previousProps.className === nextProps.className &&
+    previousProps.compact === nextProps.compact &&
     previousProps.showRemoveFromWishlist === nextProps.showRemoveFromWishlist &&
     previousProps.onWishlistUpdate === nextProps.onWishlistUpdate
 );

@@ -17,6 +17,8 @@ export default async function ShopPage() {
       initialProducts={products}
       title="Shop BOUT"
       description="The full live catalog, rebuilt for faster browsing: category filters, price range, size, color, stock state, sorting, quick view, and clear empty states."
+      showIntro={false}
+      compactCards
     />
   );
 }
