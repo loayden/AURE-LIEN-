@@ -21,6 +21,7 @@ import {
   ArrowRight,
   CalendarDays,
   CheckCircle2,
+  ChevronLeft,
   ChevronRight,
   CreditCard,
   Heart,
@@ -35,7 +36,19 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, memo, useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import {
+  FormEvent,
+  memo,
+  type MouseEvent as ReactMouseEvent,
+  type TouchEvent as ReactTouchEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+  type WheelEvent as ReactWheelEvent,
+} from "react";
 
 const EDIT_PRODUCT_IDS = ["p-jc-017", "p-kn-004", "p-denim-002", "p-baggy-001", "p-su-001", "p-sh-005", "p-korean-003", "p-jc-018"];
 const SPOTLIGHT_PRODUCT_IDS = ["p-jc-016", "p-kn-005", "p-denim-004"];
@@ -93,14 +106,33 @@ const SERVICE_ITEMS = [
 const REEL_AD_VIDEO_SRC = "/videos/boutique-reel-ad.mp4";
 const REEL_AD_POSTER_SRC = withPublicAssetVersion("/uploads/look3.jpg");
 
-const SUMMER_COLLECTION = {
-  name: "Summer Essentials Luxury Set",
-  image: withPublicAssetVersion("/uploads/image1.png"),
-  offerPrice: 4999,
-  originalTotal: 7500,
-} as const;
+type SummerCollectionProduct = {
+  id: string;
+  productId: string;
+  name: string;
+  category: string;
+  price: number;
+  href: string;
+  image: string;
+  hotspot: { x: number; y: number };
+  defaultSize: string;
+  defaultColor: string;
+};
 
-const SUMMER_COLLECTION_PRODUCTS = [
+type SummerCollectionSlide = {
+  id: string;
+  name: string;
+  image: string;
+  alt: string;
+  offerPrice: number;
+  originalTotal: number;
+  label: string;
+  copy: string;
+  itemSummary: string;
+  products: readonly SummerCollectionProduct[];
+};
+
+const SUMMER_ORIGINAL_PRODUCTS = [
   {
     id: "jacket",
     productId: "p-summer-jacket-001",
@@ -149,7 +181,73 @@ const SUMMER_COLLECTION_PRODUCTS = [
     defaultSize: "42",
     defaultColor: "black",
   },
-] as const;
+] as const satisfies readonly SummerCollectionProduct[];
+
+const SUMMER_POLO_PRODUCTS = [
+  {
+    id: "polo",
+    productId: "p-sh-006",
+    name: "Cafe Ribbed Zip Polo",
+    category: "Polo",
+    price: 999,
+    href: "/product/p-sh-006",
+    image: withPublicAssetVersion("/uploads/beige-ribbed-zip-polo-product.png"),
+    hotspot: { x: 52, y: 39 },
+    defaultSize: "M",
+    defaultColor: "beige",
+  },
+  {
+    id: "pants",
+    productId: "p-summer-pants-001",
+    name: "Premium Tailored Pants",
+    category: "Pants",
+    price: 1500,
+    href: "/product/p-summer-pants-001",
+    image: withPublicAssetVersion("/uploads/image3.png"),
+    hotspot: { x: 49, y: 65 },
+    defaultSize: "M",
+    defaultColor: "cream",
+  },
+  {
+    id: "shoes",
+    productId: "p-summer-sneakers-001",
+    name: "Premium Summer Sneakers",
+    category: "Shoes",
+    price: 1500,
+    href: "/product/p-summer-sneakers-001",
+    image: withPublicAssetVersion("/uploads/image2.png"),
+    hotspot: { x: 58, y: 84 },
+    defaultSize: "42",
+    defaultColor: "black",
+  },
+] as const satisfies readonly SummerCollectionProduct[];
+
+const SUMMER_COLLECTION_SLIDES = [
+  {
+    id: "summer-original",
+    name: "Summer Essentials Luxury Set",
+    image: withPublicAssetVersion("/uploads/image1.png"),
+    alt: "Complete Summer Essentials Luxury Set outfit with jacket, T-shirt, tailored pants, and black shoes",
+    offerPrice: 4999,
+    originalTotal: 7500,
+    label: "Shop the look",
+    copy: "Swipe through editorial summer looks. Each active image shows only the pieces on screen, with white points opening the exact product details.",
+    itemSummary: "Jacket, T-shirt, pants, and shoes.",
+    products: SUMMER_ORIGINAL_PRODUCTS,
+  },
+  {
+    id: "summer-polo",
+    name: "Cafe Riviera Polo Edit",
+    image: withPublicAssetVersion("/uploads/beige-ribbed-zip-polo-editorial.png"),
+    alt: "Model wearing the beige Cafe Ribbed Zip Polo with white tailored pants and black shoes",
+    offerPrice: 3999,
+    originalTotal: 4500,
+    label: "New outfit",
+    copy: "The beige knit polo replaces the black tee for a cleaner cafe summer look, paired with the same white pants and black shoes.",
+    itemSummary: "Beige knit polo, white pants, and black shoes.",
+    products: SUMMER_POLO_PRODUCTS,
+  },
+] as const satisfies readonly SummerCollectionSlide[];
 
 type MoodValue = (typeof SHOPPING_MOODS)[number]["value"];
 
@@ -201,6 +299,30 @@ const tileReveal = {
     scale: 1,
     transition: { duration: 0.44, ease: easeOut },
   },
+};
+
+const outfitSlideVariants = {
+  enter: (direction: number) => ({
+    opacity: 0,
+    x: direction >= 0 ? 46 : -46,
+    scale: 1.018,
+  }),
+  center: {
+    opacity: 1,
+    x: 0,
+    scale: 1,
+  },
+  exit: (direction: number) => ({
+    opacity: 0,
+    x: direction >= 0 ? -46 : 46,
+    scale: 0.992,
+  }),
+};
+
+const activeProductsVariants = {
+  enter: { opacity: 0, y: 14 },
+  center: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -12 },
 };
 
 function AnimatedArrow({ className = "h-4 w-4" }: { className?: string }) {
@@ -370,8 +492,81 @@ function SummerCollectionSection({
   onShopFullSet,
 }: {
   addSetBusy: boolean;
-  onShopFullSet: () => void;
+  onShopFullSet: (items: readonly SummerCollectionProduct[]) => void;
 }) {
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+  const [slideDirection, setSlideDirection] = useState(1);
+  const pointerStartXRef = useRef<number | null>(null);
+  const lastWheelSwitchRef = useRef(0);
+  const activeSlide = SUMMER_COLLECTION_SLIDES[activeSlideIndex] ?? SUMMER_COLLECTION_SLIDES[0];
+
+  const switchToSlide = useCallback((nextIndex: number, direction: number) => {
+    setSlideDirection(direction);
+    setActiveSlideIndex((current) => {
+      const normalized = (nextIndex + SUMMER_COLLECTION_SLIDES.length) % SUMMER_COLLECTION_SLIDES.length;
+      if (normalized === current) return current;
+      return normalized;
+    });
+  }, []);
+
+  const switchByOffset = useCallback((offset: number) => {
+    setSlideDirection(offset >= 0 ? 1 : -1);
+    setActiveSlideIndex((current) => {
+      const nextIndex = (current + offset + SUMMER_COLLECTION_SLIDES.length) % SUMMER_COLLECTION_SLIDES.length;
+      return nextIndex;
+    });
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      switchByOffset(1);
+    }, 5000);
+
+    return () => window.clearInterval(timer);
+  }, [switchByOffset, activeSlideIndex]);
+
+  const startShowcaseGesture = useCallback((clientX: number) => {
+    pointerStartXRef.current = clientX;
+  }, []);
+
+  const finishShowcaseGesture = useCallback((clientX: number) => {
+    const startX = pointerStartXRef.current;
+    pointerStartXRef.current = null;
+
+    if (startX == null) return;
+    const deltaX = clientX - startX;
+    if (Math.abs(deltaX) < 52) return;
+    switchByOffset(deltaX < 0 ? 1 : -1);
+  }, [switchByOffset]);
+
+  const handleShowcaseMouseDown = useCallback((event: ReactMouseEvent<HTMLDivElement>) => {
+    startShowcaseGesture(event.clientX);
+  }, [startShowcaseGesture]);
+
+  const handleShowcaseMouseUp = useCallback((event: ReactMouseEvent<HTMLDivElement>) => {
+    finishShowcaseGesture(event.clientX);
+  }, [finishShowcaseGesture]);
+
+  const handleShowcaseTouchStart = useCallback((event: ReactTouchEvent<HTMLDivElement>) => {
+    const touch = event.touches[0];
+    if (touch) startShowcaseGesture(touch.clientX);
+  }, [startShowcaseGesture]);
+
+  const handleShowcaseTouchEnd = useCallback((event: ReactTouchEvent<HTMLDivElement>) => {
+    const touch = event.changedTouches[0];
+    if (touch) finishShowcaseGesture(touch.clientX);
+  }, [finishShowcaseGesture]);
+
+  const handleShowcaseWheel = useCallback((event: ReactWheelEvent<HTMLDivElement>) => {
+    if (Math.abs(event.deltaX) < 28 || Math.abs(event.deltaX) < Math.abs(event.deltaY)) return;
+
+    const now = Date.now();
+    if (now - lastWheelSwitchRef.current < 760) return;
+    lastWheelSwitchRef.current = now;
+    event.preventDefault();
+    switchByOffset(event.deltaX > 0 ? 1 : -1);
+  }, [switchByOffset]);
+
   return (
     <motion.section
       variants={sectionReveal}
@@ -385,38 +580,96 @@ function SummerCollectionSection({
         <motion.div variants={imageReveal} className="relative min-w-0">
           <div className="relative overflow-hidden rounded-lg border border-[#D5D1C8] bg-[#E9E7E1] shadow-[0_28px_74px_rgba(23,21,19,0.12)]">
             <div
-              className="group relative block aspect-[2/3] min-h-[34rem] overflow-hidden sm:min-h-[44rem] lg:min-h-[52rem]"
+              className="group relative block aspect-[2/3] min-h-[34rem] cursor-grab overflow-hidden active:cursor-grabbing sm:min-h-[44rem] lg:min-h-[52rem]"
+              onMouseDown={handleShowcaseMouseDown}
+              onMouseUp={handleShowcaseMouseUp}
+              onMouseLeave={() => {
+                pointerStartXRef.current = null;
+              }}
+              onTouchStart={handleShowcaseTouchStart}
+              onTouchEnd={handleShowcaseTouchEnd}
+              onTouchCancel={() => {
+                pointerStartXRef.current = null;
+              }}
+              onWheel={handleShowcaseWheel}
+              style={{ touchAction: "pan-y" }}
             >
-              <Image
-                src={SUMMER_COLLECTION.image}
-                alt="Complete Summer Essentials Luxury Set outfit with jacket, T-shirt, tailored pants, and black shoes"
-                fill
-                sizes="(max-width: 1024px) 100vw, 56vw"
-                className="object-cover object-center transition duration-700 group-hover:scale-[1.02]"
-              />
+              <AnimatePresence initial={false} custom={slideDirection}>
+                <motion.div
+                  key={activeSlide.id}
+                  custom={slideDirection}
+                  variants={outfitSlideVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  transition={{ duration: 0.72, ease: easeOut }}
+                  className="absolute inset-0"
+                >
+                  <Image
+                    src={activeSlide.image}
+                    alt={activeSlide.alt}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 56vw"
+                    className="object-cover object-center transition duration-700 group-hover:scale-[1.02]"
+                    priority={activeSlideIndex === 0}
+                  />
+                </motion.div>
+              </AnimatePresence>
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(23,21,19,0.02)_0%,rgba(23,21,19,0.08)_48%,rgba(23,21,19,0.54)_100%)]" />
               <div className="absolute left-4 top-4 rounded-full border border-white/35 bg-white/20 px-3 py-2 text-[10px] uppercase tracking-[0.18em] text-white shadow-[0_12px_34px_rgba(0,0,0,0.18)] backdrop-blur-md sm:left-5 sm:top-5">
-                Special offer
+                {activeSlide.label}
+              </div>
+              <div className="absolute right-4 top-4 flex gap-2 sm:right-5 sm:top-5">
+                <button
+                  type="button"
+                  onClick={() => switchByOffset(-1)}
+                  aria-label="Previous summer outfit"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/35 bg-white/20 text-white shadow-[0_12px_34px_rgba(0,0,0,0.16)] backdrop-blur-md transition hover:bg-white/28 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                >
+                  <ChevronLeft className="h-4 w-4" strokeWidth={1.5} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchByOffset(1)}
+                  aria-label="Next summer outfit"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/35 bg-white/20 text-white shadow-[0_12px_34px_rgba(0,0,0,0.16)] backdrop-blur-md transition hover:bg-white/28 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                >
+                  <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
+                </button>
               </div>
               <div className="absolute inset-x-4 bottom-4 max-w-xl text-white sm:inset-x-6 sm:bottom-6">
                 <p className="text-xs uppercase tracking-[0.2em] text-[#D8C08A]">Shop the look</p>
                 <h2 className="mt-3 font-serif text-4xl font-light leading-none text-[#F8F7F2] drop-shadow-[0_3px_18px_rgba(0,0,0,0.36)] sm:text-5xl lg:text-6xl">
-                  {SUMMER_COLLECTION.name}
+                  {activeSlide.name}
                 </h2>
                 <div className="mt-5 flex flex-wrap items-end gap-3">
                   <span className="font-serif text-4xl font-light leading-none text-[#F8F7F2] sm:text-5xl">
-                    EGP {formatPrice(SUMMER_COLLECTION.offerPrice)}
+                    EGP {formatPrice(activeSlide.offerPrice)}
                   </span>
                   <span className="pb-1 text-sm text-white/74 line-through">
-                    EGP {formatPrice(SUMMER_COLLECTION.originalTotal)}
+                    EGP {formatPrice(activeSlide.originalTotal)}
                   </span>
                 </div>
               </div>
+              <div className="absolute bottom-4 right-4 flex gap-2 sm:bottom-6 sm:right-6">
+                {SUMMER_COLLECTION_SLIDES.map((slide, index) => (
+                  <button
+                    key={slide.id}
+                    type="button"
+                    onClick={() => switchToSlide(index, index >= activeSlideIndex ? 1 : -1)}
+                    aria-label={`Show ${slide.name}`}
+                    aria-current={activeSlide.id === slide.id ? "true" : undefined}
+                    className={`h-2.5 rounded-full border border-white/50 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${
+                      activeSlide.id === slide.id ? "w-9 bg-white" : "w-2.5 bg-white/20 hover:bg-white/45"
+                    }`}
+                  />
+                ))}
+              </div>
             </div>
 
-            {SUMMER_COLLECTION_PRODUCTS.map((item) => (
+            {activeSlide.products.map((item) => (
               <Link
-                key={item.id}
+                key={`${activeSlide.id}-${item.id}`}
                 href={item.href}
                 aria-label={`Open ${item.name} product details`}
                 data-testid={`summer-hotspot-${item.id}`}
@@ -446,59 +699,69 @@ function SummerCollectionSection({
               Explore the full outfit by touch.
             </h2>
             <p className="mt-5 max-w-xl text-sm leading-7 text-[#5A5650] sm:text-base">
-              One editorial summer look, split into four direct product paths. Tap the white points on the outfit to open the exact jacket, pants, shoes, or T-shirt details.
+              {activeSlide.copy}
             </p>
 
             <div className="mt-7 grid gap-3 sm:grid-cols-2">
               <div className="rounded-lg border border-[#D5D1C8] bg-white p-5">
-                <p className="text-[10px] uppercase tracking-[0.2em] text-[#725D2C]">Bundle price</p>
+                <p className="text-[10px] uppercase tracking-[0.2em] text-[#725D2C]">Active outfit price</p>
                 <p className="mt-3 font-serif text-4xl font-light leading-none text-[#171513]">
-                  EGP {formatPrice(SUMMER_COLLECTION.offerPrice)}
+                  EGP {formatPrice(activeSlide.offerPrice)}
                 </p>
-                <p className="mt-2 text-sm text-[#69645E]">Special offer for the complete set.</p>
+                <p className="mt-2 text-sm text-[#69645E]">Updates with the selected outfit slide.</p>
               </div>
               <div className="rounded-lg border border-[#D5D1C8] bg-[#171513] p-5 text-[#F8F7F2]">
                 <p className="text-[10px] uppercase tracking-[0.2em] text-[#D8C08A]">Included pieces</p>
                 <p className="mt-3 font-serif text-4xl font-light leading-none">
-                  4 items
+                  {activeSlide.products.length} items
                 </p>
-                <p className="mt-2 text-sm text-[#C9C5B8]">Jacket, pants, shoes, and basic tee.</p>
+                <p className="mt-2 text-sm text-[#C9C5B8]">{activeSlide.itemSummary}</p>
               </div>
             </div>
           </div>
 
-          <div className="grid gap-3">
-            {SUMMER_COLLECTION_PRODUCTS.map((item) => (
-              <Link
-                key={item.id}
-                href={item.href}
-                className="group grid min-h-[6rem] grid-cols-[5.5rem_1fr_auto] items-center gap-4 rounded-lg border border-[#D5D1C8] bg-white p-3 text-[#171513] shadow-[0_14px_34px_rgba(23,21,19,0.05)] transition hover:border-[#171513]"
-              >
-                <span className="relative block aspect-[4/5] overflow-hidden rounded-md bg-[#E9E7E1]">
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    fill
-                    sizes="6rem"
-                    className="object-contain p-1 transition duration-500 group-hover:scale-[1.04]"
-                  />
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-[10px] uppercase tracking-[0.18em] text-[#725D2C]">{item.category}</span>
-                  <span className="mt-1 block font-serif text-2xl font-light leading-none text-[#171513]">{item.name}</span>
-                  <span className="mt-2 block text-sm text-[#69645E]">EGP {formatPrice(item.price)}</span>
-                </span>
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#D5D1C8] text-[#171513] transition group-hover:border-[#171513]">
-                  <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
-                </span>
-              </Link>
-            ))}
-          </div>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={`products-${activeSlide.id}`}
+              variants={activeProductsVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.36, ease: easeOut }}
+              className="grid gap-3"
+            >
+              {activeSlide.products.map((item) => (
+                <Link
+                  key={`${activeSlide.id}-${item.id}`}
+                  href={item.href}
+                  className="group grid min-h-[6rem] grid-cols-[5.5rem_1fr_auto] items-center gap-4 rounded-lg border border-[#D5D1C8] bg-white p-3 text-[#171513] shadow-[0_14px_34px_rgba(23,21,19,0.05)] transition hover:border-[#171513]"
+                >
+                  <span className="relative block aspect-[4/5] overflow-hidden rounded-md bg-[#E9E7E1]">
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      fill
+                      sizes="6rem"
+                      className="object-contain p-1 transition duration-500 group-hover:scale-[1.04]"
+                    />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block text-[10px] uppercase tracking-[0.18em] text-[#725D2C]">{item.category}</span>
+                    <span className="mt-1 block font-serif text-2xl font-light leading-none text-[#171513]">{item.name}</span>
+                    <span className="mt-2 block text-sm text-[#69645E]">EGP {formatPrice(item.price)}</span>
+                  </span>
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#D5D1C8] text-[#171513] transition group-hover:border-[#171513]">
+                    <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
+                  </span>
+                </Link>
+              ))}
+            </motion.div>
+          </AnimatePresence>
 
           <div className="flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
-              onClick={onShopFullSet}
+              onClick={() => onShopFullSet(activeSlide.products)}
               disabled={addSetBusy}
               className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-[#171513] px-6 py-3 text-sm text-[#F8F7F2] transition hover:bg-[#725D2C] disabled:cursor-not-allowed disabled:bg-[#D9D5CC] disabled:text-[#65605A]"
             >
@@ -958,11 +1221,11 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
     }
   }, [router]);
 
-  const handleShopSummerSet = useCallback(async () => {
+  const handleShopSummerSet = useCallback(async (items: readonly SummerCollectionProduct[]) => {
     setAddingSummerSet(true);
 
     try {
-      for (const item of SUMMER_COLLECTION_PRODUCTS) {
+      for (const item of items) {
         const response = await fetch("/api/cart", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -981,7 +1244,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
       }
 
       window.dispatchEvent(new Event("cart:changed"));
-      showToast("Full summer set added to cart.", "success");
+      showToast(`${items.length}-piece summer look added to cart.`, "success");
       router.push("/cart");
     } catch (error) {
       showToast(error instanceof Error ? error.message : "Unable to add the full set right now.", "error");
