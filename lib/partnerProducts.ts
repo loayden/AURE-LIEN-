@@ -54,6 +54,25 @@ function cleanString(value: unknown): string {
   return String(value ?? "").trim();
 }
 
+function safeIsoDate(value: unknown, fallback = new Date().toISOString()): string {
+  const date = value instanceof Date
+    ? value
+    : typeof value === "string" || typeof value === "number"
+      ? new Date(value)
+      : null;
+  if (date && Number.isFinite(date.getTime())) return date.toISOString();
+  return fallback;
+}
+
+function safeDateTime(value: unknown): number {
+  const date = value instanceof Date
+    ? value
+    : typeof value === "string" || typeof value === "number"
+      ? new Date(value)
+      : null;
+  return date && Number.isFinite(date.getTime()) ? date.getTime() : 0;
+}
+
 function normalizeCategory(value: unknown): string {
   return cleanString(value).toLowerCase().replace(/\s+/g, "-");
 }
@@ -79,7 +98,7 @@ function normalizePartnerProduct(raw: any): PartnerProductDraft | null {
   const boutiqueName = cleanString(raw?.boutiqueName);
   const partnerName = cleanString(raw?.partnerName);
   const phone = cleanString(raw?.phone);
-  const createdAt = raw?.createdAt ? new Date(raw.createdAt).toISOString() : new Date().toISOString();
+  const createdAt = safeIsoDate(raw?.createdAt);
   const status = ["approved", "rejected", "pending"].includes(cleanString(raw?.status))
     ? cleanString(raw?.status) as PartnerProductStatus
     : "pending";
@@ -108,10 +127,10 @@ function normalizePartnerProduct(raw: any): PartnerProductDraft | null {
     stock: Number.isFinite(Number(raw?.stock)) ? Math.max(0, Math.floor(Number(raw.stock))) : undefined,
     status,
     reviewNote: cleanString(raw?.reviewNote) || undefined,
-    reviewedAt: raw?.reviewedAt ? new Date(raw.reviewedAt).toISOString() : undefined,
+    reviewedAt: raw?.reviewedAt ? safeIsoDate(raw.reviewedAt, createdAt) : undefined,
     reviewedBy: cleanString(raw?.reviewedBy) || undefined,
     createdAt,
-    updatedAt: raw?.updatedAt ? new Date(raw.updatedAt).toISOString() : createdAt,
+    updatedAt: raw?.updatedAt ? safeIsoDate(raw.updatedAt, createdAt) : createdAt,
   };
 }
 
@@ -120,7 +139,7 @@ function normalizePartnerProducts(products: unknown): PartnerProductDraft[] {
   return products
     .map(normalizePartnerProduct)
     .filter((product): product is PartnerProductDraft => Boolean(product))
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    .sort((a, b) => safeDateTime(b.createdAt) - safeDateTime(a.createdAt));
 }
 
 function mergePartnerProducts(primary: PartnerProductDraft[], secondary: PartnerProductDraft[]): PartnerProductDraft[] {
@@ -135,7 +154,7 @@ function mergePartnerProducts(primary: PartnerProductDraft[], secondary: Partner
   }
 
   return Array.from(byId.values()).sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    (a, b) => safeDateTime(b.createdAt) - safeDateTime(a.createdAt)
   );
 }
 

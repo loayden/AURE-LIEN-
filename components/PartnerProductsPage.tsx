@@ -2,7 +2,6 @@
 
 import { showToast } from "@/components/ToastProvider";
 import { formatPrice } from "@/lib/commerce";
-import type { PartnerProductDraft } from "@/lib/partnerProducts";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
@@ -13,9 +12,7 @@ import {
   Landmark,
   PackageCheck,
   RefreshCw,
-  ShieldCheck,
   Smartphone,
-  Store,
   UploadCloud,
   Wallet,
   X,
@@ -162,16 +159,67 @@ function cleanList(value: string): string[] {
   return value.split(",").map((entry) => entry.trim()).filter(Boolean);
 }
 
-function statusCopy(status: PartnerProductDraft["status"]) {
-  if (status === "approved") return "Approved and live in shop";
-  if (status === "rejected") return "Rejected by admin review";
-  return "Waiting for admin review";
+type WalletNumberKey = "orders" | "items" | "grossSales" | "pending" | "available" | "paid" | "commission" | "refunds" | "paymentFees";
+
+function getFiniteNumber(value: unknown) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : 0;
 }
 
-function payoutStatusCopy(status?: string) {
-  if (status === "complete") return "Ready for review";
-  if (status === "incomplete") return "Needs payout details";
-  return "Add payout details";
+function normalizePayoutMethod(value: unknown): PayoutMethod {
+  return value === "bank_account" || value === "paymob_merchant" || value === "mobile_wallet"
+    ? value
+    : "mobile_wallet";
+}
+
+function normalizePayoutStatus(value: unknown): "missing" | "incomplete" | "complete" {
+  return value === "complete" || value === "incomplete" || value === "missing" ? value : "missing";
+}
+
+function normalizeWalletData(value: unknown): PartnerWalletData | null {
+  if (!value || typeof value !== "object") return null;
+
+  const wallet = value as Partial<PartnerWalletData>;
+  const application = (wallet.application && typeof wallet.application === "object" ? wallet.application : {}) as Partial<PartnerWalletData["application"]>;
+  const payoutPreview = (wallet.payoutPreview && typeof wallet.payoutPreview === "object" ? wallet.payoutPreview : {}) as Partial<PartnerWalletData["payoutPreview"]>;
+  const summary = (wallet.summary && typeof wallet.summary === "object" ? wallet.summary : {}) as Partial<PartnerWalletData["summary"]>;
+  const payoutProfile = wallet.payoutProfile && typeof wallet.payoutProfile === "object" ? wallet.payoutProfile : undefined;
+
+  return {
+    application: {
+      _id: String(application._id ?? ""),
+      boutiqueName: String(application.boutiqueName ?? "Boutique"),
+      ownerName: String(application.ownerName ?? ""),
+      phone: String(application.phone ?? ""),
+      planName: String(application.planName ?? "Partner plan"),
+      commissionRate: getFiniteNumber(application.commissionRate),
+      monthlyFee: getFiniteNumber(application.monthlyFee),
+      trialDays: getFiniteNumber(application.trialDays),
+    },
+    payoutProfile,
+    payoutPreview: {
+      method: String(payoutPreview.method ?? "missing"),
+      destination: String(payoutPreview.destination ?? "Add payout details"),
+      status: normalizePayoutStatus(payoutPreview.status),
+    },
+    summary: {
+      orders: getFiniteNumber(summary.orders),
+      items: getFiniteNumber(summary.items),
+      grossSales: getFiniteNumber(summary.grossSales),
+      pending: getFiniteNumber(summary.pending),
+      available: getFiniteNumber(summary.available),
+      paid: getFiniteNumber(summary.paid),
+      commission: getFiniteNumber(summary.commission),
+      refunds: getFiniteNumber(summary.refunds),
+      paymentFees: getFiniteNumber(summary.paymentFees),
+      payoutProfileStatus: normalizePayoutStatus(summary.payoutProfileStatus),
+    },
+    lines: Array.isArray(wallet.lines) ? wallet.lines : [],
+  };
+}
+
+function walletNumber(wallet: PartnerWalletData | null, key: WalletNumberKey) {
+  return getFiniteNumber(wallet?.summary?.[key]);
 }
 
 const PRODUCT_FORM_STEPS = [
@@ -206,7 +254,6 @@ export default function PartnerProductsPage() {
   const [form, setForm] = useState<FormState>(initialForm);
   const [payoutForm, setPayoutForm] = useState<PayoutFormState>(initialPayoutForm);
   const [applications, setApplications] = useState<PartnerApplicationSummary[]>([]);
-  const [products, setProducts] = useState<PartnerProductDraft[]>([]);
   const [wallet, setWallet] = useState<PartnerWalletData | null>(null);
   const [images, setImages] = useState<string[]>([]);
   const [files, setFiles] = useState<File[]>([]);
@@ -221,10 +268,6 @@ export default function PartnerProductsPage() {
   const [walletError, setWalletError] = useState("");
   const [activeProductStep, setActiveProductStep] = useState(0);
 
-  const pendingCount = useMemo(
-    () => products.filter((product) => product.status === "pending").length,
-    [products]
-  );
   const selectedApplication = useMemo(
     () => applications.find((application) => application._id === applicationId.trim()) ?? null,
     [applicationId, applications]
@@ -234,7 +277,7 @@ export default function PartnerProductsPage() {
       selectedApplication.status !== "declined" &&
       selectedApplication.access?.canManageProducts
   );
-  const activeStep = PRODUCT_FORM_STEPS[activeProductStep];
+  const activeStep = PRODUCT_FORM_STEPS[activeProductStep] ?? PRODUCT_FORM_STEPS[0];
   const hasProductImages = Boolean(files.length || images.length || form.imageUrl.trim());
   const selectedImageCount = files.length + images.length + (form.imageUrl.trim() ? 1 : 0);
 
@@ -259,6 +302,7 @@ export default function PartnerProductsPage() {
   function goToProductStep(stepIndex: number) {
     const nextStep = Math.min(Math.max(stepIndex, 0), PRODUCT_FORM_STEPS.length - 1);
     setActiveProductStep(nextStep);
+    if (typeof window === "undefined") return;
     window.requestAnimationFrame(() => {
       productWizardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
@@ -316,7 +360,7 @@ export default function PartnerProductsPage() {
   function syncPayoutForm(nextWallet: PartnerWalletData) {
     const profile = nextWallet.payoutProfile;
     setPayoutForm({
-      method: (profile?.method as PayoutMethod | undefined) ?? "mobile_wallet",
+      method: normalizePayoutMethod(profile?.method),
       accountHolderName: String(profile?.accountHolderName ?? ""),
       bankName: String(profile?.bankName ?? ""),
       iban: String(profile?.iban ?? ""),
@@ -376,17 +420,14 @@ export default function PartnerProductsPage() {
       if (response.status === 402 && data?.access?.subscriptionUrl) {
         showToast(data?.error || "Subscribe before uploading products.", "error");
         router.replace(data.access.subscriptionUrl);
-        setProducts([]);
         return;
       }
       if (!response.ok) throw new Error(data?.error || "Unable to load submitted products");
-      setProducts(Array.isArray(data.products) ? data.products : []);
     } catch (requestError) {
       const rawMessage = requestError instanceof Error ? requestError.message : "Unable to load submitted products";
       const message = getFriendlyApplicationError(rawMessage);
       setError(message);
       if (!options.silent) showToast(message, "error");
-      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -402,9 +443,12 @@ export default function PartnerProductsPage() {
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data?.error || "Unable to load partner wallet");
-      if (data?.wallet) {
-        setWallet(data.wallet);
-        syncPayoutForm(data.wallet);
+      const nextWallet = normalizeWalletData(data?.wallet);
+      if (nextWallet) {
+        setWallet(nextWallet);
+        syncPayoutForm(nextWallet);
+      } else {
+        setWallet(null);
       }
     } catch (requestError) {
       const rawMessage = requestError instanceof Error ? requestError.message : "Unable to load partner wallet";
@@ -439,7 +483,6 @@ export default function PartnerProductsPage() {
       }
 
       if (nextApplication && shouldOpenSubscription(nextApplication.access)) {
-        setProducts([]);
         setWallet(null);
         setWalletError(nextApplication.access.message);
         openSubscriptionFor(nextApplication);
@@ -449,7 +492,6 @@ export default function PartnerProductsPage() {
           loadWallet(nextId, { silent: true }),
         ]);
       } else {
-        setProducts([]);
         setWallet(null);
         setWalletError("Submit a boutique partnership request before adding products.");
       }
@@ -457,7 +499,6 @@ export default function PartnerProductsPage() {
       const message = requestError instanceof Error ? requestError.message : "Unable to load boutique applications";
       setApplications([]);
       setApplicationId("");
-      setProducts([]);
       setWallet(null);
       setError(message);
       setWalletError(message);
@@ -471,7 +512,6 @@ export default function PartnerProductsPage() {
     setApplicationId(nextId);
     const nextApplication = applications.find((application) => application._id === nextId);
     if (nextApplication && shouldOpenSubscription(nextApplication.access)) {
-      setProducts([]);
       setWallet(null);
       setWalletError(nextApplication.access.message);
       openSubscriptionFor(nextApplication);
@@ -481,7 +521,6 @@ export default function PartnerProductsPage() {
       void loadProducts(nextId);
       void loadWallet(nextId);
     } else {
-      setProducts([]);
       setWallet(null);
     }
   }
@@ -637,7 +676,6 @@ export default function PartnerProductsPage() {
       setImages([]);
       resetFileInput();
       setActiveProductStep(1);
-      setProducts((current) => data?.product ? [data.product, ...current] : current);
       showToast("Product sent to admin review.", "success");
       void loadWallet(id);
     } catch (requestError) {
@@ -669,7 +707,9 @@ export default function PartnerProductsPage() {
         const missing = Array.isArray(data?.missing) ? ` Missing: ${data.missing.join(", ")}` : "";
         throw new Error(`${getFriendlyApplicationError(data?.error || "Unable to start Paymob checkout.")}${missing}`);
       }
-      if (!data?.redirectUrl) throw new Error("Paymob did not return a checkout link.");
+      if (typeof data?.redirectUrl !== "string" || !data.redirectUrl.trim()) {
+        throw new Error("Paymob did not return a checkout link.");
+      }
       window.location.href = data.redirectUrl;
     } catch (requestError) {
       const message = requestError instanceof Error ? requestError.message : "Unable to start Paymob checkout.";
@@ -680,83 +720,144 @@ export default function PartnerProductsPage() {
     }
   }
 
+  const accessLabel = selectedApplication
+    ? canUseApplication
+      ? "Ready to upload"
+      : selectedApplication.access?.reason === "trial_expired"
+        ? "Subscription needed"
+        : "Review pending"
+    : applicationsLoading
+      ? "Loading"
+      : "No boutique";
+  const planLabel = selectedApplication?.planName || "No plan selected";
+  const payoutLabel = wallet?.payoutPreview?.status === "complete"
+    ? "Payout ready"
+    : wallet?.payoutPreview?.status === "incomplete"
+      ? "Needs payout details"
+      : "Payout setup needed";
+  const dashboardCards = [
+    {
+      label: "Boutique",
+      value: selectedApplication?.boutiqueName || "Not connected",
+      copy: selectedApplication ? selectedApplication.status : "Apply first",
+      icon: Landmark,
+    },
+    {
+      label: "Access",
+      value: accessLabel,
+      copy: selectedApplication?.access?.message || "Choose an approved boutique application",
+      icon: CheckCircle2,
+    },
+    {
+      label: "Wallet",
+      value: `EGP ${formatPrice(walletNumber(wallet, "available"))}`,
+      copy: walletLoading ? "Refreshing wallet" : payoutLabel,
+      icon: Wallet,
+    },
+  ];
+  const walletCards = [
+    { label: "Available", value: `EGP ${formatPrice(walletNumber(wallet, "available"))}`, icon: CreditCard },
+    { label: "Pending", value: `EGP ${formatPrice(walletNumber(wallet, "pending"))}`, icon: CheckCircle2 },
+    { label: "Paid", value: `EGP ${formatPrice(walletNumber(wallet, "paid"))}`, icon: Banknote },
+    { label: "Orders", value: String(walletNumber(wallet, "orders")), icon: PackageCheck },
+  ];
+
   return (
     <main
       dir="rtl"
-      className="liquid-page mobile-comfort overflow-hidden px-3 pb-[calc(7.25rem+env(safe-area-inset-bottom))] pt-16 text-[#3D3025] sm:px-6 sm:pb-24 sm:pt-28 md:px-10"
+      className="liquid-page mobile-comfort px-3 pb-[calc(7.25rem+env(safe-area-inset-bottom))] pt-16 text-[#3D3025] sm:px-6 sm:pb-24 sm:pt-28 md:px-10"
       style={{ fontFamily: "Tahoma, Arial, var(--font-jost), sans-serif" }}
     >
       <div className="page-wrap max-w-6xl">
-        <section className="mb-5 grid gap-4 sm:mb-7 sm:gap-5 lg:grid-cols-[1fr_22rem] lg:items-end">
-          <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="glass-panel p-4 sm:p-7">
-            <p className="eyebrow mb-3 sm:mb-4" dir="ltr">PARTNER PRODUCT INTAKE</p>
-            <h1 className="title-display text-[clamp(2.6rem,6vw,5.7rem)] leading-[0.92]" dir="ltr">
-              Boutique Product Desk
-            </h1>
-            <p className="mt-4 max-w-3xl text-sm leading-7 text-[#6F6254] sm:mt-5 sm:text-base sm:leading-8">
-              ارفع منتجات البوتيك للمراجعة. كل منتج يفضل صورة واضحة، سعر بالجنيه المصري، المقاسات، الألوان، ووصف مختصر. المنتج لا يظهر في المتجر إلا بعد موافقة الأدمن.
-            </p>
-          </motion.div>
+        <section className="mb-4 sm:mb-6">
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-[22px] border border-[#7B6752]/12 bg-white/78 p-4 shadow-[0_18px_54px_rgba(61,48,37,0.08)] backdrop-blur-2xl sm:rounded-[28px] sm:p-6"
+          >
+            <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-end">
+              <div className="min-w-0">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-left text-[9px] uppercase tracking-[0.28em] text-[#7A581F]" dir="ltr">
+                    Partner workspace
+                  </p>
+                  <span
+                    className="inline-flex min-h-[34px] items-center rounded-full border px-3 text-[9px] uppercase tracking-[0.2em]"
+                    style={{
+                      borderColor: canUseApplication ? "rgba(80,160,100,0.18)" : "rgba(168,121,53,0.22)",
+                      background: canUseApplication ? "rgba(80,160,100,0.1)" : "rgba(168,121,53,0.1)",
+                      color: canUseApplication ? "#3C7A4D" : "#7A581F",
+                    }}
+                    dir="ltr"
+                  >
+                    {accessLabel}
+                  </span>
+                </div>
+                <h1 className="text-left font-serif text-[2.15rem] font-light leading-[0.98] tracking-[0.01em] text-[#3D3025] sm:text-[3.65rem]" dir="ltr">
+                  Product Management
+                </h1>
+                <p className="mt-4 max-w-3xl text-sm leading-7 text-[#6F6254] sm:text-[0.98rem] sm:leading-8">
+                  أضف منتجات البوتيك بخطوات واضحة: اختار الطلب، اكتب بيانات المنتج، ارفع الصور، ثم أرسل المنتج لمراجعة الأدمن قبل ظهوره في المتجر.
+                </p>
+              </div>
 
-          <motion.aside initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="dark-panel p-4 sm:p-6">
-            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-[0.9rem] border border-[#A87935]/20 bg-[#A87935]/10 text-[#A87935] sm:mb-5 sm:h-12 sm:w-12 sm:rounded-[1rem]">
-              <ShieldCheck className="h-5 w-5" strokeWidth={1.35} />
+              <div className="rounded-[18px] border border-[#A87935]/18 bg-[#FFF9EF]/64 p-3 sm:p-4">
+                <p className="text-left text-[9px] uppercase tracking-[0.24em] text-[#7A581F]" dir="ltr">
+                  Current plan
+                </p>
+                <p className="mt-2 break-words text-left font-serif text-[1.45rem] leading-none text-[#3D3025] sm:text-[1.75rem]" dir="ltr">
+                  {planLabel}
+                </p>
+                <p className="mt-3 text-left text-xs leading-5 text-[#6F6254]" dir="ltr">
+                  {selectedApplication?.access?.message || "ابدأ بطلب شراكة أو اختار البوتيك المتصل بحسابك."}
+                </p>
+              </div>
             </div>
-            <p className="eyebrow mb-3">Review First</p>
-            <p className="body-copy">
-              المنتجات الجديدة تدخل pending review. الموافقة تنشر المنتج في Shop و Product Page بنفس نظام الكتالوج الحالي.
-            </p>
-          </motion.aside>
+
+            <div className="mt-4 grid gap-2 sm:mt-5 sm:grid-cols-3 sm:gap-3">
+              {dashboardCards.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <div key={item.label} className="rounded-[16px] border border-[#7B6752]/12 bg-white/58 p-3 sm:rounded-[18px] sm:p-4">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <p className="text-left text-[8px] uppercase tracking-[0.22em] text-[#7A581F]" dir="ltr">{item.label}</p>
+                      <Icon className="h-4 w-4 text-[#A87935]" strokeWidth={1.25} />
+                    </div>
+                    <p className="break-words text-left font-serif text-[1.15rem] leading-none text-[#3D3025] sm:text-[1.35rem]" dir="ltr">
+                      {item.value}
+                    </p>
+                    <p className="mt-2 line-clamp-2 text-left text-[0.7rem] leading-5 text-[#6F6254]" dir="ltr">{item.copy}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
         </section>
 
         {error ? (
-          <div className="mb-5 rounded-2xl border border-[#9A2222]/22 bg-[#9A2222]/[0.06] px-4 py-3 text-[10px] uppercase tracking-[0.2em] text-[#9A2222]">
+          <div className="mb-4 rounded-[16px] border border-[#9A2222]/22 bg-[#9A2222]/[0.06] px-4 py-3 text-[0.72rem] leading-5 text-[#9A2222] sm:mb-5">
             {error}
           </div>
         ) : null}
 
-        <section className="mb-5 grid grid-cols-2 gap-2 sm:mb-7 sm:gap-4 md:grid-cols-4">
-          {[
-            {
-              label: "Boutique",
-              value: selectedApplication ? selectedApplication.status : applicationsLoading ? "Loading" : "Missing",
-              copy: selectedApplication ? selectedApplication.boutiqueName : "Submit boutique form first",
-            },
-            { label: "Pending", value: String(pendingCount), copy: "Waiting for admin review" },
-            {
-              label: "Available",
-              value: wallet ? `EGP ${formatPrice(wallet.summary.available)}` : "EGP 0",
-              copy: "Ready after paid or delivered orders",
-            },
-            {
-              label: "Payout",
-              value: wallet ? payoutStatusCopy(wallet.summary.payoutProfileStatus) : "Secure",
-              copy: wallet?.payoutPreview.destination || "No card numbers stored",
-            },
-          ].map((item) => (
-            <div key={item.label} className="glass-panel p-3 sm:p-5">
-              <p className="eyebrow mb-2 sm:mb-3">{item.label}</p>
-              <p className="title-display text-[clamp(1.55rem,3vw,2rem)] leading-none">{item.value}</p>
-              <p className="mt-2 break-words text-[11px] leading-5 text-[#6F6254] sm:mt-3 sm:text-xs sm:leading-6" dir="ltr">{item.copy}</p>
-            </div>
-          ))}
-        </section>
-
-        <div className="grid gap-5 sm:gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,0.85fr)]">
-          <section ref={productWizardRef} className="glass-panel p-4 sm:p-7">
-            <div className="mb-5 flex flex-col gap-3 sm:mb-6 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
+        <div className="grid min-w-0 gap-4 sm:gap-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(20rem,0.92fr)]">
+          <section
+            ref={productWizardRef}
+            className="min-w-0 rounded-[22px] border border-[#7B6752]/12 bg-white/74 p-4 shadow-[0_18px_48px_rgba(61,48,37,0.07)] backdrop-blur-2xl sm:rounded-[28px] sm:p-6"
+          >
+            <div className="mb-4 flex flex-col gap-3 sm:mb-5 sm:flex-row sm:items-end sm:justify-between sm:gap-4">
               <div>
-                <p className="eyebrow mb-3" dir="ltr">Product wizard</p>
-                <h2 className="title-display text-[1.85rem] leading-none sm:text-[2.25rem]">{activeStep.title}</h2>
-                <p className="mt-3 text-xs leading-6 text-[#6F6254]" dir="ltr">{activeStep.copy}</p>
+                <p className="text-left text-[9px] uppercase tracking-[0.26em] text-[#7A581F]" dir="ltr">Product workflow</p>
+                <h2 className="mt-2 font-serif text-[1.75rem] font-light leading-none text-[#3D3025] sm:text-[2.3rem]">{activeStep.title}</h2>
+                <p className="mt-2 text-left text-xs leading-6 text-[#6F6254]" dir="ltr">{activeStep.copy}</p>
               </div>
-              <Link href="/boutiques/apply" className="btn-ghost justify-center">
+              <Link href="/boutiques/apply" className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-[14px] border border-[#A87935]/22 bg-[#A87935]/[0.07] px-4 text-[9px] uppercase tracking-[0.2em] text-[#7A581F] transition hover:border-[#A87935]/38">
                 طلب شراكة جديد
                 <ArrowRight className="h-4 w-4 rotate-180" />
               </Link>
             </div>
 
-            <div className="mb-5 grid grid-cols-4 gap-2 sm:mb-6 sm:gap-3" aria-label="Product upload progress">
+            <div className="mb-4 flex gap-2 overflow-x-auto pb-1 sm:mb-5 sm:grid sm:grid-cols-4 sm:gap-3 sm:overflow-visible sm:pb-0" aria-label="Product upload progress">
               {PRODUCT_FORM_STEPS.map((step, index) => {
                 const isActive = index === activeProductStep;
                 const isComplete = index < activeProductStep;
@@ -768,28 +869,30 @@ export default function PartnerProductsPage() {
                     disabled={index > activeProductStep}
                     aria-current={isActive ? "step" : undefined}
                     className={[
-                      "min-h-[4.2rem] rounded-[18px] border px-2 py-3 text-center transition sm:min-h-[5rem] sm:px-3",
+                      "min-h-[3.65rem] min-w-[7.4rem] rounded-[14px] border px-3 py-2 text-start transition sm:min-h-[4.65rem] sm:min-w-0 sm:rounded-[16px] sm:px-3 sm:py-3 sm:text-center",
                       isActive
-                        ? "border-[#A87935]/42 bg-[#A87935]/12 text-[#3D3025] shadow-[0_18px_48px_rgba(83,62,36,0.10)]"
+                        ? "border-[#A87935]/42 bg-[#A87935]/12 text-[#3D3025] shadow-[0_14px_32px_rgba(83,62,36,0.08)]"
                         : isComplete
                           ? "border-[#A87935]/22 bg-white/58 text-[#7A581F]"
                           : "border-[rgba(123,103,82,0.12)] bg-white/30 text-[#8A7C6C]",
                     ].join(" ")}
                   >
-                    <span className="mx-auto mb-2 flex h-7 w-7 items-center justify-center rounded-full border border-current/20 text-[10px]">
-                      {isComplete ? <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} /> : index + 1}
-                    </span>
-                    <span className="block text-[8px] uppercase tracking-[0.14em] sm:text-[9px] sm:tracking-[0.2em]" dir="ltr">
-                      {step.label}
+                    <span className="flex items-center gap-2 sm:block">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-current/20 text-[10px] sm:mx-auto sm:mb-2">
+                        {isComplete ? <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.5} /> : index + 1}
+                      </span>
+                      <span className="block text-[8px] uppercase tracking-[0.16em] sm:text-[9px] sm:tracking-[0.2em]" dir="ltr">
+                        {step.label}
+                      </span>
                     </span>
                   </button>
                 );
               })}
             </div>
 
-            <div className="mb-5 rounded-[18px] border border-[rgba(123,103,82,0.12)] bg-white/36 px-3 py-2 text-[11px] leading-5 text-[#6F6254] sm:mb-6 sm:px-4" dir="ltr">
+            <div className="mb-4 rounded-[14px] border border-[rgba(123,103,82,0.12)] bg-[#FDFBF7]/72 px-3 py-2 text-[11px] leading-5 text-[#6F6254] sm:mb-5 sm:px-4" dir="ltr">
               Step {activeProductStep + 1} of {PRODUCT_FORM_STEPS.length}
-              {selectedApplication ? ` · ${selectedApplication.boutiqueName}` : " · Choose an application to start"}
+              {selectedApplication ? ` · ${selectedApplication.boutiqueName}` : " · choose an application to start"}
             </div>
 
             {activeProductStep === 0 ? (
@@ -797,7 +900,7 @@ export default function PartnerProductsPage() {
                 <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
                   {applications.length ? (
                     <label className="block">
-                      <span className="eyebrow mb-3 block">Boutique Application</span>
+                      <span className="mb-2 block text-[9px] uppercase tracking-[0.24em] text-[#7A581F]" dir="ltr">Boutique application</span>
                       <select
                         value={applicationId}
                         onChange={(event) => selectApplication(event.target.value)}
@@ -812,7 +915,7 @@ export default function PartnerProductsPage() {
                       </select>
                     </label>
                   ) : (
-                    <div className="rounded-[18px] border border-[#A87935]/18 bg-[#A87935]/[0.06] px-4 py-3 text-xs leading-6 text-[#6F6254]">
+                    <div className="rounded-[16px] border border-[#A87935]/18 bg-[#A87935]/[0.06] px-4 py-3 text-xs leading-6 text-[#6F6254]">
                       {applicationsLoading
                         ? "Loading your boutique applications..."
                         : "No boutique application is connected to this account yet. Submit the partnership request first, then come back to upload products."}
@@ -829,7 +932,7 @@ export default function PartnerProductsPage() {
                       void loadApplications();
                     }}
                     disabled={loading || walletLoading || applicationsLoading || (!applicationId.trim() && applications.length > 0)}
-                    className="btn-gold justify-center self-end"
+                    className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-[14px] border border-[#A87935]/22 bg-[#A87935]/[0.08] px-4 text-[9px] uppercase tracking-[0.22em] text-[#7A581F] transition hover:border-[#A87935]/38 disabled:opacity-45 sm:self-end"
                   >
                     <RefreshCw className="h-4 w-4" />
                     {loading || walletLoading || applicationsLoading ? "Loading" : "Refresh"}
@@ -837,17 +940,21 @@ export default function PartnerProductsPage() {
                 </div>
 
                 {selectedApplication ? (
-                  <div className="rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-white/42 p-3 text-xs leading-6 text-[#6F6254] sm:p-4">
-                    <span className="font-medium text-[#3D3025]">{selectedApplication.boutiqueName}</span>
-                    {" "}is connected to this product desk. Status:{" "}
-                    <span className="font-medium text-[#7A581F]">{selectedApplication.status}</span>.
-                    Products will stay pending until admin approval.
-                    {selectedApplication.access?.canManageProducts ? (
-                      <span>
-                        {" "}Trial/subscription access:{" "}
-                        <span className="font-medium text-[#7A581F]">{selectedApplication.access.message}</span>
+                  <div className="rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-[#FDFBF7]/76 p-4 text-xs leading-6 text-[#6F6254]">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-[9px] uppercase tracking-[0.24em] text-[#7A581F]" dir="ltr">Connected boutique</p>
+                        <p className="mt-2 break-words font-serif text-[1.45rem] leading-none text-[#3D3025]" dir="ltr">
+                          {selectedApplication.boutiqueName}
+                        </p>
+                      </div>
+                      <span className="shrink-0 rounded-full border border-[#A87935]/22 bg-[#A87935]/10 px-3 py-1.5 text-[9px] uppercase tracking-[0.18em] text-[#7A581F]" dir="ltr">
+                        {selectedApplication.status}
                       </span>
-                    ) : null}
+                    </div>
+                    <p className="mt-3">
+                      المنتجات ستظل قيد المراجعة حتى موافقة الأدمن. {selectedApplication.access?.message}
+                    </p>
                   </div>
                 ) : null}
 
@@ -855,7 +962,7 @@ export default function PartnerProductsPage() {
                   type="button"
                   onClick={continueProductFlow}
                   disabled={applicationsLoading}
-                  className="btn-gold w-full justify-center"
+                  className="btn-gold w-full justify-center !rounded-[14px]"
                 >
                   Continue
                   <ArrowRight className="h-4 w-4 rotate-180" />
@@ -1074,55 +1181,60 @@ export default function PartnerProductsPage() {
             ) : null}
           </section>
 
-          <aside className="space-y-4 sm:space-y-5">
-            <section className="dark-panel p-4 sm:p-6">
-              <div className="mb-4 flex items-start justify-between gap-4 sm:mb-5">
+          <aside className="min-w-0 space-y-4 sm:space-y-5">
+            <section className="rounded-[22px] border border-[#7B6752]/12 bg-white/74 p-4 shadow-[0_18px_48px_rgba(61,48,37,0.07)] backdrop-blur-2xl sm:rounded-[24px] sm:p-5">
+              <div className="mb-4 flex items-start justify-between gap-4">
                 <div>
-                  <p className="eyebrow mb-2 sm:mb-3">Partner Wallet</p>
-                  <h2 className="title-display text-[1.8rem] leading-none sm:text-[2.05rem]">
-                    Payout <em className="gold-italic">Desk</em>
+                  <p className="text-left text-[9px] uppercase tracking-[0.26em] text-[#7A581F]" dir="ltr">Boutique status</p>
+                  <h2 className="mt-2 font-serif text-[1.7rem] font-light leading-none text-[#3D3025]">
+                    Partner <em className="gold-italic">Control</em>
                   </h2>
                 </div>
-                <Wallet className="h-5 w-5 text-[#A87935]" strokeWidth={1.35} />
+                <CheckCircle2 className="h-5 w-5 text-[#A87935]" strokeWidth={1.25} />
               </div>
-              <p className="body-copy mb-4 sm:mb-5">
-                Customer payments stay with BOUT first. Partner payouts are estimated after commission and become available when orders are paid or delivered.
-              </p>
-              {walletError ? (
-                <div className="mb-4 rounded-[18px] border border-[#A87935]/24 bg-[#A87935]/10 p-3 text-xs leading-6 text-[#F0DEC0]">
-                  {walletError}
-                </div>
-              ) : null}
-              <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                {[
-                  { label: "Available", value: wallet ? `EGP ${formatPrice(wallet.summary.available)}` : "EGP 0", icon: CreditCard },
-                  { label: "Pending", value: wallet ? `EGP ${formatPrice(wallet.summary.pending)}` : "EGP 0", icon: CheckCircle2 },
-                  { label: "Paid", value: wallet ? `EGP ${formatPrice(wallet.summary.paid)}` : "EGP 0", icon: Banknote },
-                  { label: "Orders", value: wallet ? String(wallet.summary.orders) : "0", icon: PackageCheck },
-                ].map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <div key={item.label} className="rounded-[16px] border border-white/[0.08] bg-white/[0.04] p-2.5 sm:rounded-[18px] sm:p-3">
-                      <Icon className="mb-2 h-4 w-4 text-[#D8C08A] sm:mb-3" strokeWidth={1.35} />
-                      <p className="text-[8px] uppercase tracking-[0.18em] text-white/45 sm:text-[9px] sm:tracking-[0.22em]">{item.label}</p>
-                      <p className="mt-2 break-words font-serif text-lg leading-none text-[#F8F7F2] sm:text-xl">{item.value}</p>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="mt-3 rounded-[16px] border border-white/[0.08] bg-white/[0.04] p-3 sm:mt-4 sm:rounded-[18px]">
-                <p className="text-[9px] uppercase tracking-[0.22em] text-white/45">Commission</p>
-                <p className="mt-2 text-sm leading-6 text-[#D8C08A]">
-                  {wallet ? `${wallet.application.commissionRate}% commission · EGP ${formatPrice(wallet.summary.commission)} platform fee tracked` : "Load an application to calculate commission."}
+              <div className="rounded-[16px] border border-[#A87935]/16 bg-[#FFF9EF]/62 p-3">
+                <p className="text-left text-[9px] uppercase tracking-[0.22em] text-[#7A581F]" dir="ltr">
+                  {selectedApplication ? selectedApplication.status : "Application"}
                 </p>
+                <p className="mt-2 break-words text-left font-serif text-[1.35rem] leading-none text-[#3D3025]" dir="ltr">
+                  {selectedApplication?.boutiqueName || "No boutique connected"}
+                </p>
+                <p className="mt-3 text-xs leading-6 text-[#6F6254]">
+                  {selectedApplication?.access?.message || "قدّم طلب الشراكة أولا، وبعد الموافقة تقدر ترفع المنتجات من هنا."}
+                </p>
+              </div>
+              <div className="mt-3 grid gap-2">
+                <Link href="/boutiques/apply" className="liquid-row-link !rounded-[14px]">
+                  <span className="inline-flex items-center gap-3">
+                    <Landmark strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
+                    <span className="text-[0.72rem] uppercase tracking-[0.2em]">New application</span>
+                  </span>
+                  <ArrowRight strokeWidth={1.2} className="h-4 w-4 rotate-180 text-[#7B6752]/45" />
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (applicationId) {
+                      void loadProducts();
+                      void loadWallet();
+                      return;
+                    }
+                    void loadApplications();
+                  }}
+                  disabled={loading || walletLoading || applicationsLoading}
+                  className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-[14px] border border-[#A87935]/20 bg-white/48 px-4 text-[9px] uppercase tracking-[0.22em] text-[#7A581F] transition hover:border-[#A87935]/38 disabled:opacity-45"
+                >
+                  <RefreshCw className="h-4 w-4" strokeWidth={1.3} />
+                  {loading || walletLoading || applicationsLoading ? "Refreshing" : "Refresh status"}
+                </button>
               </div>
             </section>
 
-            <section className="glass-panel p-4 sm:p-6">
+            <section className="rounded-[22px] border border-[#7B6752]/12 bg-white/74 p-4 shadow-[0_18px_48px_rgba(61,48,37,0.07)] backdrop-blur-2xl sm:rounded-[24px] sm:p-5">
               <div className="mb-4 flex items-start justify-between gap-4 sm:mb-5">
                 <div>
-                  <p className="eyebrow mb-2 sm:mb-3">Payout Profile</p>
-                  <h2 className="title-display text-[1.8rem] leading-none sm:text-[2rem]">أرباح البوتيك</h2>
+                  <p className="text-left text-[9px] uppercase tracking-[0.26em] text-[#7A581F]" dir="ltr">Payout profile</p>
+                  <h2 className="mt-2 font-serif text-[1.7rem] font-light leading-none text-[#3D3025]">أرباح البوتيك</h2>
                 </div>
                 <Landmark className="h-5 w-5 text-[#A87935]" strokeWidth={1.35} />
               </div>
@@ -1189,103 +1301,58 @@ export default function PartnerProductsPage() {
               </form>
             </section>
 
-            <section className="dark-panel p-4 sm:p-6">
-              <p className="eyebrow mb-3">Partner Plan</p>
-              <h2 className="title-display text-[1.8rem] leading-none sm:text-[2.15rem]">
+            <section className="rounded-[22px] border border-[#7B6752]/12 bg-white/74 p-4 shadow-[0_18px_48px_rgba(61,48,37,0.07)] backdrop-blur-2xl sm:rounded-[24px] sm:p-5">
+              <div className="mb-4 flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-left text-[9px] uppercase tracking-[0.26em] text-[#7A581F]" dir="ltr">Wallet snapshot</p>
+                  <h2 className="mt-2 font-serif text-[1.7rem] font-light leading-none text-[#3D3025]">
+                    Payout <em className="gold-italic">Desk</em>
+                  </h2>
+                </div>
+                <Wallet className="h-5 w-5 text-[#A87935]" strokeWidth={1.25} />
+              </div>
+              <p className="mb-4 text-xs leading-6 text-[#6F6254]">
+                Customer payments stay with BOUT first. Payouts become available after commission and order confirmation.
+              </p>
+              {walletError ? (
+                <div className="mb-4 rounded-[14px] border border-[#A87935]/24 bg-[#A87935]/10 p-3 text-xs leading-6 text-[#7A581F]">
+                  {walletError}
+                </div>
+              ) : null}
+              <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                {walletCards.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <div key={item.label} className="rounded-[14px] border border-[#7B6752]/12 bg-[#FDFBF7]/72 p-3">
+                      <Icon className="mb-2 h-4 w-4 text-[#A87935]" strokeWidth={1.3} />
+                      <p className="text-left text-[8px] uppercase tracking-[0.18em] text-[#7A581F]" dir="ltr">{item.label}</p>
+                      <p className="mt-2 break-words text-left font-serif text-lg leading-none text-[#3D3025]" dir="ltr">{item.value}</p>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-3 rounded-[14px] border border-[#A87935]/14 bg-[#A87935]/[0.06] p-3">
+                <p className="text-left text-[9px] uppercase tracking-[0.22em] text-[#7A581F]" dir="ltr">Commission</p>
+                <p className="mt-2 text-sm leading-6 text-[#6F6254]">
+                  {wallet
+                    ? `${formatPrice(getFiniteNumber(wallet.application?.commissionRate))}% commission · EGP ${formatPrice(walletNumber(wallet, "commission"))} platform fee tracked`
+                    : "Load an application to calculate commission."}
+                </p>
+              </div>
+            </section>
+
+            <section className="rounded-[22px] border border-[#7B6752]/12 bg-white/74 p-4 shadow-[0_18px_48px_rgba(61,48,37,0.07)] backdrop-blur-2xl sm:rounded-[24px] sm:p-5">
+              <p className="text-left text-[9px] uppercase tracking-[0.26em] text-[#7A581F]" dir="ltr">Partner plan</p>
+              <h2 className="mt-2 font-serif text-[1.7rem] font-light leading-none text-[#3D3025]">
                 Paymob <em className="gold-italic">Subscription</em>
               </h2>
-              <p className="body-copy mt-3 sm:mt-4">
+              <p className="mt-3 text-xs leading-6 text-[#6F6254]">
                 الدفع يتم من خلال صفحة Paymob المستضافة. لو المفاتيح غير مضافة في الإعدادات، الزر هيعرض رسالة واضحة للأدمن.
               </p>
               <button type="button" onClick={startPaymobPayment} disabled={paying || !canUseApplication} className="btn-gold mt-4 w-full justify-center sm:mt-5">
                 <CreditCard className="h-4 w-4" />
                 {paying ? "Opening Paymob" : "Pay With Paymob"}
               </button>
-            </section>
-
-            <section className="dark-panel p-4 sm:p-6">
-              <div className="mb-4 flex items-start justify-between gap-4 sm:mb-5">
-                <div>
-                  <p className="eyebrow mb-2 sm:mb-3">Submitted Products</p>
-                  <h2 className="title-display text-[1.8rem] leading-none sm:text-[2.05rem]">حالة المنتجات</h2>
-                </div>
-                <Store className="h-5 w-5 text-[#A87935]" strokeWidth={1.35} />
-              </div>
-
-              {loading ? (
-                <p className="body-copy">Loading products...</p>
-              ) : products.length === 0 ? (
-                <p className="body-copy">لسه مفيش منتجات مرفوعة لهذا الطلب.</p>
-              ) : (
-                <div className="space-y-3">
-                  <AnimatePresence initial={false}>
-                    {products.map((product) => (
-                      <motion.div
-                        key={product._id}
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -8 }}
-                        className="rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-white/42 p-3 sm:rounded-[22px] sm:p-4"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <p className="text-[10px] uppercase tracking-[0.22em] text-[#A87935]">{product.status}</p>
-                            <p className="mt-2 font-serif text-xl leading-none text-[#3D3025] sm:text-2xl">{product.name}</p>
-                          </div>
-                          <span className="whitespace-nowrap rounded-full border border-[#A87935]/20 px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] text-[#7A581F]">
-                            EGP {formatPrice(product.price)}
-                          </span>
-                        </div>
-                        <p className="mt-3 flex items-center gap-2 text-xs leading-6 text-[#6F6254]">
-                          <CheckCircle2 className="h-3.5 w-3.5 text-[#A87935]" />
-                          {statusCopy(product.status)}
-                        </p>
-                        {product.status === "approved" ? (
-                          <Link href={`/product/${encodeURIComponent(product.productId)}`} className="mt-3 inline-flex text-[10px] uppercase tracking-[0.22em] text-[#A87935]">
-                            View live product
-                          </Link>
-                        ) : null}
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </div>
-              )}
-            </section>
-
-            <section className="dark-panel p-4 sm:p-6">
-              <div className="mb-4 flex items-start justify-between gap-4 sm:mb-5">
-                <div>
-                  <p className="eyebrow mb-2 sm:mb-3">Partner Orders</p>
-                  <h2 className="title-display text-[1.8rem] leading-none sm:text-[2.05rem]">طلبات العملاء</h2>
-                </div>
-                <PackageCheck className="h-5 w-5 text-[#A87935]" strokeWidth={1.35} />
-              </div>
-              {!wallet ? (
-                <p className="body-copy">Load a signed-in partner application to see customer orders.</p>
-              ) : wallet.lines.length === 0 ? (
-                <p className="body-copy">No customer orders yet for approved partner products.</p>
-              ) : (
-                <div className="space-y-3">
-                  {wallet.lines.slice(0, 5).map((line) => (
-                    <div key={`${line.orderId}-${line.productName}-${line.size}-${line.color}`} className="rounded-[18px] border border-white/[0.08] bg-white/[0.04] p-3 sm:rounded-[20px] sm:p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="text-[9px] uppercase tracking-[0.22em] text-[#D8C08A]">{line.payoutStatus}</p>
-                          <p className="mt-2 text-sm leading-6 text-[#F8F7F2]">{line.productName}</p>
-                        </div>
-                        <span className="whitespace-nowrap text-[10px] uppercase tracking-[0.18em] text-white/45">
-                          EGP {formatPrice(line.estimatedPayout)}
-                        </span>
-                      </div>
-                      <div className="mt-3 grid gap-1 text-xs leading-5 text-white/52">
-                        <span>Qty {line.quantity} · {line.size || "One Size"} · {line.color || "Default"}</span>
-                        <span>{line.customer.name} · {line.customer.phone || "No phone"}</span>
-                        <span>{[line.customer.city, line.customer.address].filter(Boolean).join(" · ") || "Address hidden until order details are complete"}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
             </section>
           </aside>
         </div>

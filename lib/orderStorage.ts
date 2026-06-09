@@ -36,9 +36,28 @@ function useCloudStorage(): boolean {
   return hasVercelBlobJsonSnapshotStorage();
 }
 
+function safeIsoDate(value: unknown, fallback = new Date().toISOString()): string {
+  const date = value instanceof Date
+    ? value
+    : typeof value === "string" || typeof value === "number"
+      ? new Date(value)
+      : null;
+  if (date && Number.isFinite(date.getTime())) return date.toISOString();
+  return fallback;
+}
+
+function safeDateTime(value: unknown): number {
+  const date = value instanceof Date
+    ? value
+    : typeof value === "string" || typeof value === "number"
+      ? new Date(value)
+      : null;
+  return date && Number.isFinite(date.getTime()) ? date.getTime() : 0;
+}
+
 function sortOrdersByDateDesc(orders: any[]): any[] {
   return [...orders].sort(
-    (a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime()
+    (a, b) => safeDateTime(b.createdAt) - safeDateTime(a.createdAt)
   );
 }
 
@@ -72,9 +91,7 @@ function normalizeOrder(order: any): any {
   const customer = order?.customer ?? order?.customerInfo ?? {};
   const customerDataCleared = Boolean(order?.customerDataCleared || customer?.dataCleared);
   const orderId = String(order?._id ?? order?.id ?? `order-${Date.now()}`);
-  const createdAt = order?.createdAt
-    ? new Date(order.createdAt).toISOString()
-    : new Date().toISOString();
+  const createdAt = safeIsoDate(order?.createdAt);
 
   return {
     _id: orderId,

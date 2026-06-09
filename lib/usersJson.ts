@@ -50,6 +50,25 @@ function useCloudStorage(): boolean {
   return hasVercelBlobJsonSnapshotStorage();
 }
 
+function safeIsoDate(value: unknown, fallback = new Date().toISOString()): string {
+  const date = value instanceof Date
+    ? value
+    : typeof value === "string" || typeof value === "number"
+      ? new Date(value)
+      : null;
+  if (date && Number.isFinite(date.getTime())) return date.toISOString();
+  return fallback;
+}
+
+function safeDateTime(value: unknown): number {
+  const date = value instanceof Date
+    ? value
+    : typeof value === "string" || typeof value === "number"
+      ? new Date(value)
+      : null;
+  return date && Number.isFinite(date.getTime()) ? date.getTime() : 0;
+}
+
 function normalizeUser(user: any): UserRecord {
   return {
     id: String(user?.id ?? user?._id ?? `user-${Date.now()}`),
@@ -67,9 +86,7 @@ function normalizeUser(user: any): UserRecord {
         : "password",
     googleSub: String(user?.googleSub ?? "").trim(),
     avatar: String(user?.avatar ?? user?.picture ?? "").trim(),
-    createdAt: user?.createdAt
-      ? new Date(user.createdAt).toISOString()
-      : new Date().toISOString(),
+    createdAt: safeIsoDate(user?.createdAt),
     phone: String(user?.phone ?? "").trim(),
     address: String(user?.address ?? "").trim(),
     apartment: String(user?.apartment ?? "").trim(),
@@ -97,7 +114,7 @@ function mergeUsers(primary: UserRecord[], secondary: UserRecord[]): UserRecord[
   }
 
   return Array.from(byKey.values()).sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    (a, b) => safeDateTime(b.createdAt) - safeDateTime(a.createdAt)
   );
 }
 

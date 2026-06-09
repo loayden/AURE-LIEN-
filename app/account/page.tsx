@@ -54,6 +54,48 @@ type AccountOrder = {
   items?: Array<{ quantity?: number }>;
 };
 
+type PartnerApplicationSummary = {
+  _id: string;
+  boutiqueName: string;
+  ownerName?: string;
+  phone?: string;
+  email?: string;
+  planName?: string;
+  subscriptionStatus?: string;
+  status: string;
+  city?: string;
+  area?: string;
+  streetAddress?: string;
+  noPhysicalShop?: boolean;
+  payoutStatus?: "missing" | "incomplete" | "complete";
+  access?: {
+    canManageProducts: boolean;
+    reason: string;
+    message: string;
+    subscriptionUrl: string;
+  };
+};
+
+type PartnerWalletData = {
+  payoutPreview: {
+    destination: string;
+    status: "missing" | "incomplete" | "complete";
+  };
+  summary: {
+    available: number;
+    payoutProfileStatus: "missing" | "incomplete" | "complete";
+  };
+};
+
+type PartnerProfileSummary = {
+  applications: PartnerApplicationSummary[];
+  selectedApplication: PartnerApplicationSummary | null;
+  wallet: PartnerWalletData | null;
+  pendingProductCount: number;
+  loading: boolean;
+  error: string;
+};
+
 type FieldConfig = {
   key: keyof AccountUser;
   label: string;
@@ -85,6 +127,56 @@ const completionFields: Array<keyof AccountUser> = [
   "postalCode",
   "country",
 ];
+
+const initialPartnerSummary: PartnerProfileSummary = {
+  applications: [],
+  selectedApplication: null,
+  wallet: null,
+  pendingProductCount: 0,
+  loading: true,
+  error: "",
+};
+
+function getFiniteNumber(value: unknown) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : 0;
+}
+
+function normalizePayoutProfileStatus(value: unknown): "missing" | "incomplete" | "complete" {
+  return value === "complete" || value === "incomplete" || value === "missing" ? value : "missing";
+}
+
+function normalizePartnerWallet(value: unknown): PartnerWalletData | null {
+  if (!value || typeof value !== "object") return null;
+
+  const wallet = value as Partial<PartnerWalletData>;
+  const payoutPreview = (wallet.payoutPreview && typeof wallet.payoutPreview === "object" ? wallet.payoutPreview : {}) as Partial<PartnerWalletData["payoutPreview"]>;
+  const summary = (wallet.summary && typeof wallet.summary === "object" ? wallet.summary : {}) as Partial<PartnerWalletData["summary"]>;
+
+  return {
+    payoutPreview: {
+      destination: String(payoutPreview.destination ?? "No card numbers stored"),
+      status: normalizePayoutProfileStatus(payoutPreview.status),
+    },
+    summary: {
+      available: getFiniteNumber(summary.available),
+      payoutProfileStatus: normalizePayoutProfileStatus(summary.payoutProfileStatus),
+    },
+  };
+}
+
+function normalizePartnerSummary(value: any): PartnerProfileSummary {
+  return {
+    applications: Array.isArray(value?.applications) ? value.applications : [],
+    selectedApplication: value?.selectedApplication && typeof value.selectedApplication === "object"
+      ? value.selectedApplication
+      : null,
+    wallet: normalizePartnerWallet(value?.wallet),
+    pendingProductCount: getFiniteNumber(value?.pendingProductCount),
+    loading: false,
+    error: "",
+  };
+}
 
 const accountIntentOptions: Array<{
   value: "buyer" | "partner" | "both";
@@ -166,6 +258,12 @@ function accountIntentLabel(value?: AccountUser["accountIntent"]) {
   return "Buyer";
 }
 
+function payoutStatusCopy(status?: string) {
+  if (status === "complete") return "Ready for review";
+  if (status === "incomplete") return "Needs details";
+  return "Secure";
+}
+
 function getMissingProfileFields(user: AccountUser | null) {
   if (!user) return [];
   return completionFields
@@ -218,7 +316,7 @@ function AccountField({
         autoComplete={config.autoComplete}
         className={`min-h-[44px] w-full rounded-[12px] border px-3 text-[0.86rem] tracking-[0.02em] text-[#3D3025] outline-none transition sm:min-h-[48px] sm:rounded-[14px] sm:px-4 sm:text-[0.92rem] sm:tracking-[0.04em] ${
           locked
-            ? "border-[#7B6752]/10 bg-white/20 shadow-none"
+            ? "border-[#7B6752]/10 bg-white/55 shadow-none"
             : "border-[#A87935]/28 bg-[#FFF9EF]/72 shadow-[0_10px_24px_rgba(61,48,37,0.08)] focus:border-[#A87935]/55"
         } placeholder:text-[#6F6254]/45 read-only:text-[#3D3025]/72`}
         onChange={(event) => onChange(config.key, event.target.value)}
@@ -236,6 +334,7 @@ export default function AccountPage() {
   const [draft, setDraft] = useState<AccountUser | null>(null);
   const [orders, setOrders] = useState<AccountOrder[]>([]);
   const [wishlistCount, setWishlistCount] = useState(0);
+  const [partnerSummary, setPartnerSummary] = useState<PartnerProfileSummary>(initialPartnerSummary);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -261,13 +360,18 @@ export default function AccountPage() {
         setDraft(account);
         setLoading(false);
 
-        const [ordersResult, wishlistResult] = await Promise.allSettled([
+        const [ordersResult, wishlistResult, partnerSummaryResult] = await Promise.allSettled([
           fetch("/api/orders", { cache: "no-store", signal: controller.signal }).then((res) =>
             res.ok ? res.json() : { orders: [] }
           ),
           fetch("/api/wishlist/list", { signal: controller.signal }).then((res) =>
             res.ok ? res.json() : { items: [], ids: [] }
           ),
+          fetch("/api/partners/profile-summary", { cache: "no-store", signal: controller.signal }).then(async (res) => {
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data?.error || "Unable to load partner summary");
+            return data;
+          }),
         ]);
 
         if (controller.signal.aborted) return;
@@ -281,6 +385,16 @@ export default function AccountPage() {
           const ids = Array.isArray(wishlistResult.value?.ids) ? wishlistResult.value.ids : [];
           const items = Array.isArray(wishlistResult.value?.items) ? wishlistResult.value.items : [];
           setWishlistCount(ids.length || items.length);
+        }
+
+        if (partnerSummaryResult.status === "fulfilled") {
+          setPartnerSummary(normalizePartnerSummary(partnerSummaryResult.value));
+        } else {
+          setPartnerSummary((current) => ({
+            ...current,
+            loading: false,
+            error: partnerSummaryResult.reason instanceof Error ? partnerSummaryResult.reason.message : "Unable to load partner summary",
+          }));
         }
       } catch (requestError) {
         if (controller.signal.aborted) return;
@@ -314,6 +428,51 @@ export default function AccountPage() {
   const missingFields = getMissingProfileFields(draft || user);
   const hasChanges = Boolean(user && draft && JSON.stringify(user) !== JSON.stringify(draft));
   const deliveryReady = Boolean(user?.phone && user?.address && user?.city && user?.country);
+  const selectedPartnerApplication = partnerSummary.selectedApplication;
+  const isPartnerProfile =
+    user?.accountIntent === "partner" ||
+    user?.accountIntent === "both" ||
+    Boolean(selectedPartnerApplication);
+  const partnerProductsHref = selectedPartnerApplication
+    ? `/partners/products?applicationId=${encodeURIComponent(selectedPartnerApplication._id)}`
+    : "/partners/products";
+  const partnerSubscriptionHref = selectedPartnerApplication
+    ? `/partners/subscription?applicationId=${encodeURIComponent(selectedPartnerApplication._id)}`
+    : "/partners/subscription";
+  const partnerPrimaryHref = selectedPartnerApplication ? partnerProductsHref : "/boutiques/apply";
+  const partnerReadiness = selectedPartnerApplication
+    ? selectedPartnerApplication.access?.canManageProducts
+      ? 100
+      : selectedPartnerApplication.status === "pending"
+        ? 55
+        : 72
+    : isPartnerProfile
+      ? 28
+      : profileCompletion;
+  const partnerStatusCopy = selectedPartnerApplication
+    ? selectedPartnerApplication.access?.message || "Boutique profile loaded. Keep products, payout details, and subscription current."
+    : "Start the boutique application to unlock product uploads, admin review, and partner payouts.";
+  const headerKicker = isPartnerProfile ? "Partner Profile" : "Account";
+  const headerBadge = isPartnerProfile
+    ? selectedPartnerApplication
+      ? titleCase(selectedPartnerApplication.status)
+      : "Application Needed"
+    : `${profileCompletion}% complete`;
+  const headerTitle = isPartnerProfile ? "Partner Profile" : "Account Overview";
+  const roleChip = isPartnerProfile ? "Boutique Partner" : user?.role === "admin" ? "Admin" : "Client";
+  const dateChip = isPartnerProfile
+    ? selectedPartnerApplication?.planName || selectedPartnerApplication?.subscriptionStatus || "Boutique Setup"
+    : formatDate(user?.createdAt);
+  const displayName = isPartnerProfile
+    ? selectedPartnerApplication?.boutiqueName || user?.name || "Boutique profile"
+    : user?.name || "Your profile";
+  const displayPhone = isPartnerProfile
+    ? selectedPartnerApplication?.phone || user?.phone
+    : user?.phone;
+  const displayEmail = isPartnerProfile
+    ? selectedPartnerApplication?.email || user?.email || ""
+    : user?.email || "";
+  const profileReadinessValue = isPartnerProfile ? partnerReadiness : profileCompletion;
 
   async function handleLogout() {
     try {
@@ -403,13 +562,40 @@ export default function AccountPage() {
     );
   }
 
-  const stats = [
-    { label: "Orders", value: String(orders.length), detail: recentOrder ? "Recent activity loaded" : "No purchases yet" },
-    { label: "Wishlist", value: String(wishlistCount), detail: wishlistCount === 1 ? "Saved piece" : "Saved pieces" },
-    { label: "Lifetime", value: formatCurrency(totalSpend), detail: "Tracked spend" },
-    { label: "Mode", value: accountIntentLabel(user.accountIntent), detail: user.accountIntent === "partner" ? "Boutique partner" : user.accountIntent === "both" ? "Shop and sell" : "Shopping profile" },
-    { label: "Profile", value: `${profileCompletion}%`, detail: deliveryReady ? "Checkout ready" : "Details missing" },
+  const customerStats = [
+    { label: "Orders", value: String(orders.length), detail: recentOrder ? "Recent activity loaded" : "No purchases yet", icon: Package2 },
+    { label: "Wishlist", value: String(wishlistCount), detail: wishlistCount === 1 ? "Saved piece" : "Saved pieces", icon: Heart },
+    { label: "Lifetime", value: formatCurrency(totalSpend), detail: "Tracked spend", icon: CreditCard },
+    { label: "Mode", value: accountIntentLabel(user.accountIntent), detail: user.accountIntent === "partner" ? "Boutique partner" : user.accountIntent === "both" ? "Shop and sell" : "Shopping profile", icon: user.accountIntent === "partner" || user.accountIntent === "both" ? Store : ShoppingBag },
+    { label: "Profile", value: `${profileCompletion}%`, detail: deliveryReady ? "Checkout ready" : "Details missing", icon: ShieldCheck },
   ];
+  const partnerProfileCards = [
+    {
+      label: "Boutique",
+      value: selectedPartnerApplication ? titleCase(selectedPartnerApplication.status) : partnerSummary.loading ? "Loading" : "Missing",
+      detail: selectedPartnerApplication ? selectedPartnerApplication.boutiqueName : "Apply first",
+      icon: Store,
+    },
+    {
+      label: "Pending",
+      value: String(partnerSummary.pendingProductCount),
+      detail: "Waiting for admin review",
+      icon: Clock,
+    },
+    {
+      label: "Available",
+      value: partnerSummary.wallet ? formatCurrency(partnerSummary.wallet.summary.available) : "EGP 0",
+      detail: "After paid or delivered orders",
+      icon: Wallet,
+    },
+    {
+      label: "Payout",
+      value: partnerSummary.wallet ? payoutStatusCopy(partnerSummary.wallet.summary.payoutProfileStatus) : "Secure",
+      detail: partnerSummary.wallet?.payoutPreview.destination || "No card numbers stored",
+      icon: CreditCard,
+    },
+  ];
+  const stats = isPartnerProfile ? partnerProfileCards : customerStats;
 
   return (
     <main className="liquid-page mobile-comfort px-3 pb-[calc(7.25rem+env(safe-area-inset-bottom))] pt-14 sm:px-6 sm:pb-20 sm:pt-24 md:px-10">
@@ -425,91 +611,112 @@ export default function AccountPage() {
           </div>
         ) : null}
 
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-5 sm:mb-9">
-          <p className="eyebrow mb-3 sm:mb-4">Private Account</p>
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <h1 className="title-display" style={{ fontSize: "clamp(2.45rem, 6vw, 4.9rem)" }}>
-              Maison <em className="gold-italic">Account</em>
-            </h1>
-            <span className="count-pill">{profileCompletion}% Ready</span>
-          </div>
-          <div className="page-header-divider mt-4 sm:mt-6" />
-        </motion.div>
-
-        <section className="glass-panel mb-4 p-4 sm:mb-5 sm:p-7">
-          <div className="grid gap-4 sm:gap-6 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-center">
-            <div className="flex items-start gap-3 sm:gap-5 lg:items-center">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[0.95rem] border border-[#A87935]/25 bg-[#A87935]/10 text-[0.98rem] uppercase tracking-[0.08em] text-[#7A581F] sm:h-20 sm:w-20 sm:rounded-[1.4rem] sm:text-[1.55rem]">
-                {getInitials(user)}
+        <motion.section
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-3 rounded-[20px] border border-[#7B6752]/12 bg-white/72 p-4 shadow-[0_18px_54px_rgba(61,48,37,0.08)] backdrop-blur-2xl sm:mb-5 sm:rounded-[24px] sm:p-6"
+        >
+          <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end">
+            <div className="min-w-0">
+              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                <p className="text-[9px] uppercase tracking-[0.28em] text-[#7A581F]">{headerKicker}</p>
+                <span className="inline-flex min-h-[34px] items-center rounded-full border border-[#A87935]/22 bg-[#A87935]/10 px-3 text-[9px] uppercase tracking-[0.22em] text-[#7A581F]">
+                  {headerBadge}
+                </span>
               </div>
-              <div className="min-w-0">
-                <div className="mb-2 flex flex-wrap items-center gap-2 sm:mb-3">
-                  <span className="inline-flex min-h-[34px] items-center gap-2 rounded-full border border-[#A87935]/20 bg-[#A87935]/10 px-3 text-[9px] uppercase tracking-[0.24em] text-[#7A581F]">
-                    <ShieldCheck className="h-3.5 w-3.5" strokeWidth={1.3} />
-                    {user.role === "admin" ? "Admin Profile" : "Client Profile"}
-                  </span>
-                  <span className="inline-flex min-h-[34px] items-center gap-2 rounded-full border border-[#7B6752]/14 bg-white/30 px-3 text-[9px] uppercase tracking-[0.24em] text-[#6F6254]">
-                    <Calendar className="h-3.5 w-3.5" strokeWidth={1.3} />
-                    Since {formatDate(user.createdAt)}
-                  </span>
+
+              <div className="flex items-start gap-3 sm:gap-4">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[16px] border border-[#A87935]/24 bg-[#FFF9EF] text-[1.05rem] uppercase tracking-[0.08em] text-[#7A581F] shadow-[0_12px_26px_rgba(61,48,37,0.07)] sm:h-16 sm:w-16">
+                  {getInitials(user)}
                 </div>
-                <h2 className="title-display text-[1.65rem] sm:text-[2.35rem]">
-                  {user.name || "Your profile"}
-                </h2>
-                <div className="mt-2 flex flex-col gap-1.5 text-[0.78rem] tracking-[0.03em] text-[#6F6254] sm:mt-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-2 sm:text-[0.82rem]">
-                  <span className="inline-flex min-w-0 items-center gap-2">
-                    <Mail className="h-4 w-4 text-[#A87935]" strokeWidth={1.3} />
-                    <span className="truncate">{user.email}</span>
-                  </span>
-                  {user.phone ? (
-                    <span className="inline-flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-[#A87935]" strokeWidth={1.3} />
-                      {user.phone}
+                <div className="min-w-0 flex-1">
+                  <h1 className="font-serif text-[2rem] font-light leading-[1.02] tracking-[0.01em] text-[#3D3025] sm:text-[3.35rem]">
+                    {headerTitle}
+                  </h1>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <span className="inline-flex min-h-[32px] items-center gap-2 rounded-full border border-[#A87935]/18 bg-[#A87935]/[0.07] px-3 text-[9px] uppercase tracking-[0.2em] text-[#7A581F]">
+                      {isPartnerProfile ? (
+                        <Store className="h-3.5 w-3.5" strokeWidth={1.35} />
+                      ) : (
+                        <ShieldCheck className="h-3.5 w-3.5" strokeWidth={1.35} />
+                      )}
+                      {roleChip}
                     </span>
-                  ) : null}
+                    <span className="inline-flex min-h-[32px] items-center gap-2 rounded-full border border-[#7B6752]/12 bg-white/70 px-3 text-[9px] uppercase tracking-[0.18em] text-[#6F6254]">
+                      <Calendar className="h-3.5 w-3.5" strokeWidth={1.35} />
+                      {dateChip}
+                    </span>
+                  </div>
+                  <div className="mt-4 min-w-0">
+                    <p className="text-[1.08rem] font-medium tracking-[0.01em] text-[#3D3025] sm:text-[1.22rem]">
+                      {displayName}
+                    </p>
+                    <div className="mt-2 flex min-w-0 flex-col gap-1.5 text-[0.78rem] tracking-[0.02em] text-[#6F6254] sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+                      <span className="inline-flex min-w-0 items-center gap-2">
+                        <Mail className="h-4 w-4 shrink-0 text-[#A87935]" strokeWidth={1.3} />
+                        <span className="truncate">{displayEmail}</span>
+                      </span>
+                      {displayPhone ? (
+                        <span className="inline-flex items-center gap-2">
+                          <Phone className="h-4 w-4 shrink-0 text-[#A87935]" strokeWidth={1.3} />
+                          {displayPhone}
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div>
+            <div className="rounded-[18px] border border-[#7B6752]/12 bg-[#FDFBF7]/74 p-3 sm:p-4">
               <div className="mb-3 flex items-center justify-between gap-4">
-                <span className="text-[10px] uppercase tracking-[0.24em] text-[#7A581F]">Profile Readiness</span>
-                <span className="text-sm text-[#3D3025]/72">{profileCompletion}%</span>
+                <span className="text-[9px] uppercase tracking-[0.24em] text-[#7A581F]">
+                  {isPartnerProfile ? "Partner Status" : "Readiness"}
+                </span>
+                <span className="text-[0.82rem] text-[#3D3025]/78">{profileReadinessValue}%</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-[#7B6752]/12">
                 <motion.div
-                  animate={{ width: `${profileCompletion}%` }}
+                  animate={{ width: `${profileReadinessValue}%` }}
                   className="h-full rounded-full bg-[#A87935]"
                   initial={{ width: 0 }}
                   transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                 />
               </div>
-              <p className="body-copy mt-2 text-[0.78rem] sm:mt-3">
-                {missingFields.length > 0
-                  ? `${missingFields.slice(0, 3).join(", ")} ${missingFields.length > 3 ? "and more " : ""}still need attention.`
-                  : "Your profile is ready for faster checkout and delivery."}
+              <p className="mt-3 text-[0.74rem] leading-5 tracking-[0.02em] text-[#6F6254]">
+                {isPartnerProfile
+                  ? partnerStatusCopy
+                  : missingFields.length > 0
+                    ? `${missingFields.slice(0, 3).join(", ")} ${missingFields.length > 3 ? "and more " : ""}need attention.`
+                    : "Ready for faster checkout and delivery."}
               </p>
             </div>
           </div>
-        </section>
+        </motion.section>
 
-        <div className="mb-4 grid grid-cols-2 gap-2 sm:mb-5 sm:gap-3 lg:grid-cols-5">
-          {stats.map((stat) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="glass-panel p-3 sm:p-5"
-            >
-              <p className="eyebrow mb-2 sm:mb-3">{stat.label}</p>
-              <p className="title-display text-[1.18rem] leading-none sm:text-[1.75rem]">{stat.value}</p>
-              <p className="mt-1.5 text-[0.68rem] leading-5 tracking-[0.03em] text-[#6F6254] sm:mt-2 sm:text-[0.74rem] sm:tracking-[0.08em]">{stat.detail}</p>
-            </motion.div>
-          ))}
+        <div className={`mb-4 grid grid-cols-2 gap-2 sm:mb-5 sm:gap-3 ${isPartnerProfile ? "lg:grid-cols-4" : "lg:grid-cols-5"}`}>
+          {stats.map((stat) => {
+            const Icon = stat.icon;
+            return (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-[18px] border border-[#7B6752]/12 bg-white/64 p-3 shadow-[0_12px_32px_rgba(61,48,37,0.05)] backdrop-blur-xl sm:p-4"
+              >
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <p className="text-[8px] uppercase tracking-[0.22em] text-[#7A581F]">{stat.label}</p>
+                  <Icon className="h-4 w-4 text-[#A87935]" strokeWidth={1.25} />
+                </div>
+                <p className="font-serif text-[1.2rem] font-light leading-none tracking-[0.01em] text-[#3D3025] sm:text-[1.55rem]">{stat.value}</p>
+                <p className="mt-2 text-[0.68rem] leading-5 tracking-[0.02em] text-[#6F6254]">{stat.detail}</p>
+              </motion.div>
+            );
+          })}
         </div>
 
         <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(20rem,0.65fr)]">
-          <section className="glass-panel p-4 sm:p-7">
+          <section className="rounded-[20px] border border-[#7B6752]/12 bg-white/68 p-4 shadow-[0_18px_48px_rgba(61,48,37,0.07)] backdrop-blur-2xl sm:rounded-[24px] sm:p-6">
             <form
               onSubmit={(event) => {
                 event.preventDefault();
@@ -518,12 +725,16 @@ export default function AccountPage() {
             >
               <div className="mb-5 flex flex-wrap items-start justify-between gap-3 sm:mb-7 sm:gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="empty-icon-panel h-12 w-12 rounded-[1rem]">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-[#A87935]/18 bg-[#A87935]/[0.07]">
                     <User2 strokeWidth={1.2} className="h-5 w-5 text-[#A87935]" />
                   </div>
                   <div>
-                    <p className="eyebrow mb-2">Profile Details</p>
-                    <p className="body-copy body-copy-strong">Keep sign-in, contact, and delivery details current.</p>
+                    <p className="eyebrow mb-2">{isPartnerProfile ? "Owner Details" : "Profile Details"}</p>
+                    <p className="body-copy body-copy-strong">
+                      {isPartnerProfile
+                        ? "Keep owner contact details current for review, support, and payout communication."
+                        : "Keep sign-in, contact, and delivery details current."}
+                    </p>
                   </div>
                 </div>
 
@@ -531,7 +742,7 @@ export default function AccountPage() {
                   <button
                     type="button"
                     onClick={cancelEdit}
-                    className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-[#7B6752]/18 px-4 text-[10px] uppercase tracking-[0.24em] text-[#6F6254] transition-colors hover:border-[#A87935]/35 hover:text-[#7A581F]"
+                    className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-[14px] border border-[#7B6752]/18 bg-white/50 px-4 text-[9px] uppercase tracking-[0.22em] text-[#6F6254] transition-colors hover:border-[#A87935]/35 hover:text-[#7A581F]"
                   >
                     <X className="h-3.5 w-3.5" strokeWidth={1.3} />
                     Cancel
@@ -540,7 +751,7 @@ export default function AccountPage() {
                   <button
                     type="button"
                     onClick={() => setEditing(true)}
-                    className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-[#A87935]/24 bg-[#A87935]/10 px-4 text-[10px] uppercase tracking-[0.24em] text-[#7A581F] transition-colors hover:border-[#A87935]/45"
+                    className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-[14px] border border-[#A87935]/24 bg-[#A87935]/10 px-4 text-[9px] uppercase tracking-[0.22em] text-[#7A581F] transition-colors hover:border-[#A87935]/45"
                   >
                     <Edit3 className="h-3.5 w-3.5" strokeWidth={1.3} />
                     Edit
@@ -563,12 +774,16 @@ export default function AccountPage() {
               <div className="mt-6 border-t border-[#7B6752]/14 pt-5 sm:mt-8 sm:pt-7">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3 sm:mb-5">
                   <div className="flex items-center gap-3">
-                    <div className="empty-icon-panel h-11 w-11 rounded-[1rem]">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border border-[#A87935]/18 bg-[#A87935]/[0.07]">
                       <Building2 strokeWidth={1.2} className="h-5 w-5 text-[#A87935]" />
                     </div>
                     <div>
-                      <p className="eyebrow mb-2">Account Purpose</p>
-                      <p className="body-copy body-copy-strong">Choose whether this account is for buying, boutique selling, or both.</p>
+                      <p className="eyebrow mb-2">{isPartnerProfile ? "Partner Role" : "Account Purpose"}</p>
+                      <p className="body-copy body-copy-strong">
+                        {isPartnerProfile
+                          ? "This account can manage boutique workflows while keeping buyer access when needed."
+                          : "Choose whether this account is for buying, boutique selling, or both."}
+                      </p>
                     </div>
                   </div>
                   <span className="inline-flex min-h-[34px] items-center rounded-full border border-[#A87935]/22 bg-[#A87935]/10 px-3 text-[9px] uppercase tracking-[0.24em] text-[#7A581F]">
@@ -587,7 +802,7 @@ export default function AccountPage() {
                         aria-pressed={active}
                         disabled={!editing}
                         onClick={() => updateDraft("accountIntent", option.value)}
-                        className={`group relative flex min-h-[5.35rem] items-start gap-3 overflow-hidden !rounded-lg border px-3 py-3 pr-10 text-left transition sm:min-h-[6.25rem] sm:px-4 sm:py-4 sm:pr-11 ${
+                        className={`group relative flex min-h-[5rem] items-start gap-3 overflow-hidden !rounded-[14px] border px-3 py-3 pr-10 text-left transition sm:min-h-[5.75rem] sm:px-4 sm:py-4 sm:pr-11 ${
                           active
                             ? "border-[#A87935]/45 bg-[#FFF9EF]/72 shadow-[0_14px_34px_rgba(61,48,37,0.08)]"
                             : "border-[#7B6752]/14 bg-white/30"
@@ -625,12 +840,16 @@ export default function AccountPage() {
               <div className="mt-6 border-t border-[#7B6752]/14 pt-5 sm:mt-8 sm:pt-7">
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3 sm:mb-5">
                   <div className="flex items-center gap-3">
-                    <div className="empty-icon-panel h-11 w-11 rounded-[1rem]">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border border-[#A87935]/18 bg-[#A87935]/[0.07]">
                       <MapPin strokeWidth={1.2} className="h-5 w-5 text-[#A87935]" />
                     </div>
                     <div>
-                      <p className="eyebrow mb-2">Delivery Profile</p>
-                      <p className="body-copy body-copy-strong">Used to prefill checkout and reduce address mistakes.</p>
+                      <p className="eyebrow mb-2">{isPartnerProfile ? "Address Profile" : "Delivery Profile"}</p>
+                      <p className="body-copy body-copy-strong">
+                        {isPartnerProfile
+                          ? "Used for account support, order coordination, and checkout when you buy."
+                          : "Used to prefill checkout and reduce address mistakes."}
+                      </p>
                     </div>
                   </div>
                   <span
@@ -677,15 +896,15 @@ export default function AccountPage() {
           </section>
 
           <aside className="flex flex-col gap-4 sm:gap-5">
-            <section className="dark-panel p-4 sm:p-6">
+            <section className={`flex flex-col gap-4 rounded-[20px] border border-[#7B6752]/12 bg-white/68 p-4 shadow-[0_18px_48px_rgba(61,48,37,0.07)] backdrop-blur-2xl sm:rounded-[24px] sm:p-6 ${isPartnerProfile ? "order-2" : "order-1"}`}>
               <div className="mb-4 flex items-start justify-between gap-4 sm:mb-5">
                 <div>
-                  <p className="eyebrow mb-2 sm:mb-3">Recent Activity</p>
+                  <p className="eyebrow mb-2 sm:mb-3">{isPartnerProfile ? "Buyer Activity" : "Recent Activity"}</p>
                   <h2 className="title-display text-[1.7rem] sm:text-[2rem]">
                     Order <em className="gold-italic">Snapshot</em>
                   </h2>
                 </div>
-                <div className="empty-icon-panel h-11 w-11 rounded-[1rem]">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border border-[#A87935]/18 bg-[#A87935]/[0.07]">
                   <Package2 className="h-5 w-5 text-[#A87935]" strokeWidth={1.2} />
                 </div>
               </div>
@@ -732,40 +951,95 @@ export default function AccountPage() {
               )}
             </section>
 
-            <section className="dark-panel flex flex-col gap-3 p-4 sm:gap-4 sm:p-6">
+            <section className={`flex flex-col gap-4 rounded-[20px] border border-[#7B6752]/12 bg-white/68 p-4 shadow-[0_18px_48px_rgba(61,48,37,0.07)] backdrop-blur-2xl sm:rounded-[24px] sm:p-6 ${isPartnerProfile ? "order-1" : "order-2"}`}>
               <div>
-                <p className="eyebrow mb-2 sm:mb-3">Boutique Partner</p>
+                <p className="eyebrow mb-2 sm:mb-3">{isPartnerProfile ? "Partner Workspace" : "Boutique Partner"}</p>
                 <h2 className="title-display text-[1.7rem] sm:text-[2rem]">
-                  Sell on <em className="gold-italic">BOUT</em>
+                  {isPartnerProfile ? "Boutique " : "Sell on "}
+                  <em className="gold-italic">{isPartnerProfile ? "Desk" : "BOUT"}</em>
                 </h2>
                 <p className="body-copy mt-3">
-                  Apply as a boutique, submit products for admin review, and use Paymob for the monthly partner plan when configured.
+                  {isPartnerProfile
+                    ? "Manage products, subscription, payout readiness, and boutique review from one focused partner area."
+                    : "Apply as a boutique, submit products for admin review, and use Paymob for the monthly partner plan when configured."}
                 </p>
               </div>
 
+              {isPartnerProfile ? (
+                <div className="mt-4 rounded-[16px] border border-[#A87935]/18 bg-[#FFF9EF]/62 p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-[#A87935]/18 bg-white/62">
+                      <Store className="h-5 w-5 text-[#A87935]" strokeWidth={1.2} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[9px] uppercase tracking-[0.24em] text-[#7A581F]">
+                        {selectedPartnerApplication ? titleCase(selectedPartnerApplication.status) : "Setup Needed"}
+                      </p>
+                      <p className="mt-2 break-words font-serif text-[1.35rem] leading-none text-[#3D3025]">
+                        {selectedPartnerApplication?.boutiqueName || "Start your boutique application"}
+                      </p>
+                      <p className="mt-3 text-[0.74rem] leading-5 tracking-[0.02em] text-[#6F6254]">
+                        {partnerStatusCopy}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  {partnerProfileCards.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <div
+                        key={item.label}
+                        className="rounded-[14px] border border-[#7B6752]/12 bg-[#FDFBF7]/74 p-3"
+                      >
+                        <Icon className="mb-2 h-4 w-4 text-[#A87935]" strokeWidth={1.25} />
+                        <p className="text-[8px] uppercase tracking-[0.18em] text-[#7A581F]">{item.label}</p>
+                        <p className="mt-2 break-words font-serif text-[1.05rem] leading-none text-[#3D3025]">
+                          {item.value}
+                        </p>
+                        <p className="mt-2 break-words text-[0.68rem] leading-5 text-[#6F6254]">{item.detail}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {partnerSummary.error ? (
+                <p className="rounded-[14px] border border-[#9A2222]/18 bg-[#9A2222]/[0.04] px-3 py-2 text-[0.72rem] leading-5 text-[#9A2222]">
+                  {partnerSummary.error}
+                </p>
+              ) : null}
+
               <nav className="flex flex-col gap-2 sm:gap-3">
-                <Link href="/boutiques" className="liquid-row-link">
+                <Link href={isPartnerProfile ? partnerPrimaryHref : "/boutiques"} className="liquid-row-link">
                   <span className="inline-flex items-center gap-3">
                     <Building2 strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
-                    <span className="text-[0.78rem] uppercase tracking-[0.22em]">Apply Boutique</span>
+                    <span className="text-[0.78rem] uppercase tracking-[0.22em]">
+                      {isPartnerProfile ? (selectedPartnerApplication ? "Partner Dashboard" : "Start Application") : "Apply Boutique"}
+                    </span>
                   </span>
                   <ArrowRight strokeWidth={1.2} className="h-4 w-4 text-[#7B6752]/45" />
                 </Link>
-                <Link href="/partners/products" className="liquid-row-link">
+                <Link href={partnerProductsHref} className="liquid-row-link">
                   <span className="inline-flex items-center gap-3">
                     <Package2 strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
-                    <span className="text-[0.78rem] uppercase tracking-[0.22em]">Upload Products</span>
+                    <span className="text-[0.78rem] uppercase tracking-[0.22em]">
+                      {isPartnerProfile ? "Manage Products" : "Upload Products"}
+                    </span>
                   </span>
                   <ArrowRight strokeWidth={1.2} className="h-4 w-4 text-[#7B6752]/45" />
                 </Link>
-                <Link href="/partners/products" className="liquid-row-link">
+                <Link href={partnerSubscriptionHref} className="liquid-row-link">
                   <span className="inline-flex items-center gap-3">
                     <CreditCard strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
-                    <span className="text-[0.78rem] uppercase tracking-[0.22em]">Pay Partner Plan</span>
+                    <span className="text-[0.78rem] uppercase tracking-[0.22em]">
+                      {isPartnerProfile ? "Subscription Plan" : "Pay Partner Plan"}
+                    </span>
                   </span>
                   <ArrowRight strokeWidth={1.2} className="h-4 w-4 text-[#7B6752]/45" />
                 </Link>
-                <Link href="/partners/products" className="liquid-row-link">
+                <Link href={partnerProductsHref} className="liquid-row-link">
                   <span className="inline-flex items-center gap-3">
                     <Wallet strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
                     <span className="text-[0.78rem] uppercase tracking-[0.22em]">Partner Wallet</span>
@@ -775,9 +1049,9 @@ export default function AccountPage() {
               </nav>
             </section>
 
-            <section className="dark-panel flex flex-col gap-3 p-4 sm:gap-4 sm:p-6">
+            <section className="order-3 rounded-[20px] border border-[#7B6752]/12 bg-white/68 p-4 shadow-[0_18px_48px_rgba(61,48,37,0.07)] backdrop-blur-2xl sm:rounded-[24px] sm:p-6">
               <div>
-                <p className="eyebrow mb-2 sm:mb-3">Client Services</p>
+                <p className="eyebrow mb-2 sm:mb-3">{isPartnerProfile ? "Buyer Tools" : "Client Services"}</p>
                 <h2 className="title-display text-[1.7rem] sm:text-[2rem]">
                   Account <em className="gold-italic">Access</em>
                 </h2>
@@ -811,7 +1085,7 @@ export default function AccountPage() {
                 whileHover={{ scale: 1.015 }}
                 whileTap={{ scale: 0.985 }}
                 onClick={handleLogout}
-                className="mt-1 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full border border-[#9A2222]/18 bg-[#9A2222]/[0.04] px-4 text-[9px] uppercase tracking-[0.22em] text-[#9A2222] transition-colors hover:border-[#9A2222]/34 sm:mt-2 sm:min-h-[48px] sm:px-5 sm:text-[10px] sm:tracking-[0.26em]"
+                className="mt-1 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-[14px] border border-[#9A2222]/18 bg-[#9A2222]/[0.04] px-4 text-[9px] uppercase tracking-[0.22em] text-[#9A2222] transition-colors hover:border-[#9A2222]/34 sm:mt-2 sm:min-h-[48px] sm:px-5 sm:text-[10px] sm:tracking-[0.26em]"
               >
                 <LogOut strokeWidth={1.2} className="h-4 w-4" />
                 Sign Out

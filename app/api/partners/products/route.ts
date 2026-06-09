@@ -35,47 +35,55 @@ function ownsApplication(application: { partnerUserId?: string; email?: string }
 }
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const auth = await getAuthFromRequest(req);
-  if (!auth) {
-    return NextResponse.json(
-      { error: "Sign in with the partner account to view submitted products." },
-      { status: 401, headers: NO_STORE_HEADERS }
-    );
-  }
-
-  const applicationId = cleanString(searchParams.get("applicationId"));
-  const applications = await getBoutiqueApplications();
-  const application = applications.find((item) => item._id === applicationId);
-
-  if (applicationId && !application) {
-    return NextResponse.json({ error: "Boutique application was not found" }, { status: 404, headers: NO_STORE_HEADERS });
-  }
-
-  if (application && !ownsApplication(application, auth)) {
-    return NextResponse.json({ error: "Not authorized for this boutique application" }, { status: 403, headers: NO_STORE_HEADERS });
-  }
-
-  if (application) {
-    const access = getBoutiquePartnerAccess(application);
-    if (!access.canManageProducts) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const auth = await getAuthFromRequest(req);
+    if (!auth) {
       return NextResponse.json(
-        {
-          code: access.reason,
-          error: access.message,
-          access,
-        },
-        { status: 402, headers: NO_STORE_HEADERS }
+        { error: "Sign in with the partner account to view submitted products." },
+        { status: 401, headers: NO_STORE_HEADERS }
       );
     }
+
+    const applicationId = cleanString(searchParams.get("applicationId"));
+    const applications = await getBoutiqueApplications();
+    const application = applications.find((item) => item._id === applicationId);
+
+    if (applicationId && !application) {
+      return NextResponse.json({ error: "Boutique application was not found" }, { status: 404, headers: NO_STORE_HEADERS });
+    }
+
+    if (application && !ownsApplication(application, auth)) {
+      return NextResponse.json({ error: "Not authorized for this boutique application" }, { status: 403, headers: NO_STORE_HEADERS });
+    }
+
+    if (application) {
+      const access = getBoutiquePartnerAccess(application);
+      if (!access.canManageProducts) {
+        return NextResponse.json(
+          {
+            code: access.reason,
+            error: access.message,
+            access,
+          },
+          { status: 402, headers: NO_STORE_HEADERS }
+        );
+      }
+    }
+
+    const products = await getPartnerProducts();
+    const filtered = applicationId
+      ? products.filter((product) => product.applicationId === applicationId)
+      : [];
+
+    return NextResponse.json({ products: filtered }, { headers: NO_STORE_HEADERS });
+  } catch (error) {
+    console.error("Partner products load error:", error);
+    return NextResponse.json(
+      { error: "Unable to load partner products right now." },
+      { status: 500, headers: NO_STORE_HEADERS }
+    );
   }
-
-  const products = await getPartnerProducts();
-  const filtered = applicationId
-    ? products.filter((product) => product.applicationId === applicationId)
-    : [];
-
-  return NextResponse.json({ products: filtered }, { headers: NO_STORE_HEADERS });
 }
 
 export async function POST(req: NextRequest) {

@@ -207,6 +207,25 @@ function useCloudStorage(): boolean {
   return hasVercelBlobJsonSnapshotStorage();
 }
 
+function safeIsoDate(value: unknown, fallback = new Date().toISOString()): string {
+  const date = value instanceof Date
+    ? value
+    : typeof value === "string" || typeof value === "number"
+      ? new Date(value)
+      : null;
+  if (date && Number.isFinite(date.getTime())) return date.toISOString();
+  return fallback;
+}
+
+function safeDateTime(value: unknown): number {
+  const date = value instanceof Date
+    ? value
+    : typeof value === "string" || typeof value === "number"
+      ? new Date(value)
+      : null;
+  return date && Number.isFinite(date.getTime()) ? date.getTime() : 0;
+}
+
 function parseList(value: unknown): string[] {
   if (Array.isArray(value)) {
     return value.map((entry) => String(entry).trim()).filter(Boolean);
@@ -296,7 +315,7 @@ export function normalizePayoutProfile(value: any): BoutiquePayoutProfile | unde
       : method
         ? "pending_review"
         : "missing") as BoutiquePayoutStatus,
-    updatedAt: value?.updatedAt ? new Date(value.updatedAt).toISOString() : undefined,
+    updatedAt: value?.updatedAt ? safeIsoDate(value.updatedAt) : undefined,
   };
 }
 
@@ -347,9 +366,7 @@ function normalizeApplication(application: any): BoutiqueApplication | null {
 
   const plan = normalizePlan(application?.planId);
   const subscriptionFlow = normalizeSubscriptionFlow(application?.subscriptionFlow, plan.id);
-  const createdAt = application?.createdAt
-    ? new Date(application.createdAt).toISOString()
-    : new Date().toISOString();
+  const createdAt = safeIsoDate(application?.createdAt);
 
   return {
     _id: id,
@@ -383,7 +400,7 @@ function normalizeApplication(application: any): BoutiqueApplication | null {
     status,
     createdAt,
     updatedAt: application?.updatedAt
-      ? new Date(application.updatedAt).toISOString()
+      ? safeIsoDate(application.updatedAt, createdAt)
       : createdAt,
   };
 }
@@ -394,7 +411,7 @@ function normalizeApplications(applications: unknown): BoutiqueApplication[] {
   return applications
     .map(normalizeApplication)
     .filter((application): application is BoutiqueApplication => Boolean(application))
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    .sort((a, b) => safeDateTime(b.createdAt) - safeDateTime(a.createdAt));
 }
 
 async function readLocalApplications(): Promise<BoutiqueApplication[]> {

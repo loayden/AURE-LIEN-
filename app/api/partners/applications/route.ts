@@ -21,39 +21,47 @@ function ownsApplication(application: BoutiqueApplication, auth: NonNullable<Awa
 }
 
 export async function GET(req: NextRequest) {
-  const auth = await getAuthFromRequest(req);
-  if (!auth) {
+  try {
+    const auth = await getAuthFromRequest(req);
+    if (!auth) {
+      return NextResponse.json(
+        { error: "Sign in with the partner account to manage boutique products." },
+        { status: 401, headers: NO_STORE_HEADERS }
+      );
+    }
+
+    const applications = (await getBoutiqueApplications())
+      .filter((application) => ownsApplication(application, auth))
+      .filter((application) => application.status !== "draft")
+      .map((application) => ({
+        _id: application._id,
+        boutiqueName: application.boutiqueName,
+        ownerName: application.ownerName,
+        phone: application.phone,
+        email: application.email,
+        planName: application.planName,
+        planId: application.planId,
+        monthlyFee: application.monthlyFee,
+        commissionRate: application.commissionRate,
+        trialDays: application.trialDays,
+        subscriptionStatus: application.subscriptionStatus,
+        status: application.status,
+        city: application.city,
+        area: application.area,
+        streetAddress: application.streetAddress,
+        noPhysicalShop: Boolean(application.noPhysicalShop),
+        googleMapsUrl: application.googleMapsUrl ?? "",
+        createdAt: application.createdAt,
+        payoutStatus: application.payoutProfile?.status ?? "missing",
+        access: getBoutiquePartnerAccess(application),
+      }));
+
+    return NextResponse.json({ applications }, { headers: NO_STORE_HEADERS });
+  } catch (error) {
+    console.error("Partner applications load error:", error);
     return NextResponse.json(
-      { error: "Sign in with the partner account to manage boutique products." },
-      { status: 401, headers: NO_STORE_HEADERS }
+      { error: "Unable to load boutique applications right now." },
+      { status: 500, headers: NO_STORE_HEADERS }
     );
   }
-
-  const applications = (await getBoutiqueApplications())
-    .filter((application) => ownsApplication(application, auth))
-    .filter((application) => application.status !== "draft")
-    .map((application) => ({
-      _id: application._id,
-      boutiqueName: application.boutiqueName,
-      ownerName: application.ownerName,
-      phone: application.phone,
-      email: application.email,
-      planName: application.planName,
-      planId: application.planId,
-      monthlyFee: application.monthlyFee,
-      commissionRate: application.commissionRate,
-      trialDays: application.trialDays,
-      subscriptionStatus: application.subscriptionStatus,
-      status: application.status,
-      city: application.city,
-      area: application.area,
-      streetAddress: application.streetAddress,
-      noPhysicalShop: Boolean(application.noPhysicalShop),
-      googleMapsUrl: application.googleMapsUrl ?? "",
-      createdAt: application.createdAt,
-      payoutStatus: application.payoutProfile?.status ?? "missing",
-      access: getBoutiquePartnerAccess(application),
-    }));
-
-  return NextResponse.json({ applications }, { headers: NO_STORE_HEADERS });
 }

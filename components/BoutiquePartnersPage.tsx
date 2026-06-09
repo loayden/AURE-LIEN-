@@ -594,41 +594,50 @@ export default function BoutiquePartnersPage({ mode = "landing" }: BoutiquePartn
             </div>
           </motion.div>
 
-          <motion.div initial="hidden" animate="show" variants={fadeUp} className="order-1 w-full min-w-0 max-w-3xl text-left lg:order-2" dir="ltr">
+          <motion.div initial={false} animate="show" variants={fadeUp} className="order-1 w-full min-w-0 max-w-3xl text-right lg:order-2" dir="rtl">
             <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[rgba(168,121,53,0.24)] bg-white/70 px-3 py-1.5 text-[#7A581F] shadow-[0_8px_20px_rgba(61,48,37,0.05)] sm:mb-4 sm:py-2 sm:shadow-[0_14px_32px_rgba(61,48,37,0.07)]">
               <Store className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={1.35} />
               <span className="text-[8px] uppercase tracking-[0.2em] sm:text-[9px] sm:tracking-[0.22em]" dir="ltr">
                 BOUTIQUE PARTNERS
               </span>
             </div>
-            <h1 className="max-w-[21rem] font-serif text-[2.25rem] font-light leading-[0.94] tracking-[0.01em] text-[#3D3025] sm:max-w-3xl sm:text-[4.65rem] sm:leading-[0.9] lg:text-[5.6rem]" dir="ltr">
-              Sell your boutique <span className="block">on BOUT.</span>
+            <h1 className="max-w-[23rem] font-serif text-[2.15rem] font-light leading-[1.04] tracking-[0.01em] text-[#2F241C] sm:max-w-3xl sm:text-[4.25rem] sm:leading-[0.95] lg:text-[5rem]">
+              بوابتك لبيع منتجات البوتيك على <span className="whitespace-nowrap" dir="ltr">BOUT.</span>
             </h1>
-            <p className="mt-3 w-full max-w-2xl text-right text-[0.84rem] leading-7 text-[#5F554B] sm:mt-5 sm:text-lg sm:leading-9" dir="rtl">
-              لو عندك بوتيك في مصر، سجّل بيانات المحل والموقع ونوع المنتجات. فريق BOUT يراجع الطلب، وبعد الموافقة تقدر ترفع المنتجات وتظهر في المتجر.
+            <p className="mt-3 w-full max-w-2xl text-[0.84rem] leading-7 text-[#5F554B] sm:mt-5 sm:text-lg sm:leading-9">
+              لو عندك بوتيك في مصر، ابدأ بتسجيل بيانات المحل والموقع ونوع المنتجات. فريق <span dir="ltr">BOUT</span> يراجع الطلب، وبعد الموافقة تقدر ترفع المنتجات وتظهر داخل المتجر.
             </p>
 
             <div className="mt-4 grid w-full min-w-0 grid-cols-2 gap-2 sm:hidden" dir="ltr">
-              <SignalCard icon={CalendarDays} label="Starter trial" value="7 Days" copy="التجربة المجانية موجودة في Starter فقط." />
-              <SignalCard icon={Percent} label="Start rate" value="10%" copy="عمولة Starter أثناء البداية." />
+              <SignalCard icon={CalendarDays} label="Trial" value="7 Days" copy="التجربة المجانية موجودة في Starter فقط." />
+              <SignalCard icon={Percent} label="Commission" value="10%" copy="عمولة Starter أثناء البداية." />
               <div className="col-span-2">
-                <SignalCard icon={Building2} label="After trial" value="EGP 1,500" copy="بعد أول 7 أيام لو الشريك كمل." />
+                <SignalCard icon={Building2} label="After 7 days" value="EGP 1,500" copy="بعد أول 7 أيام لو الشريك كمل." />
               </div>
             </div>
             <div className="mt-5 hidden w-full min-w-0 gap-3 sm:grid sm:grid-cols-3" dir="ltr">
-              <SignalCard icon={CalendarDays} label="Starter trial" value="7 Days" copy="التجربة المجانية موجودة في Starter فقط." />
-              <SignalCard icon={Percent} label="Start rate" value="10%" copy="عمولة Starter أثناء البداية." />
-              <SignalCard icon={Building2} label="After trial" value="EGP 1,500" copy="بعد أول 7 أيام لو الشريك كمل." />
+              <SignalCard icon={CalendarDays} label="Trial" value="7 Days" copy="التجربة المجانية موجودة في Starter فقط." />
+              <SignalCard icon={Percent} label="Commission" value="10%" copy="عمولة Starter أثناء البداية." />
+              <SignalCard icon={Building2} label="After 7 days" value="EGP 1,500" copy="بعد أول 7 أيام لو الشريك كمل." />
             </div>
 
             <div className="mt-4 grid w-full min-w-0 grid-cols-2 gap-2 sm:mt-5 sm:flex sm:flex-row-reverse sm:gap-3" dir="rtl">
               <a href="/boutiques/apply" className="btn-gold col-span-2 justify-center" style={{ letterSpacing: "0.03em" }}>
-                ابدأ الطلب
+                ابدأ تجربة 7 أيام
                 <ArrowRight className="h-4 w-4 rotate-180" strokeWidth={1.4} />
               </a>
               <a href="#partner-plans" className="btn-ghost col-span-2 justify-center" style={{ letterSpacing: "0.03em" }}>
-                قارن الباقات
+                شوف الباقات
               </a>
+            </div>
+
+            <div className="mt-3 grid grid-cols-3 gap-1.5 rounded-[14px] border border-[rgba(123,103,82,0.12)] bg-white/58 p-2 text-[0.65rem] leading-4 text-[#6F6254] shadow-[0_8px_22px_rgba(61,48,37,0.04)] sm:mt-4 sm:gap-2 sm:rounded-[18px] sm:p-3 sm:text-xs sm:leading-5">
+              {["بدون بيانات كارت", "مسودة تلقائية", "مراجعة قبل النشر"].map((item) => (
+                <span key={item} className="flex min-w-0 items-center gap-1.5">
+                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-[#A87935]" strokeWidth={1.4} />
+                  <span>{item}</span>
+                </span>
+              ))}
             </div>
           </motion.div>
         </div>
@@ -640,7 +649,7 @@ export default function BoutiquePartnersPage({ mode = "landing" }: BoutiquePartn
           whileInView="show"
           viewport={{ once: true, amount: 0.22 }}
           variants={fadeUp}
-          className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4"
+          className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-3 md:grid-cols-4"
         >
           {[
             { icon: ClipboardList, title: "قدم الطلب", copy: "بيانات المحل، الموقع، التواصل، ونوع المنتجات." },
@@ -650,10 +659,14 @@ export default function BoutiquePartnersPage({ mode = "landing" }: BoutiquePartn
           ].map((item) => {
             const Icon = item.icon;
             return (
-              <div key={item.title} className="rounded-[14px] border border-[rgba(123,103,82,0.14)] bg-white/68 p-2.5 shadow-[0_8px_20px_rgba(61,48,37,0.045)] sm:rounded-[20px] sm:p-4 sm:shadow-[0_12px_36px_rgba(61,48,37,0.06)]">
-                <Icon className="mb-1.5 h-4 w-4 text-[#A87935] sm:mb-4 sm:h-5 sm:w-5" strokeWidth={1.35} />
-                <h2 className="font-serif text-[1.05rem] font-light leading-tight tracking-[0.01em] text-[#3D3025] sm:text-2xl">{item.title}</h2>
-                <p className="mt-1 text-[0.7rem] leading-5 text-[#6F6254] sm:mt-2 sm:text-sm sm:leading-7">{item.copy}</p>
+              <div key={item.title} className="flex items-start gap-3 rounded-[14px] border border-[rgba(123,103,82,0.14)] bg-white/68 p-3 shadow-[0_8px_20px_rgba(61,48,37,0.045)] sm:block sm:rounded-[20px] sm:p-4 sm:shadow-[0_12px_36px_rgba(61,48,37,0.06)]">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(168,121,53,0.18)] bg-[rgba(168,121,53,0.09)] text-[#A87935] sm:mb-4 sm:h-auto sm:w-auto sm:border-0 sm:bg-transparent">
+                  <Icon className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.35} />
+                </span>
+                <div className="min-w-0">
+                  <h2 className="font-serif text-[1.08rem] font-light leading-tight tracking-[0.01em] text-[#3D3025] sm:text-2xl">{item.title}</h2>
+                  <p className="mt-1 text-[0.74rem] leading-5 text-[#6F6254] sm:mt-2 sm:text-sm sm:leading-7">{item.copy}</p>
+                </div>
               </div>
             );
           })}
@@ -664,7 +677,7 @@ export default function BoutiquePartnersPage({ mode = "landing" }: BoutiquePartn
         <motion.div initial={false} whileInView="show" viewport={{ once: true, amount: 0.18 }} variants={fadeUp}>
           <div className="mb-3 grid gap-2 sm:mb-5 sm:gap-3 lg:grid-cols-[1fr_0.72fr] lg:items-end">
             <div>
-              <p className="eyebrow mb-1.5 sm:mb-3" dir="ltr">SAAS PARTNER PLANS</p>
+              <p className="eyebrow mb-1.5 sm:mb-3" dir="ltr">PARTNER PLANS</p>
               <h2 className="title-display text-[1.85rem] leading-[1.06] tracking-[0.01em] sm:text-[4rem] sm:leading-[0.92]">
                 Starter الأول، والترقية بعدين.
               </h2>
@@ -714,8 +727,8 @@ export default function BoutiquePartnersPage({ mode = "landing" }: BoutiquePartn
               ))}
             </div>
             <div className="mt-3 grid gap-2 rounded-[14px] border border-[rgba(168,121,53,0.22)] bg-white/62 p-3 sm:mt-4 sm:grid-cols-[1fr_auto] sm:items-center sm:rounded-[18px] sm:p-4">
-              <p className="text-[0.76rem] leading-6 text-[#5F554B] sm:text-sm sm:leading-7" dir="ltr">
-                Try the platform free for 7 days. If the service helps your business, you can subscribe after the trial ends.
+              <p className="text-[0.76rem] leading-6 text-[#5F554B] sm:text-sm sm:leading-7">
+                ابدأ 7 أيام مجانا على Starter. لو الخدمة مناسبة للبوتيك، كمل الاشتراك بعد نهاية التجربة.
               </p>
               {!draftLoaded || draftSaving ? (
                 <button
@@ -814,248 +827,358 @@ export default function BoutiquePartnersPage({ mode = "landing" }: BoutiquePartn
       ) : null}
 
       {showApplication ? (
-      <section id="boutique-application" className="scroll-mt-20 border-y border-[rgba(123,103,82,0.16)] bg-[#F8F5EF] px-3 pb-4 pt-[4.9rem] sm:px-6 sm:py-12 sm:pt-24 md:px-10">
-        <div className="page-wrap grid min-w-0 gap-4 sm:gap-6 lg:grid-cols-[0.74fr_1.26fr] lg:items-start">
-          <motion.aside initial={false} whileInView="show" viewport={{ once: true }} variants={fadeUp} className="hidden lg:sticky lg:top-24 lg:block">
-            <div className="rounded-[24px] border border-[rgba(123,103,82,0.14)] bg-[#171513] p-5 text-[#F8F7F2] shadow-[0_24px_70px_rgba(61,48,37,0.16)] sm:p-6">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl border border-[#D8C08A]/28 bg-white/[0.06] text-[#D8C08A]">
-                <ClipboardList className="h-5 w-5" strokeWidth={1.35} />
-              </div>
-              <p className="text-[10px] uppercase tracking-[0.24em] text-[#D8C08A]" dir="ltr">
-                APPLICATION
-              </p>
-              <h2 className="mt-3 font-serif text-4xl font-light leading-[0.95] tracking-[0.02em] sm:text-5xl">
-                الطلب بياخد دقائق.
-              </h2>
-              <p className="mt-4 text-sm leading-7 text-[#C9C5B8]">
-                ركز على بيانات المحل وطريقة التواصل. بعد الإرسال هتنتقل مباشرة لصفحة إضافة المنتجات.
-              </p>
-              <div className="mt-5 rounded-[18px] border border-[#D8C08A]/20 bg-white/[0.05] p-4">
-                <p className="text-[9px] uppercase tracking-[0.2em] text-[#D8C08A]" dir="ltr">
-                  SELECTED PLAN
-                </p>
-                <p className="mt-2 font-serif text-3xl text-white" dir="ltr">
-                  {selectedPlan.name}
-                </p>
-                <p className="mt-2 text-sm leading-7 text-[#D8C08A]">
-                  Starts free for 7 days, then EGP {formatPrice(selectedPlan.monthlyFee)} / month + {selectedPlan.commissionRate}% commission.
-                </p>
-              </div>
-              <div className="mt-5 grid gap-2">
-                {["لا نطلب بيانات كارت أو CVV", "الأدمن يراجع الطلب قبل النشر", "المنتجات تظهر بعد الموافقة فقط"].map((item) => (
-                  <div key={item} className="flex items-center gap-3 text-sm text-[#E9E4D8]">
-                    <CheckCircle2 className="h-4 w-4 shrink-0 text-[#D8C08A]" strokeWidth={1.4} />
-                    <span>{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.aside>
-
-          <motion.form
-            onSubmit={handleSubmit}
-            initial={false}
-            whileInView="show"
-            viewport={{ once: true, amount: 0.12 }}
-            variants={fadeUp}
-            className="w-full min-w-0 max-w-full rounded-[18px] border border-[rgba(123,103,82,0.16)] bg-[#FFF9EF] p-3 text-[#3D3025] shadow-[0_12px_32px_rgba(61,48,37,0.07)] sm:rounded-[30px] sm:p-6 sm:shadow-[0_20px_58px_rgba(61,48,37,0.10)]"
-          >
-            <div className="mb-3 rounded-[14px] border border-[rgba(168,121,53,0.18)] bg-[rgba(168,121,53,0.08)] p-2.5 lg:hidden">
-              <div className="flex items-start gap-3">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#3D3025] text-[#FFF9EF]">
-                  <ClipboardList className="h-4 w-4" strokeWidth={1.35} />
-                </span>
-                <div>
-                  <p className="text-[8px] uppercase tracking-[0.22em] text-[#7A581F]" dir="ltr">
-                    APPLICATION
-                  </p>
-                  <p className="mt-1 text-[0.78rem] leading-5 text-[#5F554B]">
-                    املأ البيانات الأساسية. بعد الإرسال هتنتقل لرفع المنتجات.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div
-              className={`mb-3 rounded-[14px] border px-3 py-2 text-[0.72rem] leading-5 sm:text-xs ${
-                draftError
-                  ? "border-[#9A2222]/22 bg-[#9A2222]/[0.06] text-[#9A2222]"
-                  : "border-[rgba(123,103,82,0.12)] bg-white/48 text-[#6F6254]"
-              }`}
-              aria-live="polite"
+        <section
+          id="boutique-application"
+          className="relative isolate scroll-mt-20 overflow-hidden border-y border-[rgba(123,103,82,0.14)] bg-[#F7F3EA] px-3 pb-5 pt-[4.85rem] sm:px-6 sm:pb-12 sm:pt-24 md:px-10"
+        >
+          <div className="absolute inset-0 -z-10 bg-[linear-gradient(145deg,rgba(255,250,242,0.98)_0%,rgba(246,241,232,0.95)_46%,rgba(235,226,213,0.86)_100%)]" />
+          <div className="page-wrap max-w-6xl">
+            <motion.div
+              initial={false}
+              animate="show"
+              variants={fadeUp}
+              className="grid min-w-0 gap-3 border-b border-[rgba(123,103,82,0.13)] pb-4 sm:gap-5 sm:pb-7 lg:grid-cols-[1.08fr_0.92fr] lg:items-end"
             >
-              {draftError
-                ? draftError
-                : draftSaving
-                  ? "Saving draft..."
-                  : draftId
-                    ? `Draft saved${draftSavedAt ? ` at ${new Date(draftSavedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}. You can leave and return to this page later.`
-                    : "Start the 7-day trial and your application progress will save automatically, even if you leave the page."}
-            </div>
-
-            <div className="border-b border-[rgba(123,103,82,0.14)] pb-3 sm:pb-6">
-              <SectionHeading
-                icon={Store}
-                step="STEP 01"
-                title="بيانات البوتيك"
-                copy="اكتب اسم المحل والمسؤول وطريقة التواصل الأساسية."
-              />
-              <div className="grid gap-2.5 sm:gap-4 md:grid-cols-2">
-                <label>
-                  <FieldLabel>اسم البوتيك</FieldLabel>
-                  <input required value={form.boutiqueName} onChange={(event) => update("boutiqueName", event.target.value)} placeholder="مثلا: Cairo Mode Boutique" />
-                </label>
-                <label>
-                  <FieldLabel>اسم المسؤول</FieldLabel>
-                  <input required value={form.ownerName} onChange={(event) => update("ownerName", event.target.value)} placeholder="اسم صاحب المحل أو المدير" />
-                </label>
-                <label>
-                  <FieldLabel>رقم واتساب</FieldLabel>
-                  <input required inputMode="tel" value={form.phone} onChange={(event) => update("phone", event.target.value)} placeholder="+20 10..." dir="ltr" />
-                </label>
-                <label>
-                  <FieldLabel>الإيميل</FieldLabel>
-                  <input type="email" value={form.email} onChange={(event) => update("email", event.target.value)} placeholder="store@example.com" dir="ltr" />
-                </label>
+              <div className="min-w-0">
+                <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-[rgba(168,121,53,0.24)] bg-white/72 px-3 py-1.5 text-[#7A581F] shadow-[0_8px_22px_rgba(61,48,37,0.05)]">
+                  <Store className="h-3.5 w-3.5" strokeWidth={1.35} />
+                  <span className="text-[8px] uppercase tracking-[0.18em]" dir="ltr">
+                    STARTER BOUTIQUE TRIAL
+                  </span>
+                </div>
+                <h1 className="max-w-3xl font-serif text-[2.28rem] font-light leading-[0.98] tracking-[0.01em] text-[#2F241C] sm:text-[4.5rem] sm:leading-[0.9]">
+                  قدم طلب البوتيك بشكل واضح ورسمي.
+                </h1>
+                <p className="mt-3 max-w-2xl text-[0.84rem] leading-7 text-[#5F554B] sm:mt-5 sm:text-base sm:leading-8">
+                  املأ بيانات المحل، الموقع، ونوع المنتجات. الطلب بيتحفظ تلقائيا كمسودة، وبعد الموافقة تقدر ترفع المنتجات وتظهر في متجر <span dir="ltr">BOUT.</span>
+                </p>
               </div>
-            </div>
 
-            <div className="border-b border-[rgba(123,103,82,0.14)] py-3 sm:py-6">
-              <SectionHeading
-                icon={MapPin}
-                step="STEP 02"
-                title="موقع المحل"
-                copy="الموقع يساعد الأدمن والعميل يعرفوا مكان البوتيك بوضوح."
-              />
-              <div className="grid gap-2.5 sm:gap-4 md:grid-cols-2">
-                <label>
-                  <FieldLabel>المحافظة</FieldLabel>
-                  <input required value={form.city} onChange={(event) => update("city", event.target.value)} placeholder="Cairo, Giza, Alexandria..." />
-                </label>
-                <label>
-                  <FieldLabel>المنطقة</FieldLabel>
-                  <input required value={form.area} onChange={(event) => update("area", event.target.value)} placeholder="Zamalek, Nasr City, Maadi..." />
-                </label>
-                <label className="md:col-span-2">
-                  <FieldLabel>عنوان المحل في الشارع</FieldLabel>
-                  <input required value={form.streetAddress} onChange={(event) => update("streetAddress", event.target.value)} placeholder="رقم، شارع، مول أو منطقة" />
-                </label>
-                <label>
-                  <FieldLabel>لينك Google Maps</FieldLabel>
-                  <input value={form.googleMapsUrl} onChange={(event) => update("googleMapsUrl", event.target.value)} placeholder="maps.google.com/..." dir="ltr" />
-                </label>
-                <label>
-                  <FieldLabel>Instagram</FieldLabel>
-                  <input value={form.instagram} onChange={(event) => update("instagram", event.target.value)} placeholder="@boutique" dir="ltr" />
-                </label>
-              </div>
-            </div>
-
-            <div className="border-b border-[rgba(123,103,82,0.14)] py-3 sm:py-6">
-              <SectionHeading
-                icon={Sparkles}
-                step="STEP 03"
-                title="المنتجات والباقة"
-                copy="حدد نوع المنتجات وحجم الكتالوج المتوقع عشان المراجعة تكون أسرع."
-              />
-              <div>
-                <FieldLabel>نوع المنتجات</FieldLabel>
-                <div className="hide-scrollbar flex gap-2 overflow-x-auto pb-1">
-                  {CATEGORY_OPTIONS.map((category) => {
-                    const active = form.categories.includes(category);
-                    return (
-                      <button
-                        key={category}
-                        type="button"
-                        onClick={() => toggleCategory(category)}
-                        className={`min-h-[36px] shrink-0 rounded-full border px-3 text-[10px] tracking-[0.04em] transition sm:min-h-[42px] sm:px-4 sm:text-[11px] sm:tracking-[0.06em] ${
-                          active
-                            ? "border-[#A87935] bg-[rgba(168,121,53,0.14)] text-[#7A581F]"
-                            : "border-[rgba(123,103,82,0.16)] bg-white/60 text-[#6F6254]"
-                        }`}
-                        dir="ltr"
-                      >
-                        {category}
-                      </button>
-                    );
-                  })}
+              <div className="grid min-w-0 grid-cols-3 gap-2">
+                <div className="rounded-[14px] border border-[rgba(123,103,82,0.14)] bg-white/74 p-2.5 shadow-[0_8px_22px_rgba(61,48,37,0.045)] sm:rounded-[18px] sm:p-4">
+                  <CalendarDays className="mb-2 h-4 w-4 text-[#A87935]" strokeWidth={1.35} />
+                  <p className="text-[7px] uppercase tracking-[0.14em] text-[#7A581F] sm:text-[9px] sm:tracking-[0.2em]" dir="ltr">
+                    TRIAL
+                  </p>
+                  <p className="mt-1 font-serif text-[1.2rem] leading-none text-[#2F241C] sm:text-3xl" dir="ltr">
+                    7 Days
+                  </p>
+                </div>
+                <div className="rounded-[14px] border border-[rgba(123,103,82,0.14)] bg-white/74 p-2.5 shadow-[0_8px_22px_rgba(61,48,37,0.045)] sm:rounded-[18px] sm:p-4">
+                  <Percent className="mb-2 h-4 w-4 text-[#A87935]" strokeWidth={1.35} />
+                  <p className="text-[7px] uppercase tracking-[0.14em] text-[#7A581F] sm:text-[9px] sm:tracking-[0.2em]" dir="ltr">
+                    RATE
+                  </p>
+                  <p className="mt-1 font-serif text-[1.2rem] leading-none text-[#2F241C] sm:text-3xl" dir="ltr">
+                    10%
+                  </p>
+                </div>
+                <div className="rounded-[14px] border border-[rgba(123,103,82,0.14)] bg-white/74 p-2.5 shadow-[0_8px_22px_rgba(61,48,37,0.045)] sm:rounded-[18px] sm:p-4">
+                  <Building2 className="mb-2 h-4 w-4 text-[#A87935]" strokeWidth={1.35} />
+                  <p className="text-[7px] uppercase tracking-[0.14em] text-[#7A581F] sm:text-[9px] sm:tracking-[0.2em]" dir="ltr">
+                    AFTER
+                  </p>
+                  <p className="mt-1 font-serif text-[1.2rem] leading-none text-[#2F241C] sm:text-3xl" dir="ltr">
+                    EGP 1,500
+                  </p>
                 </div>
               </div>
+            </motion.div>
 
-              <div className="mt-3 grid gap-2.5 sm:mt-5 sm:gap-4 md:grid-cols-2">
-                <label>
-                  <FieldLabel>عدد المنتجات</FieldLabel>
-                  <input type="number" min="0" inputMode="numeric" value={form.productCount} onChange={(event) => update("productCount", event.target.value)} placeholder="50" />
-                </label>
-                <label>
-                  <FieldLabel>متوسط السعر</FieldLabel>
-                  <input type="number" min="0" inputMode="numeric" value={form.averagePrice} onChange={(event) => update("averagePrice", event.target.value)} placeholder="1500" />
-                </label>
-              </div>
-
-              <div className="mt-3 sm:mt-5">
-                <FieldLabel>الخطة عند البداية</FieldLabel>
-                <div className="rounded-[14px] border border-[rgba(168,121,53,0.22)] bg-[rgba(168,121,53,0.08)] p-3 text-[#5F554B] sm:rounded-[18px] sm:p-4">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-                    <div>
-                      <p className="font-serif text-[1.35rem] font-light leading-none text-[#3D3025] sm:text-2xl" dir="ltr">
-                        {starterPlan.name}
+            <div className="mt-4 grid min-w-0 gap-4 sm:mt-6 lg:grid-cols-[0.82fr_1.18fr] lg:items-start">
+              <motion.aside
+                initial={false}
+                whileInView="show"
+                viewport={{ once: true, amount: 0.18 }}
+                variants={fadeUp}
+                className="order-2 min-w-0 space-y-3 lg:sticky lg:top-24 lg:order-1"
+              >
+                <div className="rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-[#171513] p-4 text-[#F8F7F2] shadow-[0_18px_48px_rgba(61,48,37,0.14)] sm:rounded-[26px] sm:p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-[8px] uppercase tracking-[0.2em] text-[#D8C08A] sm:text-[10px]" dir="ltr">
+                        SELECTED PLAN
                       </p>
-                      <p className="mt-1.5 text-[0.78rem] leading-6 sm:mt-2 sm:text-sm sm:leading-7">
-                        البداية إلزامية على Starter: أول 7 أيام مجانا، وبعدها <span dir="ltr">EGP {formatPrice(starterPlan.monthlyFee)}/month</span> + عمولة {starterPlan.commissionRate}% لو الشريك كمل.
+                      <h2 className="mt-2 break-words font-serif text-[1.65rem] font-light leading-[1.02] !text-[#F8F7F2] sm:text-4xl" dir="ltr">
+                        {selectedPlan.name}
+                      </h2>
+                    </div>
+                    <span className="rounded-full border border-[#D8C08A]/28 bg-white/[0.06] px-2.5 py-1.5 text-[7px] uppercase tracking-[0.13em] text-[#D8C08A] sm:text-[8px]" dir="ltr">
+                      Required
+                    </span>
+                  </div>
+                  <p className="mt-3 text-left text-[0.78rem] leading-6 text-[#D5CDBE] [overflow-wrap:anywhere] sm:text-sm sm:leading-7" dir="ltr">
+                    Starts free for 7 days, then <span dir="ltr">EGP {formatPrice(selectedPlan.monthlyFee)} / month</span> + {selectedPlan.commissionRate}% commission if the boutique continues.
+                  </p>
+                  <div className="mt-4 grid gap-2">
+                    {["لا نطلب بيانات كارت أو CVV", "الأدمن يراجع الطلب قبل النشر", "المنتجات تظهر بعد الموافقة فقط"].map((item) => (
+                      <div key={item} className="flex items-center gap-2.5 text-[0.78rem] leading-5 text-[#EFE9DD] sm:text-sm sm:leading-6">
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-[#D8C08A]" strokeWidth={1.4} />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div
+                  className={`rounded-[18px] border p-4 shadow-[0_12px_32px_rgba(61,48,37,0.055)] sm:rounded-[24px] sm:p-5 ${
+                    draftError
+                      ? "border-[#9A2222]/24 bg-[#FFF5F3] text-[#9A2222]"
+                      : "border-[rgba(123,103,82,0.14)] bg-white/74 text-[#5F554B]"
+                  }`}
+                  aria-live="polite"
+                >
+                  <div className="flex items-start gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[rgba(168,121,53,0.18)] bg-[rgba(168,121,53,0.10)] text-[#A87935]">
+                      <ShieldCheck className="h-4 w-4" strokeWidth={1.35} />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-[8px] uppercase tracking-[0.2em] text-[#7A581F]" dir="ltr">
+                        DRAFT STATUS
+                      </p>
+                      <p className="mt-1 text-[0.78rem] leading-6 sm:text-sm sm:leading-7">
+                        {draftError
+                          ? draftError
+                          : draftSaving
+                            ? "Saving draft..."
+                            : draftId
+                              ? `Draft saved${draftSavedAt ? ` at ${new Date(draftSavedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}. You can leave and return later.`
+                              : "Your application progress saves automatically when you start typing."}
                       </p>
                     </div>
-                    <span className="w-fit rounded-full bg-[#3D3025] px-3 py-1.5 text-[8px] uppercase tracking-[0.16em] text-[#FFF9EF]" dir="ltr">
-                      Auto assigned
+                  </div>
+                </div>
+
+                <div className="rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-white/68 p-4 shadow-[0_12px_32px_rgba(61,48,37,0.05)] sm:rounded-[24px] sm:p-5">
+                  <p className="text-[8px] uppercase tracking-[0.2em] text-[#7A581F] sm:text-[9px]" dir="ltr">
+                    REVIEW FLOW
+                  </p>
+                  <div className="mt-3 grid gap-3">
+                    {[
+                      ["01", "إرسال الطلب", "بيانات البوتيك والموقع والكتالوج."],
+                      ["02", "مراجعة الأدمن", "التأكد من جودة البيانات قبل النشر."],
+                      ["03", "رفع المنتجات", "بعد القبول تفتح Product Desk مباشرة."],
+                    ].map(([step, title, copy]) => (
+                      <div key={step} className="grid grid-cols-[2.25rem_1fr] gap-3">
+                        <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[rgba(168,121,53,0.22)] bg-[#F8F5EF] text-[10px] tracking-[0.08em] text-[#7A581F]" dir="ltr">
+                          {step}
+                        </span>
+                        <div className="min-w-0">
+                          <p className="font-serif text-[1.2rem] leading-none text-[#2F241C] sm:text-2xl">{title}</p>
+                          <p className="mt-1 text-[0.74rem] leading-5 text-[#6F6254] sm:text-sm sm:leading-6">{copy}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </motion.aside>
+
+              <motion.form
+                onSubmit={handleSubmit}
+                initial={false}
+                whileInView="show"
+                viewport={{ once: true, amount: 0.12 }}
+                variants={fadeUp}
+                className="order-1 min-w-0 space-y-3 text-[#3D3025] sm:space-y-4 lg:order-2"
+              >
+                <div
+                  className={`rounded-[16px] border px-3 py-2.5 text-[0.75rem] leading-5 shadow-[0_8px_22px_rgba(61,48,37,0.045)] sm:px-4 sm:py-3 sm:text-sm sm:leading-6 ${
+                    draftError
+                      ? "border-[#9A2222]/24 bg-[#FFF5F3] text-[#9A2222]"
+                      : "border-[rgba(123,103,82,0.14)] bg-white/76 text-[#5F554B]"
+                  }`}
+                  aria-live="polite"
+                >
+                  <span className="flex items-center gap-2 text-left" dir="ltr">
+                    <span className="shrink-0 text-[8px] uppercase tracking-[0.18em] text-[#7A581F]">Draft</span>
+                    <span className="min-w-0">
+                      {draftError
+                        ? draftError
+                        : draftSaving
+                          ? "Saving your application..."
+                          : draftId
+                            ? `Saved${draftSavedAt ? ` at ${new Date(draftSavedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}` : ""}. You can return later.`
+                            : "Progress saves automatically once you start typing."}
+                    </span>
+                  </span>
+                </div>
+
+                <div className="rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-[#FFFDF8] p-3 shadow-[0_12px_34px_rgba(61,48,37,0.055)] sm:rounded-[26px] sm:p-5">
+                  <div className="mb-3 grid grid-cols-4 gap-1.5 sm:mb-5 sm:gap-2" dir="ltr" aria-label="Application progress">
+                    {["Boutique", "Location", "Catalog", "Notes"].map((step, index) => (
+                      <span
+                        key={step}
+                        className="rounded-full border border-[rgba(168,121,53,0.18)] bg-[rgba(168,121,53,0.08)] px-1.5 py-2 text-center text-[7px] uppercase tracking-[0.08em] text-[#7A581F] sm:px-3 sm:text-[9px] sm:tracking-[0.14em]"
+                      >
+                        {index + 1}. {step}
+                      </span>
+                    ))}
+                  </div>
+                  <SectionHeading
+                    icon={Store}
+                    step="STEP 01"
+                    title="بيانات البوتيك"
+                    copy="اكتب بيانات واضحة للمحل والمسؤول. دي أول حاجة فريق المراجعة هيشوفها."
+                  />
+                  <div className="grid gap-2.5 sm:gap-4 md:grid-cols-2">
+                    <label>
+                      <FieldLabel>اسم البوتيك</FieldLabel>
+                      <input required autoComplete="organization" value={form.boutiqueName} onChange={(event) => update("boutiqueName", event.target.value)} placeholder="مثلا: Cairo Mode Boutique" />
+                    </label>
+                    <label>
+                      <FieldLabel>اسم المسؤول</FieldLabel>
+                      <input required autoComplete="name" value={form.ownerName} onChange={(event) => update("ownerName", event.target.value)} placeholder="اسم صاحب المحل أو المدير" />
+                    </label>
+                    <label>
+                      <FieldLabel>رقم واتساب</FieldLabel>
+                      <input required autoComplete="tel" inputMode="tel" value={form.phone} onChange={(event) => update("phone", event.target.value)} placeholder="+20 10..." dir="ltr" />
+                    </label>
+                    <label>
+                      <FieldLabel>الإيميل</FieldLabel>
+                      <input type="email" autoComplete="email" value={form.email} onChange={(event) => update("email", event.target.value)} placeholder="store@example.com" dir="ltr" />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-[#FFFDF8] p-3 shadow-[0_12px_34px_rgba(61,48,37,0.055)] sm:rounded-[26px] sm:p-5">
+                  <SectionHeading
+                    icon={MapPin}
+                    step="STEP 02"
+                    title="موقع المحل"
+                    copy="العنوان الدقيق يزود الثقة ويساعد في تجهيز الطلبات والتواصل."
+                  />
+                  <div className="grid gap-2.5 sm:gap-4 md:grid-cols-2">
+                    <label>
+                      <FieldLabel>المحافظة</FieldLabel>
+                      <input required autoComplete="address-level1" value={form.city} onChange={(event) => update("city", event.target.value)} placeholder="Cairo, Giza, Alexandria..." />
+                    </label>
+                    <label>
+                      <FieldLabel>المنطقة</FieldLabel>
+                      <input required autoComplete="address-level2" value={form.area} onChange={(event) => update("area", event.target.value)} placeholder="Zamalek, Nasr City, Maadi..." />
+                    </label>
+                    <label className="md:col-span-2">
+                      <FieldLabel>عنوان المحل في الشارع</FieldLabel>
+                      <input required autoComplete="street-address" value={form.streetAddress} onChange={(event) => update("streetAddress", event.target.value)} placeholder="رقم، شارع، مول أو منطقة" />
+                    </label>
+                    <label>
+                      <FieldLabel>لينك Google Maps</FieldLabel>
+                      <input value={form.googleMapsUrl} onChange={(event) => update("googleMapsUrl", event.target.value)} placeholder="maps.google.com/..." dir="ltr" />
+                    </label>
+                    <label>
+                      <FieldLabel>Instagram</FieldLabel>
+                      <input value={form.instagram} onChange={(event) => update("instagram", event.target.value)} placeholder="@boutique" dir="ltr" />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-[#FFFDF8] p-3 shadow-[0_12px_34px_rgba(61,48,37,0.055)] sm:rounded-[26px] sm:p-5">
+                  <SectionHeading
+                    icon={Sparkles}
+                    step="STEP 03"
+                    title="المنتجات والباقة"
+                    copy="اختار الأقسام الأساسية واكتب حجم الكتالوج المتوقع."
+                  />
+                  <div>
+                    <FieldLabel>نوع المنتجات</FieldLabel>
+                    <div className="hide-scrollbar flex gap-2 overflow-x-auto pb-1">
+                      {CATEGORY_OPTIONS.map((category) => {
+                        const active = form.categories.includes(category);
+                        return (
+                          <button
+                            key={category}
+                            type="button"
+                            onClick={() => toggleCategory(category)}
+                            aria-pressed={active}
+                            className={`min-h-[38px] shrink-0 rounded-full border px-3 text-[10px] tracking-[0.04em] transition sm:min-h-[42px] sm:px-4 sm:text-[11px] sm:tracking-[0.06em] ${
+                              active
+                                ? "border-[#A87935] bg-[#3D3025] text-[#FFF9EF]"
+                                : "border-[rgba(123,103,82,0.16)] bg-white/70 text-[#6F6254]"
+                            }`}
+                            dir="ltr"
+                          >
+                            {category}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="mt-3 grid gap-2.5 sm:mt-5 sm:gap-4 md:grid-cols-2">
+                    <label>
+                      <FieldLabel>عدد المنتجات</FieldLabel>
+                      <input type="number" min="0" inputMode="numeric" value={form.productCount} onChange={(event) => update("productCount", event.target.value)} placeholder="50" />
+                    </label>
+                    <label>
+                      <FieldLabel>متوسط السعر</FieldLabel>
+                      <input type="number" min="0" inputMode="numeric" value={form.averagePrice} onChange={(event) => update("averagePrice", event.target.value)} placeholder="1500" />
+                    </label>
+                  </div>
+
+                  <div className="mt-3 rounded-[14px] border border-[rgba(168,121,53,0.20)] bg-[rgba(168,121,53,0.08)] p-3 text-[#5F554B] sm:mt-5 sm:rounded-[18px] sm:p-4">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                      <div>
+                        <FieldLabel>الخطة عند البداية</FieldLabel>
+                        <p className="font-serif text-[1.35rem] font-light leading-none text-[#2F241C] sm:text-2xl" dir="ltr">
+                          {starterPlan.name}
+                        </p>
+                        <p className="mt-1.5 text-[0.78rem] leading-6 sm:mt-2 sm:text-sm sm:leading-7">
+                          البداية إلزامية على Starter: أول 7 أيام مجانا، وبعدها <span dir="ltr">EGP {formatPrice(starterPlan.monthlyFee)}/month</span> + عمولة {starterPlan.commissionRate}% لو الشريك كمل.
+                        </p>
+                      </div>
+                      <span className="w-fit rounded-full bg-[#3D3025] px-3 py-1.5 text-[8px] uppercase tracking-[0.16em] text-[#FFF9EF]" dir="ltr">
+                        Auto assigned
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-[#FFFDF8] p-3 shadow-[0_12px_34px_rgba(61,48,37,0.055)] sm:rounded-[26px] sm:p-5">
+                  <SectionHeading
+                    icon={ClipboardList}
+                    step="STEP 04"
+                    title="ملاحظات المنتجات"
+                    copy="اكتب أمثلة وأسعار مختصرة. بيانات التحويل والدفع تتضاف لاحقا من Partner Desk بعد قبول الطلب."
+                  />
+                  <div className="grid gap-2.5 sm:gap-4 md:grid-cols-2">
+                    <label>
+                      <FieldLabel>أمثلة منتجات وأسعار</FieldLabel>
+                      <textarea value={form.sampleProducts} onChange={(event) => update("sampleProducts", event.target.value)} placeholder="Jacket 1500 EGP, Pants 1200 EGP..." />
+                    </label>
+                    <label>
+                      <FieldLabel>ملاحظات إضافية</FieldLabel>
+                      <textarea value={form.notes} onChange={(event) => update("notes", event.target.value)} placeholder="مواعيد الاستلام، سياسة الاستبدال، طريقة تجهيز الطلبات..." />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-white/78 p-3 shadow-[0_12px_32px_rgba(61,48,37,0.06)] sm:rounded-[24px] sm:p-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:flex-row-reverse sm:items-center sm:justify-between sm:gap-3">
+                    <button type="submit" disabled={submitting} className="btn-gold justify-center" style={{ letterSpacing: "0.03em" }}>
+                      {submitting ? "جاري الإرسال" : "إرسال طلب الشراكة"}
+                    </button>
+                    <span className="inline-flex items-center justify-center gap-2 text-center text-xs leading-5 text-[#6F6254] sm:justify-start sm:text-sm">
+                      <MapPin className="h-4 w-4 text-[#A87935]" strokeWidth={1.35} />
+                      بعد الإرسال هتروح لصفحة رفع المنتجات
                     </span>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            <div className="py-3 sm:py-6">
-              <SectionHeading
-                icon={ClipboardList}
-                step="STEP 04"
-                title="ملاحظات المنتجات"
-                copy="أمثلة بسيطة تساعد فريق BOUT يراجع جودة المنتجات والأسعار. بيانات التحويل تتضاف لاحقا من Partner Desk بعد قبول الطلب."
-              />
-              <div className="grid gap-2.5 sm:gap-4 md:grid-cols-2">
-                <label>
-                  <FieldLabel>أمثلة منتجات وأسعار</FieldLabel>
-                  <textarea value={form.sampleProducts} onChange={(event) => update("sampleProducts", event.target.value)} placeholder="Jacket 1500 EGP, Pants 1200 EGP..." />
-                </label>
-                <label>
-                  <FieldLabel>ملاحظات إضافية</FieldLabel>
-                  <textarea value={form.notes} onChange={(event) => update("notes", event.target.value)} placeholder="مواعيد الاستلام، سياسة الاستبدال، طريقة تجهيز الطلبات..." />
-                </label>
-              </div>
+                <AnimatePresence>
+                  {result ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      className="rounded-[20px] border border-[rgba(80,150,100,0.24)] bg-[rgba(80,150,100,0.10)] p-4 text-sm leading-7 text-[#365A3E]"
+                    >
+                      تم تسجيل الطلب برقم <span dir="ltr">{result.id}</span>. البداية على {result.planName}: أول {result.trialDays} أيام مجانا، ثم <span dir="ltr">EGP {formatPrice(result.monthlyFee)}/month</span> + عمولة {result.commissionRate}%.
+                    </motion.div>
+                  ) : null}
+                </AnimatePresence>
+              </motion.form>
             </div>
-
-            <div className="flex flex-col gap-2 border-t border-[rgba(123,103,82,0.16)] pt-3 sm:flex-row sm:flex-row-reverse sm:items-center sm:justify-between sm:gap-3 sm:pt-5">
-              <button type="submit" disabled={submitting} className="btn-gold justify-center" style={{ letterSpacing: "0.03em" }}>
-                {submitting ? "جاري الإرسال" : "إرسال طلب الشراكة"}
-              </button>
-              <span className="inline-flex items-center justify-center gap-2 text-center text-xs leading-5 text-[#6F6254] sm:justify-start sm:text-sm">
-                <MapPin className="h-4 w-4 text-[#A87935]" strokeWidth={1.35} />
-                بعد الإرسال هتروح لصفحة رفع المنتجات
-              </span>
-            </div>
-
-            <AnimatePresence>
-              {result ? (
-                <motion.div
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  className="mt-5 rounded-[20px] border border-[rgba(80,150,100,0.24)] bg-[rgba(80,150,100,0.10)] p-4 text-sm leading-7 text-[#365A3E]"
-                >
-                  تم تسجيل الطلب برقم <span dir="ltr">{result.id}</span>. البداية على {result.planName}: أول {result.trialDays} أيام مجانا، ثم <span dir="ltr">EGP {formatPrice(result.monthlyFee)}/month</span> + عمولة {result.commissionRate}%.
-                </motion.div>
-              ) : null}
-            </AnimatePresence>
-          </motion.form>
-        </div>
-      </section>
+          </div>
+        </section>
       ) : null}
       <style jsx global>{`
         @media (max-width: 640px) {

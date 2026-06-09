@@ -66,6 +66,27 @@ function cleanString(value: unknown): string {
   return String(value ?? "").trim();
 }
 
+function safeIsoDate(value: unknown): string {
+  const date = value instanceof Date
+    ? value
+    : typeof value === "string" || typeof value === "number"
+      ? new Date(value)
+      : new Date();
+
+  return Number.isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
+}
+
+function safeDateTime(value: unknown): number {
+  const date = value instanceof Date
+    ? value
+    : typeof value === "string" || typeof value === "number"
+      ? new Date(value)
+      : null;
+
+  const time = date?.getTime();
+  return typeof time === "number" && Number.isFinite(time) ? time : 0;
+}
+
 function getOrderItems(order: any) {
   const items = Array.isArray(order?.items) && order.items.length
     ? order.items
@@ -147,7 +168,7 @@ export function buildPartnerWallet(input: {
 
       lines.push({
         orderId: cleanString(order?._id ?? order?.id),
-        createdAt: order?.createdAt ? new Date(order.createdAt).toISOString() : new Date().toISOString(),
+        createdAt: safeIsoDate(order?.createdAt),
         status: cleanString(order?.status) || "pending",
         paymentStatus: cleanString(order?.paymentStatus) || "pending",
         paymentMethod: cleanString(order?.paymentMethod),
@@ -214,6 +235,6 @@ export function buildPartnerWallet(input: {
       status: summary.payoutProfileStatus,
     },
     summary,
-    lines: lines.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+    lines: lines.sort((a, b) => safeDateTime(b.createdAt) - safeDateTime(a.createdAt)),
   };
 }
