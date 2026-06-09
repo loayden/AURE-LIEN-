@@ -934,37 +934,81 @@ export default function PremiumProductPage() {
                   transition={{ delay: 0.6 }}
                   className="mb-10"
                 >
-                  <p className="text-white/30 text-[9px] tracking-[0.35em] uppercase mb-4 font-light">
-                    Color {selectedColor && <span className="ml-2 normal-case tracking-normal" style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", color: "rgba(61,48,37,0.72)" }}>— {selectedColor}</span>}
-                  </p>
-                  <div className="flex gap-3 flex-wrap">
+                  <div className="mb-4 flex items-center justify-between gap-4">
+                    <p className="text-[9px] font-light uppercase tracking-[0.35em]" style={{ color: "rgba(61,48,37,0.62)" }}>
+                      Color
+                    </p>
+                    <p
+                      className="max-w-[55%] truncate text-right text-sm"
+                      style={{
+                        color: selectedColor ? "#7A581F" : "rgba(61,48,37,0.54)",
+                        fontFamily: "'Cormorant Garamond', serif",
+                        fontStyle: "italic",
+                      }}
+                    >
+                      {selectedColor ? selectedColor : "Select a tone"}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {colors.map((color) => {
                       const hex = getColorHex(color);
+                      const isSelected = selectedColor === color;
                       return (
                         <motion.button
                           key={color}
-                          whileHover={{ scale: 1.2 }}
-                          whileTap={{ scale: 0.9 }}
+                          type="button"
+                          aria-pressed={isSelected}
+                          aria-label={`Select ${color} color`}
+                          whileHover={{ y: -1 }}
+                          whileTap={{ scale: 0.98 }}
                           onClick={() => setSelectedColor(color)}
                           title={color}
-                          className="rounded-full transition-all duration-300 relative"
+                          className="group relative flex min-h-[58px] items-center gap-3 rounded-2xl px-3 text-left transition-all duration-300"
                           style={{
-                            width: 44, height: 44,
-                            backgroundColor: hex,
-                            border: selectedColor === color
+                            background: isSelected
+                              ? "linear-gradient(135deg, rgba(255,249,239,0.96), rgba(246,232,208,0.78))"
+                              : "rgba(255,255,255,0.58)",
+                            border: isSelected
                               ? "2px solid rgba(168,121,53,0.9)"
-                              : "2px solid rgba(123,103,82,0.18)",
-                            boxShadow: selectedColor === color
+                              : "1px solid rgba(123,103,82,0.18)",
+                            boxShadow: isSelected
                               ? "0 0 0 4px rgba(168,121,53,0.18), 0 8px 22px rgba(61,48,37,0.18)"
-                              : "0 6px 14px rgba(61,48,37,0.14)",
+                              : "0 8px 18px rgba(61,48,37,0.08)",
+                            backdropFilter: "blur(14px)",
+                            WebkitBackdropFilter: "blur(14px)",
                           }}
                         >
-                          {selectedColor === color && (
+                          <span
+                            className="relative grid h-9 w-9 shrink-0 place-items-center rounded-full border"
+                            style={{
+                              backgroundColor: hex,
+                              borderColor: isSelected ? "rgba(168,121,53,0.82)" : "rgba(61,48,37,0.18)",
+                              boxShadow: "inset 0 1px 0 rgba(255,255,255,0.45), 0 6px 14px rgba(61,48,37,0.14)",
+                            }}
+                          >
+                            {isSelected && (
+                              <motion.span
+                                layoutId="colorSelected"
+                                className="grid h-5 w-5 place-items-center rounded-full"
+                                style={{ background: "rgba(255,255,255,0.82)", color: "#7A581F" }}
+                              >
+                                <Check className="h-3 w-3" strokeWidth={1.6} />
+                              </motion.span>
+                            )}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-sm capitalize" style={{ color: "#3D3025" }}>
+                              {color}
+                            </span>
+                            <span className="mt-0.5 block text-[9px] uppercase tracking-[0.18em]" style={{ color: isSelected ? "#A87935" : "rgba(61,48,37,0.44)" }}>
+                              {isSelected ? "Selected" : "Available"}
+                            </span>
+                          </span>
+                          {isSelected && (
                             <motion.div
-                              layoutId="colorSelected"
-                              className="absolute inset-0 rounded-full"
+                              className="pointer-events-none absolute inset-0 rounded-2xl"
                               style={{
-                                background: "linear-gradient(135deg, rgba(255,255,255,0.42), transparent)",
+                                background: "linear-gradient(135deg, rgba(255,255,255,0.22), transparent)",
                               }}
                             />
                           )}

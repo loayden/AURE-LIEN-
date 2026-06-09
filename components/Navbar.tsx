@@ -547,7 +547,7 @@ export default function Navbar() {
                   background: "linear-gradient(135deg, rgba(255,255,255,0.86), rgba(255,247,235,0.74))",
                 }}
               >
-                7 Days Free Trial
+                Add My Products
               </Link>
             </motion.div>
 

@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Start Boutique Trial | BOUT",
   description:
-    "Submit your BOUT boutique partner application and save your 7-day Starter trial draft automatically.",
+    "Submit your BOUT boutique partner application, including an online-only option if you do not have a physical boutique yet.",
   robots: {
     index: false,
     follow: false,

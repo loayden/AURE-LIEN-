@@ -78,6 +78,7 @@ type FormState = {
   email: string;
   city: string;
   area: string;
+  noPhysicalShop: boolean;
   streetAddress: string;
   googleMapsUrl: string;
   instagram: string;
@@ -96,6 +97,7 @@ const initialForm: FormState = {
   email: "",
   city: "Cairo",
   area: "",
+  noPhysicalShop: false,
   streetAddress: "",
   googleMapsUrl: "",
   instagram: "",
@@ -142,6 +144,7 @@ function normalizeDraftForm(draft: any): FormState {
     email: String(draft?.email ?? ""),
     city: String(draft?.city ?? initialForm.city) || initialForm.city,
     area: String(draft?.area ?? ""),
+    noPhysicalShop: Boolean(draft?.noPhysicalShop),
     streetAddress: String(draft?.streetAddress ?? ""),
     googleMapsUrl: String(draft?.googleMapsUrl ?? ""),
     instagram: String(draft?.instagram ?? ""),
@@ -160,6 +163,7 @@ function normalizeLocalDraftForm(form?: Partial<FormState>): FormState {
     ...form,
     categories: Array.isArray(form?.categories) && form.categories.length ? form.categories : initialForm.categories,
     planId: "starter",
+    noPhysicalShop: Boolean(form?.noPhysicalShop),
   };
 }
 
@@ -334,6 +338,7 @@ export default function BoutiquePartnersPage({ mode = "landing" }: BoutiquePartn
       ...nextForm,
       productCount: Number(nextForm.productCount) || 0,
       averagePrice: nextForm.averagePrice ? Number(nextForm.averagePrice) : undefined,
+      noPhysicalShop: Boolean(nextForm.noPhysicalShop),
       planId: starterPlan.id,
       trialDays: starterPlan.trialDays,
       subscriptionFlow: "trial",
@@ -506,14 +511,15 @@ export default function BoutiquePartnersPage({ mode = "landing" }: BoutiquePartn
       const response = await fetch("/api/boutiques/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          draftId: finalDraftId,
-          ...form,
-          productCount: Number(form.productCount) || 0,
-          averagePrice: form.averagePrice ? Number(form.averagePrice) : undefined,
-          planId: starterPlan.id,
-          trialDays: starterPlan.trialDays,
-        }),
+          body: JSON.stringify({
+            draftId: finalDraftId,
+            ...form,
+            productCount: Number(form.productCount) || 0,
+            averagePrice: form.averagePrice ? Number(form.averagePrice) : undefined,
+            noPhysicalShop: Boolean(form.noPhysicalShop),
+            planId: starterPlan.id,
+            trialDays: starterPlan.trialDays,
+          }),
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
@@ -1045,8 +1051,33 @@ export default function BoutiquePartnersPage({ mode = "landing" }: BoutiquePartn
                     icon={MapPin}
                     step="STEP 02"
                     title="موقع المحل"
-                    copy="العنوان الدقيق يزود الثقة ويساعد في تجهيز الطلبات والتواصل."
+                    copy="العنوان الدقيق يزود الثقة ويساعد في تجهيز الطلبات والتواصل. ولو أنت أونلاين فقط أو لا تنوي فتح بوتيك فعلي، فعّل الخيار أدناه."
                   />
+                  <div className="mb-3 rounded-[16px] border border-[rgba(168,121,53,0.16)] bg-[rgba(168,121,53,0.06)] p-3 sm:mb-4 sm:rounded-[20px] sm:p-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+                      <div className="min-w-0">
+                        <p className="text-[8px] uppercase tracking-[0.18em] text-[#7A581F] sm:text-[9px] sm:tracking-[0.2em]" dir="ltr">
+                          ONLINE-ONLY OPTION
+                        </p>
+                        <p className="mt-1 text-[0.8rem] leading-6 text-[#5F554B] sm:text-sm sm:leading-7">
+                          I don't have a boutique yet, and I may never open a physical store. I sell online only.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => update("noPhysicalShop", !form.noPhysicalShop)}
+                        aria-pressed={form.noPhysicalShop}
+                        className={`min-h-[42px] rounded-full border px-4 text-[10px] uppercase tracking-[0.14em] transition sm:min-h-[46px] sm:px-5 sm:text-[11px] ${
+                          form.noPhysicalShop
+                            ? "border-[#A87935] bg-[#3D3025] text-[#FFF9EF]"
+                            : "border-[rgba(123,103,82,0.18)] bg-white/76 text-[#6F6254]"
+                        }`}
+                        dir="ltr"
+                      >
+                        {form.noPhysicalShop ? "Online-only selected" : "I don't have a boutique yet"}
+                      </button>
+                    </div>
+                  </div>
                   <div className="grid gap-2.5 sm:gap-4 md:grid-cols-2">
                     <label>
                       <FieldLabel>المحافظة</FieldLabel>
@@ -1056,10 +1087,21 @@ export default function BoutiquePartnersPage({ mode = "landing" }: BoutiquePartn
                       <FieldLabel>المنطقة</FieldLabel>
                       <input required autoComplete="address-level2" value={form.area} onChange={(event) => update("area", event.target.value)} placeholder="Zamalek, Nasr City, Maadi..." />
                     </label>
-                    <label className="md:col-span-2">
-                      <FieldLabel>عنوان المحل في الشارع</FieldLabel>
-                      <input required autoComplete="street-address" value={form.streetAddress} onChange={(event) => update("streetAddress", event.target.value)} placeholder="رقم، شارع، مول أو منطقة" />
-                    </label>
+                    {form.noPhysicalShop ? (
+                      <div className="md:col-span-2 rounded-[16px] border border-dashed border-[rgba(168,121,53,0.22)] bg-white/72 p-3 text-[#6F6254] sm:rounded-[20px] sm:p-4">
+                        <p className="text-[8px] uppercase tracking-[0.18em] text-[#7A581F]" dir="ltr">
+                          Street address skipped
+                        </p>
+                        <p className="mt-1 text-[0.8rem] leading-6 sm:text-sm sm:leading-7">
+                          لأنك اخترت إنك أونلاين فقط، لن نطلب عنوان شارع الآن. يمكنك إكمال الطلب باستخدام المحافظة والمنطقة فقط.
+                        </p>
+                      </div>
+                    ) : (
+                      <label className="md:col-span-2">
+                        <FieldLabel>عنوان المحل في الشارع</FieldLabel>
+                        <input required autoComplete="street-address" value={form.streetAddress} onChange={(event) => update("streetAddress", event.target.value)} placeholder="رقم، شارع، مول أو منطقة" />
+                      </label>
+                    )}
                     <label>
                       <FieldLabel>لينك Google Maps</FieldLabel>
                       <input value={form.googleMapsUrl} onChange={(event) => update("googleMapsUrl", event.target.value)} placeholder="maps.google.com/..." dir="ltr" />
