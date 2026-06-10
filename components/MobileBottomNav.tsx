@@ -57,12 +57,12 @@ export default function MobileBottomNav() {
         transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
         className="pointer-events-auto w-full rounded-[24px] border p-1.5 backdrop-blur-2xl"
         style={{
-          background: "linear-gradient(135deg, rgba(255,255,255,0.91), rgba(255,249,239,0.82))",
+          background: "linear-gradient(135deg, rgba(255,255,255,0.94), rgba(255,249,239,0.88))",
           borderColor: "rgba(123,103,82,0.18)",
           boxShadow: "0 -18px 48px rgba(61,48,37,0.16), 0 12px 32px rgba(61,48,37,0.08), inset 0 1px 0 rgba(255,255,255,0.78)",
         }}
       >
-        <div className="grid grid-cols-[1fr_1fr_3.35rem_1fr_1fr] items-end gap-0.5">
+        <div className="grid grid-cols-[1fr_1fr_3.35rem_1fr_1fr] items-end gap-1">
         {ITEMS.map((item) => {
           const Icon = item.icon;
           const featured = item.label === "Search";
@@ -76,17 +76,23 @@ export default function MobileBottomNav() {
                 className={`relative z-10 flex items-center justify-center ${
                   featured
                     ? "h-[46px] w-[46px] rounded-full bg-[#171513] text-[#F8F7F2] shadow-[0_12px_28px_rgba(23,21,19,0.24)]"
-                    : "h-7 w-7 rounded-full"
+                    : "h-7 w-7 rounded-full border"
                 }`}
                 animate={active ? { y: -1 } : { y: 0 }}
                 transition={{ duration: 0.2 }}
                 style={
                   !featured && active
                     ? {
-                        background: "rgba(168,121,53,0.16)",
-                        color: "#3D3025",
+                        background: "rgba(255,255,255,0.74)",
+                        borderColor: "rgba(168,121,53,0.28)",
+                        color: "#7A581F",
+                        boxShadow: "0 8px 18px rgba(61,48,37,0.10), inset 0 1px 0 rgba(255,255,255,0.86)",
                       }
-                    : undefined
+                    : !featured
+                      ? {
+                          borderColor: "transparent",
+                        }
+                      : undefined
                 }
               >
                 {featured ? (
@@ -114,7 +120,7 @@ export default function MobileBottomNav() {
                 className={`relative z-10 leading-none ${
                   featured
                     ? "mt-0.5 text-[8px] font-medium tracking-[0.04em] text-[#3D3025]"
-                    : "text-[8px] tracking-[0.04em]"
+                    : "text-[8px] tracking-[0.035em]"
                 }`}
               >
                 {item.label}
@@ -126,21 +132,27 @@ export default function MobileBottomNav() {
           const itemClass =
               featured
               ? "relative isolate -mt-4 flex min-h-[62px] flex-col items-center justify-end gap-1 rounded-[20px] px-1 transition-colors"
-              : "relative isolate flex min-h-[46px] flex-col items-center justify-center gap-1 overflow-hidden rounded-[18px] px-1 transition-colors";
+              : "relative isolate flex min-h-[49px] flex-col items-center justify-center gap-1 overflow-hidden rounded-[18px] px-1 transition-colors";
           const activeBackground = active && !featured ? (
             <motion.span
               layoutId="mobile-bottom-nav-active"
-              className="absolute inset-0 rounded-[20px]"
+              className="absolute inset-0 rounded-[18px]"
               style={{
-                background: "linear-gradient(135deg, rgba(168,121,53,0.18), rgba(255,249,239,0.56))",
-                border: "1px solid rgba(168,121,53,0.22)",
+                background: "linear-gradient(180deg, rgba(255,255,255,0.92), rgba(245,235,219,0.82))",
+                border: "1px solid rgba(168,121,53,0.24)",
+                boxShadow: "0 10px 22px rgba(61,48,37,0.12), inset 0 1px 0 rgba(255,255,255,0.92)",
               }}
               transition={{ type: "spring", stiffness: 480, damping: 38 }}
-            />
+            >
+              <span
+                className="absolute left-1/2 top-1 h-1 w-4 -translate-x-1/2 rounded-full"
+                style={{ background: "linear-gradient(90deg, #D8C08A, #A87935)" }}
+              />
+            </motion.span>
           ) : null;
           const itemStyle = active
             ? {
-                color: "#3D3025",
+                color: "#2E261E",
               }
             : {
                 background: featured ? "transparent" : "rgba(255,255,255,0.18)",

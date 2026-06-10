@@ -807,37 +807,7 @@ function SummerCollectionSection({
           </div>
         </motion.div>
 
-        <motion.div variants={fadeUp} className="flex min-w-0 flex-col justify-between gap-7">
-          <div>
-            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-[#171513] text-[#D8C08A] sm:mb-5 sm:h-12 sm:w-12">
-              <Sparkles className="h-[1.125rem] w-[1.125rem] sm:h-5 sm:w-5" strokeWidth={1.5} />
-            </div>
-            <p className="text-[10px] uppercase tracking-[0.18em] text-[#725D2C] sm:text-xs">Luxury summer collection</p>
-            <h2 className="mt-3 max-w-2xl font-serif text-[2.2rem] font-light leading-[1.02] text-[#171513] sm:mt-4 sm:text-6xl lg:text-7xl">
-              Explore the full outfit by touch.
-            </h2>
-            <p className="mt-4 max-w-xl text-sm leading-6 text-[#5A5650] sm:mt-5 sm:text-base sm:leading-7">
-              {activeSlide.copy}
-            </p>
-
-            <div className="mt-5 grid gap-3 sm:mt-7 sm:grid-cols-2">
-              <div className="rounded-lg border border-[#D5D1C8] bg-white p-4 sm:p-5">
-                <p className="text-[10px] uppercase tracking-[0.2em] text-[#725D2C]">Active outfit price</p>
-                <p className="mt-2 font-serif text-3xl font-light leading-none text-[#171513] sm:mt-3 sm:text-4xl">
-                  EGP {formatPrice(activeSlide.offerPrice)}
-                </p>
-                <p className="mt-2 text-sm text-[#69645E]">Updates with the selected outfit slide.</p>
-              </div>
-              <div className="rounded-lg border border-[#D5D1C8] bg-[#171513] p-4 text-[#F8F7F2] sm:p-5">
-                <p className="text-[10px] uppercase tracking-[0.2em] text-[#D8C08A]">Included pieces</p>
-                <p className="mt-2 font-serif text-3xl font-light leading-none sm:mt-3 sm:text-4xl">
-                  {activeSlide.products.length} items
-                </p>
-                <p className="mt-2 text-sm text-[#C9C5B8]">{activeSlide.itemSummary}</p>
-              </div>
-            </div>
-          </div>
-
+        <motion.div variants={fadeUp} className="flex min-w-0 flex-col justify-end gap-7">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={`products-${activeSlide.id}`}
@@ -1190,6 +1160,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
   const [mobileActiveIndex, setMobileActiveIndex] = useState(0);
   const [freshDropActiveIndex, setFreshDropActiveIndex] = useState(0);
   const [showOpeningIntro, setShowOpeningIntro] = useState(true);
+  const [railPeekEnabled, setRailPeekEnabled] = useState(false);
   const [, startTransition] = useTransition();
   const products = initialProducts;
 
@@ -1314,6 +1285,23 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
       if (mobileScrollFrameRef.current !== null) {
         window.cancelAnimationFrame(mobileScrollFrameRef.current);
       }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+
+    const mobileQuery = window.matchMedia("(max-width: 1023px)");
+    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const syncPeekState = () => setRailPeekEnabled(mobileQuery.matches && !reducedMotionQuery.matches);
+
+    syncPeekState();
+    mobileQuery.addEventListener("change", syncPeekState);
+    reducedMotionQuery.addEventListener("change", syncPeekState);
+
+    return () => {
+      mobileQuery.removeEventListener("change", syncPeekState);
+      reducedMotionQuery.removeEventListener("change", syncPeekState);
     };
   }, []);
 
@@ -1618,9 +1606,13 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
                               exit={{ opacity: 0, x: -16 }}
                               transition={{ duration: 0.34, ease: easeOut }}
                             >
-                              <div
+                              <motion.div
                                 ref={mobileCarouselRef}
                                 onScroll={handleMobileCarouselScroll}
+                                data-testid="mobile-mood-product-rail"
+                                whileInView={railPeekEnabled ? { x: [0, -58, 0] } : undefined}
+                                viewport={{ once: true, amount: 0.58 }}
+                                transition={{ x: { delay: 0.46, duration: 1.15, ease: [0.22, 1, 0.36, 1] } }}
                                 className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
                               >
                                 {filteredMoodProducts.map((product, index) => (
@@ -1640,7 +1632,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
                                     <ProductCard product={product} disableMediaCarousel className="h-full" />
                                   </motion.div>
                                 ))}
-                              </div>
+                              </motion.div>
                             </motion.div>
                           </AnimatePresence>
                         </div>
@@ -1901,8 +1893,15 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.34, ease: easeOut }}
+                transition={{
+                  opacity: { duration: 0.34, ease: easeOut },
+                  y: { duration: 0.34, ease: easeOut },
+                  x: { delay: 0.46, duration: 1.15, ease: [0.22, 1, 0.36, 1] },
+                }}
                 onScroll={handleFreshDropScroll}
+                data-testid="fresh-drop-product-rail"
+                whileInView={railPeekEnabled ? { x: [0, -58, 0] } : undefined}
+                viewport={{ once: true, amount: 0.52 }}
                 className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 [scrollbar-width:none] sm:px-6 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0 xl:grid-cols-4"
               >
                 {freshDropProducts.map((product, index) => (

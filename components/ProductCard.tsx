@@ -73,6 +73,22 @@ const slideVariants = {
   exit: (direction: number) => ({ x: direction * -24, opacity: 0 }),
 };
 
+function getMediaZoom(productName: string, productCategory?: string, image?: string) {
+  const subject = `${productName} ${productCategory ?? ""} ${image ?? ""}`
+    .replace(/[_-]+/g, " ")
+    .toLowerCase();
+
+  if (/\b(pants|denim|jeans|trouser|trousers|chino|cargo|baggy|korean)\b/.test(subject)) {
+    return 1.18;
+  }
+
+  if (/\b(sneaker|sneakers|shoe|shoes|loafer|loafers|boot|boots|lace ups)\b/.test(subject)) {
+    return 1.1;
+  }
+
+  return 1.02;
+}
+
 interface ProductCardMediaProps {
   galleryEnabled: boolean;
   compact: boolean;
@@ -81,6 +97,7 @@ interface ProductCardMediaProps {
   direction: number;
   count: number;
   productName: string;
+  productCategory?: string;
   badge?: ExtendedProduct["badge"];
   discount?: number;
   stock?: number;
@@ -107,6 +124,7 @@ const ProductCardMedia = memo(function ProductCardMedia({
   direction,
   count,
   productName,
+  productCategory,
   badge,
   discount,
   stock,
@@ -124,6 +142,8 @@ const ProductCardMedia = memo(function ProductCardMedia({
   onMouseEnter,
   onToggleWishlist,
 }: ProductCardMediaProps) {
+  const mediaZoom = getMediaZoom(productName, productCategory, images[current]);
+
   return (
     <div
       className="relative z-10 overflow-hidden"
@@ -152,7 +172,8 @@ const ProductCardMedia = memo(function ProductCardMedia({
               alt={`${productName} — ${current + 1}`}
               fill
               sizes="(max-width:640px) 92vw, (max-width:1024px) 46vw, 25vw"
-              className="object-contain p-3"
+              className="object-contain p-3 transition-transform duration-500 ease-out"
+              style={{ transform: `scale(${mediaZoom})` }}
               draggable={false}
             />
           ) : (
@@ -774,6 +795,7 @@ function ProductCardComponent({
         direction={direction}
         count={count}
         productName={product.name}
+        productCategory={product.category}
         badge={product.badge}
         discount={product.discount}
         stock={product.stock}
