@@ -1,7 +1,6 @@
 "use client";
 
 import NewsletterForm from "@/components/NewsletterForm";
-import CompetitiveAdvantageSection from "@/components/CompetitiveAdvantageSection";
 import ProductCard from "@/components/ProductCard";
 import { showToast } from "@/components/ToastProvider";
 import {
@@ -1820,8 +1819,6 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
           </motion.div>
         </div>
       </motion.section>
-
-      <CompetitiveAdvantageSection />
 
       <motion.section
         variants={sectionReveal}
