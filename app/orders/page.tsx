@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowRight, Calendar, CheckCircle2, Clock, CreditCard, Hash, ShoppingBag } from "lucide-react";
+import { ArrowRight, Calendar, CheckCircle2, Clock, CreditCard, Hash, PackageCheck, ShieldCheck, ShoppingBag, TrendingUp } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -61,8 +61,8 @@ function OrderTimeline({ status }: { status: string }) {
     <div className="mt-4 grid grid-cols-5 gap-1">
       {steps.map((step, index) => (
         <div key={step} className="min-w-0">
-          <div className={`h-1 rounded-full ${index <= activeIndex ? "bg-[#A87935]" : "bg-white/10"}`} />
-          <p className={`mt-2 truncate text-[8px] uppercase tracking-[0.14em] ${index <= activeIndex ? "text-[#A87935]" : "text-white/24"}`}>
+          <div className={`h-1 rounded-full ${index <= activeIndex ? "bg-[#A87935]" : "bg-[#7B6752]/12"}`} />
+          <p className={`mt-2 truncate text-[8px] uppercase tracking-[0.14em] ${index <= activeIndex ? "text-[#A87935]" : "text-[#7B6E60]/58"}`}>
             {step}
           </p>
         </div>
@@ -84,35 +84,35 @@ function OrderCard({ order, index }: { order: any; index: number }) {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -30, scale: 0.97 }}
       transition={{ delay: index * 0.08, duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-      className="relative overflow-hidden rounded-2xl"
+      className="relative overflow-hidden rounded-[22px]"
       style={{
-        background: "linear-gradient(135deg, rgba(255,248,236,0.08) 0%, rgba(255,248,236,0.025) 100%)",
-        backdropFilter: "blur(24px) saturate(160%)",
-        WebkitBackdropFilter: "blur(24px) saturate(160%)",
-        border: "1px solid rgba(255,248,236,0.09)",
-        boxShadow: "0 20px 56px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,248,236,0.14)",
+        background: "linear-gradient(135deg, rgba(255,255,255,0.82) 0%, rgba(255,249,239,0.72) 100%)",
+        backdropFilter: "blur(20px) saturate(145%)",
+        WebkitBackdropFilter: "blur(20px) saturate(145%)",
+        border: "1px solid rgba(123,103,82,0.14)",
+        boxShadow: "0 20px 56px rgba(61,48,37,0.08), inset 0 1px 0 rgba(255,255,255,0.64)",
       }}
     >
       {/* Specular top line */}
       <div className="absolute inset-x-5 top-0 h-px pointer-events-none"
-           style={{ background: "linear-gradient(90deg, transparent, rgba(255,248,236,0.18), transparent)" }} />
+           style={{ background: "linear-gradient(90deg, transparent, rgba(168,121,53,0.22), transparent)" }} />
 
       {/* ── Card header ── */}
       <div className="flex items-start justify-between gap-4 px-4 pt-5 pb-4 sm:px-6 sm:pt-6 sm:pb-5"
-           style={{ borderBottom: "1px solid rgba(255,248,236,0.06)" }}>
+           style={{ borderBottom: "1px solid rgba(123,103,82,0.12)" }}>
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl"
                style={{ background:"linear-gradient(135deg, rgba(168,121,53,0.14), rgba(168,121,53,0.04))", border:"1px solid rgba(168,121,53,0.2)" }}>
             <ShoppingBag strokeWidth={1.3} className="w-4 h-4" style={{ color:"#A87935" }} />
           </div>
           <div>
-            <p className="text-white/20 text-[9px] tracking-[0.35em] uppercase mb-0.5"
+            <p className="text-[#7B6E60] text-[9px] tracking-[0.35em] uppercase mb-0.5"
                style={{ fontFamily:"'Jost', sans-serif" }}>
               Order
             </p>
             <div className="flex items-center gap-2">
-              <Hash strokeWidth={1.2} className="w-3 h-3 text-white/25" />
-              <p className="text-white/40 text-[10px] tracking-[0.2em] font-light"
+              <Hash strokeWidth={1.2} className="w-3 h-3 text-[#A87935]" />
+              <p className="text-[#3D3025]/70 text-[10px] tracking-[0.2em] font-light"
                  style={{ fontFamily:"'Jost', sans-serif" }}>
                 {String(order._id).slice(-8).toUpperCase()}
               </p>
@@ -124,8 +124,8 @@ function OrderCard({ order, index }: { order: any; index: number }) {
           <StatusBadge status={order.status} />
           <PaymentBadge status={order.paymentStatus} />
           <div className="flex items-center gap-1.5">
-            <Calendar strokeWidth={1.2} className="w-3 h-3 text-white/20" />
-            <p className="text-white/25 text-[9px] tracking-widest"
+            <Calendar strokeWidth={1.2} className="w-3 h-3 text-[#A87935]" />
+            <p className="text-[#7B6E60] text-[9px] tracking-widest"
                style={{ fontFamily:"'Jost', sans-serif" }}>
               {new Date(order.createdAt).toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" })}
             </p>
@@ -138,10 +138,9 @@ function OrderCard({ order, index }: { order: any; index: number }) {
         {items.map((item: any, i: number) => (
           <div
             key={`${order._id}-${item.productId||item._id||i}-${i}`}
-            className="flex items-center gap-4 p-3 rounded-xl"
+            className="flex items-center gap-3 rounded-[16px] border border-[#7B6752]/10 bg-white/62 p-3 sm:gap-4"
             style={{
-              background: "rgba(255,248,236,0.03)",
-              border: "1px solid rgba(255,248,236,0.05)",
+              boxShadow: "0 10px 28px rgba(61,48,37,0.04)",
             }}
           >
             {/* Thumbnail */}
@@ -153,19 +152,19 @@ function OrderCard({ order, index }: { order: any; index: number }) {
             )}
 
             <div className="flex-1 min-w-0">
-              <p className="text-white/65 font-light truncate"
+              <p className="text-[#3D3025] font-light truncate"
                  style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"0.95rem", letterSpacing:"0.05em" }}>
                 {item.name}
               </p>
               <div className="mt-0.5 flex flex-wrap items-center gap-1">
                 {item.category && (
-                  <p className="text-white/20 text-[9px] tracking-[0.25em] uppercase"
+                  <p className="text-[#7B6E60] text-[9px] tracking-[0.25em] uppercase"
                      style={{ fontFamily:"'Jost', sans-serif" }}>
                     {item.category}
                   </p>
                 )}
                 {(item.size || item.color) && (
-                  <p className="text-white/30 text-[9px] tracking-[0.22em] uppercase"
+                  <p className="text-[#7B6E60]/78 text-[9px] tracking-[0.22em] uppercase"
                      style={{ fontFamily:"'Jost', sans-serif" }}>
                     {item.size && <> · Size {item.size}</>}
                     {item.color && <> · Color {item.color}</>}
@@ -177,15 +176,15 @@ function OrderCard({ order, index }: { order: any; index: number }) {
             <div className="flex items-center gap-3 shrink-0">
               {/* Qty pill */}
               <div className="px-2.5 py-1 rounded-full"
-                   style={{ background:"rgba(255,248,236,0.06)", border:"1px solid rgba(255,248,236,0.08)" }}>
-                <p className="text-white/35 text-[9px] tracking-[0.2em] font-light"
+                   style={{ background:"rgba(168,121,53,0.08)", border:"1px solid rgba(168,121,53,0.14)" }}>
+                <p className="text-[#7A581F] text-[9px] tracking-[0.2em] font-light"
                    style={{ fontFamily:"'Jost', sans-serif" }}>
                   ×{item.quantity ?? 1}
                 </p>
               </div>
               {/* Item price */}
               {item.price && (
-                <p className="text-white/40 text-xs font-light"
+                <p className="text-[#A87935] text-xs font-light"
                    style={{ fontFamily:"'Cormorant Garamond', serif", letterSpacing:"0.06em" }}>
                   EGP {(item.price * (item.quantity ?? 1)).toLocaleString()}
                 </p>
@@ -200,23 +199,23 @@ function OrderCard({ order, index }: { order: any; index: number }) {
 
       {/* ── Card footer ── */}
       <div className="flex flex-col items-start justify-between gap-4 px-4 pb-5 pt-3 sm:flex-row sm:items-center sm:px-6 sm:pb-6"
-           style={{ borderTop: "1px solid rgba(255,248,236,0.06)" }}>
+           style={{ borderTop: "1px solid rgba(123,103,82,0.12)" }}>
 
         {/* Left — qty + total */}
         <div className="flex items-center gap-5">
           <div>
-            <p className="text-white/20 text-[9px] tracking-[0.3em] uppercase mb-0.5"
+            <p className="text-[#7B6E60] text-[9px] tracking-[0.3em] uppercase mb-0.5"
                style={{ fontFamily:"'Jost', sans-serif" }}>
               Items
             </p>
-            <p className="text-white/50 text-sm font-light"
+            <p className="text-[#3D3025] text-sm font-light"
                style={{ fontFamily:"'Cormorant Garamond', serif", letterSpacing:"0.06em" }}>
               {totalQty} {totalQty === 1 ? "Piece" : "Pieces"}
             </p>
           </div>
-          <div className="w-px h-8" style={{ background:"rgba(255,248,236,0.07)" }} />
+          <div className="w-px h-8" style={{ background:"rgba(123,103,82,0.14)" }} />
           <div>
-            <p className="text-white/20 text-[9px] tracking-[0.3em] uppercase mb-0.5"
+            <p className="text-[#7B6E60] text-[9px] tracking-[0.3em] uppercase mb-0.5"
                style={{ fontFamily:"'Jost', sans-serif" }}>
               Total
             </p>
@@ -231,7 +230,7 @@ function OrderCard({ order, index }: { order: any; index: number }) {
         <div className="flex flex-col gap-2 sm:flex-row">
           <Link
             href={`/orders/${encodeURIComponent(order._id)}`}
-            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full border border-white/10 px-5 py-3 text-[10px] uppercase tracking-[0.24em] text-white/60 transition-colors hover:text-white"
+            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center gap-2 rounded-full border border-[#A87935]/22 bg-[#A87935]/8 px-5 py-3 text-[10px] uppercase tracking-[0.24em] text-[#7A581F] transition-colors hover:border-[#A87935]/38"
           >
             Details
             <ArrowRight strokeWidth={1.3} className="w-3.5 h-3.5" />
@@ -274,11 +273,20 @@ function OrdersContent() {
     return () => controller.abort();
   }, [orderId]);
 
+  const totalSpend = orders.reduce((sum, order) => sum + Number(order.totalPrice ?? order.total ?? 0), 0);
+  const paidCount = orders.filter((order) => order.paymentStatus === "paid" || order.status === "completed").length;
+  const pendingCount = Math.max(0, orders.length - paidCount);
+  const latestOrder = [...orders].sort((a, b) => {
+    const aTime = new Date(a.createdAt ?? 0).getTime();
+    const bTime = new Date(b.createdAt ?? 0).getTime();
+    return bTime - aTime;
+  })[0];
+
   /* ── Loading ── */
   if (loading) return (
     <div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center">
       <motion.p animate={{ opacity:[0.3,0.7,0.3] }} transition={{ repeat:Infinity, duration:1.8 }}
-        className="text-white/30 text-[10px] tracking-[0.4em] uppercase"
+        className="text-[#A87935] text-[10px] tracking-[0.4em] uppercase"
         style={{ fontFamily:"'Jost', sans-serif" }}>
         Loading Orders…
       </motion.p>
@@ -292,9 +300,9 @@ function OrdersContent() {
         ::selection { background: #A87935; color: #F5F1E8; }
       `}</style>
 
-      <div className="relative min-h-screen bg-[#F5F1E8] text-white" style={{ fontFamily:"'Jost', sans-serif" }}>
+      <div className="relative min-h-screen bg-[#F5F1E8] text-[#3D3025]" style={{ fontFamily:"'Jost', sans-serif" }}>
 
-        <div className="relative z-10 mx-auto max-w-4xl px-4 pt-16 pb-16 sm:px-6 sm:pt-24 sm:pb-24 md:px-10 md:pb-32">
+        <div className="relative z-10 mx-auto max-w-5xl px-4 pb-[calc(7.25rem+env(safe-area-inset-bottom))] pt-16 sm:px-6 sm:pt-24 sm:pb-24 md:px-10 md:pb-32">
           {error ? (
             <div
               className="mb-5 rounded-2xl px-4 py-3"
@@ -308,9 +316,9 @@ function OrdersContent() {
 
           {/* ── HEADER ── */}
           <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.8 }} className="mb-6 sm:mb-8 md:mb-10">
-            <p className="text-white/20 text-[9px] tracking-[0.45em] uppercase mb-4">Account</p>
+            <p className="text-[#A87935] text-[9px] tracking-[0.45em] uppercase mb-4">Account</p>
             <div className="flex items-end justify-between gap-4 flex-wrap">
-              <h1 className="font-light text-white leading-none"
+              <h1 className="font-light text-[#3D3025] leading-none"
                   style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"clamp(2.5rem, 6vw, 4.5rem)", letterSpacing:"0.04em" }}>
                 Your <em style={{ color:"#A87935", fontStyle:"italic" }}>Orders</em>
               </h1>
@@ -326,19 +334,42 @@ function OrdersContent() {
             <div className="mt-5 h-px" style={{ background:"linear-gradient(90deg, rgba(168,121,53,0.4), transparent)" }} />
           </motion.div>
 
+          {orders.length > 0 ? (
+            <section className="mb-5 grid gap-3 rounded-[22px] border border-[#7B6752]/12 bg-white/68 p-4 shadow-[0_18px_48px_rgba(61,48,37,0.07)] backdrop-blur-2xl sm:grid-cols-4 sm:p-5">
+              {[
+                { label: "Orders", value: String(orders.length), detail: latestOrder ? "Recent activity loaded" : "No recent order", icon: ShoppingBag },
+                { label: "Paid", value: String(paidCount), detail: pendingCount ? `${pendingCount} pending` : "All clear", icon: ShieldCheck },
+                { label: "Spend", value: `EGP ${totalSpend.toLocaleString()}`, detail: "Across visible orders", icon: TrendingUp },
+                { label: "Support", value: "Ready", detail: "Details available per order", icon: PackageCheck },
+              ].map((stat) => {
+                const Icon = stat.icon;
+                return (
+                  <div key={stat.label} className="rounded-[18px] border border-[#7B6752]/10 bg-[#FFF9EF]/68 p-3">
+                    <div className="mb-3 flex items-center justify-between gap-3">
+                      <span className="text-[8px] uppercase tracking-[0.22em] text-[#7B6E60]">{stat.label}</span>
+                      <Icon className="h-4 w-4 text-[#A87935]" strokeWidth={1.25} />
+                    </div>
+                    <p className="truncate font-serif text-[1.4rem] font-light leading-none text-[#3D3025]">{stat.value}</p>
+                    <p className="mt-2 text-xs text-[#6F6254]">{stat.detail}</p>
+                  </div>
+                );
+              })}
+            </section>
+          ) : null}
+
           {/* ── EMPTY STATE ── */}
           {orders.length === 0 ? (
             <motion.div initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.8 }}
               className="flex flex-col items-center justify-center text-center py-28">
               <div className="w-16 h-16 rounded-3xl flex items-center justify-center mb-6"
-                   style={{ background:"linear-gradient(135deg, rgba(255,248,236,0.08), rgba(255,248,236,0.02))", border:"1px solid rgba(255,248,236,0.09)" }}>
-                <ShoppingBag strokeWidth={1} className="w-7 h-7 text-white/20" />
+                   style={{ background:"rgba(255,249,239,0.72)", border:"1px solid rgba(123,103,82,0.12)" }}>
+                <ShoppingBag strokeWidth={1} className="w-7 h-7 text-[#A87935]" />
               </div>
-              <h2 className="font-light text-white mb-3"
+              <h2 className="font-light text-[#3D3025] mb-3"
                   style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"1.8rem", letterSpacing:"0.06em" }}>
                 No orders <em style={{ color:"#A87935" }}>yet</em>
               </h2>
-              <p className="text-white/25 text-sm font-light tracking-widest mb-10 max-w-xs">
+              <p className="text-[#6F6254] text-sm font-light tracking-widest mb-10 max-w-xs">
                 You haven't made any purchases. Explore the collection and find your favorites.
               </p>
               <motion.button

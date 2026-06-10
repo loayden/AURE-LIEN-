@@ -4,10 +4,11 @@ import AdminBanner from "@/components/admin/AdminBanner";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Building2, Download, LayoutDashboard, Package, PackageCheck, Plus, ShoppingBag, UserCog, Users } from "lucide-react";
+import { BarChart3, Building2, Download, LayoutDashboard, Package, PackageCheck, Plus, ShoppingBag, UserCog, Users } from "lucide-react";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/admin/quality", label: "Quality", icon: BarChart3 },
   { href: "/admin/profile", label: "Profile", icon: UserCog },
   { href: "/admin/users", label: "Users", icon: Users },
   { href: "/admin/products", label: "Products", icon: Package },

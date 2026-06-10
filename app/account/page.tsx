@@ -19,7 +19,9 @@ import {
   Save,
   ShieldCheck,
   ShoppingBag,
+  Sparkles,
   Store,
+  TrendingUp,
   User2,
   Wallet,
   X,
@@ -272,6 +274,95 @@ function getMissingProfileFields(user: AccountUser | null) {
       if (field === "postalCode") return "postal code";
       return String(field);
     });
+}
+
+function getCustomerActions({
+  deliveryReady,
+  hasOrders,
+  hasWishlist,
+  hasPartnerProfile,
+  missingFields,
+}: {
+  deliveryReady: boolean;
+  hasOrders: boolean;
+  hasWishlist: boolean;
+  hasPartnerProfile: boolean;
+  missingFields: string[];
+}) {
+  const actions = [
+    !deliveryReady
+      ? {
+          title: "Finish checkout profile",
+          copy: missingFields.length
+            ? `Add ${missingFields.slice(0, 2).join(" and ")} for faster checkout.`
+            : "Complete delivery details before your next order.",
+          href: "#profile-details",
+          label: "Edit profile",
+          icon: ShieldCheck,
+          priority: "High",
+        }
+      : null,
+    !hasWishlist
+      ? {
+          title: "Build a shortlist",
+          copy: "Save pieces before comparing outfits, sizes, and prices.",
+          href: "/shop",
+          label: "Browse shop",
+          icon: Heart,
+          priority: "Style",
+        }
+      : {
+          title: "Review saved pieces",
+          copy: "Turn wishlist intent into a cleaner outfit decision.",
+          href: "/wishlist",
+          label: "Open wishlist",
+          icon: Heart,
+          priority: "Ready",
+        },
+    !hasOrders
+      ? {
+          title: "Make first order easier",
+          copy: "Use filters and intent routes to choose faster.",
+          href: "/shop",
+          label: "Open shop",
+          icon: Sparkles,
+          priority: "Start",
+        }
+      : {
+          title: "Track order progress",
+          copy: "Check payment, delivery, and order history from one place.",
+          href: "/orders",
+          label: "View orders",
+          icon: Package2,
+          priority: "Track",
+        },
+    hasPartnerProfile
+      ? {
+          title: "Manage partner profile",
+          copy: "Keep boutique uploads, payout readiness, and review status current.",
+          href: "/partners/profile",
+          label: "Partner area",
+          icon: Store,
+          priority: "Partner",
+        }
+      : {
+          title: "Optional boutique path",
+          copy: "Apply only if you want to list products on BOUT.",
+          href: "/boutiques",
+          label: "Explore partners",
+          icon: Store,
+          priority: "Optional",
+        },
+  ];
+
+  return actions.filter(Boolean) as Array<{
+    title: string;
+    copy: string;
+    href: string;
+    label: string;
+    icon: typeof ShieldCheck;
+    priority: string;
+  }>;
 }
 
 function StatusPill({ order }: { order?: AccountOrder }) {
@@ -598,6 +689,20 @@ export default function AccountPage() {
     },
   ];
   const stats = isPartnerProfile ? partnerProfileCards : customerStats;
+  const customerActions = getCustomerActions({
+    deliveryReady,
+    hasOrders: orders.length > 0,
+    hasWishlist: wishlistCount > 0,
+    hasPartnerProfile,
+    missingFields,
+  });
+  const customerQualityScore = Math.min(
+    100,
+    profileCompletion +
+      (orders.length > 0 ? 10 : 0) +
+      (wishlistCount > 0 ? 8 : 0) +
+      (deliveryReady ? 12 : 0)
+  );
 
   return (
     <main className="liquid-page mobile-comfort px-3 pb-[calc(7.25rem+env(safe-area-inset-bottom))] pt-14 sm:px-6 sm:pb-20 sm:pt-24 md:px-10">
@@ -717,8 +822,66 @@ export default function AccountPage() {
           })}
         </div>
 
+        <section className="mb-4 rounded-[20px] border border-[#7B6752]/12 bg-white/68 p-4 shadow-[0_18px_48px_rgba(61,48,37,0.07)] backdrop-blur-2xl sm:mb-5 sm:rounded-[24px] sm:p-6">
+          <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="eyebrow mb-2">Next Best Actions</p>
+              <h2 className="title-display text-[1.85rem] sm:text-[2.45rem]">
+                Shopping <em className="gold-italic">Command</em>
+              </h2>
+              <p className="body-copy mt-3 max-w-2xl">
+                BOUT uses your current account state to make the next step obvious: complete profile details, review saved pieces, track orders, or continue shopping.
+              </p>
+            </div>
+
+            <div className="rounded-[18px] border border-[#A87935]/18 bg-[#FFF9EF]/72 p-4 lg:min-w-[15rem]">
+              <div className="mb-3 flex items-center justify-between gap-4">
+                <span className="text-[9px] uppercase tracking-[0.24em] text-[#7A581F]">Customer Quality</span>
+                <TrendingUp className="h-4 w-4 text-[#A87935]" strokeWidth={1.35} />
+              </div>
+              <p className="font-serif text-[2rem] font-light leading-none text-[#3D3025]">{customerQualityScore}/100</p>
+              <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#7B6752]/12">
+                <motion.div
+                  animate={{ width: `${customerQualityScore}%` }}
+                  className="h-full rounded-full bg-[#A87935]"
+                  initial={{ width: 0 }}
+                  transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {customerActions.map((action) => {
+              const Icon = action.icon;
+              return (
+                <Link
+                  key={action.title}
+                  href={action.href}
+                  className="group rounded-[18px] border border-[#7B6752]/12 bg-[#FDFBF7]/74 p-4 transition hover:-translate-y-0.5 hover:border-[#A87935]/28 hover:bg-[#FFF9EF]"
+                >
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <span className="flex h-11 w-11 items-center justify-center rounded-[14px] border border-[#A87935]/18 bg-white/62 text-[#A87935]">
+                      <Icon className="h-5 w-5" strokeWidth={1.25} />
+                    </span>
+                    <span className="rounded-full border border-[#A87935]/18 bg-[#A87935]/10 px-2 py-1 text-[8px] uppercase tracking-[0.18em] text-[#7A581F]">
+                      {action.priority}
+                    </span>
+                  </div>
+                  <h3 className="font-serif text-[1.4rem] font-light leading-none text-[#3D3025]">{action.title}</h3>
+                  <p className="mt-3 min-h-[3.1rem] text-[0.76rem] leading-6 text-[#6F6254]">{action.copy}</p>
+                  <span className="mt-4 inline-flex items-center gap-2 text-[9px] uppercase tracking-[0.2em] text-[#7A581F]">
+                    {action.label}
+                    <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" strokeWidth={1.35} />
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+
         <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(20rem,0.65fr)]">
-          <section className="rounded-[20px] border border-[#7B6752]/12 bg-white/68 p-4 shadow-[0_18px_48px_rgba(61,48,37,0.07)] backdrop-blur-2xl sm:rounded-[24px] sm:p-6">
+          <section id="profile-details" className="rounded-[20px] border border-[#7B6752]/12 bg-white/68 p-4 shadow-[0_18px_48px_rgba(61,48,37,0.07)] backdrop-blur-2xl sm:rounded-[24px] sm:p-6">
             <form
               onSubmit={(event) => {
                 event.preventDefault();

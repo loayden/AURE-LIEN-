@@ -211,9 +211,6 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
                 sizes="(max-width:640px) 82vw, 400px"
               />
 
-                {/* Overlay gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-
                 {/* Hover magnifier effect */}
                 <motion.div
                   initial={{ opacity: 0 }}
@@ -242,18 +239,6 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
             </motion.div>
           ))}
         </div>
-
-        {/* Fade overlay left */}
-        <div
-          className="pointer-events-none absolute left-0 top-0 bottom-0 z-10 w-8 bg-gradient-to-r from-black to-transparent sm:w-12"
-          style={{ opacity: canScrollLeft ? 1 : 0 }}
-        />
-
-        {/* Fade overlay right */}
-        <div
-          className="pointer-events-none absolute right-0 top-0 bottom-0 z-10 w-8 bg-gradient-to-l from-black to-transparent sm:w-12"
-          style={{ opacity: canScrollRight ? 1 : 0 }}
-        />
       </div>
 
       {/* Thumbnail indicators below */}
@@ -519,7 +504,13 @@ export default function PremiumProductPage() {
   useEffect(() => {
     if (!p || typeof window === "undefined") return;
     const key = "bout:recently-viewed";
-    const existing = JSON.parse(window.localStorage.getItem(key) || "[]") as string[];
+    let existing: string[] = [];
+    try {
+      const parsed = JSON.parse(window.localStorage.getItem(key) || "[]");
+      existing = Array.isArray(parsed) ? parsed.map((item) => String(item)) : [];
+    } catch {
+      existing = [];
+    }
     const next = [p._id, ...existing.filter((item) => item !== p._id)].slice(0, 8);
     window.localStorage.setItem(key, JSON.stringify(next));
 

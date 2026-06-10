@@ -1,9 +1,29 @@
 import type { Product } from "@/lib/types";
 import { withPublicAssetVersion } from "@/lib/publicAsset";
+import { productWhiteBgImages } from "@/lib/generatedProductWhiteBgImages";
 
 export type StockState = "in-stock" | "low-stock" | "sold-out" | "available";
 export type SortValue = "featured" | "newest" | "price-low" | "price-high";
 export type AvailabilityFilter = "all" | StockState;
+export type StyleIntent = "all" | "work" | "weekend" | "night" | "travel" | "gift";
+
+export type ProductConfidence = {
+  stockState: StockState;
+  hasImages: boolean;
+  hasSizes: boolean;
+  hasColors: boolean;
+  hasMaterial: boolean;
+  score: number;
+  badges: string[];
+};
+
+export type ProductConfidenceInput = {
+  images?: unknown[];
+  size?: unknown[];
+  colors?: unknown[];
+  material?: string;
+  stock?: number;
+};
 
 export type CategoryMeta = {
   slug: string;
@@ -212,6 +232,15 @@ export const SUBCATEGORY_META: CategoryMeta[] = [
 
 export const ALL_CATEGORY_META = [...CATEGORY_META, ...SUBCATEGORY_META];
 
+export const STYLE_INTENT_META: { value: StyleIntent; label: string; tokens: string[] }[] = [
+  { value: "all", label: "All intents", tokens: [] },
+  { value: "work", label: "Work", tokens: ["suits", "suit", "shirt", "shirts", "loafers", "lace-ups", "tailored", "formal"] },
+  { value: "weekend", label: "Weekend", tokens: ["knitwear", "knit", "denim", "jeans", "sneakers", "jacket", "casual", "polo"] },
+  { value: "night", label: "Night", tokens: ["black", "leather", "boots", "suit", "outerwear", "jacket", "charcoal", "noir"] },
+  { value: "travel", label: "Travel", tokens: ["pants", "denim", "sneakers", "knit", "jacket", "bag", "wallet", "cargo"] },
+  { value: "gift", label: "Gift", tokens: ["accessories", "belt", "belts", "sunglasses", "bags", "wallets", "wallet"] },
+];
+
 export function getCategoryMeta(slug: string): CategoryMeta | undefined {
   return ALL_CATEGORY_META.find((item) => item.slug === slug);
 }
@@ -224,8 +253,68 @@ export function productHref(product: Pick<Product, "_id">) {
   return `/product/${encodeURIComponent(String(product._id))}`;
 }
 
-export function productImage(product: Pick<Product, "images">) {
-  return product.images?.[0] || "/images/placeholder.svg";
+type ProductImageContext = {
+  name?: string;
+  category?: string;
+  description?: string;
+  material?: string;
+  colors?: unknown[];
+};
+
+const LIGHT_PRODUCT_TOKENS = [
+  "beige",
+  "bone",
+  "cream",
+  "ecru",
+  "ivory",
+  "light",
+  "natural",
+  "off white",
+  "off-white",
+  "pearl",
+  "sand",
+  "stone",
+  "tan",
+  "white",
+];
+
+function productHasLightSurface(image: string, product?: ProductImageContext) {
+  const colorText = (product?.colors ?? [])
+    .map((color) => {
+      if (typeof color === "string") return color;
+      if (color && typeof color === "object" && "name" in color) return String(color.name);
+      return "";
+    })
+    .join(" ");
+  const searchable = [
+    image,
+    product?.name,
+    product?.category,
+    product?.description,
+    product?.material,
+    colorText,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .replace(/[_-]+/g, " ")
+    .toLowerCase();
+
+  return LIGHT_PRODUCT_TOKENS.some((token) => searchable.includes(token));
+}
+
+export function resolveProductDisplayImage(image?: string, product?: ProductImageContext) {
+  if (!image) return "/images/placeholder.svg";
+  if (/^(https?:)?\/\//.test(image) || image.startsWith("data:")) return image;
+
+  const [base] = image.split("?");
+  if (productHasLightSurface(base, product)) return image;
+
+  const cleaned = productWhiteBgImages[base];
+  return cleaned ? withPublicAssetVersion(cleaned) : image;
+}
+
+export function productImage(product: Pick<Product, "images"> & ProductImageContext) {
+  return resolveProductDisplayImage(product.images?.[0], product);
 }
 
 export function formatCategoryLabel(category?: string) {
@@ -251,11 +340,57 @@ export function stockLabel(product: Pick<Product, "stock">) {
   return "Available";
 }
 
+export function getProductConfidence(product: ProductConfidenceInput): ProductConfidence {
+  const confidence = {
+    stockState: stockState(product),
+    hasImages: Array.isArray(product.images) && product.images.some(Boolean),
+    hasSizes: Array.isArray(product.size) && product.size.length > 0,
+    hasColors: Array.isArray(product.colors) && product.colors.length > 0,
+    hasMaterial: Boolean(product.material?.trim()),
+  };
+  const score = [
+    confidence.stockState !== "sold-out",
+    confidence.hasImages,
+    confidence.hasSizes,
+    confidence.hasColors,
+    confidence.hasMaterial,
+  ].filter(Boolean).length;
+
+  const badges = [
+    "Admin-reviewed",
+    "Secure checkout",
+    confidence.stockState === "sold-out" ? null : "Egypt delivery",
+    confidence.hasMaterial ? "Material listed" : null,
+    confidence.hasSizes ? "Fit options" : null,
+    confidence.hasColors ? "Color choice" : null,
+  ].filter(Boolean) as string[];
+
+  return { ...confidence, score, badges };
+}
+
 export function categoryMatches(product: Pick<Product, "category">, slugOrToken: string) {
   const normalized = String(product.category ?? "").toLowerCase();
   const meta = getCategoryMeta(slugOrToken);
   const tokens = meta?.tokens ?? [slugOrToken];
   return tokens.some((token) => normalized.includes(token.toLowerCase()));
+}
+
+export function productMatchesStyleIntent(product: Product, intent: StyleIntent) {
+  if (intent === "all") return true;
+  const meta = STYLE_INTENT_META.find((item) => item.value === intent);
+  if (!meta) return true;
+  const haystack = [
+    product.name,
+    product.description,
+    product.category,
+    product.material,
+    ...(product.colors ?? []),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return meta.tokens.some((token) => haystack.includes(token.toLowerCase()));
 }
 
 export function uniqueProductSizes(products: Product[]) {
@@ -276,6 +411,7 @@ export function filterProducts(
     size?: string;
     color?: string;
     availability?: AvailabilityFilter;
+    styleIntent?: StyleIntent;
   }
 ) {
   const terms = filters.query?.trim().toLowerCase().split(/\s+/).filter(Boolean) ?? [];
@@ -283,9 +419,11 @@ export function filterProducts(
   const size = filters.size?.trim().toLowerCase();
   const color = filters.color?.trim().toLowerCase();
   const availability = filters.availability ?? "all";
+  const styleIntent = filters.styleIntent ?? "all";
 
   return products.filter((product) => {
     if (category && !categoryMatches(product, category)) return false;
+    if (!productMatchesStyleIntent(product, styleIntent)) return false;
     if (filters.minPrice != null && product.price < filters.minPrice) return false;
     if (filters.maxPrice != null && product.price > filters.maxPrice) return false;
     if (size && !(product.size ?? []).some((value) => value.toLowerCase() === size)) return false;

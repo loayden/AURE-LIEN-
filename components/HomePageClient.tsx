@@ -1,6 +1,7 @@
 "use client";
 
 import NewsletterForm from "@/components/NewsletterForm";
+import CompetitiveAdvantageSection from "@/components/CompetitiveAdvantageSection";
 import ProductCard from "@/components/ProductCard";
 import { showToast } from "@/components/ToastProvider";
 import {
@@ -688,13 +689,13 @@ function SummerCollectionSection({
       whileInView="show"
       viewport={{ once: true, amount: 0.18 }}
       data-testid="summer-collection-section"
-      className="border-y border-[#DDDAD2] bg-[#F7F7F4] px-4 pb-10 pt-24 [content-visibility:auto] [contain-intrinsic-size:1040px] sm:px-6 sm:pb-14 sm:pt-28 md:px-10"
+      className="border-y border-[#DDDAD2] bg-[#F7F7F4] px-4 pb-8 pt-16 [content-visibility:auto] [contain-intrinsic-size:1040px] sm:px-6 sm:pb-14 sm:pt-28 md:px-10"
     >
       <div className="mx-auto grid w-full max-w-[92rem] gap-7 lg:grid-cols-[1.08fr_0.92fr] lg:items-stretch">
         <motion.div variants={imageReveal} className="relative min-w-0">
           <div className="relative overflow-hidden rounded-lg border border-[#D5D1C8] bg-[#E9E7E1] shadow-[0_28px_74px_rgba(23,21,19,0.12)]">
             <div
-              className="group relative block aspect-[2/3] min-h-[34rem] cursor-grab overflow-hidden active:cursor-grabbing sm:min-h-[44rem] lg:min-h-[52rem]"
+              className="group relative block aspect-[4/5] min-h-0 cursor-grab overflow-hidden active:cursor-grabbing sm:aspect-[2/3] sm:min-h-[44rem] lg:min-h-[52rem]"
               onMouseDown={handleShowcaseMouseDown}
               onMouseUp={handleShowcaseMouseUp}
               onMouseLeave={() => {
@@ -729,16 +730,16 @@ function SummerCollectionSection({
                   />
                 </motion.div>
               </AnimatePresence>
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(23,21,19,0.02)_0%,rgba(23,21,19,0.08)_48%,rgba(23,21,19,0.54)_100%)]" />
-              <div className="absolute left-4 top-4 rounded-full border border-white/35 bg-white/20 px-3 py-2 text-[10px] uppercase tracking-[0.18em] text-white shadow-[0_12px_34px_rgba(0,0,0,0.18)] backdrop-blur-md sm:left-5 sm:top-5">
+              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(23,21,19,0.02)_0%,rgba(23,21,19,0.06)_46%,rgba(23,21,19,0.62)_100%)]" />
+              <div className="absolute left-3 top-3 rounded-full border border-white/35 bg-white/20 px-2.5 py-1.5 text-[8px] uppercase tracking-[0.16em] text-white shadow-[0_12px_34px_rgba(0,0,0,0.18)] backdrop-blur-md sm:left-5 sm:top-5 sm:px-3 sm:py-2 sm:text-[10px] sm:tracking-[0.18em]">
                 {activeSlide.label}
               </div>
-              <div className="absolute right-4 top-4 flex gap-2 sm:right-5 sm:top-5">
+              <div className="absolute right-3 top-3 flex gap-1.5 sm:right-5 sm:top-5 sm:gap-2">
                 <button
                   type="button"
                   onClick={() => switchByOffset(-1)}
                   aria-label="Previous summer outfit"
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/35 bg-white/20 text-white shadow-[0_12px_34px_rgba(0,0,0,0.16)] backdrop-blur-md transition hover:bg-white/28 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/35 bg-white/20 text-white shadow-[0_12px_34px_rgba(0,0,0,0.16)] backdrop-blur-md transition hover:bg-white/28 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:h-10 sm:w-10"
                 >
                   <ChevronLeft className="h-4 w-4" strokeWidth={1.5} />
                 </button>
@@ -746,26 +747,28 @@ function SummerCollectionSection({
                   type="button"
                   onClick={() => switchByOffset(1)}
                   aria-label="Next summer outfit"
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/35 bg-white/20 text-white shadow-[0_12px_34px_rgba(0,0,0,0.16)] backdrop-blur-md transition hover:bg-white/28 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/35 bg-white/20 text-white shadow-[0_12px_34px_rgba(0,0,0,0.16)] backdrop-blur-md transition hover:bg-white/28 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:h-10 sm:w-10"
                 >
                   <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
                 </button>
               </div>
-              <div className="absolute inset-x-4 bottom-4 max-w-xl text-white sm:inset-x-6 sm:bottom-6">
-                <p className="text-xs uppercase tracking-[0.2em] text-[#D8C08A]">Shop the look</p>
-                <h2 className="mt-3 font-serif text-4xl font-light leading-none text-[#F8F7F2] drop-shadow-[0_3px_18px_rgba(0,0,0,0.36)] sm:text-5xl lg:text-6xl">
+              <div className="absolute inset-x-3 bottom-4 max-w-[15.5rem] text-white sm:inset-x-6 sm:bottom-6 sm:max-w-xl">
+                <p className="text-[9px] uppercase tracking-[0.18em] text-[#D8C08A] sm:text-xs sm:tracking-[0.2em]">Shop the look</p>
+                <h2 className="mt-2 font-serif text-[2rem] font-light leading-[0.98] text-[#F8F7F2] drop-shadow-[0_3px_18px_rgba(0,0,0,0.36)] sm:mt-3 sm:text-5xl lg:text-6xl">
                   {activeSlide.name}
                 </h2>
-                <div className="mt-5 flex flex-wrap items-end gap-3">
-                  <span className="font-serif text-4xl font-light leading-none text-[#F8F7F2] sm:text-5xl">
+                <div className="mt-3 flex flex-wrap items-end gap-2 sm:mt-5 sm:gap-3">
+                  <span className="font-serif text-[1.8rem] font-light leading-none text-[#F8F7F2] sm:text-5xl">
                     EGP {formatPrice(activeSlide.offerPrice)}
                   </span>
-                  <span className="pb-1 text-sm text-white/74 line-through">
-                    EGP {formatPrice(activeSlide.originalTotal)}
-                  </span>
+                  {activeSlide.originalTotal > activeSlide.offerPrice ? (
+                    <span className="pb-0.5 text-xs text-white/74 line-through sm:pb-1 sm:text-sm">
+                      EGP {formatPrice(activeSlide.originalTotal)}
+                    </span>
+                  ) : null}
                 </div>
               </div>
-              <div className="absolute bottom-4 right-4 flex gap-2 sm:bottom-6 sm:right-6">
+              <div className="absolute bottom-6 right-6 hidden gap-2 sm:flex">
                 {showcaseSlides.map((slide, index) => (
                   <button
                     key={slide.id}
@@ -787,12 +790,12 @@ function SummerCollectionSection({
                 href={item.href}
                 aria-label={`Open ${item.name} product details`}
                 data-testid={`summer-hotspot-${item.id}`}
-                className="group/hotspot absolute z-20 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#171513]"
+                className="group/hotspot absolute z-20 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#171513] sm:h-12 sm:w-12"
                 style={{ left: `${item.hotspot.x}%`, top: `${item.hotspot.y}%` }}
               >
-                <span className="absolute h-12 w-12 rounded-full border border-white/40 bg-white/10 shadow-[0_16px_34px_rgba(0,0,0,0.2)] backdrop-blur-md transition duration-300 group-hover/hotspot:scale-110 group-hover/hotspot:bg-white/24" />
-                <span className="absolute h-9 w-9 animate-ping rounded-full border border-white/50 opacity-35" />
-                <span className="relative h-3.5 w-3.5 rounded-full bg-white shadow-[0_0_0_6px_rgba(255,255,255,0.16),0_10px_24px_rgba(0,0,0,0.24)]" />
+                <span className="absolute h-9 w-9 rounded-full border border-white/40 bg-white/10 shadow-[0_16px_34px_rgba(0,0,0,0.2)] backdrop-blur-md transition duration-300 group-hover/hotspot:scale-110 group-hover/hotspot:bg-white/24 sm:h-12 sm:w-12" />
+                <span className="absolute hidden h-9 w-9 animate-ping rounded-full border border-white/50 opacity-35 sm:block" />
+                <span className="relative h-2.5 w-2.5 rounded-full bg-white shadow-[0_0_0_5px_rgba(255,255,255,0.14),0_10px_24px_rgba(0,0,0,0.24)] sm:h-3.5 sm:w-3.5 sm:shadow-[0_0_0_6px_rgba(255,255,255,0.16),0_10px_24px_rgba(0,0,0,0.24)]" />
                 <span className="pointer-events-none absolute left-1/2 top-[calc(100%+0.65rem)] hidden min-w-[15rem] -translate-x-1/2 rounded-lg border border-white/15 bg-[#171513]/90 px-4 py-3 text-left text-[#F8F7F2] shadow-[0_18px_42px_rgba(0,0,0,0.22)] backdrop-blur-xl transition duration-300 group-hover/hotspot:block sm:block sm:translate-y-2 sm:opacity-0 sm:group-hover/hotspot:translate-y-0 sm:group-hover/hotspot:opacity-100">
                   <span className="block text-[10px] uppercase tracking-[0.18em] text-[#D8C08A]">{item.category}</span>
                   <span className="mt-1 block text-sm font-medium">{item.name}</span>
@@ -806,28 +809,28 @@ function SummerCollectionSection({
 
         <motion.div variants={fadeUp} className="flex min-w-0 flex-col justify-between gap-7">
           <div>
-            <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-[#171513] text-[#D8C08A]">
-              <Sparkles className="h-5 w-5" strokeWidth={1.5} />
+            <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-[#171513] text-[#D8C08A] sm:mb-5 sm:h-12 sm:w-12">
+              <Sparkles className="h-[1.125rem] w-[1.125rem] sm:h-5 sm:w-5" strokeWidth={1.5} />
             </div>
-            <p className="text-xs uppercase tracking-[0.18em] text-[#725D2C]">Luxury summer collection</p>
-            <h2 className="mt-4 max-w-2xl font-serif text-5xl font-light leading-none text-[#171513] sm:text-6xl lg:text-7xl">
+            <p className="text-[10px] uppercase tracking-[0.18em] text-[#725D2C] sm:text-xs">Luxury summer collection</p>
+            <h2 className="mt-3 max-w-2xl font-serif text-[2.2rem] font-light leading-[1.02] text-[#171513] sm:mt-4 sm:text-6xl lg:text-7xl">
               Explore the full outfit by touch.
             </h2>
-            <p className="mt-5 max-w-xl text-sm leading-7 text-[#5A5650] sm:text-base">
+            <p className="mt-4 max-w-xl text-sm leading-6 text-[#5A5650] sm:mt-5 sm:text-base sm:leading-7">
               {activeSlide.copy}
             </p>
 
-            <div className="mt-7 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-lg border border-[#D5D1C8] bg-white p-5">
+            <div className="mt-5 grid gap-3 sm:mt-7 sm:grid-cols-2">
+              <div className="rounded-lg border border-[#D5D1C8] bg-white p-4 sm:p-5">
                 <p className="text-[10px] uppercase tracking-[0.2em] text-[#725D2C]">Active outfit price</p>
-                <p className="mt-3 font-serif text-4xl font-light leading-none text-[#171513]">
+                <p className="mt-2 font-serif text-3xl font-light leading-none text-[#171513] sm:mt-3 sm:text-4xl">
                   EGP {formatPrice(activeSlide.offerPrice)}
                 </p>
                 <p className="mt-2 text-sm text-[#69645E]">Updates with the selected outfit slide.</p>
               </div>
-              <div className="rounded-lg border border-[#D5D1C8] bg-[#171513] p-5 text-[#F8F7F2]">
+              <div className="rounded-lg border border-[#D5D1C8] bg-[#171513] p-4 text-[#F8F7F2] sm:p-5">
                 <p className="text-[10px] uppercase tracking-[0.2em] text-[#D8C08A]">Included pieces</p>
-                <p className="mt-3 font-serif text-4xl font-light leading-none">
+                <p className="mt-2 font-serif text-3xl font-light leading-none sm:mt-3 sm:text-4xl">
                   {activeSlide.products.length} items
                 </p>
                 <p className="mt-2 text-sm text-[#C9C5B8]">{activeSlide.itemSummary}</p>
@@ -851,7 +854,10 @@ function SummerCollectionSection({
                   href={item.href}
                   className="group grid min-h-[6rem] grid-cols-[5.5rem_1fr_auto] items-center gap-4 rounded-lg border border-[#D5D1C8] bg-white p-3 text-[#171513] shadow-[0_14px_34px_rgba(23,21,19,0.05)] transition hover:border-[#171513]"
                 >
-                  <span className="relative block aspect-[4/5] overflow-hidden rounded-md bg-[#E9E7E1]">
+                  <span
+                    className="relative block aspect-[4/5] overflow-hidden rounded-md border border-[#EEE8DE] bg-white"
+                    style={{ backgroundColor: "#FFFFFF" }}
+                  >
                     <Image
                       src={item.image}
                       alt={item.name}
@@ -1175,11 +1181,14 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
   const mobileCarouselRef = useRef<HTMLDivElement | null>(null);
   const mobileCarouselCardRefs = useRef<Array<HTMLDivElement | null>>([]);
   const mobileScrollFrameRef = useRef<number | null>(null);
+  const freshDropRailRef = useRef<HTMLDivElement | null>(null);
+  const freshDropCardRefs = useRef<Array<HTMLDivElement | null>>([]);
   const [query, setQuery] = useState("");
   const [addingId, setAddingId] = useState<string | null>(null);
   const [addingSummerSet, setAddingSummerSet] = useState(false);
   const [selectedMood, setSelectedMood] = useState<MoodValue>("all");
   const [mobileActiveIndex, setMobileActiveIndex] = useState(0);
+  const [freshDropActiveIndex, setFreshDropActiveIndex] = useState(0);
   const [showOpeningIntro, setShowOpeningIntro] = useState(true);
   const [, startTransition] = useTransition();
   const products = initialProducts;
@@ -1207,6 +1216,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
   }, [editProducts, filteredMoodProducts]);
 
   const heroRailProducts = useMemo(() => moodProducts.slice(0, 4), [moodProducts]);
+  const freshDropProducts = useMemo(() => moodProducts.slice(0, 8), [moodProducts]);
 
   const categoryCounts = useMemo(() => {
     return new Map(
@@ -1263,6 +1273,31 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
     scheduleMobileActiveSync();
   }, [scheduleMobileActiveSync]);
 
+  const handleFreshDropScroll = useCallback(() => {
+    const container = freshDropRailRef.current;
+    if (!container || freshDropProducts.length === 0) {
+      setFreshDropActiveIndex(0);
+      return;
+    }
+
+    const viewportCenter = container.scrollLeft + container.clientWidth / 2;
+    let nearestIndex = 0;
+    let smallestDistance = Number.POSITIVE_INFINITY;
+
+    for (let index = 0; index < freshDropProducts.length; index += 1) {
+      const card = freshDropCardRefs.current[index];
+      if (!card) continue;
+      const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+      const distance = Math.abs(cardCenter - viewportCenter);
+      if (distance < smallestDistance) {
+        smallestDistance = distance;
+        nearestIndex = index;
+      }
+    }
+
+    setFreshDropActiveIndex((current) => (current === nearestIndex ? current : nearestIndex));
+  }, [freshDropProducts.length]);
+
   const scrollMobileCardIntoView = useCallback((index: number) => {
     const nextIndex = Math.max(0, Math.min(index, filteredMoodProducts.length - 1));
     const nextCard = mobileCarouselCardRefs.current[nextIndex];
@@ -1302,6 +1337,11 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
     mobileCarouselRef.current?.scrollTo({ left: 0, behavior: "auto" });
     scheduleMobileActiveSync();
   }, [filteredMoodProducts.length, scheduleMobileActiveSync, selectedMood]);
+
+  useEffect(() => {
+    setFreshDropActiveIndex(0);
+    freshDropRailRef.current?.scrollTo({ left: 0, behavior: "auto" });
+  }, [freshDropProducts.length, selectedMood]);
 
   const handleSearch = useCallback((event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -1526,33 +1566,9 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
                     transition={{ duration: 1.3, ease: "easeInOut", repeat: Infinity, repeatType: "reverse" }}
                   />
 
-                  <div className="relative z-10 flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-[10px] uppercase tracking-[0.2em] text-[#725D2C]">
-                        {activeMood.label}
-                      </p>
-                      <h2 className="mt-2 font-serif text-[2rem] font-light leading-none text-[#171513]">
-                        Swipe the edit.
-                      </h2>
-                      <p className="mt-3 max-w-[15rem] text-sm leading-6 text-[#5A5650]">
-                        {selectedMood === "all"
-                          ? `Browse all ${filteredMoodProducts.length} pieces in the same card style used on the Shop page.`
-                          : `${filteredMoodProducts.length} ${activeMood.label.toLowerCase()} pieces, ready to swipe left and right.`}
-                      </p>
-                    </div>
-
-                    <Link
-                      href={activeMood.href}
-                      className="inline-flex min-h-[42px] shrink-0 items-center gap-1.5 rounded-full border border-[#D5D1C8] bg-white/80 px-4 text-[10px] uppercase tracking-[0.18em] text-[#171513] shadow-[0_10px_30px_rgba(23,21,19,0.06)] transition hover:border-[#171513]"
-                    >
-                      Open
-                      <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} />
-                    </Link>
-                  </div>
-
                   {filteredMoodProducts.length ? (
                     <>
-                      <div className="relative z-10 mt-5">
+                      <div className="relative z-10">
                         <div className="mb-4 flex items-center gap-3">
                           <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[#E4DED3]">
                             <motion.div
@@ -1566,10 +1582,34 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
                           </span>
                         </div>
 
-                        <div className="relative -mx-4">
-                          <div className="pointer-events-none absolute inset-y-0 left-0 z-20 w-8 bg-[linear-gradient(90deg,rgba(247,244,238,1),rgba(247,244,238,0))]" />
-                          <div className="pointer-events-none absolute inset-y-0 right-0 z-20 w-8 bg-[linear-gradient(270deg,rgba(247,244,238,1),rgba(247,244,238,0))]" />
+                        {filteredMoodProducts.length > 1 ? (
+                          <motion.div
+                            aria-hidden="true"
+                            className="mb-3 flex justify-end"
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.32, ease: easeOut }}
+                          >
+                            <div className="relative flex h-8 w-24 items-center overflow-hidden rounded-full border border-[#D5CDBF] bg-[#F8F7F2] shadow-[0_10px_24px_rgba(23,21,19,0.06)]">
+                              <motion.span
+                                className="absolute left-3 h-2 w-2 rounded-full bg-[#725D2C]"
+                                animate={{ x: [0, 54, 54], opacity: [0.3, 1, 0] }}
+                                transition={{ duration: 1.4, ease: "easeInOut", repeat: Infinity, repeatDelay: 0.28 }}
+                              />
+                              <motion.span
+                                className="ml-auto mr-3 flex items-center gap-0.5 text-[#725D2C]"
+                                animate={{ x: [0, 5, 0] }}
+                                transition={{ duration: 1.4, ease: "easeInOut", repeat: Infinity, repeatDelay: 0.28 }}
+                              >
+                                <ChevronRight className="h-3.5 w-3.5 opacity-35" strokeWidth={1.6} />
+                                <ChevronRight className="h-3.5 w-3.5 opacity-65" strokeWidth={1.6} />
+                                <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.6} />
+                              </motion.span>
+                            </div>
+                          </motion.div>
+                        ) : null}
 
+                        <div className="relative -mx-4">
                           <AnimatePresence mode="wait" initial={false}>
                             <motion.div
                               key={`mobile-carousel-${selectedMood}`}
@@ -1674,7 +1714,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
             variants={imageReveal}
             className="hidden min-w-0 gap-3 sm:grid sm:grid-cols-[1fr_0.45fr]"
           >
-            <Link href="/lookbook" className="group relative min-h-[31rem] overflow-hidden rounded-lg bg-[#171513] lg:min-h-[650px]">
+            <Link href="/shop" className="group relative min-h-[31rem] overflow-hidden rounded-lg bg-[#171513] lg:min-h-[650px]">
               <motion.div
                 className="absolute inset-0"
                 initial={{ scale: 1.035, x: -10 }}
@@ -1703,7 +1743,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
                   The refined daily edit.
                 </p>
                 <span className="mt-5 inline-flex min-h-[44px] items-center gap-2 rounded-full bg-[#F8F7F2] px-5 py-3 text-sm text-[#171513] transition group-hover:bg-[#D8C08A]">
-                  Open lookbook
+                  Shop this edit
                   <AnimatedArrow />
                 </span>
               </div>
@@ -1789,6 +1829,8 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
         </div>
       </motion.section>
 
+      <CompetitiveAdvantageSection />
+
       <motion.section
         variants={sectionReveal}
         initial="hidden"
@@ -1832,26 +1874,61 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
             ))}
           </motion.div>
 
-          <AnimatePresence mode="popLayout">
+          {freshDropProducts.length > 1 ? (
             <motion.div
-              key={selectedMood}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.34, ease: easeOut }}
-              className="-mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-4 [scrollbar-width:none] sm:-mx-6 sm:px-6 lg:mx-0 lg:grid lg:grid-cols-4 xl:grid-cols-4 lg:overflow-visible lg:px-0"
+              variants={fadeUp}
+              className="mb-4 flex items-center gap-3 lg:hidden"
+              aria-label={`Fresh drop product ${freshDropActiveIndex + 1} of ${freshDropProducts.length}`}
             >
-              {moodProducts.slice(0, 8).map((product) => (
-                <ProductTile
-                  key={product._id}
-                  product={product}
-                  actionBusy={addingId === product._id}
-                  onAction={handleProductAction}
-                  dark
+              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/15">
+                <motion.div
+                  className="h-full rounded-full bg-[#D8C08A]"
+                  initial={false}
+                  animate={{ width: `${((freshDropActiveIndex + 1) / freshDropProducts.length) * 100}%` }}
+                  transition={{ duration: 0.22, ease: easeOut }}
                 />
-              ))}
+              </div>
+              <span className="shrink-0 text-[10px] uppercase tracking-[0.18em] text-[#D8C08A]">
+                {freshDropActiveIndex + 1} / {freshDropProducts.length}
+              </span>
             </motion.div>
+          ) : null}
+
+          <AnimatePresence mode="popLayout">
+            <div className="relative -mx-4 sm:-mx-6 lg:mx-0" key={selectedMood}>
+              <motion.div
+                ref={freshDropRailRef}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.34, ease: easeOut }}
+                onScroll={handleFreshDropScroll}
+                className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 [scrollbar-width:none] sm:px-6 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0 xl:grid-cols-4"
+              >
+                {freshDropProducts.map((product, index) => (
+                  <div
+                    key={product._id}
+                    ref={(node) => {
+                      freshDropCardRefs.current[index] = node;
+                    }}
+                    className="w-[74vw] min-w-[16rem] max-w-[18.25rem] shrink-0 snap-start lg:w-auto lg:min-w-0 lg:max-w-none lg:shrink lg:snap-none"
+                  >
+                    <ProductTile
+                      product={product}
+                      actionBusy={addingId === product._id}
+                      onAction={handleProductAction}
+                      dark
+                    />
+                  </div>
+                ))}
+              </motion.div>
+            </div>
           </AnimatePresence>
+          {freshDropProducts.length > 1 ? (
+            <p className="mt-1 text-xs leading-5 text-[#C9C5B8] lg:hidden">
+              Swipe sideways to scan the full drop.
+            </p>
+          ) : null}
         </div>
       </motion.section>
 

@@ -6,9 +6,12 @@ import { showToast } from "@/components/ToastProvider";
 import {
   ALL_CATEGORY_META,
   CATEGORY_META,
+  STYLE_INTENT_META,
   filterProducts,
   formatCategoryLabel,
   formatPrice,
+  getProductConfidence,
+  productHref,
   productImage,
   sortProducts,
   stockLabel,
@@ -16,18 +19,24 @@ import {
   uniqueProductColors,
   uniqueProductSizes,
 } from "@/lib/commerce";
-import type { AvailabilityFilter, SortValue } from "@/lib/commerce";
+import type { AvailabilityFilter, SortValue, StyleIntent } from "@/lib/commerce";
 import { getProductColorHex } from "@/lib/productColors";
 import type { Product } from "@/lib/types";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
+  CheckCircle2,
   ChevronDown,
+  ChevronRight,
   Eye,
   Filter,
+  LayoutGrid,
+  List,
   Search,
   ShoppingBag,
   SlidersHorizontal,
+  Sparkles,
+  Scale,
   X,
 } from "lucide-react";
 import Image from "next/image";
@@ -48,6 +57,9 @@ const AVAILABILITY_OPTIONS: { value: AvailabilityFilter; label: string }[] = [
   { value: "sold-out", label: "Sold Out" },
 ];
 
+const RECENTLY_VIEWED_KEY = "bout:recently-viewed";
+type CardView = "grid" | "list";
+
 type Filters = {
   query: string;
   category: string;
@@ -56,6 +68,7 @@ type Filters = {
   size: string;
   color: string;
   availability: AvailabilityFilter;
+  styleIntent: StyleIntent;
 };
 
 function SelectControl({
@@ -86,6 +99,53 @@ function SelectControl({
         </select>
       </span>
     </label>
+  );
+}
+
+function formatPreview(values?: string[]) {
+  const cleanValues = (values ?? []).filter(Boolean);
+  if (!cleanValues.length) return "not listed";
+  const preview = cleanValues.slice(0, 3).join(", ");
+  return cleanValues.length > 3 ? `${preview} +${cleanValues.length - 3}` : preview;
+}
+
+function ProductListCard({ product }: { product: Product }) {
+  const colors = formatPreview(product.colors);
+  const sizes = formatPreview(product.size);
+
+  return (
+    <Link
+      href={productHref(product)}
+      className="group grid min-h-[10.5rem] grid-cols-[6.45rem_minmax(0,1fr)_2.5rem] items-center gap-3 rounded-[14px] border border-[rgba(123,103,82,0.18)] bg-[#FFF9EF] p-3 text-[#3D3025] shadow-[0_10px_28px_rgba(61,48,37,0.05)] transition hover:border-[rgba(168,121,53,0.34)] hover:bg-white sm:grid-cols-[7.25rem_minmax(0,1fr)_3rem] sm:gap-4 sm:p-4"
+    >
+      <div className="relative aspect-square overflow-hidden rounded-[10px] border border-[rgba(123,103,82,0.10)] bg-[#FFFFFF] p-2">
+        <Image
+          src={productImage(product)}
+          alt={product.name}
+          fill
+          sizes="(max-width: 640px) 104px, 116px"
+          className="object-contain p-1.5 transition duration-500 group-hover:scale-[1.04]"
+        />
+      </div>
+      <div className="min-w-0 self-center">
+        <p className="text-[9px] uppercase tracking-[0.26em] text-[#A87935]">
+          {formatCategoryLabel(product.category)}
+        </p>
+        <h3 className="mt-2 line-clamp-3 font-serif text-[1.45rem] font-light leading-[0.95] tracking-[0.02em] text-[#3D3025] sm:text-[1.6rem]">
+          {product.name}
+        </h3>
+        <p className="mt-3 text-sm font-light tracking-[0.02em] text-[#7A581F]">EGP {formatPrice(product.price)}</p>
+        <p className="mt-1 line-clamp-1 text-xs leading-5 text-[#8A7B6D]">
+          {colors}, {sizes}
+        </p>
+      </div>
+      <span
+        className="flex h-10 w-10 items-center justify-center rounded-full border border-[rgba(123,103,82,0.20)] bg-white/58 text-[#3D3025] transition group-hover:border-[rgba(168,121,53,0.42)] group-hover:text-[#A87935] sm:h-11 sm:w-11"
+        aria-hidden="true"
+      >
+        <ChevronRight className="h-4 w-4" strokeWidth={1.35} />
+      </span>
+    </Link>
   );
 }
 
@@ -190,8 +250,8 @@ function QuickViewModal({
             >
               <X className="h-4 w-4" strokeWidth={1.4} />
             </button>
-            <div className="relative min-h-[22rem] bg-[#F5F1E8] sm:min-h-full">
-              <Image src={productImage(product)} alt={product.name} fill sizes="(max-width: 640px) 100vw, 42vw" className="object-cover" />
+            <div className="relative min-h-[22rem] bg-[#FFFFFF] sm:min-h-full">
+              <Image src={productImage(product)} alt={product.name} fill sizes="(max-width: 640px) 100vw, 42vw" className="object-contain p-5" />
             </div>
             <div className="p-5 sm:p-7">
               <p className="mb-3 text-[10px] uppercase tracking-[0.24em] text-[#A87935]">
@@ -272,6 +332,160 @@ function QuickViewModal({
   );
 }
 
+function readRecentlyViewedIds() {
+  if (typeof window === "undefined") return [];
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(RECENTLY_VIEWED_KEY) || "[]");
+    return Array.isArray(parsed) ? parsed.map((item) => String(item)).filter(Boolean) : [];
+  } catch {
+    return [];
+  }
+}
+
+function CompareDrawer({
+  products,
+  onRemove,
+  onClear,
+}: {
+  products: Product[];
+  onRemove: (productId: string) => void;
+  onClear: () => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+
+  if (!products.length) return null;
+
+  return (
+    <motion.div
+      initial={{ y: 24, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: 24, opacity: 0 }}
+      className="fixed inset-x-3 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-[86] mx-auto flex max-h-[min(74vh,42rem)] max-w-6xl flex-col rounded-[24px] border border-[rgba(123,103,82,0.18)] bg-[#FFF9EF]/96 p-3 shadow-[0_24px_70px_rgba(61,48,37,0.18)] backdrop-blur-2xl sm:bottom-5 sm:max-h-[82vh] sm:p-4"
+      role="region"
+      aria-label="Product comparison"
+    >
+      <div className="sticky top-0 z-10 flex flex-col gap-3 border-b border-[rgba(123,103,82,0.12)] bg-[#FFF9EF]/96 pb-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#4C3A26] text-[#FFF9EF]">
+            <Scale className="h-4 w-4" strokeWidth={1.35} />
+          </span>
+          <div>
+            <p className="eyebrow mb-1">Compare Products</p>
+            <p className="text-sm text-[#6F6254]">{products.length}/3 selected for quick decision support.</p>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setExpanded((current) => !current)}
+            className="inline-flex min-h-[40px] flex-1 items-center justify-center rounded-full border border-[rgba(123,103,82,0.16)] bg-white/72 px-4 text-[10px] uppercase tracking-[0.18em] text-[#5B4E42] sm:flex-none"
+          >
+            {expanded ? "Collapse" : "Compare"}
+          </button>
+          <button
+            type="button"
+            onMouseDown={(event) => {
+              event.preventDefault();
+              onClear();
+            }}
+            onPointerDown={(event) => {
+              event.preventDefault();
+              onClear();
+            }}
+            onTouchStart={(event) => {
+              event.preventDefault();
+              onClear();
+            }}
+            onClick={onClear}
+            className="inline-flex min-h-[40px] flex-1 items-center justify-center rounded-full border border-[rgba(123,103,82,0.16)] bg-white/72 px-4 text-[10px] uppercase tracking-[0.18em] text-[#5B4E42] sm:flex-none"
+          >
+            Clear
+          </button>
+          <button
+            type="button"
+            onMouseDown={(event) => {
+              event.preventDefault();
+              onClear();
+            }}
+            onPointerDown={(event) => {
+              event.preventDefault();
+              onClear();
+            }}
+            onTouchStart={(event) => {
+              event.preventDefault();
+              onClear();
+            }}
+            onClick={onClear}
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[rgba(123,103,82,0.16)] bg-white/72 text-[#5B4E42]"
+            aria-label="Close comparison"
+          >
+            <X className="h-4 w-4" strokeWidth={1.35} />
+          </button>
+        </div>
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+          {products.map((product) => (
+            <div key={product._id} className="flex min-w-[13rem] items-center gap-3 rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-white/64 p-2">
+              <div className="relative h-14 w-12 shrink-0 overflow-hidden rounded-[12px] bg-[#FFFFFF]">
+                <Image src={productImage(product)} alt="" fill sizes="48px" className="object-contain p-1" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm text-[#3D3025]">{product.name}</p>
+                <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-[#A87935]">EGP {formatPrice(product.price)}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => onRemove(product._id)}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#6F6254]"
+                aria-label={`Remove ${product.name} from comparison`}
+              >
+                <X className="h-3.5 w-3.5" strokeWidth={1.4} />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <AnimatePresence>
+          {expanded ? (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="mt-3 grid gap-3 md:grid-cols-3">
+                {products.map((product) => {
+                  const confidence = getProductConfidence(product);
+                  return (
+                    <div key={product._id} className="rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-white/64 p-4">
+                      <p className="text-[10px] uppercase tracking-[0.18em] text-[#A87935]">{formatCategoryLabel(product.category)}</p>
+                      <h3 className="mt-2 line-clamp-2 font-serif text-2xl font-light leading-none text-[#3D3025]">{product.name}</h3>
+                      <div className="mt-4 grid gap-2 text-sm text-[#6F6254]">
+                        <span>Price: EGP {formatPrice(product.price)}</span>
+                        <span>Stock: {stockLabel(product)}</span>
+                        <span>Sizes: {product.size?.length ? product.size.join(", ") : "Not listed"}</span>
+                        <span>Colors: {product.colors?.length ? product.colors.join(", ") : "Not listed"}</span>
+                        <span>Material: {product.material || "Not listed"}</span>
+                        <span>Confidence: {confidence.score}/5</span>
+                      </div>
+                      <Link href={`/product/${encodeURIComponent(product._id)}`} className="mt-4 inline-flex min-h-[40px] items-center justify-center gap-2 rounded-full bg-[#4C3A26] px-4 text-[10px] uppercase tracking-[0.16em] text-[#FFF9EF]">
+                        View Product
+                        <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.3} />
+                      </Link>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function ProductBrowser({
   initialProducts,
   title = "Shop",
@@ -296,6 +510,9 @@ export default function ProductBrowser({
   const [loading, setLoading] = useState(!hasInitialProducts);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [quickView, setQuickView] = useState<Product | null>(null);
+  const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [recentlyViewedIds, setRecentlyViewedIds] = useState<string[]>([]);
+  const [cardView, setCardView] = useState<CardView>("grid");
   const [sort, setSort] = useState<SortValue>("featured");
   const [filters, setFilters] = useState<Filters>({
     query: "",
@@ -305,6 +522,7 @@ export default function ProductBrowser({
     size: "",
     color: "",
     availability: "all",
+    styleIntent: "all",
   });
   const deferredQuery = useDeferredValue(filters.query);
 
@@ -344,6 +562,10 @@ export default function ProductBrowser({
     }
   }, [category]);
 
+  useEffect(() => {
+    setRecentlyViewedIds(readRecentlyViewedIds());
+  }, [products]);
+
   const sizes = useMemo(() => uniqueProductSizes(products), [products]);
   const colors = useMemo(() => uniqueProductColors(products), [products]);
   const visibleProducts = useMemo(() => {
@@ -356,6 +578,21 @@ export default function ProductBrowser({
     });
     return sortProducts(filtered, sort);
   }, [category, deferredQuery, filters, lockCategory, products, sort]);
+  const compareProducts = useMemo(
+    () =>
+      compareIds
+        .map((id) => products.find((product) => product._id === id))
+        .filter((product): product is Product => Boolean(product)),
+    [compareIds, products]
+  );
+  const recentlyViewedProducts = useMemo(
+    () =>
+      recentlyViewedIds
+        .map((id) => products.find((product) => product._id === id))
+        .filter((product): product is Product => Boolean(product))
+        .slice(0, 6),
+    [products, recentlyViewedIds]
+  );
 
   const activeChips = [
     filters.query ? { key: "query", label: `Search: ${filters.query}` } : null,
@@ -367,10 +604,13 @@ export default function ProductBrowser({
     filters.availability !== "all"
       ? { key: "availability", label: AVAILABILITY_OPTIONS.find((item) => item.value === filters.availability)?.label ?? filters.availability }
       : null,
+    filters.styleIntent !== "all"
+      ? { key: "styleIntent", label: STYLE_INTENT_META.find((item) => item.value === filters.styleIntent)?.label ?? filters.styleIntent }
+      : null,
   ].filter(Boolean) as { key: keyof Filters; label: string }[];
 
   function clearFilter(key: keyof Filters) {
-    setFilters((current) => ({ ...current, [key]: key === "availability" ? "all" : "" }));
+    setFilters((current) => ({ ...current, [key]: key === "availability" || key === "styleIntent" ? "all" : "" }));
   }
 
   function resetFilters() {
@@ -382,6 +622,21 @@ export default function ProductBrowser({
       size: "",
       color: "",
       availability: "all",
+      styleIntent: "all",
+    });
+  }
+
+  function toggleCompare(product: Product) {
+    setCompareIds((current) => {
+      if (current.includes(product._id)) {
+        return current.filter((id) => id !== product._id);
+      }
+      if (current.length >= 3) {
+        showToast("Compare up to 3 products at a time.", "error");
+        return current;
+      }
+      showToast("Added to comparison.", "success");
+      return [...current, product._id];
     });
   }
 
@@ -418,6 +673,29 @@ export default function ProductBrowser({
           ]}
         />
       ) : null}
+
+      <div>
+        <div className="mb-3 flex items-center gap-2">
+          <Sparkles className="h-3.5 w-3.5 text-[#A87935]" strokeWidth={1.3} />
+          <p className="text-[9px] uppercase tracking-[0.26em] text-[#7B6E60]">Outfit Intent</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {STYLE_INTENT_META.map((intent) => (
+            <button
+              type="button"
+              key={intent.value}
+              onClick={() => setFilters((current) => ({ ...current, styleIntent: intent.value }))}
+              className={`min-h-[40px] rounded-full border px-3 text-[10px] uppercase tracking-[0.16em] transition ${
+                filters.styleIntent === intent.value
+                  ? "border-[#A87935] bg-[rgba(168,121,53,0.12)] text-[#A87935]"
+                  : "border-[rgba(123,103,82,0.16)] bg-white/60 text-[#6F6254] hover:border-[rgba(168,121,53,0.28)]"
+              }`}
+            >
+              {intent.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="grid grid-cols-2 gap-3">
         <label className="grid gap-2">
@@ -513,29 +791,87 @@ export default function ProductBrowser({
         </section>
       ) : null}
 
-      <section className={`border-b border-[rgba(123,103,82,0.16)] bg-[#F5F1E8]/90 px-4 py-3 backdrop-blur-2xl sm:px-6 md:px-10 ${showIntro ? "" : "mt-[4.75rem] sm:mt-[5.25rem]"}`}>
-        <div className="page-wrap flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-center gap-3">
-            <SlidersHorizontal className="h-4 w-4 text-[#7B6E60]" strokeWidth={1.4} />
-            <span className="text-[10px] uppercase tracking-[0.28em] text-[#6F6254]">
+      <section className={`sticky top-[3.75rem] z-[88] px-3 py-1 sm:top-[4.2rem] sm:px-6 md:px-10 lg:static lg:z-auto lg:border-b lg:border-[rgba(123,103,82,0.13)] lg:bg-[#F7F2E8]/88 lg:py-3 lg:backdrop-blur-2xl ${showIntro ? "" : "mt-[4.75rem] sm:mt-[5.25rem]"}`}>
+        <div className="page-wrap">
+          <div className="flex items-center justify-between gap-1.5 lg:hidden">
+            <div className="flex min-w-0 items-center gap-1.5">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[rgba(123,103,82,0.14)] bg-white/78 text-[#7B6E60] shadow-[0_6px_14px_rgba(61,48,37,0.04)]">
+                <SlidersHorizontal className="h-3.5 w-3.5" strokeWidth={1.4} />
+              </span>
+              <span className="truncate text-[8px] uppercase tracking-[0.16em] text-[#6F6254]">
+                {loading ? "Loading" : `${visibleProducts.length} / ${products.length}`}
+              </span>
+            </div>
+            <div className="flex shrink-0 items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setCardView((current) => (current === "grid" ? "list" : "grid"))}
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-[rgba(123,103,82,0.16)] bg-[#FFFDF8] text-[#4D4035] shadow-[0_6px_14px_rgba(61,48,37,0.05)] transition hover:border-[rgba(168,121,53,0.30)] hover:text-[#3D3025]"
+                aria-label={cardView === "list" ? "Show grid cards" : "Show list cards"}
+                aria-pressed={cardView === "list"}
+              >
+                {cardView === "list" ? <LayoutGrid className="h-3.5 w-3.5" strokeWidth={1.35} /> : <List className="h-3.5 w-3.5" strokeWidth={1.35} />}
+              </button>
+              <button
+                type="button"
+                onClick={() => setMobileFiltersOpen(true)}
+                className="flex h-8 w-8 items-center justify-center rounded-full border border-[rgba(123,103,82,0.16)] bg-white/78 text-[#4D4035] shadow-[0_6px_14px_rgba(61,48,37,0.045)]"
+                aria-label="Open filters"
+              >
+                <Filter className="h-3.5 w-3.5" strokeWidth={1.4} />
+              </button>
+              <label className="relative flex h-8 w-8 items-center justify-center rounded-full border border-[rgba(123,103,82,0.16)] bg-white/78 text-[#4D4035] shadow-[0_6px_14px_rgba(61,48,37,0.045)]">
+                <span className="sr-only">Sort products</span>
+                <ChevronDown className="h-3.5 w-3.5" strokeWidth={1.35} />
+                <select
+                  value={sort}
+                  onChange={(event) => setSort(event.target.value as SortValue)}
+                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                  aria-label="Sort products"
+                >
+                  {SORT_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div className="hidden rounded-[24px] border border-[rgba(123,103,82,0.13)] bg-[rgba(255,249,239,0.78)] p-3 shadow-[0_14px_36px_rgba(61,48,37,0.06)] sm:p-4 lg:flex lg:items-center lg:justify-between lg:gap-4 lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[rgba(123,103,82,0.14)] bg-white/70 text-[#7B6E60]">
+              <SlidersHorizontal className="h-4 w-4" strokeWidth={1.4} />
+            </span>
+            <span className="text-[10px] uppercase tracking-[0.24em] text-[#6F6254]">
               {loading ? "Loading" : `${visibleProducts.length} of ${products.length} pieces`}
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="mt-3 grid grid-cols-2 gap-2 lg:mt-0 lg:flex lg:flex-wrap lg:items-center lg:justify-end">
+            <button
+              type="button"
+              onClick={() => setCardView((current) => (current === "grid" ? "list" : "grid"))}
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-[rgba(123,103,82,0.16)] bg-[#FFFDF8] px-3 text-[9px] uppercase tracking-[0.16em] text-[#4D4035] shadow-[0_8px_22px_rgba(61,48,37,0.045)] transition hover:border-[rgba(168,121,53,0.30)] hover:text-[#3D3025] sm:px-4 sm:text-[10px]"
+              aria-pressed={cardView === "list"}
+            >
+              {cardView === "list" ? "Grid Cards" : "List Cards"}
+              <ChevronRight className={`h-3.5 w-3.5 transition ${cardView === "list" ? "rotate-90" : ""}`} strokeWidth={1.35} />
+            </button>
             <button
               type="button"
               onClick={() => setMobileFiltersOpen(true)}
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-[rgba(123,103,82,0.16)] bg-white/60 px-4 text-[10px] uppercase tracking-[0.22em] text-[#5B4E42] lg:hidden"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-[rgba(123,103,82,0.16)] bg-white/70 px-3 text-[9px] uppercase tracking-[0.16em] text-[#4D4035] shadow-[0_8px_22px_rgba(61,48,37,0.04)] lg:hidden"
             >
               <Filter className="h-3.5 w-3.5" strokeWidth={1.4} />
               Filters
             </button>
-            <label className="relative">
+            <label className="relative col-span-2 lg:col-span-1">
               <span className="sr-only">Sort products</span>
               <select
                 value={sort}
                 onChange={(event) => setSort(event.target.value as SortValue)}
-                className="luxury-select min-h-[44px] min-w-[12rem] rounded-full border border-[rgba(123,103,82,0.16)] bg-[#FFF9EF] px-4 py-2 pr-10 text-[10px] uppercase tracking-[0.18em] text-[#5B4E42]"
+                className="luxury-select min-h-[44px] w-full rounded-[18px] border border-[rgba(123,103,82,0.16)] bg-[#FFFDF8] px-4 py-2 pr-10 text-[10px] uppercase tracking-[0.18em] text-[#5B4E42] shadow-[0_8px_22px_rgba(61,48,37,0.045)] lg:min-w-[12rem] lg:rounded-full"
               >
                 {SORT_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -544,6 +880,7 @@ export default function ProductBrowser({
                 ))}
               </select>
             </label>
+          </div>
           </div>
         </div>
       </section>
@@ -572,14 +909,43 @@ export default function ProductBrowser({
             </div>
           ) : null}
 
+          {recentlyViewedProducts.length ? (
+            <div className="mb-6 rounded-[24px] border border-[rgba(123,103,82,0.16)] bg-white/54 p-4">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <p className="eyebrow mb-1">Recently Viewed</p>
+                  <p className="text-sm text-[#6F6254]">Return to products you inspected before comparing.</p>
+                </div>
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-[#A87935]" strokeWidth={1.35} />
+              </div>
+              <div className="flex gap-3 overflow-x-auto pb-1">
+                {recentlyViewedProducts.map((product) => (
+                  <Link
+                    key={product._id}
+                    href={`/product/${encodeURIComponent(product._id)}`}
+                    className="group flex min-w-[14rem] items-center gap-3 rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-[#FFF9EF]/76 p-2 transition hover:border-[rgba(168,121,53,0.28)]"
+                  >
+                    <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded-[12px] bg-[#FFFFFF]">
+                      <Image src={productImage(product)} alt="" fill sizes="48px" className="object-contain p-1 transition duration-500 group-hover:scale-[1.04]" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="line-clamp-2 text-sm leading-5 text-[#3D3025]">{product.name}</p>
+                      <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-[#A87935]">EGP {formatPrice(product.price)}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
           {loading ? (
-            <div className={`grid ${compactCards ? "gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5" : "gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"}`}>
+            <div className={`grid ${cardView === "list" ? "gap-3" : compactCards ? "gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5" : "gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"}`}>
               {Array.from({ length: 8 }).map((_, index) => (
                 <ProductCardSkeleton key={index} compact={compactCards} />
               ))}
             </div>
           ) : visibleProducts.length ? (
-            <div className={`grid ${compactCards ? "gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5" : "gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"}`}>
+            <div className={cardView === "list" ? "grid gap-3" : `grid ${compactCards ? "gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5" : "gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"}`}>
               {visibleProducts.map((product, index) => (
                 <motion.div
                   key={product._id}
@@ -589,18 +955,39 @@ export default function ProductBrowser({
                   transition={{ delay: (index % 4) * 0.04, duration: 0.45 }}
                   className="group relative"
                 >
-                  <ProductCard product={product} compact={compactCards} />
-                  <button
-                    type="button"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setQuickView(product);
-                    }}
-                    className="absolute right-3 top-3 z-20 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-[rgba(123,103,82,0.16)] bg-white/80 text-[#5B4E42] opacity-100 shadow-[0_16px_34px_rgba(61,48,37,0.14)] backdrop-blur-xl transition-colors hover:text-[#3D3025] sm:opacity-0 sm:group-hover:opacity-100"
-                    aria-label={`Quick view ${product.name}`}
-                  >
-                    <Eye className="h-4 w-4" strokeWidth={1.4} />
-                  </button>
+                  {cardView === "list" ? (
+                    <ProductListCard product={product} />
+                  ) : (
+                    <>
+                      <ProductCard product={product} compact={compactCards} />
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          toggleCompare(product);
+                        }}
+                        className={`absolute left-3 top-3 z-20 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border shadow-[0_16px_34px_rgba(61,48,37,0.14)] backdrop-blur-xl transition-colors ${
+                          compareIds.includes(product._id)
+                            ? "border-[rgba(168,121,53,0.32)] bg-[rgba(168,121,53,0.18)] text-[#7A581F]"
+                            : "border-[rgba(123,103,82,0.16)] bg-white/80 text-[#5B4E42] hover:text-[#3D3025]"
+                        }`}
+                        aria-label={compareIds.includes(product._id) ? `Remove ${product.name} from comparison` : `Compare ${product.name}`}
+                      >
+                        <Scale className="h-4 w-4" strokeWidth={1.4} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setQuickView(product);
+                        }}
+                        className="absolute right-3 top-3 z-20 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-[rgba(123,103,82,0.16)] bg-white/80 text-[#5B4E42] opacity-100 shadow-[0_16px_34px_rgba(61,48,37,0.14)] backdrop-blur-xl transition-colors hover:text-[#3D3025] sm:opacity-0 sm:group-hover:opacity-100"
+                        aria-label={`Quick view ${product.name}`}
+                      >
+                        <Eye className="h-4 w-4" strokeWidth={1.4} />
+                      </button>
+                    </>
+                  )}
                 </motion.div>
               ))}
             </div>
@@ -658,6 +1045,15 @@ export default function ProductBrowser({
       </AnimatePresence>
 
       <QuickViewModal product={quickView} onClose={() => setQuickView(null)} />
+      <AnimatePresence>
+        {compareProducts.length ? (
+          <CompareDrawer
+            products={compareProducts}
+            onRemove={(productId) => setCompareIds((current) => current.filter((id) => id !== productId))}
+            onClear={() => setCompareIds([])}
+          />
+        ) : null}
+      </AnimatePresence>
     </main>
   );
 }

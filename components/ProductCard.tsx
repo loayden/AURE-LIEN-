@@ -2,7 +2,7 @@
 
 import { usePerformanceProfile } from "@/hooks/usePerformanceProfile";
 import { getProductColorHex as getColorHex } from "@/lib/productColors";
-import { stockLabel, stockState } from "@/lib/commerce";
+import { getProductConfidence, resolveProductDisplayImage, stockLabel, stockState } from "@/lib/commerce";
 import { showToast } from "@/components/ToastProvider";
 import { useTimeoutRegistry } from "@/hooks/useTimeoutRegistry";
 import type { Product } from "@/lib/types";
@@ -10,7 +10,7 @@ import {
   AnimatePresence,
   motion,
 } from "framer-motion";
-import { ChevronDown, Heart, ShoppingBag, Zap } from "lucide-react";
+import { ChevronDown, Heart, ShieldCheck, ShoppingBag, Zap } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
@@ -127,7 +127,7 @@ const ProductCardMedia = memo(function ProductCardMedia({
   return (
     <div
       className="relative z-10 overflow-hidden"
-      style={{ aspectRatio: "3 / 4", touchAction: galleryEnabled ? "pan-y" : "auto" }}
+      style={{ aspectRatio: "4 / 5", background: "#FFFFFF", touchAction: galleryEnabled ? "pan-y" : "auto" }}
       onTouchStart={galleryEnabled ? onTouchStart : undefined}
       onTouchMove={galleryEnabled ? onTouchMove : undefined}
       onTouchEnd={galleryEnabled ? onTouchEnd : undefined}
@@ -152,7 +152,7 @@ const ProductCardMedia = memo(function ProductCardMedia({
               alt={`${productName} — ${current + 1}`}
               fill
               sizes="(max-width:640px) 92vw, (max-width:1024px) 46vw, 25vw"
-              className="object-cover"
+              className="object-contain p-3"
               draggable={false}
             />
           ) : (
@@ -168,20 +168,25 @@ const ProductCardMedia = memo(function ProductCardMedia({
         </motion.div>
       </AnimatePresence>
 
-      <div
-        className="absolute inset-0 pointer-events-none z-10"
-        style={{ background: "linear-gradient(to top, rgba(61,48,37,0.34) 0%, rgba(245,241,232,0.10) 40%, transparent 66%)" }}
-      />
-
       {(badge || discount) && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="absolute left-3 top-3 z-30 rounded-full px-3 py-1.5 text-[10px] font-light uppercase tracking-[0.22em]"
+          className={`pointer-events-none absolute z-30 rounded-full font-light uppercase ${
+            compact
+              ? "left-[4.25rem] top-3 px-2.5 py-1 text-[8px] tracking-[0.18em]"
+              : "left-3 top-3 px-3 py-1.5 text-[10px] tracking-[0.22em]"
+          }`}
           style={{
-            background: badge ? badgeStyles[badge].bg : "rgba(168, 121, 53, 0.88)",
-            color: badge ? badgeStyles[badge].text : "#110d07",
+            background: badge
+              ? badgeStyles[badge].bg
+              : compact
+                ? "rgba(255,249,239,0.84)"
+                : "rgba(168, 121, 53, 0.88)",
+            color: badge ? badgeStyles[badge].text : compact ? "#7A581F" : "#110d07",
             backdropFilter: "blur(12px)",
+            border: compact ? "1px solid rgba(168,121,53,0.22)" : undefined,
+            boxShadow: compact ? "0 10px 24px rgba(61,48,37,0.10)" : undefined,
           }}
         >
           {badge ? badgeStyles[badge].label : `${discount}% Off`}
@@ -398,8 +403,8 @@ function ProductCardComponent({
     () =>
       (product.images || []).filter(
         (img): img is string => typeof img === "string" && img.trim() !== ""
-      ),
-    [product.images]
+      ).map((image) => resolveProductDisplayImage(image, product)),
+    [product]
   );
   const count = images.length;
   const sizes = useMemo(() => product.sizes || product.size || [], [product.size, product.sizes]);
@@ -416,6 +421,7 @@ function ProductCardComponent({
   }, [product.colors]);
 
   const productStockState = stockState(product);
+  const confidence = getProductConfidence(product);
   const isLowStock = productStockState === "low-stock";
   const outOfStock = productStockState === "sold-out";
   const originalPrice = getOriginalPrice(product.price ?? 0, product.discount);
@@ -426,9 +432,6 @@ function ProductCardComponent({
   const categoryLabel = formatCategoryLabel(product.category ?? "");
   const colorSummary = selectedColorOption?.name ?? (displayColorOption ? displayColorOption.name : "Choose Tone");
   const availabilityLabel = stockLabel(product);
-  const imageCounterLabel = count > 1
-    ? `${String(current + 1).padStart(2, "0")} / ${String(count).padStart(2, "0")}`
-    : "Single View";
   const mediaGalleryEnabled = !disableMediaCarousel && count > 1;
   const tiltEnabled = finePointer && !isMobileViewport && !lowEndDevice && !prefersReducedMotion;
   const autoplayEnabled =
@@ -748,15 +751,15 @@ function ProductCardComponent({
       aria-label={productHref ? `Open ${product.name}` : undefined}
       style={{
         borderRadius: compact ? 16 : 18,
-        background: compact ? "#FFFFFF" : "linear-gradient(145deg, rgba(255,255,255,0.76), rgba(245,241,232,0.72))",
-        boxShadow: compact ? "0 14px 34px rgba(61,48,37,0.10)" : "0 18px 46px rgba(61,48,37,0.12)",
-        border: "1px solid rgba(123,103,82,0.16)",
+        background: compact ? "#FFFDF8" : "linear-gradient(145deg, rgba(255,255,255,0.78), rgba(245,241,232,0.70))",
+        boxShadow: compact ? "0 10px 26px rgba(61,48,37,0.08)" : "0 16px 40px rgba(61,48,37,0.10)",
+        border: "1px solid rgba(123,103,82,0.14)",
       }}
       whileHover={
         tiltEnabled
           ? {
               y: -3,
-              boxShadow: "0 22px 56px rgba(61,48,37,0.16), 0 0 0 1px rgba(168,121,53,0.14)",
+              boxShadow: "0 18px 44px rgba(61,48,37,0.13), 0 0 0 1px rgba(168,121,53,0.12)",
               transition: { type: "spring", stiffness: 260, damping: 26 },
             }
           : undefined
@@ -791,13 +794,13 @@ function ProductCardComponent({
 
       {/* ══════════ LABEL ══════════ */}
       <div
-        className={`relative z-10 flex flex-col ${compact ? "gap-1.5 px-3 pb-3 pt-3" : "gap-3 px-4 pb-4 pt-4"}`}
+        className={`relative z-10 flex flex-col ${compact ? "gap-1 px-3 pb-3 pt-2.5" : "gap-2 px-4 pb-4 pt-3.5"}`}
         style={{
           background: compact ? "#FFFFFF" : "linear-gradient(180deg, rgba(255,249,239,0.96), rgba(245,241,232,0.94))",
           borderTop: "1px solid rgba(123,103,82,0.14)",
         }}
       >
-        <div className={compact ? "space-y-2" : "space-y-3"}>
+        <div className={compact ? "space-y-1.5" : "space-y-2"}>
           <AnimatePresence>
             {feedbackError ? (
               <motion.div
@@ -820,7 +823,7 @@ function ProductCardComponent({
             ) : null}
           </AnimatePresence>
 
-          <div className={`flex items-center justify-between gap-3 uppercase ${compact ? "text-[7px] tracking-[0.14em]" : "text-[9px] tracking-[0.18em]"}`}>
+          <div className={`flex items-center justify-between gap-3 uppercase ${compact ? "text-[7px] tracking-[0.14em]" : "text-[8px] tracking-[0.18em]"}`}>
             <span className="truncate text-[#A87935]" style={{ fontFamily: "'Jost', sans-serif" }}>
               {categoryLabel || "Catalog"}
             </span>
@@ -838,15 +841,15 @@ function ProductCardComponent({
             className="font-light leading-[1.05] line-clamp-2"
             style={{
               fontFamily: "'Cormorant Garamond', serif",
-              fontSize: compact ? "1rem" : "clamp(1.18rem, 4vw, 1.38rem)",
-              minHeight: compact ? "2.1rem" : "3rem",
+              fontSize: compact ? "0.96rem" : "clamp(1.08rem, 4vw, 1.24rem)",
+              minHeight: compact ? "1.95rem" : "2.45rem",
               letterSpacing: "0.03em",
               color: "rgba(61,48,37,0.92)",
             }}>
             {product.name}
           </h3>
 
-          <div className={`flex items-end justify-between gap-3 border-t border-[rgba(123,103,82,0.14)] ${compact ? "pt-2" : "pt-3"}`}>
+          <div className={`flex items-end justify-between gap-3 border-t border-[rgba(123,103,82,0.12)] ${compact ? "pt-2" : "pt-2.5"}`}>
             <div>
               {originalPrice ? (
                 <>
@@ -860,7 +863,7 @@ function ProductCardComponent({
                     className="font-light text-[#A87935]"
                     style={{
                       fontFamily: "'Cormorant Garamond', serif",
-                      fontSize: compact ? "1.02rem" : "1.36rem",
+                      fontSize: compact ? "1rem" : "1.26rem",
                       letterSpacing: "0.04em",
                     }}
                   >
@@ -871,39 +874,39 @@ function ProductCardComponent({
                 <p
                   className="font-light text-[#A87935]"
                   style={{
-                    fontFamily: "'Cormorant Garamond', serif",
-                    fontSize: compact ? "1.02rem" : "1.36rem",
-                    letterSpacing: "0.04em",
-                  }}
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: compact ? "1rem" : "1.26rem",
+                  letterSpacing: "0.04em",
+                }}
                 >
                   EGP {(product.price ?? 0).toLocaleString()}
                 </p>
               )}
             </div>
 
-            {mediaGalleryEnabled ? (
-              <span className={`${compact ? "text-[7px] tracking-[0.14em]" : "text-[9px] tracking-[0.18em]"} text-right uppercase text-[#7B6E60]/56`}>
-                {imageCounterLabel}
-              </span>
-            ) : null}
+            <span className={`${compact ? "text-[7px] tracking-[0.13em]" : "text-[8px] tracking-[0.16em]"} inline-flex shrink-0 items-center gap-1 rounded-full border border-[rgba(168,121,53,0.14)] px-2 py-1 uppercase text-[#7A581F]`}>
+              <ShieldCheck className={compact ? "h-2.5 w-2.5" : "h-3 w-3"} strokeWidth={1.2} />
+              {confidence.score}/5
+            </span>
           </div>
 
-          <div className={`grid grid-cols-[1fr_auto] ${compact ? "gap-1.5" : "gap-2"}`}>
-            <button
-              type="button"
-              onClick={handleViewDetails}
-              className={`inline-flex min-w-[44px] items-center justify-center rounded-full border border-[rgba(123,103,82,0.16)] bg-[rgba(255,255,255,0.46)] uppercase tracking-[0.16em] text-[#5B4E42] transition-colors hover:border-[rgba(168,121,53,0.30)] hover:text-[#3D3025] ${compact ? "min-h-[34px] px-3 text-[8px]" : "min-h-[44px] px-4 text-[10px]"}`}
-              style={{ fontFamily: "'Jost', sans-serif" }}
-              aria-label={`View ${product.name}`}
-            >
-              View
-            </button>
-
+          <div className={`grid ${compact ? "grid-cols-1 gap-1.5" : "grid-cols-[1fr_auto] gap-2"}`}>
+            {!compact ? (
+              <button
+                type="button"
+                onClick={handleViewDetails}
+                className="inline-flex min-h-[40px] min-w-[44px] items-center justify-center rounded-full border border-[rgba(123,103,82,0.16)] bg-[rgba(255,255,255,0.46)] px-4 text-[9px] uppercase tracking-[0.16em] text-[#5B4E42] transition-colors hover:border-[rgba(168,121,53,0.30)] hover:text-[#3D3025]"
+                style={{ fontFamily: "'Jost', sans-serif" }}
+                aria-label={`View ${product.name}`}
+              >
+                View
+              </button>
+            ) : null}
             <button
               type="button"
               onClick={handleAddToCart}
               disabled={loading || outOfStock}
-              className={`inline-flex min-w-[44px] items-center justify-center gap-2 rounded-full uppercase tracking-[0.16em] transition-all disabled:cursor-not-allowed disabled:opacity-35 ${compact ? "min-h-[34px] px-3 py-2 text-[8px]" : "min-h-[44px] px-4 py-3 text-[10px]"}`}
+              className={`inline-flex min-w-[44px] items-center justify-center gap-2 rounded-full uppercase tracking-[0.16em] transition-all disabled:cursor-not-allowed disabled:opacity-35 ${compact ? "min-h-[34px] px-3 py-2 text-[8px]" : "min-h-[40px] px-4 py-2.5 text-[9px]"}`}
               style={{
                 fontFamily: "'Jost', sans-serif",
                 background: added
@@ -921,7 +924,7 @@ function ProductCardComponent({
             </button>
           </div>
 
-          {(sizes.length > 1 || normalizedColors.length > 1) ? (
+          {!compact && (sizes.length > 1 || normalizedColors.length > 1) ? (
             <button
               type="button"
               onClick={toggleDetailsPanel}
@@ -938,6 +941,7 @@ function ProductCardComponent({
               />
             </button>
           ) : null}
+
         </div>
 
         {detailsOpen ? (

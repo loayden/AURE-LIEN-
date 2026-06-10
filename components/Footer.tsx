@@ -10,8 +10,6 @@ const NAV_COLLECTIONS = [
   { label: "Pants", href: "/pants-denim" },
   { label: "Footwear", href: "/footwear" },
   { label: "Accessories", href: "/accessories" },
-  { label: "Lookbook", href: "/lookbook" },
-  { label: "Outfit Generator", href: "/outfit-generator" },
 ];
 
 const NAV_SERVICE = [
