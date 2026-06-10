@@ -429,17 +429,19 @@ export default function AccountPage() {
   const hasChanges = Boolean(user && draft && JSON.stringify(user) !== JSON.stringify(draft));
   const deliveryReady = Boolean(user?.phone && user?.address && user?.city && user?.country);
   const selectedPartnerApplication = partnerSummary.selectedApplication;
-  const isPartnerProfile =
+  const hasPartnerProfile =
     user?.accountIntent === "partner" ||
     user?.accountIntent === "both" ||
     Boolean(selectedPartnerApplication);
+  const isPartnerProfile = false;
   const partnerProductsHref = selectedPartnerApplication
     ? `/partners/products?applicationId=${encodeURIComponent(selectedPartnerApplication._id)}`
     : "/partners/products";
   const partnerSubscriptionHref = selectedPartnerApplication
     ? `/partners/subscription?applicationId=${encodeURIComponent(selectedPartnerApplication._id)}`
     : "/partners/subscription";
-  const partnerPrimaryHref = selectedPartnerApplication ? partnerProductsHref : "/boutiques/apply";
+  const partnerProfileHref = "/partners/profile";
+  const partnerPrimaryHref = hasPartnerProfile ? partnerProfileHref : "/boutiques/apply";
   const partnerReadiness = selectedPartnerApplication
     ? selectedPartnerApplication.access?.canManageProducts
       ? 100
@@ -961,7 +963,9 @@ export default function AccountPage() {
                 <p className="body-copy mt-3">
                   {isPartnerProfile
                     ? "Manage products, subscription, payout readiness, and boutique review from one focused partner area."
-                    : "Apply as a boutique, submit products for admin review, and use Paymob for the monthly partner plan when configured."}
+                    : hasPartnerProfile
+                      ? "Your boutique profile now lives in a separate partner area, while this page stays focused on your customer account."
+                      : "Apply as a boutique, submit products for admin review, and use Paymob for the monthly partner plan when configured."}
                 </p>
               </div>
 
@@ -1012,11 +1016,17 @@ export default function AccountPage() {
               ) : null}
 
               <nav className="flex flex-col gap-2 sm:gap-3">
-                <Link href={isPartnerProfile ? partnerPrimaryHref : "/boutiques"} className="liquid-row-link">
+                <Link href={isPartnerProfile ? partnerPrimaryHref : hasPartnerProfile ? partnerProfileHref : "/boutiques"} className="liquid-row-link">
                   <span className="inline-flex items-center gap-3">
                     <Building2 strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
                     <span className="text-[0.78rem] uppercase tracking-[0.22em]">
-                      {isPartnerProfile ? (selectedPartnerApplication ? "Partner Dashboard" : "Start Application") : "Apply Boutique"}
+                      {isPartnerProfile
+                        ? selectedPartnerApplication
+                          ? "Partner Dashboard"
+                          : "Start Application"
+                        : hasPartnerProfile
+                          ? "Partner Profile"
+                          : "Apply Boutique"}
                     </span>
                   </span>
                   <ArrowRight strokeWidth={1.2} className="h-4 w-4 text-[#7B6752]/45" />

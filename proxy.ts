@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { verifyTokenEdge } from "@/lib/auth-edge";
 
-const protectedPaths = ["/account", "/wishlist", "/orders"];
+const protectedPaths = ["/account", "/wishlist", "/orders", "/partners/profile"];
 const adminPaths = ["/admin"];
 
 export async function proxy(req: NextRequest) {
@@ -33,5 +33,5 @@ export async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/account/:path*", "/wishlist/:path*", "/orders/:path*", "/admin/:path*"],
+  matcher: ["/account/:path*", "/wishlist/:path*", "/orders/:path*", "/partners/profile/:path*", "/admin/:path*"],
 };
