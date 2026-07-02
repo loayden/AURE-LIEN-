@@ -121,6 +121,12 @@
       "namedRegex": "^/admin/add\\-product(?:/)?$"
     },
     {
+      "page": "/admin/boutiques",
+      "regex": "^/admin/boutiques(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/boutiques(?:/)?$"
+    },
+    {
       "page": "/admin/lookbooks",
       "regex": "^/admin/lookbooks(?:/)?$",
       "routeKeys": {},
@@ -133,10 +139,28 @@
       "namedRegex": "^/admin/orders(?:/)?$"
     },
     {
+      "page": "/admin/partner-products",
+      "regex": "^/admin/partner\\-products(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/partner\\-products(?:/)?$"
+    },
+    {
       "page": "/admin/products",
       "regex": "^/admin/products(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/admin/products(?:/)?$"
+    },
+    {
+      "page": "/admin/profile",
+      "regex": "^/admin/profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/profile(?:/)?$"
+    },
+    {
+      "page": "/admin/quality",
+      "regex": "^/admin/quality(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin/quality(?:/)?$"
     },
     {
       "page": "/admin/upload",
@@ -157,6 +181,12 @@
       "namedRegex": "^/api/admin/analytics(?:/)?$"
     },
     {
+      "page": "/api/admin/boutiques",
+      "regex": "^/api/admin/boutiques(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/boutiques(?:/)?$"
+    },
+    {
       "page": "/api/admin/export-orders",
       "regex": "^/api/admin/export\\-orders(?:/)?$",
       "routeKeys": {},
@@ -169,6 +199,12 @@
       "namedRegex": "^/api/admin/orders(?:/)?$"
     },
     {
+      "page": "/api/admin/partner-products",
+      "regex": "^/api/admin/partner\\-products(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/partner\\-products(?:/)?$"
+    },
+    {
       "page": "/api/admin/products",
       "regex": "^/api/admin/products(?:/)?$",
       "routeKeys": {},
@@ -179,6 +215,12 @@
       "regex": "^/api/admin/users(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/admin/users(?:/)?$"
+    },
+    {
+      "page": "/api/auth/google",
+      "regex": "^/api/auth/google(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/auth/google(?:/)?$"
     },
     {
       "page": "/api/auth/login",
@@ -197,6 +239,18 @@
       "regex": "^/api/auth/signup(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/auth/signup(?:/)?$"
+    },
+    {
+      "page": "/api/boutiques/apply",
+      "regex": "^/api/boutiques/apply(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/boutiques/apply(?:/)?$"
+    },
+    {
+      "page": "/api/boutiques/draft",
+      "regex": "^/api/boutiques/draft(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/boutiques/draft(?:/)?$"
     },
     {
       "page": "/api/cart",
@@ -263,6 +317,48 @@
       "regex": "^/api/outfit\\-generate(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/outfit\\-generate(?:/)?$"
+    },
+    {
+      "page": "/api/partners/applications",
+      "regex": "^/api/partners/applications(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/partners/applications(?:/)?$"
+    },
+    {
+      "page": "/api/partners/payout-profile",
+      "regex": "^/api/partners/payout\\-profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/partners/payout\\-profile(?:/)?$"
+    },
+    {
+      "page": "/api/partners/products",
+      "regex": "^/api/partners/products(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/partners/products(?:/)?$"
+    },
+    {
+      "page": "/api/partners/profile-summary",
+      "regex": "^/api/partners/profile\\-summary(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/partners/profile\\-summary(?:/)?$"
+    },
+    {
+      "page": "/api/partners/upload",
+      "regex": "^/api/partners/upload(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/partners/upload(?:/)?$"
+    },
+    {
+      "page": "/api/partners/wallet",
+      "regex": "^/api/partners/wallet(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/partners/wallet(?:/)?$"
+    },
+    {
+      "page": "/api/paymob/partner-subscription",
+      "regex": "^/api/paymob/partner\\-subscription(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/paymob/partner\\-subscription(?:/)?$"
     },
     {
       "page": "/api/products",
@@ -349,6 +445,18 @@
       "namedRegex": "^/boots(?:/)?$"
     },
     {
+      "page": "/boutiques",
+      "regex": "^/boutiques(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/boutiques(?:/)?$"
+    },
+    {
+      "page": "/boutiques/apply",
+      "regex": "^/boutiques/apply(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/boutiques/apply(?:/)?$"
+    },
+    {
       "page": "/cart",
       "regex": "^/cart(?:/)?$",
       "routeKeys": {},
@@ -395,6 +503,12 @@
       "regex": "^/footwear(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/footwear(?:/)?$"
+    },
+    {
+      "page": "/forgot-password",
+      "regex": "^/forgot\\-password(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/forgot\\-password(?:/)?$"
     },
     {
       "page": "/jackets-coats",
@@ -461,6 +575,30 @@
       "regex": "^/pants\\-denim(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/pants\\-denim(?:/)?$"
+    },
+    {
+      "page": "/partners/checkout",
+      "regex": "^/partners/checkout(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/partners/checkout(?:/)?$"
+    },
+    {
+      "page": "/partners/products",
+      "regex": "^/partners/products(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/partners/products(?:/)?$"
+    },
+    {
+      "page": "/partners/profile",
+      "regex": "^/partners/profile(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/partners/profile(?:/)?$"
+    },
+    {
+      "page": "/partners/subscription",
+      "regex": "^/partners/subscription(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/partners/subscription(?:/)?$"
     },
     {
       "page": "/privacy",

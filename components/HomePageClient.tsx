@@ -1407,18 +1407,18 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
       {showOpeningIntro ? <StorefrontOpeningOverlay /> : null}
     </AnimatePresence>
     <motion.main className="min-h-screen overflow-hidden bg-[#F7F7F4] pb-24 text-[#171513] md:pb-0">
-      <section className="border-b border-[#DDDAD2] bg-[#F7F7F4] px-4 pt-[72px] sm:px-6 md:px-10">
-        <div className="mx-auto grid w-full max-w-[92rem] gap-6 py-6 lg:grid-cols-[0.88fr_1.12fr] lg:items-stretch lg:py-8">
+      <section className="border-b border-[#DDDAD2] bg-[#F7F7F4] px-5 pt-[72px] sm:px-6 md:px-10">
+        <div className="mx-auto grid w-full max-w-[92rem] gap-6 py-5 sm:py-6 lg:grid-cols-[0.88fr_1.12fr] lg:items-stretch lg:py-8">
           <motion.div
             initial="hidden"
             animate="show"
             variants={heroStagger}
-            className="flex min-w-0 flex-col justify-between gap-8 lg:min-h-[650px]"
+            className="flex min-w-0 flex-col justify-between gap-6 sm:gap-8 lg:min-h-[650px]"
           >
             <div>
               <motion.div
                 variants={fadeUp}
-                className="mx-auto w-full max-w-[20rem] sm:max-w-[24rem] lg:max-w-[30rem]"
+                className="mx-auto w-full max-w-[16rem] sm:max-w-[24rem] lg:max-w-[30rem]"
               >
                 <h1 className="sr-only">BOUT</h1>
                 <p className="sr-only">
@@ -1454,7 +1454,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
                 onSubmit={handleSearch}
                 whileHover={{ y: -2 }}
                 whileFocus={{ y: -2 }}
-                className="relative mt-7 min-h-[58px] w-full max-w-[22rem] min-w-0 overflow-hidden rounded-lg border border-[#CECAC1] bg-white shadow-[0_18px_50px_rgba(23,21,19,0.08)] sm:max-w-2xl"
+                className="relative mt-5 min-h-[52px] w-full min-w-0 overflow-hidden rounded-xl border border-[#CECAC1] bg-white shadow-[0_14px_40px_rgba(23,21,19,0.07)] sm:mt-7 sm:min-h-[58px] sm:max-w-2xl sm:rounded-lg"
               >
                 <Search className="pointer-events-none absolute left-4 top-1/2 z-10 h-5 w-5 -translate-y-1/2 text-[#725D2C]" strokeWidth={1.6} />
                 <motion.span
@@ -1470,7 +1470,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
                   onChange={(event) => setQuery(event.target.value)}
                   aria-label="Search products"
                   placeholder="Search jackets, denim, loafers..."
-                  className="relative z-10 h-14 w-full min-w-0 border-0 bg-transparent pl-12 pr-24 text-base text-[#171513] shadow-none outline-none placeholder:text-[#77716A]"
+                  className="relative z-10 h-12 w-full min-w-0 border-0 bg-transparent pl-12 pr-20 text-[15px] text-[#171513] shadow-none outline-none placeholder:text-[#77716A] sm:h-14 sm:pr-24 sm:text-base"
                   style={{ minWidth: 0, background: "transparent", border: 0, boxShadow: "none" }}
                 />
                 <motion.button
@@ -1484,14 +1484,14 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
                 </motion.button>
               </motion.form>
 
-              <motion.div variants={fadeUp} className="mt-5 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none]">
+              <motion.div variants={fadeUp} className="mt-4 flex gap-2 overflow-x-auto pb-2 sm:mt-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {SHOPPING_MOODS.map((mood) => (
                   <motion.button
                     key={mood.value}
                     type="button"
                     onClick={() => selectMood(mood.value)}
                     whileTap={{ scale: 0.96 }}
-                    className={`relative isolate min-h-[42px] shrink-0 overflow-hidden rounded-full border px-4 text-sm transition ${
+                    className={`relative isolate min-h-[44px] shrink-0 overflow-hidden rounded-full border px-4 text-[13px] transition sm:text-sm ${
                       selectedMood === mood.value
                         ? "border-[#171513] text-[#F8F7F2]"
                         : "border-[#D5D1C8] bg-white text-[#3F3B36] hover:border-[#171513]"
@@ -1545,7 +1545,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
               </motion.div>
 
               <motion.section variants={imageReveal} className="sm:hidden">
-                <div className="relative mt-5 overflow-hidden rounded-[28px] border border-[#D7D1C7] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.92),rgba(247,244,238,0.98)_48%,rgba(238,233,225,1)_100%)] p-4 shadow-[0_20px_56px_rgba(23,21,19,0.08)]">
+                <div className="relative mt-4 overflow-hidden rounded-2xl border border-[#D7D1C7] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.92),rgba(247,244,238,0.98)_48%,rgba(238,233,225,1)_100%)] p-3 shadow-[0_16px_44px_rgba(23,21,19,0.06)]">
                   <motion.div
                     aria-hidden="true"
                     className="pointer-events-none absolute inset-x-4 top-0 h-24 rounded-full bg-[radial-gradient(circle,rgba(216,192,138,0.28),transparent_72%)] blur-2xl"
@@ -1570,32 +1570,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
                           </span>
                         </div>
 
-                        {filteredMoodProducts.length > 1 ? (
-                          <motion.div
-                            aria-hidden="true"
-                            className="mb-3 flex justify-end"
-                            initial={{ opacity: 0, y: 6 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.32, ease: easeOut }}
-                          >
-                            <div className="relative flex h-8 w-24 items-center overflow-hidden rounded-full border border-[#D5CDBF] bg-[#F8F7F2] shadow-[0_10px_24px_rgba(23,21,19,0.06)]">
-                              <motion.span
-                                className="absolute left-3 h-2 w-2 rounded-full bg-[#725D2C]"
-                                animate={{ x: [0, 54, 54], opacity: [0.3, 1, 0] }}
-                                transition={{ duration: 1.4, ease: "easeInOut", repeat: Infinity, repeatDelay: 0.28 }}
-                              />
-                              <motion.span
-                                className="ml-auto mr-3 flex items-center gap-0.5 text-[#725D2C]"
-                                animate={{ x: [0, 5, 0] }}
-                                transition={{ duration: 1.4, ease: "easeInOut", repeat: Infinity, repeatDelay: 0.28 }}
-                              >
-                                <ChevronRight className="h-3.5 w-3.5 opacity-35" strokeWidth={1.6} />
-                                <ChevronRight className="h-3.5 w-3.5 opacity-65" strokeWidth={1.6} />
-                                <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.6} />
-                              </motion.span>
-                            </div>
-                          </motion.div>
-                        ) : null}
+
 
                         <div className="relative -mx-4">
                           <AnimatePresence mode="wait" initial={false}>
@@ -1627,7 +1602,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
                                         : { opacity: 0.82, scale: 0.965, y: 8 }
                                     }
                                     transition={{ duration: 0.28, ease: easeOut }}
-                                    className="w-[82vw] max-w-[22rem] shrink-0 snap-center"
+                                    className="w-[78vw] max-w-[20rem] shrink-0 snap-center"
                                   >
                                     <ProductCard product={product} disableMediaCarousel className="h-full" />
                                   </motion.div>
@@ -1638,34 +1613,28 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
                         </div>
                       </div>
 
-                      <div className="relative z-10 mt-3 flex items-center justify-between gap-3">
-                        <p className="text-xs text-[#6B655E]">
-                          Swipe left or right to move through products.
-                        </p>
-
-                        {filteredMoodProducts.length > 1 ? (
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => scrollMobileCardIntoView(mobileActiveIndex - 1)}
-                              disabled={mobileActiveIndex === 0}
-                              className="flex h-10 w-10 items-center justify-center rounded-full border border-[#D5D1C8] bg-white/80 text-[#171513] transition disabled:cursor-not-allowed disabled:opacity-35"
-                              aria-label="Show previous product"
-                            >
-                              <ChevronRight className="h-4 w-4 rotate-180" strokeWidth={1.5} />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => scrollMobileCardIntoView(mobileActiveIndex + 1)}
-                              disabled={mobileActiveIndex === filteredMoodProducts.length - 1}
-                              className="flex h-10 w-10 items-center justify-center rounded-full border border-[#D5D1C8] bg-white/80 text-[#171513] transition disabled:cursor-not-allowed disabled:opacity-35"
-                              aria-label="Show next product"
-                            >
-                              <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
-                            </button>
-                          </div>
-                        ) : null}
-                      </div>
+                      {filteredMoodProducts.length > 1 ? (
+                        <div className="relative z-10 mt-3 flex items-center justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => scrollMobileCardIntoView(mobileActiveIndex - 1)}
+                            disabled={mobileActiveIndex === 0}
+                            className="flex h-11 w-11 items-center justify-center rounded-full border border-[#D5D1C8] bg-white/80 text-[#171513] transition disabled:cursor-not-allowed disabled:opacity-35"
+                            aria-label="Show previous product"
+                          >
+                            <ChevronRight className="h-4 w-4 rotate-180" strokeWidth={1.5} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => scrollMobileCardIntoView(mobileActiveIndex + 1)}
+                            disabled={mobileActiveIndex === filteredMoodProducts.length - 1}
+                            className="flex h-11 w-11 items-center justify-center rounded-full border border-[#D5D1C8] bg-white/80 text-[#171513] transition disabled:cursor-not-allowed disabled:opacity-35"
+                            aria-label="Show next product"
+                          >
+                            <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
+                          </button>
+                        </div>
+                      ) : null}
                     </>
                   ) : (
                     <div className="relative z-10 mt-5 rounded-[24px] border border-[#D9D4CA] bg-white/80 p-5 text-sm leading-6 text-[#5A5650]">
@@ -1676,7 +1645,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
               </motion.section>
             </div>
 
-            <motion.div variants={fadeUp} className="grid grid-cols-2 overflow-hidden rounded-lg border border-[#D5D1C8] bg-white sm:grid-cols-4">
+            <motion.div variants={fadeUp} className="hidden overflow-hidden rounded-lg border border-[#D5D1C8] bg-white sm:grid sm:grid-cols-4">
               {QUICK_DEPARTMENTS.slice(0, 4).map((category) => (
                 <Link
                   key={category.slug}
@@ -1791,15 +1760,41 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.18 }}
-        className="bg-white px-4 py-10 [content-visibility:auto] [contain-intrinsic-size:760px] sm:px-6 sm:py-14 md:px-10"
+        className="bg-white px-5 py-12 [content-visibility:auto] [contain-intrinsic-size:760px] sm:px-6 sm:py-14 md:px-10"
       >
         <div className="mx-auto w-full max-w-[92rem]">
           <SectionIntro
             title="Departments"
-            copy="A clear starting point for fast browsing on small screens and calm comparison on desktop."
+            copy="A clear starting point for fast browsing."
             action={{ label: "View all", href: "/collection" }}
           />
-          <motion.div variants={heroStagger} className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-[#D5D1C8] bg-[#D5D1C8] lg:grid-cols-6">
+          {/* Mobile: horizontal scroll rail */}
+          <motion.div
+            variants={heroStagger}
+            className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-3 sm:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {QUICK_DEPARTMENTS.map((category) => (
+              <motion.div key={category.slug} variants={tileReveal} className="w-[140px] shrink-0 snap-start">
+                <Link href={category.href} className="group block overflow-hidden rounded-xl border border-[#D5D1C8] bg-white">
+                  <div className="relative aspect-square overflow-hidden bg-[#E9E7E1]">
+                    <Image
+                      src={category.image}
+                      alt={category.title}
+                      fill
+                      sizes="140px"
+                      className="object-cover transition duration-500 group-hover:scale-[1.04]"
+                    />
+                  </div>
+                  <div className="p-3">
+                    <h3 className="text-sm font-medium text-[#171513]">{category.short}</h3>
+                    <p className="mt-1 text-[11px] text-[#69645E]">{categoryCounts.get(category.slug) || "Shop"}</p>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </motion.div>
+          {/* Desktop: grid */}
+          <motion.div variants={heroStagger} className="hidden gap-px overflow-hidden rounded-lg border border-[#D5D1C8] bg-[#D5D1C8] sm:grid sm:grid-cols-3 lg:grid-cols-6">
             {QUICK_DEPARTMENTS.map((category) => (
               <motion.div key={category.slug} variants={tileReveal} whileHover={{ y: -4 }}>
                 <Link href={category.href} className="group block bg-white">
@@ -1808,7 +1803,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
                       src={category.image}
                       alt={category.title}
                       fill
-                      sizes="(max-width: 768px) 50vw, 16vw"
+                      sizes="(max-width: 768px) 33vw, 16vw"
                       className="object-cover transition duration-700 group-hover:scale-[1.05]"
                     />
                   </div>
@@ -1828,7 +1823,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.16 }}
-        className="bg-[#171513] px-4 py-10 text-[#F8F7F2] [content-visibility:auto] [contain-intrinsic-size:900px] sm:px-6 sm:py-14 md:px-10"
+        className="bg-[#171513] px-5 py-12 text-[#F8F7F2] [content-visibility:auto] [contain-intrinsic-size:900px] sm:px-6 sm:py-14 md:px-10"
       >
         <div className="mx-auto w-full max-w-[92rem]">
           <SectionIntro
@@ -1838,14 +1833,14 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
             inverted
           />
 
-          <motion.div variants={fadeUp} className="mb-6 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none]">
+          <motion.div variants={fadeUp} className="mb-6 flex gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {SHOPPING_MOODS.map((mood) => (
               <motion.button
                 key={mood.value}
                 type="button"
                 onClick={() => selectMood(mood.value)}
                 whileTap={{ scale: 0.96 }}
-                className={`relative isolate min-h-[42px] shrink-0 overflow-hidden rounded-full border px-4 text-sm transition ${
+                className={`relative isolate min-h-[44px] shrink-0 overflow-hidden rounded-full border px-4 text-[13px] transition sm:text-sm ${
                   selectedMood === mood.value
                     ? "border-[#D8C08A] text-[#171513]"
                     : "border-white/[0.16] bg-white/5 text-[#E9E4D8] hover:border-[#D8C08A]"
@@ -1902,7 +1897,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
                 data-testid="fresh-drop-product-rail"
                 whileInView={railPeekEnabled ? { x: [0, -58, 0] } : undefined}
                 viewport={{ once: true, amount: 0.52 }}
-                className="flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 [scrollbar-width:none] sm:px-6 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0 xl:grid-cols-4"
+                className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-4 sm:gap-4 sm:px-6 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0 xl:grid-cols-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               >
                 {freshDropProducts.map((product, index) => (
                   <div
@@ -1910,7 +1905,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
                     ref={(node) => {
                       freshDropCardRefs.current[index] = node;
                     }}
-                    className="w-[74vw] min-w-[16rem] max-w-[18.25rem] shrink-0 snap-start lg:w-auto lg:min-w-0 lg:max-w-none lg:shrink lg:snap-none"
+                    className="w-[76vw] min-w-[16rem] max-w-[18.25rem] shrink-0 snap-start lg:w-auto lg:min-w-0 lg:max-w-none lg:shrink lg:snap-none"
                   >
                     <ProductTile
                       product={product}
@@ -1923,11 +1918,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
               </motion.div>
             </div>
           </AnimatePresence>
-          {freshDropProducts.length > 1 ? (
-            <p className="mt-1 text-xs leading-5 text-[#C9C5B8] lg:hidden">
-              Swipe sideways to scan the full drop.
-            </p>
-          ) : null}
+
         </div>
       </motion.section>
 
@@ -1936,14 +1927,49 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.16 }}
-        className="bg-[#F7F7F4] px-4 py-10 [content-visibility:auto] [contain-intrinsic-size:900px] sm:px-6 sm:py-14 md:px-10"
+        className="bg-[#F7F7F4] px-5 py-12 [content-visibility:auto] [contain-intrinsic-size:900px] sm:px-6 sm:py-14 md:px-10"
       >
         <div className="mx-auto w-full max-w-[92rem]">
           <SectionIntro
             title="Shop the day"
-            copy="Four practical paths for getting dressed without opening a menu first."
+            copy="Four practical paths for getting dressed."
           />
-          <motion.div variants={heroStagger} className="grid gap-3 lg:grid-cols-4">
+          {/* Mobile: horizontal scroll */}
+          <motion.div
+            variants={heroStagger}
+            className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-3 sm:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {STYLE_PATHS.map((path) => (
+              <motion.div key={path.title} variants={tileReveal} className="w-[78vw] max-w-[18rem] shrink-0 snap-start">
+                <Link
+                  href={path.href}
+                  className="group relative block min-h-[18rem] overflow-hidden rounded-2xl bg-[#171513] text-[#F8F7F2]"
+                >
+                  <Image
+                    src={path.image}
+                    alt={path.title}
+                    fill
+                    sizes="78vw"
+                    className="object-cover transition duration-500 group-hover:scale-[1.03]"
+                  />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(23,21,19,0.05),rgba(23,21,19,0.78))]" />
+                  <div className="absolute inset-x-0 bottom-0 p-4">
+                    <p className="text-[13px] text-[#D8C08A]">{path.copy}</p>
+                    <div className="mt-2 flex items-end justify-between gap-3">
+                      <h3 className="max-w-xs font-serif text-3xl font-light leading-none">
+                        {path.title}
+                      </h3>
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#F8F7F2] text-[#171513]">
+                        <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </motion.div>
+          {/* Desktop: grid */}
+          <motion.div variants={heroStagger} className="hidden gap-3 sm:grid lg:grid-cols-4">
             {STYLE_PATHS.map((path) => (
               <motion.div key={path.title} variants={tileReveal} whileHover={{ y: -6 }}>
                 <Link
@@ -1954,7 +1980,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
                     src={path.image}
                     alt={path.title}
                     fill
-                    sizes="(max-width: 1024px) 100vw, 25vw"
+                    sizes="(max-width: 1024px) 50vw, 25vw"
                     className="object-cover transition duration-700 group-hover:scale-[1.04]"
                   />
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(23,21,19,0.05),rgba(23,21,19,0.78))]" />
@@ -1968,11 +1994,7 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
                         className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#F8F7F2] text-[#171513]"
                         whileHover={{ scale: 1.08 }}
                       >
-                        <motion.span
-                          className="inline-flex"
-                        >
-                          <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
-                        </motion.span>
+                        <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
                       </motion.span>
                     </div>
                   </div>
@@ -1988,40 +2010,44 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.18 }}
-        className="border-y border-[#DDDAD2] bg-white px-4 py-10 [content-visibility:auto] [contain-intrinsic-size:760px] sm:px-6 sm:py-14 md:px-10"
+        className="border-y border-[#DDDAD2] bg-white px-5 py-12 [content-visibility:auto] [contain-intrinsic-size:760px] sm:px-6 sm:py-14 md:px-10"
       >
-        <div className="mx-auto grid w-full max-w-[92rem] gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:items-center">
-          <div>
-            <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-[#171513] text-[#D8C08A]">
-              <Sparkles className="h-5 w-5" strokeWidth={1.5} />
+        <div className="mx-auto w-full max-w-[92rem]">
+          <div className="mb-8 lg:mb-0 lg:grid lg:grid-cols-[0.72fr_1.28fr] lg:items-center lg:gap-8">
+            <div className="mb-6 lg:mb-0">
+              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-[#171513] text-[#D8C08A] sm:mb-5 sm:h-12 sm:w-12">
+                <Sparkles className="h-5 w-5" strokeWidth={1.5} />
+              </div>
+              <h2 className="font-serif text-3xl font-light leading-none text-[#171513] sm:text-4xl lg:text-5xl">
+                The pieces with presence.
+              </h2>
+              <p className="mt-3 max-w-xl text-[15px] leading-7 text-[#5A5650] sm:mt-5 sm:text-base sm:leading-8">
+                Balanced layers, clean textures, and prices visible before you commit.
+              </p>
+              <div className="mt-5 flex gap-3 sm:mt-7">
+                <Link href="/discover" className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-[#171513] px-5 py-3 text-sm text-[#F8F7F2] transition hover:bg-[#725D2C] sm:px-6">
+                  Discover
+                  <AnimatedArrow />
+                </Link>
+                <Link href="/wishlist" className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-[#D5D1C8] bg-white px-5 py-3 text-sm text-[#171513] transition hover:border-[#171513] sm:px-6">
+                  <Heart className="h-4 w-4" strokeWidth={1.5} />
+                  Wishlist
+                </Link>
+              </div>
             </div>
-            <h2 className="font-serif text-4xl font-light leading-none text-[#171513] sm:text-5xl lg:text-6xl">
-              The pieces with presence.
-            </h2>
-            <p className="mt-5 max-w-xl text-base leading-8 text-[#5A5650]">
-              Balanced layers, clean textures, and prices visible before a shopper commits.
-            </p>
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <Link href="/discover" className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-[#171513] px-6 py-3 text-sm text-[#F8F7F2] transition hover:bg-[#725D2C]">
-                Discover
-                <AnimatedArrow />
-              </Link>
-              <Link href="/wishlist" className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-[#D5D1C8] bg-white px-6 py-3 text-sm text-[#171513] transition hover:border-[#171513]">
-                <Heart className="h-4 w-4" strokeWidth={1.5} />
-                Wishlist
-              </Link>
-            </div>
-          </div>
 
-          <div className="grid gap-4 sm:grid-cols-3">
-            {(spotlightProducts.length ? spotlightProducts : editProducts).slice(0, 3).map((product) => (
-              <ProductTile
-                key={product._id}
-                product={product}
-                actionBusy={addingId === product._id}
-                onAction={handleProductAction}
-              />
-            ))}
+            {/* Mobile: horizontal scroll. Desktop: 3-col grid */}
+            <div className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-3 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {(spotlightProducts.length ? spotlightProducts : editProducts).slice(0, 3).map((product) => (
+                <div key={product._id} className="w-[70vw] min-w-[15rem] max-w-[17rem] shrink-0 snap-start sm:w-auto sm:min-w-0 sm:max-w-none">
+                  <ProductTile
+                    product={product}
+                    actionBusy={addingId === product._id}
+                    onAction={handleProductAction}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </motion.section>
@@ -2031,25 +2057,26 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.18 }}
-        className="bg-[#F7F7F4] px-4 py-10 [content-visibility:auto] [contain-intrinsic-size:720px] sm:px-6 sm:py-14 md:px-10"
+        className="bg-[#F7F7F4] px-5 py-12 [content-visibility:auto] [contain-intrinsic-size:720px] sm:px-6 sm:py-14 md:px-10"
       >
-        <div className="mx-auto grid w-full max-w-[92rem] gap-6 lg:grid-cols-[1fr_0.92fr] lg:items-start">
-          <div className="grid overflow-hidden rounded-lg border border-[#D5D1C8] bg-white sm:grid-cols-3">
+        <div className="mx-auto w-full max-w-[92rem]">
+          {/* Service items: horizontal scroll on mobile, grid on desktop */}
+          <div className="-mx-5 mb-6 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 sm:mx-0 sm:mb-8 sm:grid sm:grid-cols-3 sm:gap-0 sm:overflow-visible sm:rounded-lg sm:border sm:border-[#D5D1C8] sm:bg-white sm:px-0 sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {SERVICE_ITEMS.map((item) => {
               const Icon = item.icon;
               return (
-                <div key={item.label} className="border-b border-[#E2DFD8] p-5 sm:border-b-0 sm:border-r sm:last:border-r-0">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#F0EFEA] text-[#725D2C]">
-                    <Icon className="h-5 w-5" strokeWidth={1.5} />
+                <div key={item.label} className="w-[72vw] min-w-[14rem] shrink-0 snap-start rounded-xl border border-[#D5D1C8] bg-white p-4 sm:w-auto sm:min-w-0 sm:rounded-none sm:border-0 sm:border-b-0 sm:border-r sm:border-[#E2DFD8] sm:p-5 sm:last:border-r-0">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F0EFEA] text-[#725D2C] sm:h-11 sm:w-11">
+                    <Icon className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.5} />
                   </span>
-                  <h3 className="mt-5 text-base font-medium text-[#171513]">{item.label}</h3>
-                  <p className="mt-2 text-sm leading-6 text-[#5A5650]">{item.detail}</p>
+                  <h3 className="mt-3 text-[15px] font-medium text-[#171513] sm:mt-5 sm:text-base">{item.label}</h3>
+                  <p className="mt-1.5 text-[13px] leading-5 text-[#5A5650] sm:mt-2 sm:text-sm sm:leading-6">{item.detail}</p>
                 </div>
               );
             })}
           </div>
 
-          <div className="rounded-lg bg-[#171513] p-5 text-[#F8F7F2] sm:p-7">
+          <div className="rounded-2xl bg-[#171513] p-5 text-[#F8F7F2] sm:rounded-lg sm:p-7">
             <div className="flex flex-wrap gap-2">
               {[
                 { label: "Card or COD", icon: CreditCard },
@@ -2058,20 +2085,20 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
               ].map((item) => {
                 const Icon = item.icon;
                 return (
-                  <span key={item.label} className="inline-flex min-h-[36px] items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.06] px-3 text-sm text-[#E9E4D8]">
+                  <span key={item.label} className="inline-flex min-h-[36px] items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.06] px-3 text-[13px] text-[#E9E4D8] sm:text-sm">
                     <Icon className="h-3.5 w-3.5 text-[#D8C08A]" strokeWidth={1.5} />
                     {item.label}
                   </span>
                 );
               })}
             </div>
-            <h2 className="mt-7 font-serif text-4xl font-light leading-none sm:text-5xl">
+            <h2 className="mt-5 font-serif text-3xl font-light leading-none sm:mt-7 sm:text-4xl lg:text-5xl">
               Get the next edit first.
             </h2>
-            <p className="mt-4 max-w-xl text-sm leading-7 text-[#C9C5B8]">
+            <p className="mt-3 max-w-xl text-[13px] leading-6 text-[#C9C5B8] sm:mt-4 sm:text-sm sm:leading-7">
               New pieces, restocks, and quiet outfit notes.
             </p>
-            <div className="mt-6 rounded-lg bg-[#F8F7F2] p-3 text-[#171513] sm:p-4">
+            <div className="mt-5 rounded-xl bg-[#F8F7F2] p-3 text-[#171513] sm:mt-6 sm:rounded-lg sm:p-4">
               <NewsletterForm />
             </div>
           </div>

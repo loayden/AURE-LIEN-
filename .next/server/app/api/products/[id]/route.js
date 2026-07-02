@@ -1,7 +1,8 @@
 var R=require("../../../../chunks/[turbopack]_runtime.js")("server/app/api/products/[id]/route.js")
-R.c("server/chunks/[root-of-the-server]__12tlnjj._.js")
+R.c("server/chunks/[root-of-the-server]__0g0o9qx._.js")
+R.c("server/chunks/[root-of-the-server]__0h7lktw._.js")
+R.c("server/chunks/lib_redisStorage_ts_12d-15v._.js")
 R.c("server/chunks/[root-of-the-server]__0j8-xkl._.js")
-R.c("server/chunks/[root-of-the-server]__09h7rc8._.js")
 R.c("server/chunks/_next-internal_server_app_api_products_[id]_route_actions_0gjxx5m.js")
 R.m(11518)
 module.exports=R.m(11518).exports
