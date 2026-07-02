@@ -425,9 +425,9 @@ function CompareDrawer({
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
-        <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] snap-x snap-mandatory">
           {products.map((product) => (
-            <div key={product._id} className="flex min-w-[13rem] items-center gap-3 rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-white/64 p-2">
+            <div key={product._id} className="flex min-w-[13rem] items-center gap-3 rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-white/64 p-2 snap-start">
               <div className="relative h-14 w-12 shrink-0 overflow-hidden rounded-[12px] bg-[#FFFFFF]">
                 <Image src={productImage(product)} alt="" fill sizes="48px" className="object-contain p-1" />
               </div>
@@ -791,52 +791,26 @@ export default function ProductBrowser({
         </section>
       ) : null}
 
-      <section className={`sticky top-[3.75rem] z-[88] px-3 py-1 sm:top-[4.2rem] sm:px-6 md:px-10 lg:static lg:z-auto lg:border-b lg:border-[rgba(123,103,82,0.13)] lg:bg-[#F7F2E8]/88 lg:py-3 lg:backdrop-blur-2xl ${showIntro ? "" : "mt-[4.75rem] sm:mt-[5.25rem]"}`}>
+      <section className={`sticky top-[3.75rem] z-[88] px-5 py-2 sm:top-[4.2rem] sm:px-6 md:px-10 lg:static lg:z-auto lg:border-b lg:border-[rgba(123,103,82,0.13)] lg:bg-[#F7F2E8]/88 lg:py-3 lg:backdrop-blur-2xl ${showIntro ? "" : "mt-[4.75rem] sm:mt-[5.25rem]"}`}>
         <div className="page-wrap">
-          <div className="flex items-center justify-between gap-1.5 lg:hidden">
-            <div className="flex min-w-0 items-center gap-1.5">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[rgba(123,103,82,0.14)] bg-white/78 text-[#7B6E60] shadow-[0_6px_14px_rgba(61,48,37,0.04)]">
-                <SlidersHorizontal className="h-3.5 w-3.5" strokeWidth={1.4} />
-              </span>
-              <span className="truncate text-[8px] uppercase tracking-[0.16em] text-[#6F6254]">
-                {loading ? "Loading" : `${visibleProducts.length} / ${products.length}`}
-              </span>
-            </div>
-            <div className="flex shrink-0 items-center gap-1">
-              <button
-                type="button"
-                onClick={() => setCardView((current) => (current === "grid" ? "list" : "grid"))}
-                className="flex h-8 w-8 items-center justify-center rounded-full border border-[rgba(123,103,82,0.16)] bg-[#FFFDF8] text-[#4D4035] shadow-[0_6px_14px_rgba(61,48,37,0.05)] transition hover:border-[rgba(168,121,53,0.30)] hover:text-[#3D3025]"
-                aria-label={cardView === "list" ? "Show grid cards" : "Show list cards"}
-                aria-pressed={cardView === "list"}
-              >
-                {cardView === "list" ? <LayoutGrid className="h-3.5 w-3.5" strokeWidth={1.35} /> : <List className="h-3.5 w-3.5" strokeWidth={1.35} />}
-              </button>
-              <button
-                type="button"
-                onClick={() => setMobileFiltersOpen(true)}
-                className="flex h-8 w-8 items-center justify-center rounded-full border border-[rgba(123,103,82,0.16)] bg-white/78 text-[#4D4035] shadow-[0_6px_14px_rgba(61,48,37,0.045)]"
-                aria-label="Open filters"
-              >
-                <Filter className="h-3.5 w-3.5" strokeWidth={1.4} />
-              </button>
-              <label className="relative flex h-8 w-8 items-center justify-center rounded-full border border-[rgba(123,103,82,0.16)] bg-white/78 text-[#4D4035] shadow-[0_6px_14px_rgba(61,48,37,0.045)]">
-                <span className="sr-only">Sort products</span>
-                <ChevronDown className="h-3.5 w-3.5" strokeWidth={1.35} />
-                <select
-                  value={sort}
-                  onChange={(event) => setSort(event.target.value as SortValue)}
-                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                  aria-label="Sort products"
-                >
-                  {SORT_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
+          <div className="flex items-center justify-between gap-2 lg:hidden">
+            <button
+              type="button"
+              onClick={() => setMobileFiltersOpen(true)}
+              className="flex min-h-[44px] flex-1 items-center justify-center gap-2 rounded-full border border-[rgba(123,103,82,0.16)] bg-white/90 px-4 text-[10px] uppercase tracking-[0.16em] text-[#4D4035] shadow-[0_6px_14px_rgba(61,48,37,0.045)] backdrop-blur-xl"
+            >
+              <Filter className="h-3.5 w-3.5" strokeWidth={1.4} />
+              Refine & Sort
+            </button>
+            <button
+              type="button"
+              onClick={() => setCardView((current) => (current === "grid" ? "list" : "grid"))}
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-[rgba(123,103,82,0.16)] bg-[#FFFDF8]/90 text-[#4D4035] shadow-[0_6px_14px_rgba(61,48,37,0.05)] backdrop-blur-xl transition hover:border-[rgba(168,121,53,0.30)] hover:text-[#3D3025]"
+              aria-label={cardView === "list" ? "Show grid cards" : "Show list cards"}
+              aria-pressed={cardView === "list"}
+            >
+              {cardView === "list" ? <LayoutGrid className="h-4 w-4" strokeWidth={1.35} /> : <List className="h-4 w-4" strokeWidth={1.35} />}
+            </button>
           </div>
 
           <div className="hidden rounded-[24px] border border-[rgba(123,103,82,0.13)] bg-[rgba(255,249,239,0.78)] p-3 shadow-[0_14px_36px_rgba(61,48,37,0.06)] sm:p-4 lg:flex lg:items-center lg:justify-between lg:gap-4 lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
@@ -886,7 +860,7 @@ export default function ProductBrowser({
       </section>
 
       <section
-        className="page-wrap grid gap-6 px-4 py-8 sm:px-6 sm:py-10 md:px-10 lg:grid-cols-[18rem_1fr] lg:items-start"
+        className="page-wrap grid gap-6 px-5 py-8 sm:px-6 sm:py-10 md:px-10 lg:grid-cols-[18rem_1fr] lg:items-start"
         style={compactCards ? { background: "#FFFFFF" } : undefined}
       >
         <aside className="sticky top-32 hidden rounded-[24px] border border-[rgba(123,103,82,0.16)] bg-white/60 p-4 lg:block">
@@ -918,12 +892,12 @@ export default function ProductBrowser({
                 </div>
                 <CheckCircle2 className="h-4 w-4 shrink-0 text-[#A87935]" strokeWidth={1.35} />
               </div>
-              <div className="flex gap-3 overflow-x-auto pb-1">
+              <div className="flex gap-3 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] snap-x snap-mandatory">
                 {recentlyViewedProducts.map((product) => (
                   <Link
                     key={product._id}
                     href={`/product/${encodeURIComponent(product._id)}`}
-                    className="group flex min-w-[14rem] items-center gap-3 rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-[#FFF9EF]/76 p-2 transition hover:border-[rgba(168,121,53,0.28)]"
+                    className="group flex min-w-[14rem] items-center gap-3 rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-[#FFF9EF]/76 p-2 transition hover:border-[rgba(168,121,53,0.28)] snap-start"
                   >
                     <div className="relative h-16 w-12 shrink-0 overflow-hidden rounded-[12px] bg-[#FFFFFF]">
                       <Image src={productImage(product)} alt="" fill sizes="48px" className="object-contain p-1 transition duration-500 group-hover:scale-[1.04]" />
@@ -939,13 +913,13 @@ export default function ProductBrowser({
           ) : null}
 
           {loading ? (
-            <div className={`grid ${cardView === "list" ? "gap-3" : compactCards ? "gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5" : "gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"}`}>
+            <div className={`grid ${cardView === "list" ? "gap-3" : compactCards ? "grid-cols-2 gap-3 xl:grid-cols-4 2xl:grid-cols-5" : "grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"}`}>
               {Array.from({ length: 8 }).map((_, index) => (
                 <ProductCardSkeleton key={index} compact={compactCards} />
               ))}
             </div>
           ) : visibleProducts.length ? (
-            <div className={cardView === "list" ? "grid gap-3" : `grid ${compactCards ? "gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-5" : "gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"}`}>
+            <div className={cardView === "list" ? "grid gap-3" : `grid ${compactCards ? "grid-cols-2 gap-3 xl:grid-cols-4 2xl:grid-cols-5" : "grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"}`}>
               {visibleProducts.map((product, index) => (
                 <motion.div
                   key={product._id}
@@ -1019,26 +993,47 @@ export default function ProductBrowser({
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute inset-x-0 bottom-0 max-h-[86vh] overflow-y-auto rounded-t-[28px] border border-[rgba(123,103,82,0.18)] bg-[#FFF9EF] p-4 pb-[max(env(safe-area-inset-bottom),1rem)]"
+              className="absolute inset-x-0 bottom-0 flex max-h-[90vh] flex-col rounded-t-[32px] border border-[rgba(123,103,82,0.18)] bg-[#FFF9EF] pb-[env(safe-area-inset-bottom)]"
             >
-              <div className="mb-4 flex items-center justify-between">
+              <div className="sticky top-0 z-10 flex shrink-0 items-center justify-between border-b border-[rgba(123,103,82,0.12)] bg-[#FFF9EF]/95 p-5 backdrop-blur-md rounded-t-[32px]">
                 <div>
-                  <p className="eyebrow mb-1">Mobile Filters</p>
-                  <p className="text-[11px] tracking-[0.08em] text-[#6F6254]">{visibleProducts.length} matching pieces</p>
+                  <p className="eyebrow mb-1 text-[#3D3025]">Refine & Sort</p>
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-[#6F6254]">{visibleProducts.length} matching pieces</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setMobileFiltersOpen(false)}
-                  className="flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(123,103,82,0.16)] bg-white/60 text-[#6F6254]"
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(123,103,82,0.16)] bg-white/70 text-[#6F6254] transition hover:bg-white hover:text-[#3D3025]"
                   aria-label="Close filters"
                 >
                   <X className="h-4 w-4" strokeWidth={1.4} />
                 </button>
               </div>
-              {filterPanel}
-              <button type="button" onClick={() => setMobileFiltersOpen(false)} className="btn-gold mt-4 w-full justify-center">
-                Show Results
-              </button>
+              <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5">
+                <div className="mb-6 grid gap-2">
+                  <span className="text-[9px] uppercase tracking-[0.26em] text-[#7B6E60]">Sort By</span>
+                  <label className="relative">
+                    <select
+                      value={sort}
+                      onChange={(event) => setSort(event.target.value as SortValue)}
+                      className="luxury-select min-h-[48px] w-full rounded-2xl border border-[rgba(123,103,82,0.18)] bg-white/60 px-4 py-3 pr-10 text-[11px] uppercase tracking-[0.16em] text-[#3D3025]"
+                    >
+                      {SORT_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                <div className="mb-8 h-px w-full bg-[rgba(123,103,82,0.12)]" />
+                {filterPanel}
+              </div>
+              <div className="sticky bottom-0 z-10 shrink-0 border-t border-[rgba(123,103,82,0.12)] bg-[#FFF9EF]/95 p-5 backdrop-blur-md">
+                <button type="button" onClick={() => setMobileFiltersOpen(false)} className="btn-gold min-h-[52px] w-full justify-center text-sm shadow-[0_12px_28px_rgba(168,121,53,0.16)]">
+                  Show {visibleProducts.length} Results
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         ) : null}
