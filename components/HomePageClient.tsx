@@ -2,6 +2,7 @@
 
 import NewsletterForm from "@/components/NewsletterForm";
 import ProductCard from "@/components/ProductCard";
+import EditorialSections from "@/components/EditorialSections";
 import { showToast } from "@/components/ToastProvider";
 import {
   CATEGORY_META,
@@ -50,8 +51,8 @@ import {
   type WheelEvent as ReactWheelEvent,
 } from "react";
 
-const EDIT_PRODUCT_IDS = ["p-jc-017", "p-kn-004", "p-denim-002", "p-baggy-001", "p-su-001", "p-sh-005", "p-korean-003", "p-jc-018"];
-const SPOTLIGHT_PRODUCT_IDS = ["p-jc-016", "p-kn-005", "p-denim-004"];
+const EDIT_PRODUCT_IDS = ["p-jc-017", "p-kn-004", "p-denim-002", "p-baggy-001", "p-su-001", "p-sh-005", "p-korean-003", "p-jc-018", "p-1782485697754-a1ricb", "p-1782485697754-iv7q1l", "p-1782485697754-dtkq05", "p-1782485697755-09k1kq", "p-1782485697755-54bfd2", "p-1782485697755-22ep3j", "p-1782485697755-rc8kbj", "p-1782485697756-jduarq"];
+const SPOTLIGHT_PRODUCT_IDS = ["p-jc-016", "p-kn-005", "p-denim-004", "p-1782485697756-tlqobw", "p-1782485697756-8jf3lq", "p-1782485697756-xhvpd1"];
 
 const QUICK_DEPARTMENTS = [
   CATEGORY_META[0],
@@ -1778,6 +1779,8 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
       </section>
 
       <SummerCollectionSection products={products} addSetBusy={addingSummerSet} onShopFullSet={handleShopSummerSet} />
+
+      <EditorialSections products={products} />
 
       <BoutiqueReelFeature />
 

@@ -1,5 +1,5 @@
 // Bump this when replacing files in public/uploads without changing their names.
-export const PUBLIC_ASSET_VERSION = "2026-04-03-1";
+export const PUBLIC_ASSET_VERSION = "2026-07-02-1";
 
 export function withPublicAssetVersion(path: string): string {
   if (!path) return path;
