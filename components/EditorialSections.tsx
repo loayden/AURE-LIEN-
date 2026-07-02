@@ -187,7 +187,7 @@ export default function EditorialSections({ products }: { products: Product[] })
                 <div className="grid grid-cols-2 gap-4 sm:gap-6">
                   {look3Products.map((p) => (
                     <motion.div key={p._id} variants={productFadeUp}>
-                      <ProductCard product={p} dark />
+                      <ProductCard product={p} />
                     </motion.div>
                   ))}
                 </div>
