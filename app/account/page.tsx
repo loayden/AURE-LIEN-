@@ -1,7 +1,7 @@
 "use client";
 
 import { showToast } from "@/components/ToastProvider";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight,
   Building2,
@@ -25,6 +25,10 @@ import {
   User2,
   Wallet,
   X,
+  Settings,
+  HelpCircle,
+  Bell,
+  Gift,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -405,10 +409,10 @@ function AccountField({
       </span>
       <input
         autoComplete={config.autoComplete}
-        className={`min-h-[44px] w-full rounded-[12px] border px-3 text-[0.86rem] tracking-[0.02em] text-[#3D3025] outline-none transition sm:min-h-[48px] sm:rounded-[14px] sm:px-4 sm:text-[0.92rem] sm:tracking-[0.04em] ${
+        className={`min-h-[48px] w-full rounded-[12px] border px-4 text-[0.9rem] tracking-[0.02em] text-[#3D3025] outline-none transition sm:min-h-[52px] sm:rounded-[14px] sm:px-5 sm:text-[0.95rem] sm:tracking-[0.04em] ${
           locked
-            ? "border-[#7B6752]/10 bg-white/55 shadow-none"
-            : "border-[#A87935]/28 bg-[#FFF9EF]/72 shadow-[0_10px_24px_rgba(61,48,37,0.08)] focus:border-[#A87935]/55"
+            ? "border-[#7B6752]/10 bg-[#FDFBF7]/40 shadow-none"
+            : "border-[#A87935]/28 bg-[#FFF9EF]/72 shadow-[0_10px_24px_rgba(61,48,37,0.08)] focus:border-[#A87935]/55 focus:bg-white"
         } placeholder:text-[#6F6254]/45 read-only:text-[#3D3025]/72`}
         onChange={(event) => onChange(config.key, event.target.value)}
         placeholder={config.placeholder}
@@ -430,6 +434,7 @@ export default function AccountPage() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"profile" | "orders" | "partner">("profile");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -633,7 +638,7 @@ export default function AccountPage() {
 
   if (!user || !draft) {
     return (
-      <main className="liquid-page mobile-comfort px-3 pb-[calc(7.25rem+env(safe-area-inset-bottom))] pt-14 sm:px-6 sm:pb-20 sm:pt-24 md:px-10">
+      <main className="liquid-page mobile-comfort px-5 pb-[calc(7.25rem+env(safe-area-inset-bottom))] pt-14 sm:px-6 sm:pb-20 sm:pt-24 md:px-10">
         <div className="page-wrap max-w-3xl">
           <div className="glass-panel p-6 sm:p-8">
             <p className="eyebrow mb-4">Private Account</p>
@@ -705,567 +710,423 @@ export default function AccountPage() {
   );
 
   return (
-    <main className="liquid-page mobile-comfort px-3 pb-[calc(7.25rem+env(safe-area-inset-bottom))] pt-14 sm:px-6 sm:pb-20 sm:pt-24 md:px-10">
-      <div className="page-wrap max-w-6xl">
-        {error ? (
-          <div
-            className="mb-5 rounded-2xl px-4 py-3"
-            style={{ background: "rgba(154,34,34,0.08)", border: "1px solid rgba(154,34,34,0.22)" }}
-          >
-            <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: "#9A2222" }}>
-              {error}
-            </p>
+    <main className="min-h-screen bg-[#F4F2EE] pb-24 text-[#171513]">
+      {error ? (
+        <div className="mx-auto max-w-5xl px-4 pt-4 sm:px-6 lg:px-8">
+          <div className="rounded-xl border border-[#9A2222]/20 bg-[#9A2222]/5 px-4 py-3 text-sm text-[#9A2222]">
+            {error}
           </div>
-        ) : null}
+        </div>
+      ) : null}
 
-        <motion.section
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-3 rounded-[20px] border border-[#7B6752]/12 bg-white/72 p-4 shadow-[0_18px_54px_rgba(61,48,37,0.08)] backdrop-blur-2xl sm:mb-5 sm:rounded-[24px] sm:p-6"
-        >
-          <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end">
-            <div className="min-w-0">
-              <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                <p className="text-[9px] uppercase tracking-[0.28em] text-[#7A581F]">{headerKicker}</p>
-                <span className="inline-flex min-h-[34px] items-center rounded-full border border-[#A87935]/22 bg-[#A87935]/10 px-3 text-[9px] uppercase tracking-[0.22em] text-[#7A581F]">
-                  {headerBadge}
-                </span>
-              </div>
+      {/* 1. Facebook-style Cover & Profile Header */}
+      <div className="relative bg-white shadow-sm">
+        {/* Cover Photo Area (Gradient with grain) */}
+        <div className="relative h-48 w-full overflow-hidden sm:h-64 md:h-72 lg:h-80 bg-gradient-to-tr from-[#1a1c23] via-[#2c2f3b] to-[#3f4354]">
+          <div className="absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+        </div>
 
-              <div className="flex items-start gap-3 sm:gap-4">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[16px] border border-[#A87935]/24 bg-[#FFF9EF] text-[1.05rem] uppercase tracking-[0.08em] text-[#7A581F] shadow-[0_12px_26px_rgba(61,48,37,0.07)] sm:h-16 sm:w-16">
+        {/* Profile Info Overlay */}
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+          <div className="relative -mt-16 flex flex-col items-center pb-6 sm:-mt-20 sm:flex-row sm:items-end sm:justify-between sm:pb-8">
+            <div className="flex flex-col items-center sm:flex-row sm:items-end sm:space-x-6">
+              {/* Avatar with Completion Ring */}
+              <div className="relative group">
+                <div className="absolute -inset-1 rounded-full bg-white"></div>
+                <div className="relative flex h-32 w-32 items-center justify-center rounded-full border-4 border-white bg-[#F3F1ED] text-4xl font-light text-[#7A581F] shadow-md sm:h-40 sm:w-40 sm:text-5xl">
                   {getInitials(user)}
+                  {/* Circular Progress Ring */}
+                  <svg className="absolute inset-[-4px] h-[calc(100%+8px)] w-[calc(100%+8px)] -rotate-90 transform" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="48" fill="none" stroke="#E5E7EB" strokeWidth="4" />
+                    <circle 
+                      cx="50" cy="50" r="48" fill="none" stroke="#A87935" strokeWidth="4" 
+                      strokeDasharray="301.59" 
+                      strokeDashoffset={301.59 - (301.59 * profileCompletion) / 100}
+                      className="transition-all duration-1000 ease-out"
+                    />
+                  </svg>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <h1 className="font-serif text-[2rem] font-light leading-[1.02] tracking-[0.01em] text-[#3D3025] sm:text-[3.35rem]">
-                    {headerTitle}
-                  </h1>
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <span className="inline-flex min-h-[32px] items-center gap-2 rounded-full border border-[#A87935]/18 bg-[#A87935]/[0.07] px-3 text-[9px] uppercase tracking-[0.2em] text-[#7A581F]">
-                      {isPartnerProfile ? (
-                        <Store className="h-3.5 w-3.5" strokeWidth={1.35} />
-                      ) : (
-                        <ShieldCheck className="h-3.5 w-3.5" strokeWidth={1.35} />
-                      )}
-                      {roleChip}
-                    </span>
-                    <span className="inline-flex min-h-[32px] items-center gap-2 rounded-full border border-[#7B6752]/12 bg-white/70 px-3 text-[9px] uppercase tracking-[0.18em] text-[#6F6254]">
-                      <Calendar className="h-3.5 w-3.5" strokeWidth={1.35} />
-                      {dateChip}
-                    </span>
-                  </div>
-                  <div className="mt-4 min-w-0">
-                    <p className="text-[1.08rem] font-medium tracking-[0.01em] text-[#3D3025] sm:text-[1.22rem]">
-                      {displayName}
-                    </p>
-                    <div className="mt-2 flex min-w-0 flex-col gap-1.5 text-[0.78rem] tracking-[0.02em] text-[#6F6254] sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-                      <span className="inline-flex min-w-0 items-center gap-2">
-                        <Mail className="h-4 w-4 shrink-0 text-[#A87935]" strokeWidth={1.3} />
-                        <span className="truncate">{displayEmail}</span>
-                      </span>
-                      {displayPhone ? (
-                        <span className="inline-flex items-center gap-2">
-                          <Phone className="h-4 w-4 shrink-0 text-[#A87935]" strokeWidth={1.3} />
-                          {displayPhone}
-                        </span>
-                      ) : null}
-                    </div>
-                  </div>
+                {/* Camera Icon Overlay (Decorative) */}
+                <button className="absolute bottom-1 right-1 sm:bottom-3 sm:right-3 flex h-8 w-8 items-center justify-center rounded-full border border-black/10 bg-white/90 text-black/70 shadow-sm backdrop-blur transition hover:bg-white hover:text-black">
+                  <Edit3 className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Name & Basic Info */}
+              <div className="mt-4 text-center sm:mt-0 sm:pb-2 sm:text-left">
+                <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl lg:text-4xl">
+                  {displayName}
+                </h1>
+                <div className="mt-1 flex flex-wrap items-center justify-center gap-2 text-sm text-gray-500 sm:justify-start">
+                  <span className="inline-flex items-center gap-1.5 font-medium">
+                    {isPartnerProfile ? (
+                      <Store className="h-4 w-4 text-[#A87935]" />
+                    ) : (
+                      <ShieldCheck className="h-4 w-4 text-[#A87935]" />
+                    )}
+                    {roleChip}
+                  </span>
+                  <span>&bull;</span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Calendar className="h-4 w-4" />
+                    {dateChip}
+                  </span>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-[18px] border border-[#7B6752]/12 bg-[#FDFBF7]/74 p-3 sm:p-4">
-              <div className="mb-3 flex items-center justify-between gap-4">
-                <span className="text-[9px] uppercase tracking-[0.24em] text-[#7A581F]">
-                  {isPartnerProfile ? "Partner Status" : "Readiness"}
-                </span>
-                <span className="text-[0.82rem] text-[#3D3025]/78">{profileReadinessValue}%</span>
-              </div>
-              <div className="h-2 overflow-hidden rounded-full bg-[#7B6752]/12">
-                <motion.div
-                  animate={{ width: `${profileReadinessValue}%` }}
-                  className="h-full rounded-full bg-[#A87935]"
-                  initial={{ width: 0 }}
-                  transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                />
-              </div>
-              <p className="mt-3 text-[0.74rem] leading-5 tracking-[0.02em] text-[#6F6254]">
-                {isPartnerProfile
-                  ? partnerStatusCopy
-                  : missingFields.length > 0
-                    ? `${missingFields.slice(0, 3).join(", ")} ${missingFields.length > 3 ? "and more " : ""}need attention.`
-                    : "Ready for faster checkout and delivery."}
-              </p>
+            {/* Action Buttons */}
+            <div className="mt-6 flex flex-wrap justify-center gap-3 sm:mt-0 sm:pb-2 sm:justify-end">
+              <button 
+                onClick={() => { setActiveTab("profile"); setEditing(true); }}
+                className="inline-flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-900 transition hover:bg-gray-200"
+              >
+                <Edit3 className="h-4 w-4" />
+                Edit Profile
+              </button>
+              <button 
+                onClick={handleLogout}
+                className="inline-flex items-center gap-2 rounded-lg bg-[#171513] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-black"
+              >
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </button>
             </div>
           </div>
-        </motion.section>
+        </div>
 
-        <div className={`mb-4 grid grid-cols-2 gap-2 sm:mb-5 sm:gap-3 ${isPartnerProfile ? "lg:grid-cols-4" : "lg:grid-cols-5"}`}>
+        {/* Tab Navigation (Facebook style) */}
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 border-t border-gray-200">
+          <nav className="-mb-px flex space-x-8 overflow-x-auto" aria-label="Tabs">
+            {[
+              { id: "profile", name: "About & Details", icon: User2 },
+              { id: "orders", name: "Orders & Activity", icon: Package2 },
+              { id: "partner", name: "Boutique Hub", icon: Store, hidden: !hasPartnerProfile && !isPartnerProfile }
+            ].filter(tab => !tab.hidden).map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`
+                  group inline-flex items-center gap-2 whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium transition-colors
+                  ${activeTab === tab.id 
+                    ? "border-[#A87935] text-[#A87935]" 
+                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"}
+                `}
+              >
+                <tab.icon className={`h-5 w-5 ${activeTab === tab.id ? "text-[#A87935]" : "text-gray-400 group-hover:text-gray-500"}`} />
+                {tab.name}
+              </button>
+            ))}
+          </nav>
+        </div>
+      </div>
+
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+        
+        {/* 2. Amazon-style Stats Dashboard (Visible across all tabs as a quick overview) */}
+        <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="rounded-[18px] border border-[#7B6752]/12 bg-white/64 p-3 shadow-[0_12px_32px_rgba(61,48,37,0.05)] backdrop-blur-xl sm:p-4"
-              >
-                <div className="mb-3 flex items-center justify-between gap-3">
-                  <p className="text-[8px] uppercase tracking-[0.22em] text-[#7A581F]">{stat.label}</p>
-                  <Icon className="h-4 w-4 text-[#A87935]" strokeWidth={1.25} />
+              <div key={stat.label} className="flex flex-col rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium uppercase tracking-wider text-gray-500">{stat.label}</span>
+                  <div className="rounded-full bg-gray-50 p-2 text-[#A87935]">
+                    <Icon className="h-4 w-4" />
+                  </div>
                 </div>
-                <p className="font-serif text-[1.2rem] font-light leading-none tracking-[0.01em] text-[#3D3025] sm:text-[1.55rem]">{stat.value}</p>
-                <p className="mt-2 text-[0.68rem] leading-5 tracking-[0.02em] text-[#6F6254]">{stat.detail}</p>
-              </motion.div>
+                <div className="mt-2">
+                  <span className="text-2xl font-semibold text-gray-900">{stat.value}</span>
+                </div>
+                <div className="mt-1 text-xs text-gray-500">{stat.detail}</div>
+              </div>
             );
           })}
         </div>
 
-        <section className="mb-4 rounded-[20px] border border-[#7B6752]/12 bg-white/68 p-4 shadow-[0_18px_48px_rgba(61,48,37,0.07)] backdrop-blur-2xl sm:mb-5 sm:rounded-[24px] sm:p-6">
-          <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p className="eyebrow mb-2">Next Best Actions</p>
-              <h2 className="title-display text-[1.85rem] sm:text-[2.45rem]">
-                Shopping <em className="gold-italic">Command</em>
-              </h2>
-              <p className="body-copy mt-3 max-w-2xl">
-                BOUT uses your current account state to make the next step obvious: complete profile details, review saved pieces, track orders, or continue shopping.
-              </p>
-            </div>
-
-            <div className="rounded-[18px] border border-[#A87935]/18 bg-[#FFF9EF]/72 p-4 lg:min-w-[15rem]">
-              <div className="mb-3 flex items-center justify-between gap-4">
-                <span className="text-[9px] uppercase tracking-[0.24em] text-[#7A581F]">Customer Quality</span>
-                <TrendingUp className="h-4 w-4 text-[#A87935]" strokeWidth={1.35} />
-              </div>
-              <p className="font-serif text-[2rem] font-light leading-none text-[#3D3025]">{customerQualityScore}/100</p>
-              <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#7B6752]/12">
-                <motion.div
-                  animate={{ width: `${customerQualityScore}%` }}
-                  className="h-full rounded-full bg-[#A87935]"
-                  initial={{ width: 0 }}
-                  transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            {customerActions.map((action) => {
-              const Icon = action.icon;
-              return (
-                <Link
-                  key={action.title}
-                  href={action.href}
-                  className="group rounded-[18px] border border-[#7B6752]/12 bg-[#FDFBF7]/74 p-4 transition hover:-translate-y-0.5 hover:border-[#A87935]/28 hover:bg-[#FFF9EF]"
-                >
-                  <div className="mb-4 flex items-center justify-between gap-3">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-[14px] border border-[#A87935]/18 bg-white/62 text-[#A87935]">
-                      <Icon className="h-5 w-5" strokeWidth={1.25} />
-                    </span>
-                    <span className="rounded-full border border-[#A87935]/18 bg-[#A87935]/10 px-2 py-1 text-[8px] uppercase tracking-[0.18em] text-[#7A581F]">
-                      {action.priority}
-                    </span>
+        {/* 3. Tab Content Area */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            {activeTab === "profile" && (
+              <div className="space-y-6">
+                
+                {/* Profile Details Form */}
+                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                  <div className="border-b border-gray-200 bg-gray-50/50 px-6 py-5">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-medium text-gray-900">Personal Information</h3>
+                      {editing ? (
+                        <button onClick={cancelEdit} className="text-sm font-medium text-gray-500 hover:text-gray-700">Cancel</button>
+                      ) : (
+                        <button onClick={() => setEditing(true)} className="text-sm font-medium text-[#A87935] hover:text-[#8a6125]">Edit Info</button>
+                      )}
+                    </div>
                   </div>
-                  <h3 className="font-serif text-[1.4rem] font-light leading-none text-[#3D3025]">{action.title}</h3>
-                  <p className="mt-3 min-h-[3.1rem] text-[0.76rem] leading-6 text-[#6F6254]">{action.copy}</p>
-                  <span className="mt-4 inline-flex items-center gap-2 text-[9px] uppercase tracking-[0.2em] text-[#7A581F]">
-                    {action.label}
-                    <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" strokeWidth={1.35} />
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
+                  <div className="px-6 py-6">
+                    <form onSubmit={(e) => { e.preventDefault(); saveProfile(); }}>
+                      <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                        {profileFields.map((field) => (
+                          <div key={field.key}>
+                            <label className="block text-sm font-medium text-gray-700">{field.label}</label>
+                            <div className="mt-1">
+                              <input
+                                type="text"
+                                autoComplete={field.autoComplete}
+                                value={String(draft[field.key] ?? "")}
+                                onChange={(e) => updateDraft(field.key, e.target.value)}
+                                readOnly={!editing || field.readOnly}
+                                placeholder={field.placeholder}
+                                className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-[#A87935] focus:ring-[#A87935] sm:text-sm ${
+                                  !editing || field.readOnly ? "bg-gray-50 text-gray-500" : "bg-white"
+                                }`}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
 
-        <div className="grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(20rem,0.65fr)]">
-          <section id="profile-details" className="rounded-[20px] border border-[#7B6752]/12 bg-white/68 p-4 shadow-[0_18px_48px_rgba(61,48,37,0.07)] backdrop-blur-2xl sm:rounded-[24px] sm:p-6">
-            <form
-              onSubmit={(event) => {
-                event.preventDefault();
-                saveProfile();
-              }}
-            >
-              <div className="mb-5 flex flex-wrap items-start justify-between gap-3 sm:mb-7 sm:gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-[#A87935]/18 bg-[#A87935]/[0.07]">
-                    <User2 strokeWidth={1.2} className="h-5 w-5 text-[#A87935]" />
-                  </div>
-                  <div>
-                    <p className="eyebrow mb-2">{isPartnerProfile ? "Owner Details" : "Profile Details"}</p>
-                    <p className="body-copy body-copy-strong">
-                      {isPartnerProfile
-                        ? "Keep owner contact details current for review, support, and payout communication."
-                        : "Keep sign-in, contact, and delivery details current."}
-                    </p>
+                      <div className="mt-8 border-t border-gray-200 pt-8">
+                        <h4 className="text-base font-medium text-gray-900">Delivery Address</h4>
+                        <p className="mt-1 text-sm text-gray-500">Used to pre-fill your checkout for faster shopping.</p>
+                        <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                          {deliveryFields.map((field) => (
+                            <div key={field.key}>
+                              <label className="block text-sm font-medium text-gray-700">{field.label}</label>
+                              <div className="mt-1">
+                                <input
+                                  type="text"
+                                  autoComplete={field.autoComplete}
+                                  value={String(draft[field.key] ?? "")}
+                                  onChange={(e) => updateDraft(field.key, e.target.value)}
+                                  readOnly={!editing}
+                                  placeholder={field.placeholder}
+                                  className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-[#A87935] focus:ring-[#A87935] sm:text-sm ${
+                                    !editing ? "bg-gray-50 text-gray-500" : "bg-white"
+                                  }`}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {editing && (
+                        <div className="mt-8 flex justify-end">
+                          <button
+                            type="submit"
+                            disabled={saving || !hasChanges}
+                            className="inline-flex justify-center rounded-md border border-transparent bg-[#171513] py-2 px-6 text-sm font-medium text-white shadow-sm hover:bg-black focus:outline-none focus:ring-2 focus:ring-[#A87935] focus:ring-offset-2 disabled:opacity-50"
+                          >
+                            {saving ? "Saving..." : "Save Changes"}
+                          </button>
+                        </div>
+                      )}
+                    </form>
                   </div>
                 </div>
 
-                {editing ? (
-                  <button
-                    type="button"
-                    onClick={cancelEdit}
-                    className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-[14px] border border-[#7B6752]/18 bg-white/50 px-4 text-[9px] uppercase tracking-[0.22em] text-[#6F6254] transition-colors hover:border-[#A87935]/35 hover:text-[#7A581F]"
-                  >
-                    <X className="h-3.5 w-3.5" strokeWidth={1.3} />
-                    Cancel
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setEditing(true)}
-                    className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-[14px] border border-[#A87935]/24 bg-[#A87935]/10 px-4 text-[9px] uppercase tracking-[0.22em] text-[#7A581F] transition-colors hover:border-[#A87935]/45"
-                  >
-                    <Edit3 className="h-3.5 w-3.5" strokeWidth={1.3} />
-                    Edit
-                  </button>
+                {/* Account Intent (Buyer/Partner) */}
+                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                  <div className="border-b border-gray-200 bg-gray-50/50 px-6 py-5">
+                    <h3 className="text-lg font-medium text-gray-900">Account Type</h3>
+                  </div>
+                  <div className="px-6 py-6">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                      {accountIntentOptions.map((option) => {
+                        const Icon = option.icon;
+                        const active = (draft.accountIntent ?? "buyer") === option.value;
+                        return (
+                          <button
+                            key={option.value}
+                            type="button"
+                            disabled={!editing}
+                            onClick={() => updateDraft("accountIntent", option.value)}
+                            className={`relative flex cursor-pointer rounded-lg border p-4 shadow-sm focus:outline-none ${
+                              active ? "border-[#A87935] bg-orange-50/30 ring-1 ring-[#A87935]" : "border-gray-300 bg-white"
+                            }`}
+                          >
+                            <span className="flex flex-1">
+                              <span className="flex flex-col">
+                                <span className={`block text-sm font-medium ${active ? "text-[#A87935]" : "text-gray-900"}`}>
+                                  <Icon className="mb-2 h-5 w-5" />
+                                  {option.title}
+                                </span>
+                                <span className="mt-1 flex items-center text-xs text-gray-500">
+                                  {option.copy}
+                                </span>
+                              </span>
+                            </span>
+                            {active && (
+                              <CheckCircle2 className="h-5 w-5 text-[#A87935] absolute top-4 right-4" aria-hidden="true" />
+                            )}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            )}
+
+            {activeTab === "orders" && (
+              <div className="space-y-6">
+                
+                {/* Amazon-style Quick Action Tiles */}
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Your Account</h3>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <Link href="/orders" className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md hover:border-gray-300">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f2f4f8]">
+                      <Package2 className="h-6 w-6 text-gray-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Your Orders</h4>
+                      <p className="text-sm text-gray-500">Track, return, or buy things again</p>
+                    </div>
+                  </Link>
+
+                  <Link href="/wishlist" className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md hover:border-gray-300">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#fff0f0]">
+                      <Heart className="h-6 w-6 text-red-500" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Your Wishlist</h4>
+                      <p className="text-sm text-gray-500">View and manage saved items</p>
+                    </div>
+                  </Link>
+                  
+                  <Link href="/shop" className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md hover:border-gray-300">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f0f9ff]">
+                      <ShoppingBag className="h-6 w-6 text-blue-500" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">Keep Shopping</h4>
+                      <p className="text-sm text-gray-500">Discover new arrivals and trends</p>
+                    </div>
+                  </Link>
+                </div>
+
+                <div className="mt-10 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+                  <div className="border-b border-gray-200 bg-gray-50/50 px-6 py-5 flex items-center justify-between">
+                    <h3 className="text-lg font-medium text-gray-900">Recent Order Snapshot</h3>
+                    <Link href="/orders" className="text-sm font-medium text-[#A87935] hover:text-[#8a6125]">View all orders &rarr;</Link>
+                  </div>
+                  <div className="px-6 py-6">
+                    {recentOrder ? (
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-lg border border-gray-100 bg-gray-50 p-4">
+                        <div className="mb-4 sm:mb-0">
+                          <p className="text-sm font-medium text-gray-900">Order placed on {formatDate(recentOrder.createdAt)}</p>
+                          <p className="text-sm text-gray-500 mt-1">Total: {formatCurrency(orderTotal(recentOrder))} • {orderItemCount(recentOrder)} items</p>
+                          <div className="mt-3">
+                            <StatusPill order={recentOrder} />
+                          </div>
+                        </div>
+                        <Link
+                          href={`/orders/${encodeURIComponent(recentOrder._id)}`}
+                          className="inline-flex justify-center items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none"
+                        >
+                          View Order Details
+                        </Link>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8">
+                        <Package2 className="mx-auto h-12 w-12 text-gray-300" />
+                        <h3 className="mt-2 text-sm font-medium text-gray-900">No orders yet</h3>
+                        <p className="mt-1 text-sm text-gray-500">Your recent purchases will appear here.</p>
+                        <div className="mt-6">
+                          <Link href="/shop" className="inline-flex items-center rounded-md border border-transparent bg-[#171513] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-black">
+                            Start Shopping
+                          </Link>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+              </div>
+            )}
+
+            {activeTab === "partner" && (
+              <div className="space-y-6">
+                
+                {/* Boutique Dashboard Intro */}
+                <div className="rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm">
+                  <div className="bg-[#171513] px-6 py-8 text-white sm:px-10 flex flex-col sm:flex-row items-center justify-between">
+                    <div>
+                      <h3 className="text-2xl font-bold">Boutique Partner Hub</h3>
+                      <p className="mt-2 text-gray-400 max-w-xl">
+                        Manage your boutique profile, upload products for review, and track your payout balance in one secure location.
+                      </p>
+                    </div>
+                    <div className="mt-6 sm:mt-0">
+                      <Link href={isPartnerProfile ? partnerPrimaryHref : hasPartnerProfile ? partnerProfileHref : "/boutiques"} className="inline-flex items-center justify-center rounded-lg bg-[#A87935] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#8a6125]">
+                        {isPartnerProfile || hasPartnerProfile ? "Go to Dashboard" : "Apply Now"}
+                      </Link>
+                    </div>
+                  </div>
+                  
+                  {isPartnerProfile ? (
+                     <div className="grid grid-cols-1 divide-y divide-gray-200 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
+                        <div className="px-6 py-5">
+                          <p className="text-sm font-medium text-gray-500">Boutique Name</p>
+                          <p className="mt-1 text-lg font-semibold text-gray-900">{selectedPartnerApplication?.boutiqueName}</p>
+                          <p className="mt-1 text-sm text-gray-500">{titleCase(selectedPartnerApplication?.status)}</p>
+                        </div>
+                        <div className="px-6 py-5">
+                          <p className="text-sm font-medium text-gray-500">Available Payout</p>
+                          <p className="mt-1 text-lg font-semibold text-gray-900">{partnerSummary.wallet ? formatCurrency(partnerSummary.wallet.summary.available) : "EGP 0"}</p>
+                          <Link href={partnerProductsHref} className="mt-1 text-sm text-[#A87935] hover:underline">Manage Wallet &rarr;</Link>
+                        </div>
+                        <div className="px-6 py-5">
+                          <p className="text-sm font-medium text-gray-500">Pending Products</p>
+                          <p className="mt-1 text-lg font-semibold text-gray-900">{partnerSummary.pendingProductCount}</p>
+                          <Link href={partnerProductsHref} className="mt-1 text-sm text-[#A87935] hover:underline">Upload more &rarr;</Link>
+                        </div>
+                     </div>
+                  ) : (
+                    <div className="px-6 py-8 text-center sm:px-10">
+                      <Store className="mx-auto h-12 w-12 text-gray-300" />
+                      <h4 className="mt-4 text-lg font-medium text-gray-900">Become a BOUT Partner</h4>
+                      <p className="mt-2 text-gray-500 max-w-lg mx-auto">
+                        Reach a premium audience and grow your luxury business. We handle the platform, you focus on curation.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {isPartnerProfile && (
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <Link href={partnerProductsHref} className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+                        <Package2 className="h-6 w-6 text-gray-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Manage Products</h4>
+                        <p className="text-sm text-gray-500">Upload and edit your inventory</p>
+                      </div>
+                    </Link>
+                    <Link href={partnerSubscriptionHref} className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
+                        <CreditCard className="h-6 w-6 text-gray-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-gray-900">Subscription Plan</h4>
+                        <p className="text-sm text-gray-500">View your billing and plan details</p>
+                      </div>
+                    </Link>
+                  </div>
                 )}
               </div>
-
-              <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
-                {profileFields.map((field) => (
-                  <AccountField
-                    key={field.key}
-                    config={field}
-                    editing={editing}
-                    onChange={updateDraft}
-                    value={String(draft[field.key] ?? "")}
-                  />
-                ))}
-              </div>
-
-              <div className="mt-6 border-t border-[#7B6752]/14 pt-5 sm:mt-8 sm:pt-7">
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-3 sm:mb-5">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border border-[#A87935]/18 bg-[#A87935]/[0.07]">
-                      <Building2 strokeWidth={1.2} className="h-5 w-5 text-[#A87935]" />
-                    </div>
-                    <div>
-                      <p className="eyebrow mb-2">{isPartnerProfile ? "Partner Role" : "Account Purpose"}</p>
-                      <p className="body-copy body-copy-strong">
-                        {isPartnerProfile
-                          ? "This account can manage boutique workflows while keeping buyer access when needed."
-                          : "Choose whether this account is for buying, boutique selling, or both."}
-                      </p>
-                    </div>
-                  </div>
-                  <span className="inline-flex min-h-[34px] items-center rounded-full border border-[#A87935]/22 bg-[#A87935]/10 px-3 text-[9px] uppercase tracking-[0.24em] text-[#7A581F]">
-                    {accountIntentLabel(draft.accountIntent)}
-                  </span>
-                </div>
-
-                <div className="grid gap-2.5 md:grid-cols-3">
-                  {accountIntentOptions.map((option) => {
-                    const Icon = option.icon;
-                    const active = (draft.accountIntent ?? "buyer") === option.value;
-                    return (
-                      <button
-                        key={option.value}
-                        type="button"
-                        aria-pressed={active}
-                        disabled={!editing}
-                        onClick={() => updateDraft("accountIntent", option.value)}
-                        className={`group relative flex min-h-[5rem] items-start gap-3 overflow-hidden !rounded-[14px] border px-3 py-3 pr-10 text-left transition sm:min-h-[5.75rem] sm:px-4 sm:py-4 sm:pr-11 ${
-                          active
-                            ? "border-[#A87935]/45 bg-[#FFF9EF]/72 shadow-[0_14px_34px_rgba(61,48,37,0.08)]"
-                            : "border-[#7B6752]/14 bg-white/30"
-                        } ${editing ? "hover:-translate-y-0.5 hover:border-[#A87935]/38 hover:bg-[#FFF9EF]/60" : "cursor-default"}`}
-                      >
-                        <span
-                          className={`mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border transition ${
-                            active
-                              ? "border-[#A87935]/28 bg-[#A87935]/12 text-[#7A581F]"
-                              : "border-[#7B6752]/14 bg-white/54 text-[#A87935]"
-                          }`}
-                        >
-                          <Icon className="h-4 w-4" strokeWidth={1.25} />
-                        </span>
-                        <span className="block min-w-0 pt-0.5">
-                          <span className="block text-[10px] uppercase tracking-[0.22em] text-[#7A581F]">{option.title}</span>
-                          <span className="mt-2 block text-xs leading-5 tracking-[0.02em] text-[#6F6254]">{option.copy}</span>
-                        </span>
-                        <span
-                          className={`absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full border transition ${
-                            active
-                              ? "border-[#A87935]/35 bg-[#A87935]/14 text-[#7A581F]"
-                              : "border-[#7B6752]/16 bg-white/40 text-transparent"
-                          }`}
-                          aria-hidden="true"
-                        >
-                          <CheckCircle2 className="h-3.5 w-3.5" strokeWidth={1.45} />
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="mt-6 border-t border-[#7B6752]/14 pt-5 sm:mt-8 sm:pt-7">
-                <div className="mb-4 flex flex-wrap items-center justify-between gap-3 sm:mb-5">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border border-[#A87935]/18 bg-[#A87935]/[0.07]">
-                      <MapPin strokeWidth={1.2} className="h-5 w-5 text-[#A87935]" />
-                    </div>
-                    <div>
-                      <p className="eyebrow mb-2">{isPartnerProfile ? "Address Profile" : "Delivery Profile"}</p>
-                      <p className="body-copy body-copy-strong">
-                        {isPartnerProfile
-                          ? "Used for account support, order coordination, and checkout when you buy."
-                          : "Used to prefill checkout and reduce address mistakes."}
-                      </p>
-                    </div>
-                  </div>
-                  <span
-                    className="inline-flex min-h-[34px] items-center rounded-full border px-3 text-[9px] uppercase tracking-[0.24em]"
-                    style={{
-                      borderColor: deliveryReady ? "rgba(80,160,100,0.18)" : "rgba(168,121,53,0.22)",
-                      background: deliveryReady ? "rgba(80,160,100,0.1)" : "rgba(168,121,53,0.1)",
-                      color: deliveryReady ? "#3C7A4D" : "#7A581F",
-                    }}
-                  >
-                    {deliveryReady ? "Ready" : "Needs Details"}
-                  </span>
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-2 sm:gap-4">
-                  {deliveryFields.map((field) => (
-                    <AccountField
-                      key={field.key}
-                      config={field}
-                      editing={editing}
-                      onChange={updateDraft}
-                      value={String(draft[field.key] ?? "")}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-[0.78rem] leading-6 tracking-[0.07em] text-[#6F6254]">
-                  Email stays locked because it is connected to account sign-in.
-                </p>
-                {editing ? (
-                  <button
-                    type="submit"
-                    disabled={saving || !hasChanges}
-                    className="btn-gold justify-center disabled:opacity-45 sm:min-w-[13rem]"
-                  >
-                    <Save strokeWidth={1.2} className="h-4 w-4" />
-                    {saving ? "Saving" : "Save Profile"}
-                  </button>
-                ) : null}
-              </div>
-            </form>
-          </section>
-
-          <aside className="flex flex-col gap-4 sm:gap-5">
-            <section className={`flex flex-col gap-4 rounded-[20px] border border-[#7B6752]/12 bg-white/68 p-4 shadow-[0_18px_48px_rgba(61,48,37,0.07)] backdrop-blur-2xl sm:rounded-[24px] sm:p-6 ${isPartnerProfile ? "order-2" : "order-1"}`}>
-              <div className="mb-4 flex items-start justify-between gap-4 sm:mb-5">
-                <div>
-                  <p className="eyebrow mb-2 sm:mb-3">{isPartnerProfile ? "Buyer Activity" : "Recent Activity"}</p>
-                  <h2 className="title-display text-[1.7rem] sm:text-[2rem]">
-                    Order <em className="gold-italic">Snapshot</em>
-                  </h2>
-                </div>
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border border-[#A87935]/18 bg-[#A87935]/[0.07]">
-                  <Package2 className="h-5 w-5 text-[#A87935]" strokeWidth={1.2} />
-                </div>
-              </div>
-
-              {recentOrder ? (
-                <div className="space-y-4 sm:space-y-5">
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <StatusPill order={recentOrder} />
-                    <span className="text-[10px] uppercase tracking-[0.22em] text-[#6F6254]">
-                      {formatDate(recentOrder.createdAt)}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 border-y border-[#7B6752]/12 py-3 sm:gap-3 sm:py-4">
-                    <div>
-                      <p className="eyebrow mb-2">Items</p>
-                      <p className="title-display text-[1.45rem]">{orderItemCount(recentOrder)}</p>
-                    </div>
-                    <div>
-                      <p className="eyebrow mb-2">Total</p>
-                      <p className="title-display text-[1.45rem] text-[#7A581F]">{formatCurrency(orderTotal(recentOrder))}</p>
-                    </div>
-                  </div>
-                  <Link
-                    href={`/orders/${encodeURIComponent(recentOrder._id)}`}
-                    className="liquid-row-link"
-                  >
-                    <span className="inline-flex items-center gap-3">
-                      <ShoppingBag strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
-                      <span className="text-[0.78rem] uppercase tracking-[0.22em]">View Details</span>
-                    </span>
-                    <ArrowRight strokeWidth={1.2} className="h-4 w-4 text-[#7B6752]/45" />
-                  </Link>
-                </div>
-              ) : (
-                <div className="py-2">
-                  <p className="body-copy">
-                    Your first order will appear here with status, items, and total spend after checkout.
-                  </p>
-                  <Link href="/shop" className="btn-gold mt-4 w-full justify-center sm:mt-5">
-                    Browse Shop
-                    <ArrowRight strokeWidth={1.2} className="h-4 w-4" />
-                  </Link>
-                </div>
-              )}
-            </section>
-
-            <section className={`flex flex-col gap-4 rounded-[20px] border border-[#7B6752]/12 bg-white/68 p-4 shadow-[0_18px_48px_rgba(61,48,37,0.07)] backdrop-blur-2xl sm:rounded-[24px] sm:p-6 ${isPartnerProfile ? "order-1" : "order-2"}`}>
-              <div>
-                <p className="eyebrow mb-2 sm:mb-3">{isPartnerProfile ? "Partner Workspace" : "Boutique Partner"}</p>
-                <h2 className="title-display text-[1.7rem] sm:text-[2rem]">
-                  {isPartnerProfile ? "Boutique " : "Sell on "}
-                  <em className="gold-italic">{isPartnerProfile ? "Desk" : "BOUT"}</em>
-                </h2>
-                <p className="body-copy mt-3">
-                  {isPartnerProfile
-                    ? "Manage products, subscription, payout readiness, and boutique review from one focused partner area."
-                    : hasPartnerProfile
-                      ? "Your boutique profile now lives in a separate partner area, while this page stays focused on your customer account."
-                      : "Apply as a boutique, submit products for admin review, and use Paymob for the monthly partner plan when configured."}
-                </p>
-              </div>
-
-              {isPartnerProfile ? (
-                <div className="mt-4 rounded-[16px] border border-[#A87935]/18 bg-[#FFF9EF]/62 p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] border border-[#A87935]/18 bg-white/62">
-                      <Store className="h-5 w-5 text-[#A87935]" strokeWidth={1.2} />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-[9px] uppercase tracking-[0.24em] text-[#7A581F]">
-                        {selectedPartnerApplication ? titleCase(selectedPartnerApplication.status) : "Setup Needed"}
-                      </p>
-                      <p className="mt-2 break-words font-serif text-[1.35rem] leading-none text-[#3D3025]">
-                        {selectedPartnerApplication?.boutiqueName || "Start your boutique application"}
-                      </p>
-                      <p className="mt-3 text-[0.74rem] leading-5 tracking-[0.02em] text-[#6F6254]">
-                        {partnerStatusCopy}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                  {partnerProfileCards.map((item) => {
-                    const Icon = item.icon;
-                    return (
-                      <div
-                        key={item.label}
-                        className="rounded-[14px] border border-[#7B6752]/12 bg-[#FDFBF7]/74 p-3"
-                      >
-                        <Icon className="mb-2 h-4 w-4 text-[#A87935]" strokeWidth={1.25} />
-                        <p className="text-[8px] uppercase tracking-[0.18em] text-[#7A581F]">{item.label}</p>
-                        <p className="mt-2 break-words font-serif text-[1.05rem] leading-none text-[#3D3025]">
-                          {item.value}
-                        </p>
-                        <p className="mt-2 break-words text-[0.68rem] leading-5 text-[#6F6254]">{item.detail}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {partnerSummary.error ? (
-                <p className="rounded-[14px] border border-[#9A2222]/18 bg-[#9A2222]/[0.04] px-3 py-2 text-[0.72rem] leading-5 text-[#9A2222]">
-                  {partnerSummary.error}
-                </p>
-              ) : null}
-
-              <nav className="flex flex-col gap-2 sm:gap-3">
-                <Link href={isPartnerProfile ? partnerPrimaryHref : hasPartnerProfile ? partnerProfileHref : "/boutiques"} className="liquid-row-link">
-                  <span className="inline-flex items-center gap-3">
-                    <Building2 strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
-                    <span className="text-[0.78rem] uppercase tracking-[0.22em]">
-                      {isPartnerProfile
-                        ? selectedPartnerApplication
-                          ? "Partner Dashboard"
-                          : "Start Application"
-                        : hasPartnerProfile
-                          ? "Partner Profile"
-                          : "Apply Boutique"}
-                    </span>
-                  </span>
-                  <ArrowRight strokeWidth={1.2} className="h-4 w-4 text-[#7B6752]/45" />
-                </Link>
-                <Link href={partnerProductsHref} className="liquid-row-link">
-                  <span className="inline-flex items-center gap-3">
-                    <Package2 strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
-                    <span className="text-[0.78rem] uppercase tracking-[0.22em]">
-                      {isPartnerProfile ? "Manage Products" : "Upload Products"}
-                    </span>
-                  </span>
-                  <ArrowRight strokeWidth={1.2} className="h-4 w-4 text-[#7B6752]/45" />
-                </Link>
-                <Link href={partnerSubscriptionHref} className="liquid-row-link">
-                  <span className="inline-flex items-center gap-3">
-                    <CreditCard strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
-                    <span className="text-[0.78rem] uppercase tracking-[0.22em]">
-                      {isPartnerProfile ? "Subscription Plan" : "Pay Partner Plan"}
-                    </span>
-                  </span>
-                  <ArrowRight strokeWidth={1.2} className="h-4 w-4 text-[#7B6752]/45" />
-                </Link>
-                <Link href={partnerProductsHref} className="liquid-row-link">
-                  <span className="inline-flex items-center gap-3">
-                    <Wallet strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
-                    <span className="text-[0.78rem] uppercase tracking-[0.22em]">Partner Wallet</span>
-                  </span>
-                  <ArrowRight strokeWidth={1.2} className="h-4 w-4 text-[#7B6752]/45" />
-                </Link>
-              </nav>
-            </section>
-
-            <section className="order-3 rounded-[20px] border border-[#7B6752]/12 bg-white/68 p-4 shadow-[0_18px_48px_rgba(61,48,37,0.07)] backdrop-blur-2xl sm:rounded-[24px] sm:p-6">
-              <div>
-                <p className="eyebrow mb-2 sm:mb-3">{isPartnerProfile ? "Buyer Tools" : "Client Services"}</p>
-                <h2 className="title-display text-[1.7rem] sm:text-[2rem]">
-                  Account <em className="gold-italic">Access</em>
-                </h2>
-              </div>
-
-              <nav className="flex flex-col gap-2 sm:gap-3">
-                <Link href="/orders" className="liquid-row-link">
-                  <span className="inline-flex items-center gap-3">
-                    <Package2 strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
-                    <span className="text-[0.78rem] uppercase tracking-[0.22em]">Order History</span>
-                  </span>
-                  <ArrowRight strokeWidth={1.2} className="h-4 w-4 text-[#7B6752]/45" />
-                </Link>
-                <Link href="/wishlist" className="liquid-row-link">
-                  <span className="inline-flex items-center gap-3">
-                    <Heart strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
-                    <span className="text-[0.78rem] uppercase tracking-[0.22em]">Wishlist</span>
-                  </span>
-                  <ArrowRight strokeWidth={1.2} className="h-4 w-4 text-[#7B6752]/45" />
-                </Link>
-                <Link href="/shop" className="liquid-row-link">
-                  <span className="inline-flex items-center gap-3">
-                    <ShoppingBag strokeWidth={1.2} className="h-4 w-4 text-[#A87935]" />
-                    <span className="text-[0.78rem] uppercase tracking-[0.22em]">Continue Shopping</span>
-                  </span>
-                  <ArrowRight strokeWidth={1.2} className="h-4 w-4 text-[#7B6752]/45" />
-                </Link>
-              </nav>
-
-              <motion.button
-                whileHover={{ scale: 1.015 }}
-                whileTap={{ scale: 0.985 }}
-                onClick={handleLogout}
-                className="mt-1 inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-[14px] border border-[#9A2222]/18 bg-[#9A2222]/[0.04] px-4 text-[9px] uppercase tracking-[0.22em] text-[#9A2222] transition-colors hover:border-[#9A2222]/34 sm:mt-2 sm:min-h-[48px] sm:px-5 sm:text-[10px] sm:tracking-[0.26em]"
-              >
-                <LogOut strokeWidth={1.2} className="h-4 w-4" />
-                Sign Out
-              </motion.button>
-            </section>
-          </aside>
-        </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </main>
   );

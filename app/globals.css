@@ -1775,3 +1775,73 @@ button:active,
     letter-spacing: 0.06em;
   }
 }
+
+/* ============================================
+   PROMO BANNER TICKER
+   ============================================ */
+
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.promo-ticker-track {
+  animation: ticker-scroll 32s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .promo-ticker-track {
+    animation: none;
+  }
+}
+
+/* ============================================
+   FLASH DEAL BADGE PULSE
+   ============================================ */
+
+@keyframes flash-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+  50%      { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
+}
+
+.flash-deal-badge {
+  animation: flash-pulse 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flash-deal-badge {
+    animation: none;
+  }
+}
+
+/* ============================================
+   HOTSPOT PULSE
+   ============================================ */
+
+@keyframes hotspot-pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+.hotspot-pulse {
+  animation: hotspot-pulse 2s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hotspot-pulse {
+    animation: none;
+  }
+}
+
+/* ============================================
+   3D COVERFLOW UTILS
+   ============================================ */
+
+.coverflow-container {
+  perspective: 1000px;
+}
+
+.coverflow-item {
+  transform-style: preserve-3d;
+}

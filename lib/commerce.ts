@@ -454,5 +454,13 @@ export function sortProducts(products: Product[], sort: SortValue) {
   if (sort === "price-low") return next.sort((a, b) => a.price - b.price);
   if (sort === "price-high") return next.sort((a, b) => b.price - a.price);
   if (sort === "newest") return next.reverse();
-  return next;
+  
+  // Default (featured): Prioritize summer products
+  return next.sort((a, b) => {
+    const aIsSummer = (a.name + " " + (a.description || "")).toLowerCase().includes("summer");
+    const bIsSummer = (b.name + " " + (b.description || "")).toLowerCase().includes("summer");
+    if (aIsSummer && !bIsSummer) return -1;
+    if (!aIsSummer && bIsSummer) return 1;
+    return 0;
+  });
 }

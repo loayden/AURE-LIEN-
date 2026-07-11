@@ -33,6 +33,9 @@ import {
   Sparkles,
   Store,
   Truck,
+  Zap,
+  Eye,
+  RotateCcw,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -106,6 +109,23 @@ const SERVICE_ITEMS = [
 
 const REEL_AD_VIDEO_SRC = "/videos/boutique-reel-ad.mp4";
 const REEL_AD_POSTER_SRC = withPublicAssetVersion("/uploads/look3.jpg");
+
+const PROMO_MESSAGES = [
+  "\u{1F69A}  Free delivery over EGP 2,000",
+  "\u{1F4B3}  Cash on delivery available",
+  "\u2728  New arrivals every week",
+  "\u{1F512}  Secure checkout guaranteed",
+  "\u{1F4E6}  Track your order anytime",
+] as const;
+
+const BRAND_PROMISES = [
+  { icon: ShieldCheck, label: "100% Genuine", detail: "Verified authentic products" },
+  { icon: Truck, label: "Egypt-Wide Delivery", detail: "2-5 business days" },
+  { icon: RotateCcw, label: "Easy Returns", detail: "14-day hassle-free" },
+  { icon: CreditCard, label: "Secure Payment", detail: "Card, COD, installments" },
+] as const;
+
+const RECENTLY_VIEWED_KEY = "bout-recently-viewed";
 
 type SummerCollectionProduct = {
   id: string;
@@ -494,99 +514,7 @@ function SectionIntro({
   );
 }
 
-function StorefrontOpeningOverlay() {
-  return (
-    <motion.div
-      aria-hidden="true"
-      data-testid="storefront-opening-overlay"
-      className="fixed inset-0 z-[140] overflow-hidden bg-[#F6F2EA]"
-      initial={{ opacity: 1 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { duration: 0.28, ease: easeOut } }}
-    >
-      <motion.div
-        className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(216,192,138,0.18),transparent_58%)]"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.28, ease: easeOut }}
-      />
-      <motion.div
-        className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.62),rgba(255,255,255,0.12)_30%,transparent_62%,rgba(216,192,138,0.08))]"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.32, ease: easeOut }}
-      />
-      <div className="absolute inset-0 flex items-center justify-center px-6">
-        <motion.div
-          layoutId="storefront-shared-shell"
-          data-testid="intro-storefront-shared"
-          className="relative aspect-[1.44/1] w-full max-w-[18rem] sm:max-w-[22rem] lg:max-w-[26rem]"
-          initial={{ opacity: 0, scale: 0.9, y: 18, filter: "blur(10px)" }}
-          animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
-          transition={{ duration: 0.58, delay: 0.06, ease: easeOut, layout: { duration: 0.68, ease: easeOut } }}
-        >
-          <motion.div
-            className="absolute inset-x-[10%] top-[12%] h-[72%] rounded-full bg-[radial-gradient(circle,rgba(216,192,138,0.24),rgba(216,192,138,0.1)_46%,transparent_76%)] blur-3xl"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.54, delay: 0.16, ease: easeOut }}
-          />
-          <motion.div
-            className="absolute inset-y-[16%] left-1/2 w-[12%] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(255,248,230,0.88),rgba(255,248,230,0.24)_48%,transparent_80%)] blur-2xl"
-            initial={{ opacity: 0, scaleX: 0.15 }}
-            animate={{ opacity: [0, 0.82, 0], scaleX: [0.15, 1.35, 1.8] }}
-            transition={{ duration: 0.72, delay: 0.48, ease: easeOut }}
-          />
-          <motion.div
-            className="relative h-full w-full"
-            initial={{ filter: "drop-shadow(0 0 0 rgba(168,121,53,0))" }}
-            animate={{ filter: "drop-shadow(0 22px 40px rgba(168,121,53,0.12))" }}
-            transition={{ duration: 0.58, delay: 0.14, ease: easeOut }}
-          >
-            <Image
-              src={withPublicAssetVersion("/uploads/boutique-storefront-home.webp")}
-              alt="BOUT boutique storefront illustration"
-              fill
-              priority
-              sizes="(max-width: 640px) 70vw, (max-width: 1024px) 22rem, 26rem"
-              className="object-contain object-center"
-            />
-          </motion.div>
-          <motion.div
-            className="pointer-events-none absolute inset-y-[10%] left-[-16%] w-[20%] skew-x-[-14deg] rounded-full bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.16),rgba(255,255,255,0.46),rgba(255,255,255,0.16),transparent)] mix-blend-screen blur-[1px]"
-            initial={{ x: "0%", opacity: 0 }}
-            animate={{ x: "385%", opacity: [0, 0.72, 0] }}
-            transition={{ duration: 0.84, delay: 0.58, ease: easeOut }}
-          />
-        </motion.div>
-      </div>
-      <motion.div
-        data-testid="storefront-left-door"
-        className="absolute inset-y-0 left-0 w-1/2 border-r border-[#D7C7A2]/55 bg-[linear-gradient(90deg,rgba(246,242,234,0.98),rgba(241,234,221,0.98)_58%,rgba(236,226,208,0.9))] shadow-[inset_-18px_0_28px_rgba(216,192,138,0.14)]"
-        initial={{ x: 0, opacity: 1 }}
-        animate={{ x: "-101%", opacity: 0.84 }}
-        transition={{ duration: 0.96, delay: 0.38, ease: [0.7, 0.02, 0.18, 1] }}
-      >
-        <div className="absolute right-5 top-1/2 h-12 w-px -translate-y-1/2 rounded-full bg-[#B89456]/50" />
-      </motion.div>
-      <motion.div
-        data-testid="storefront-right-door"
-        className="absolute inset-y-0 right-0 w-1/2 border-l border-[#D7C7A2]/55 bg-[linear-gradient(270deg,rgba(246,242,234,0.98),rgba(241,234,221,0.98)_58%,rgba(236,226,208,0.9))] shadow-[inset_18px_0_28px_rgba(216,192,138,0.14)]"
-        initial={{ x: 0, opacity: 1 }}
-        animate={{ x: "101%", opacity: 0.84 }}
-        transition={{ duration: 0.96, delay: 0.38, ease: [0.7, 0.02, 0.18, 1] }}
-      >
-        <div className="absolute left-5 top-1/2 h-12 w-px -translate-y-1/2 rounded-full bg-[#B89456]/50" />
-      </motion.div>
-      <motion.div
-        className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-[linear-gradient(180deg,transparent,rgba(214,186,132,0.92),transparent)]"
-        initial={{ opacity: 0.9, scaleY: 1 }}
-        animate={{ opacity: 0, scaleY: 1.16 }}
-        transition={{ duration: 0.58, delay: 0.42, ease: easeOut }}
-      />
-    </motion.div>
-  );
-}
+
 
 function SummerCollectionSection({
   products,
@@ -1146,6 +1074,514 @@ const HeroMoodProductCard = memo(function HeroMoodProductCard({ product, classNa
   );
 });
 
+// === NEW COMPONENTS TO INSERT BEFORE `export default function HomePageClient` ===
+
+// ─── Promo Banner Bar (CSS-only ticker, zero JS re-renders) ───
+function PromoBannerBar() {
+  return (
+    <div className="relative overflow-hidden bg-[#171513] py-2.5 text-[#F8F7F2]">
+      <div className="promo-ticker-track flex w-max items-center gap-8">
+        {[0, 1].map((set) => (
+          <div key={set} className="flex shrink-0 items-center gap-8" aria-hidden={set > 0 ? true : undefined}>
+            {PROMO_MESSAGES.map((msg) => (
+              <span key={msg} className="flex shrink-0 items-center gap-2 text-[11px] tracking-[0.06em] sm:text-xs">
+                {msg}
+              </span>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Countdown hook (client-only, avoids hydration mismatch) ───
+function useCountdown(endMs: number) {
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+
+  useEffect(() => {
+    const tick = () => setTimeLeft(Math.max(0, endMs - Date.now()));
+    tick();
+    const id = window.setInterval(tick, 1000);
+    return () => window.clearInterval(id);
+  }, [endMs]);
+
+  if (timeLeft === null) return { hours: 0, minutes: 0, seconds: 0, expired: true, ready: false };
+
+  return {
+    hours: Math.floor(timeLeft / 3_600_000),
+    minutes: Math.floor((timeLeft % 3_600_000) / 60_000),
+    seconds: Math.floor((timeLeft % 60_000) / 1_000),
+    expired: timeLeft <= 0,
+    ready: true,
+  };
+}
+
+function CountdownDigit({ value, label }: { value: number; label: string }) {
+  return (
+    <div className="flex flex-col items-center">
+      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#171513] font-mono text-base font-bold tabular-nums text-[#F8F7F2] sm:h-10 sm:w-10 sm:text-lg">
+        {String(value).padStart(2, "0")}
+      </span>
+      <span className="mt-1 text-[9px] uppercase tracking-wider text-[#69645E]">{label}</span>
+    </div>
+  );
+}
+
+// ─── Flash Deals Section ───
+function FlashDealsSection({
+  products,
+  onAction,
+  addingId,
+}: {
+  products: Product[];
+  onAction: (p: Product) => void;
+  addingId: string | null;
+}) {
+  const dealEndMs = useMemo(() => {
+    const d = new Date();
+    d.setHours(23, 59, 59, 999);
+    return d.getTime();
+  }, []);
+
+  const { hours, minutes, seconds, expired, ready } = useCountdown(dealEndMs);
+  const dealProducts = useMemo(() => products.slice(0, 6), [products]);
+
+  if (!ready || expired || dealProducts.length === 0) return null;
+
+  return (
+    <motion.section
+      variants={sectionReveal}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.14 }}
+      data-testid="flash-deals-section"
+      className="border-b border-[#DDDAD2] bg-gradient-to-br from-[#FFF8EC] via-white to-[#FEF3E2] px-4 py-8 [content-visibility:auto] [contain-intrinsic-size:520px] sm:px-6 sm:py-12 md:px-10"
+    >
+      <div className="mx-auto w-full max-w-[92rem]">
+        <motion.div variants={fadeUp} className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div className="mb-2 flex items-center gap-2">
+              <span className="flash-deal-badge inline-flex items-center gap-1.5 rounded-full bg-[#DC2626] px-3 py-1.5 text-[11px] font-medium uppercase tracking-wider text-white">
+                <Zap className="h-3 w-3" strokeWidth={2} />
+                Flash Deals
+              </span>
+            </div>
+            <h2 className="font-serif text-3xl font-light leading-none text-[#171513] sm:text-4xl lg:text-5xl">
+              Today&apos;s best prices
+            </h2>
+            <p className="mt-2 text-sm text-[#5A5650]">Limited time offers — ends tonight</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs uppercase tracking-wider text-[#DC2626]">Ends in</span>
+            <div className="flex items-center gap-1.5">
+              <CountdownDigit value={hours} label="hrs" />
+              <span className="mt-[-12px] text-lg font-bold text-[#171513]">:</span>
+              <CountdownDigit value={minutes} label="min" />
+              <span className="mt-[-12px] text-lg font-bold text-[#171513]">:</span>
+              <CountdownDigit value={seconds} label="sec" />
+            </div>
+          </div>
+        </motion.div>
+
+        <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {dealProducts.map((product, i) => {
+            const seed = (product.name.length * 7 + i * 13) % 26;
+            const discount = 15 + seed;
+            const fakeOriginal = Math.round(product.price / (1 - discount / 100));
+            const claimed = 40 + ((seed * 2) % 51);
+            return (
+              <motion.div
+                key={product._id}
+                variants={tileReveal}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, amount: 0.2 }}
+                className="w-[44vw] min-w-[10rem] max-w-[13rem] shrink-0 snap-start sm:w-auto sm:min-w-0 sm:max-w-none"
+              >
+                <div className="group overflow-hidden rounded-xl border border-[#DEDAD2] bg-white shadow-sm transition hover:shadow-md">
+                  <Link href={productHref(product)} className="relative block aspect-square overflow-hidden bg-[#F3F1ED]">
+                    <Image
+                      src={productImage(product)}
+                      alt={product.name}
+                      fill
+                      sizes="(max-width: 640px) 44vw, (max-width: 1024px) 33vw, 16vw"
+                      className="object-cover transition duration-500 group-hover:scale-[1.05]"
+                    />
+                    <span className="absolute left-2 top-2 rounded-md bg-[#DC2626] px-2 py-1 text-[10px] font-bold text-white shadow-sm">
+                      -{discount}%
+                    </span>
+                  </Link>
+                  <div className="p-3 flex flex-col h-full">
+                    <p className="text-[10px] uppercase tracking-wider text-[#8A8177] mb-1">{formatCategoryLabel(product.category)}</p>
+                    <h3 className="line-clamp-1 text-[13px] font-medium text-[#171513]">{product.name}</h3>
+                    <p className="mt-0.5 line-clamp-1 text-[11px] text-[#69645E]">{product.description || "Limited time offer"}</p>
+                    <div className="mt-1.5 flex items-baseline gap-2">
+                      <span className="text-sm font-bold text-[#DC2626]">EGP {formatPrice(product.price)}</span>
+                      <span className="text-[11px] text-[#8A8177] line-through">EGP {formatPrice(fakeOriginal)}</span>
+                    </div>
+                    <div className="mt-2">
+                      <div className="h-1.5 overflow-hidden rounded-full bg-[#FEE2E2]">
+                        <div className="h-full rounded-full bg-[#DC2626] transition-all" style={{ width: `${claimed}%` }} />
+                      </div>
+                      <p className="mt-1 text-[10px] text-[#DC2626]">{claimed}% claimed</p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+    </motion.section>
+  );
+}
+
+// ─── Trending Now Section ───
+function TrendingNowSection({
+  products,
+  onAction,
+  addingId,
+}: {
+  products: Product[];
+  onAction: (p: Product) => void;
+  addingId: string | null;
+}) {
+  const trendingProducts = useMemo(() => products.slice(0, 8), [products]);
+
+  if (trendingProducts.length === 0) return null;
+
+  return (
+    <motion.section
+      variants={sectionReveal}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.14 }}
+      data-testid="trending-now-section"
+      className="bg-white px-4 py-10 [content-visibility:auto] [contain-intrinsic-size:680px] sm:px-6 sm:py-14 md:px-10"
+    >
+      <div className="mx-auto w-full max-w-[92rem]">
+        <SectionIntro
+          title="Trending now"
+          copy="What everyone&rsquo;s looking at this week."
+          action={{ label: "See all", href: "/shop" }}
+        />
+        <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 md:grid-cols-3 lg:grid-cols-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {trendingProducts.map((product, i) => (
+            <motion.div
+              key={product._id}
+              variants={tileReveal}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.2 }}
+              className="w-[70vw] min-w-[15rem] max-w-[17rem] shrink-0 snap-start sm:w-auto sm:min-w-0 sm:max-w-none"
+            >
+              <div className="group relative overflow-hidden rounded-xl border border-[#DEDAD2] bg-white shadow-sm transition hover:shadow-lg">
+                <div className={`absolute left-3 top-3 z-10 flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
+                  i === 0 ? "bg-[#D8C08A] text-[#171513] shadow-[0_0_12px_rgba(216,192,138,0.5)]" :
+                  i === 1 ? "bg-[#C0C0C0] text-[#171513]" :
+                  i === 2 ? "bg-[#CD7F32] text-white" :
+                  "bg-[#171513]/80 text-[#F8F7F2]"
+                }`}>
+                  #{i + 1}
+                </div>
+                <Link href={productHref(product)} className="relative block aspect-[4/5] overflow-hidden bg-[#F3F1ED]">
+                  <Image
+                    src={productImage(product)}
+                    alt={product.name}
+                    fill
+                    sizes="(max-width: 640px) 70vw, (max-width: 1024px) 33vw, 25vw"
+                    className="object-cover transition duration-700 group-hover:scale-[1.04]"
+                  />
+                </Link>
+                <div className="p-4">
+                  <p className="text-[11px] uppercase tracking-wider text-[#725D2C]">{formatCategoryLabel(product.category)}</p>
+                  <h3 className="mt-1 line-clamp-2 min-h-[2.5rem] font-serif text-xl font-light leading-tight text-[#171513]">{product.name}</h3>
+                  <div className="mt-3 flex items-end justify-between gap-3">
+                    <div>
+                      <p className="text-xs text-[#69645E]">{stockLabel(product)}</p>
+                      <p className="mt-1 text-base font-medium text-[#725D2C]">EGP {formatPrice(product.price)}</p>
+                    </div>
+                    <ProductActionButton product={product} busy={addingId === product._id} onAction={onAction} />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </motion.section>
+  );
+}
+
+// ─── Brand Promise Bar ───
+function BrandPromiseBar() {
+  return (
+    <motion.section
+      variants={sectionReveal}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.2 }}
+      data-testid="brand-promise-bar"
+      className="border-y border-[#DDDAD2] bg-gradient-to-r from-[#F7F7F4] via-[#FDFCF9] to-[#F7F7F4] px-4 py-8 [content-visibility:auto] [contain-intrinsic-size:180px] sm:px-6 sm:py-10 md:px-10"
+    >
+      <div className="mx-auto grid w-full max-w-[92rem] grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+        {BRAND_PROMISES.map((item) => {
+          const Icon = item.icon;
+          return (
+            <div key={item.label} className="group flex items-start gap-3 sm:items-center">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#171513] text-[#D8C08A] transition duration-300 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(216,192,138,0.3)] sm:h-12 sm:w-12">
+                <Icon className="h-5 w-5" strokeWidth={1.5} />
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-[#171513]">{item.label}</p>
+                <p className="mt-0.5 text-[12px] leading-4 text-[#69645E]">{item.detail}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </motion.section>
+  );
+}
+
+// ─── Recently Viewed Section (localStorage-based) ───
+function RecentlyViewedSection({ products }: { products: Product[] }) {
+  const [viewedIds, setViewedIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(RECENTLY_VIEWED_KEY);
+      if (stored) {
+        const ids = JSON.parse(stored) as string[];
+        if (Array.isArray(ids)) setViewedIds(ids);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const viewedProducts = useMemo(() => {
+    if (viewedIds.length === 0) return [];
+    const byId = new Map(products.map((p) => [String(p._id), p]));
+    return viewedIds
+      .map((id) => byId.get(id))
+      .filter((p): p is Product => Boolean(p))
+      .slice(0, 8);
+  }, [viewedIds, products]);
+
+  if (viewedProducts.length === 0) return null;
+
+  return (
+    <motion.section
+      variants={sectionReveal}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.14 }}
+      data-testid="recently-viewed-section"
+      className="bg-[#F7F7F4] px-4 py-8 [content-visibility:auto] [contain-intrinsic-size:420px] sm:px-6 sm:py-12 md:px-10"
+    >
+      <div className="mx-auto w-full max-w-[92rem]">
+        <motion.div variants={fadeUp} className="mb-5 flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#171513] text-[#D8C08A]">
+            <Eye className="h-4 w-4" strokeWidth={1.5} />
+          </div>
+          <div>
+            <h2 className="font-serif text-2xl font-light text-[#171513] sm:text-3xl">Recently viewed</h2>
+            <p className="text-xs text-[#69645E]">Pick up where you left off</p>
+          </div>
+        </motion.div>
+        <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-4 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {viewedProducts.map((product) => (
+            <div key={product._id} className="w-[44vw] min-w-[10rem] max-w-[13rem] shrink-0 snap-start sm:w-auto sm:min-w-0 sm:max-w-none">
+              <Link href={productHref(product)} className="group block overflow-hidden rounded-xl border border-[#DEDAD2] bg-white shadow-sm transition hover:shadow-md">
+                <div className="relative aspect-square overflow-hidden bg-[#F3F1ED]">
+                  <Image
+                    src={productImage(product)}
+                    alt={product.name}
+                    fill
+                    sizes="(max-width: 640px) 44vw, 25vw"
+                    className="object-cover transition duration-500 group-hover:scale-105"
+                  />
+                </div>
+                <div className="p-3">
+                  <h3 className="line-clamp-1 text-[13px] font-medium text-[#171513]">{product.name}</h3>
+                  <p className="mt-1 text-sm font-medium text-[#725D2C]">EGP {formatPrice(product.price)}</p>
+                </div>
+              </Link>
+            </div>
+          ))}
+        </div>
+      </div>
+    </motion.section>
+  );
+}
+
+// === MODERN SECTIONS TO INSERT BEFORE `export default function HomePageClient` ===
+
+
+// ─── 3D Category Coverflow ───
+function CategoryCoverflowSection() {
+  const [activeIndex, setActiveIndex] = useState(2);
+
+  return (
+    <motion.section
+      variants={sectionReveal}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.14 }}
+      className="bg-[#FDFCF9] py-16 overflow-hidden [content-visibility:auto] [contain-intrinsic-size:600px]"
+    >
+      <div className="text-center px-4 mb-10">
+        <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-light text-[#171513]">Explore Collections</h2>
+        <p className="mt-3 text-sm text-[#69645E]">Swipe to navigate departments</p>
+      </div>
+
+      <div className="coverflow-container relative h-[400px] sm:h-[500px] w-full max-w-[100vw] flex items-center justify-center">
+        {QUICK_DEPARTMENTS.slice(0, 5).map((category, idx) => {
+          const offset = idx - activeIndex;
+          const isActive = idx === activeIndex;
+          
+          // Calculate 3D transforms based on index offset
+          const zIndex = 50 - Math.abs(offset);
+          const scale = isActive ? 1 : 0.85;
+          const translateX = offset * 45; // percentage
+          const rotateY = offset * -25; // degrees
+          const opacity = Math.abs(offset) >= 3 ? 0 : isActive ? 1 : 0.6;
+
+          return (
+            <motion.div
+              key={category.slug}
+              className="coverflow-item absolute top-0 w-[65vw] max-w-[320px] aspect-[3/4] cursor-pointer"
+              animate={{
+                x: `${translateX}%`,
+                scale,
+                rotateY,
+                zIndex,
+                opacity
+              }}
+              transition={{ type: "spring", stiffness: 260, damping: 20 }}
+              onClick={() => setActiveIndex(idx)}
+            >
+              <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border border-[#E2DFD8] bg-[#F3F1ED]">
+                <Image
+                  src={category.image}
+                  alt={category.title}
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#171513]/80 via-transparent to-transparent" />
+                <div className="absolute bottom-6 left-0 right-0 text-center px-4">
+                  <h3 className="font-serif text-2xl text-white drop-shadow-md">{category.short}</h3>
+                  <motion.div
+                    initial={false}
+                    animate={{ height: isActive ? 'auto' : 0, opacity: isActive ? 1 : 0, marginTop: isActive ? 8 : 0 }}
+                    className="overflow-hidden"
+                  >
+                    <Link href={category.href} className="inline-block bg-white/20 backdrop-blur-md text-white text-[10px] uppercase tracking-[0.2em] px-4 py-2 rounded-full border border-white/30 hover:bg-white hover:text-[#171513] transition-colors">
+                      Shop Now
+                    </Link>
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+    </motion.section>
+  );
+}
+
+// ─── Premium Newsletter Section ───
+function NewsletterSection() {
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success'>('idle');
+  const [email, setEmail] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    setStatus('loading');
+    setTimeout(() => {
+      setStatus('success');
+      setEmail('');
+    }, 1500);
+  };
+
+  return (
+    <motion.section
+      variants={sectionReveal}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.3 }}
+      className="border-y border-[#DDDAD2] bg-[#F3F1ED] px-4 py-16 sm:px-6 sm:py-24 [content-visibility:auto] [contain-intrinsic-size:400px] relative overflow-hidden"
+    >
+      {/* Decorative grain overlay */}
+      <div className="absolute inset-0 grain-overlay opacity-[0.03] pointer-events-none" />
+      
+      <div className="mx-auto max-w-2xl text-center relative z-10">
+        <div className="w-12 h-12 bg-[#171513] rounded-2xl mx-auto flex items-center justify-center mb-6 shadow-xl rotate-3">
+          <Sparkles className="w-6 h-6 text-[#D8C08A]" />
+        </div>
+        <h2 className="font-serif text-3xl font-light text-[#171513] sm:text-5xl leading-tight">
+          Join the BOUT Club
+        </h2>
+        <p className="mt-4 text-sm text-[#5A5650] max-w-md mx-auto">
+          Sign up to receive 10% off your first order, early access to sales, and exclusive editorial content.
+        </p>
+
+        <form onSubmit={handleSubmit} className="mt-8 relative max-w-md mx-auto">
+          <AnimatePresence mode="wait">
+            {status === 'success' ? (
+              <motion.div
+                key="success"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex flex-col items-center justify-center p-4 bg-[#E9E7E1] border border-[#D5D1C8] rounded-xl text-[#256944]"
+              >
+                <div className="w-10 h-10 bg-[#256944]/10 rounded-full flex items-center justify-center mb-2">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <p className="font-medium text-sm">Welcome to the club.</p>
+                <p className="text-xs mt-1 text-[#256944]/80">Check your email for your welcome code.</p>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="form"
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="flex flex-col sm:flex-row gap-3"
+              >
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Your email address"
+                  className="flex-1 bg-white border border-[#D5D1C8] rounded-xl px-4 py-3 sm:py-0 text-sm focus:outline-none focus:ring-2 focus:ring-[#D8C08A]/50 focus:border-[#D8C08A] transition-all shadow-sm"
+                  required
+                />
+                <button
+                  type="submit"
+                  disabled={status === 'loading'}
+                  className="bg-[#171513] text-[#F8F7F2] px-6 py-3 rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-[#2A2724] transition-colors shadow-lg disabled:opacity-70 flex items-center justify-center min-w-[140px]"
+                >
+                  {status === 'loading' ? (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                      className="w-4 h-4 border-2 border-[#D8C08A] border-t-transparent rounded-full"
+                    />
+                  ) : (
+                    "Subscribe"
+                  )}
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </form>
+      </div>
+    </motion.section>
+  );
+}
+
 export default function HomePageClient({ initialProducts }: { initialProducts: Product[] }) {
   const router = useRouter();
   const mobileCarouselRef = useRef<HTMLDivElement | null>(null);
@@ -1159,7 +1595,6 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
   const [selectedMood, setSelectedMood] = useState<MoodValue>("all");
   const [mobileActiveIndex, setMobileActiveIndex] = useState(0);
   const [freshDropActiveIndex, setFreshDropActiveIndex] = useState(0);
-  const [showOpeningIntro, setShowOpeningIntro] = useState(true);
   const [railPeekEnabled, setRailPeekEnabled] = useState(false);
   const [, startTransition] = useTransition();
   const products = initialProducts;
@@ -1305,20 +1740,6 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
     };
   }, []);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return undefined;
-
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setShowOpeningIntro(false);
-      return undefined;
-    }
-
-    const introTimer = window.setTimeout(() => {
-      setShowOpeningIntro(false);
-    }, 1850);
-
-    return () => window.clearTimeout(introTimer);
-  }, []);
 
   useEffect(() => {
     setMobileActiveIndex(0);
@@ -1403,10 +1824,10 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
     <MotionConfig reducedMotion="user">
     <LayoutGroup id="storefront-handoff">
     <>
-    <AnimatePresence>
-      {showOpeningIntro ? <StorefrontOpeningOverlay /> : null}
-    </AnimatePresence>
+
     <motion.main className="min-h-screen overflow-hidden bg-[#F7F7F4] pb-24 text-[#171513] md:pb-0">
+      <PromoBannerBar />
+
       <section className="border-b border-[#DDDAD2] bg-[#F7F7F4] px-5 pt-[72px] sm:px-6 md:px-10">
         <div className="mx-auto grid w-full max-w-[92rem] gap-6 py-5 sm:py-6 lg:grid-cols-[0.88fr_1.12fr] lg:items-stretch lg:py-8">
           <motion.div
@@ -1747,13 +2168,25 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
         </div>
       </section>
 
+      <CategoryCoverflowSection />
+
+      <FlashDealsSection products={products} onAction={handleProductAction} addingId={addingId} />
+
       <SummerCollectionSection products={products} addSetBusy={addingSummerSet} onShopFullSet={handleShopSummerSet} />
+
+      <TrendingNowSection products={products} onAction={handleProductAction} addingId={addingId} />
 
       <EditorialSections products={products} />
 
+      <RecentlyViewedSection products={products} />
+
       <BoutiqueReelFeature />
 
+      <BrandPromiseBar />
+
       <BoutiquePartnerSection />
+
+      <NewsletterSection />
 
       <motion.section
         variants={sectionReveal}
@@ -1768,26 +2201,26 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
             copy="A clear starting point for fast browsing."
             action={{ label: "View all", href: "/collection" }}
           />
-          {/* Mobile: horizontal scroll rail */}
+          {/* Mobile: 2×3 Jumia-style category grid */}
           <motion.div
             variants={heroStagger}
-            className="-mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-3 sm:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="grid grid-cols-3 gap-2.5 sm:hidden"
           >
             {QUICK_DEPARTMENTS.map((category) => (
-              <motion.div key={category.slug} variants={tileReveal} className="w-[140px] shrink-0 snap-start">
-                <Link href={category.href} className="group block overflow-hidden rounded-xl border border-[#D5D1C8] bg-white">
-                  <div className="relative aspect-square overflow-hidden bg-[#E9E7E1]">
+              <motion.div key={category.slug} variants={tileReveal}>
+                <Link href={category.href} className="group flex flex-col items-center gap-2 rounded-xl border border-[#E2DFD8] bg-white p-3 text-center transition active:scale-[0.97]">
+                  <div className="relative h-14 w-14 overflow-hidden rounded-full bg-[#F3F1ED] shadow-sm ring-2 ring-[#E8E4DC]">
                     <Image
                       src={category.image}
                       alt={category.title}
                       fill
-                      sizes="140px"
-                      className="object-cover transition duration-500 group-hover:scale-[1.04]"
+                      sizes="56px"
+                      className="object-cover"
                     />
                   </div>
-                  <div className="p-3">
-                    <h3 className="text-sm font-medium text-[#171513]">{category.short}</h3>
-                    <p className="mt-1 text-[11px] text-[#69645E]">{categoryCounts.get(category.slug) || "Shop"}</p>
+                  <div>
+                    <p className="text-xs font-medium text-[#171513]">{category.short}</p>
+                    <p className="mt-0.5 text-[10px] text-[#69645E]">{categoryCounts.get(category.slug) || "Shop"}</p>
                   </div>
                 </Link>
               </motion.div>
