@@ -986,7 +986,7 @@ export default function AccountPage() {
                           </div>
                           
                           <div className="space-y-4">
-                            {recentOrder.items.slice(0, 2).map((item: any, idx: number) => (
+                            {(recentOrder.items || []).slice(0, 2).map((item: any, idx: number) => (
                               <div key={idx} className="flex items-center gap-4">
                                 <div className="h-16 w-16 shrink-0 bg-[#F3F1ED] overflow-hidden">
                                   {item.product?.images?.[0] && (
@@ -999,8 +999,8 @@ export default function AccountPage() {
                                 </div>
                               </div>
                             ))}
-                            {recentOrder.items.length > 2 && (
-                              <p className="text-xs text-[#69645E] pt-2">+ {recentOrder.items.length - 2} more item(s)</p>
+                            {(recentOrder.items?.length || 0) > 2 && (
+                              <p className="text-xs text-[#69645E] pt-2">+ {(recentOrder.items?.length || 0) - 2} more item(s)</p>
                             )}
                           </div>
                         </div>
