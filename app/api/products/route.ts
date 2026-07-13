@@ -1,3 +1,4 @@
+export const runtime = 'nodejs';
 import { getAllProducts } from "@/lib/getAllProducts";
 import { categoryMatches } from "@/lib/commerce";
 import { NextResponse } from "next/server";

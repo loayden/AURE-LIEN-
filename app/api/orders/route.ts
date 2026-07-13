@@ -1,3 +1,4 @@
+export const runtime = 'nodejs';
 import productsData from "@/lib/productsData";
 import { randomUUID } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
