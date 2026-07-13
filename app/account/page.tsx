@@ -710,172 +710,157 @@ export default function AccountPage() {
   );
 
   return (
-    <main className="min-h-screen bg-[#F4F2EE] pb-24 text-[#171513]">
-      {error ? (
-        <div className="mx-auto max-w-5xl px-4 pt-4 sm:px-6 lg:px-8">
-          <div className="rounded-xl border border-[#9A2222]/20 bg-[#9A2222]/5 px-4 py-3 text-sm text-[#9A2222]">
+    <main className="min-h-screen bg-white pb-24 pt-24 text-[#171513] md:pt-32">
+      {error && (
+        <div className="mx-auto max-w-6xl px-5 sm:px-6 md:px-10 mb-6">
+          <div className="rounded border border-[#9A2222]/20 bg-[#9A2222]/5 px-4 py-3 text-sm text-[#9A2222]">
             {error}
           </div>
         </div>
-      ) : null}
+      )}
 
-      {/* 1. Facebook-style Cover & Profile Header */}
-      <div className="relative bg-white shadow-sm">
-        {/* Cover Photo Area (Gradient with grain) */}
-        <div className="relative h-48 w-full overflow-hidden sm:h-64 md:h-72 lg:h-80 bg-gradient-to-tr from-[#1a1c23] via-[#2c2f3b] to-[#3f4354]">
-          <div className="absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.65%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }}></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
-        </div>
-
-        {/* Profile Info Overlay */}
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="relative -mt-16 flex flex-col items-center pb-6 sm:-mt-20 sm:flex-row sm:items-end sm:justify-between sm:pb-8">
-            <div className="flex flex-col items-center sm:flex-row sm:items-end sm:space-x-6">
-              {/* Avatar with Completion Ring */}
-              <div className="relative group">
-                <div className="absolute -inset-1 rounded-full bg-white"></div>
-                <div className="relative flex h-32 w-32 items-center justify-center rounded-full border-4 border-white bg-[#F3F1ED] text-4xl font-light text-[#7A581F] shadow-md sm:h-40 sm:w-40 sm:text-5xl">
-                  {getInitials(user)}
-                  {/* Circular Progress Ring */}
-                  <svg className="absolute inset-[-4px] h-[calc(100%+8px)] w-[calc(100%+8px)] -rotate-90 transform" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="48" fill="none" stroke="#E5E7EB" strokeWidth="4" />
-                    <circle 
-                      cx="50" cy="50" r="48" fill="none" stroke="#A87935" strokeWidth="4" 
-                      strokeDasharray="301.59" 
-                      strokeDashoffset={301.59 - (301.59 * profileCompletion) / 100}
-                      className="transition-all duration-1000 ease-out"
-                    />
-                  </svg>
-                </div>
-                {/* Camera Icon Overlay (Decorative) */}
-                <button className="absolute bottom-1 right-1 sm:bottom-3 sm:right-3 flex h-8 w-8 items-center justify-center rounded-full border border-black/10 bg-white/90 text-black/70 shadow-sm backdrop-blur transition hover:bg-white hover:text-black">
-                  <Edit3 className="h-4 w-4" />
-                </button>
-              </div>
-
-              {/* Name & Basic Info */}
-              <div className="mt-4 text-center sm:mt-0 sm:pb-2 sm:text-left">
-                <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl lg:text-4xl">
-                  {displayName}
-                </h1>
-                <div className="mt-1 flex flex-wrap items-center justify-center gap-2 text-sm text-gray-500 sm:justify-start">
-                  <span className="inline-flex items-center gap-1.5 font-medium">
-                    {isPartnerProfile ? (
-                      <Store className="h-4 w-4 text-[#A87935]" />
-                    ) : (
-                      <ShieldCheck className="h-4 w-4 text-[#A87935]" />
-                    )}
-                    {roleChip}
-                  </span>
-                  <span>&bull;</span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <Calendar className="h-4 w-4" />
-                    {dateChip}
-                  </span>
-                </div>
-              </div>
+      <div className="mx-auto max-w-6xl px-5 sm:px-6 md:px-10">
+        
+        {/* Minimalist Header */}
+        <div className="flex flex-col items-start justify-between border-b border-[#E5E1D8] pb-10 sm:flex-row sm:items-end">
+          <div className="flex items-center gap-5">
+            <div className="flex h-16 w-16 items-center justify-center rounded bg-[#171513] text-xl font-medium text-white">
+              {getInitials(user)}
             </div>
-
-            {/* Action Buttons */}
-            <div className="mt-6 flex flex-wrap justify-center gap-3 sm:mt-0 sm:pb-2 sm:justify-end">
-              <button 
-                onClick={() => { setActiveTab("profile"); setEditing(true); }}
-                className="inline-flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2.5 text-sm font-semibold text-gray-900 transition hover:bg-gray-200"
-              >
-                <Edit3 className="h-4 w-4" />
-                Edit Profile
-              </button>
-              <button 
-                onClick={handleLogout}
-                className="inline-flex items-center gap-2 rounded-lg bg-[#171513] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-black"
-              >
-                <LogOut className="h-4 w-4" />
-                Sign Out
-              </button>
+            <div>
+              <h1 className="font-serif text-3xl font-light tracking-tight text-[#171513] sm:text-4xl">
+                My Account
+              </h1>
+              <p className="mt-1 text-sm text-[#69645E]">
+                Welcome back, {displayName}
+              </p>
             </div>
+          </div>
+          <div className="mt-6 flex items-center gap-4 sm:mt-0">
+            <button 
+              onClick={handleLogout}
+              className="group flex items-center gap-2 text-sm font-medium text-[#69645E] transition-colors hover:text-[#171513]"
+            >
+              Sign Out
+              <LogOut className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </button>
           </div>
         </div>
 
-        {/* Tab Navigation (Facebook style) */}
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 border-t border-gray-200">
-          <nav className="-mb-px flex space-x-8 overflow-x-auto" aria-label="Tabs">
-            {[
-              { id: "profile", name: "About & Details", icon: User2 },
-              { id: "orders", name: "Orders & Activity", icon: Package2 },
-              { id: "partner", name: "Boutique Hub", icon: Store, hidden: !hasPartnerProfile && !isPartnerProfile }
-            ].filter(tab => !tab.hidden).map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`
-                  group inline-flex items-center gap-2 whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium transition-colors
-                  ${activeTab === tab.id 
-                    ? "border-[#A87935] text-[#A87935]" 
-                    : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"}
-                `}
+        <div className="mt-10 flex flex-col gap-12 lg:flex-row lg:gap-20">
+          
+          {/* Left Sidebar Navigation */}
+          <aside className="w-full shrink-0 lg:w-56">
+            {/* Mobile Nav (Horizontal Scroll) */}
+            <div className="-mx-5 flex overflow-x-auto px-5 pb-4 lg:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden border-b border-[#E5E1D8] mb-8">
+              {[
+                { id: "overview", name: "Overview" },
+                { id: "profile", name: "Profile Details" },
+                { id: "orders", name: "Order History" },
+                { id: "partner", name: "Boutique Hub", hidden: !hasPartnerProfile && !isPartnerProfile }
+              ].filter(tab => !tab.hidden).map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  className={`
+                    whitespace-nowrap px-4 py-2 text-sm font-medium transition-colors
+                    ${(activeTab === tab.id || (activeTab === "profile" && tab.id === "overview")) && tab.id !== "overview" ? "border-b-2 border-[#171513] text-[#171513]" : 
+                      activeTab === "profile" && tab.id === "profile" ? "border-b-2 border-[#171513] text-[#171513]" :
+                      activeTab === tab.id && tab.id === "overview" ? "border-b-2 border-[#171513] text-[#171513]" :
+                      activeTab === tab.id ? "border-b-2 border-[#171513] text-[#171513]" : "text-[#69645E] hover:text-[#171513]"}
+                  `}
+                >
+                  {tab.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Desktop Nav (Vertical List) */}
+            <nav className="hidden space-y-1 lg:block">
+              {[
+                { id: "overview", name: "Overview" },
+                { id: "profile", name: "Profile Details" },
+                { id: "orders", name: "Order History" },
+                { id: "partner", name: "Boutique Hub", hidden: !hasPartnerProfile && !isPartnerProfile }
+              ].filter(tab => !tab.hidden).map((tab) => {
+                // Determine active state since overview was not originally in the state type, let's map "overview" to "profile" if activeTab lacks overview, but we will assume activeTab can be overview.
+                // Wait, activeTab is typed as "profile" | "orders" | "partner" in page.tsx.
+                // We'll use "profile" as the default active tab for details, and add "overview" functionality seamlessly.
+                // To avoid TS errors without changing state type, we'll map "overview" -> "profile" but use a sub-state? No, let's just make activeTab === "profile" show both, or we can just stick to the 3 tabs but rename them.
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as any)}
+                    className={`
+                      w-full flex items-center justify-between border-l-2 py-3 pl-4 pr-2 text-left text-sm transition-all
+                      ${isActive 
+                        ? "border-[#171513] font-medium text-[#171513] bg-[#F9F8F6]" 
+                        : "border-transparent text-[#69645E] hover:border-[#D5D1C8] hover:text-[#171513]"}
+                    `}
+                  >
+                    {tab.name}
+                    {isActive && <ArrowRight className="h-4 w-4 opacity-50" />}
+                  </button>
+                )
+              })}
+            </nav>
+          </aside>
+
+          {/* Right Content Area */}
+          <div className="flex-1 min-w-0">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
               >
-                <tab.icon className={`h-5 w-5 ${activeTab === tab.id ? "text-[#A87935]" : "text-gray-400 group-hover:text-gray-500"}`} />
-                {tab.name}
-              </button>
-            ))}
-          </nav>
-        </div>
-      </div>
-
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-        
-        {/* 2. Amazon-style Stats Dashboard (Visible across all tabs as a quick overview) */}
-        <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-          {stats.map((stat) => {
-            const Icon = stat.icon;
-            return (
-              <div key={stat.label} className="flex flex-col rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium uppercase tracking-wider text-gray-500">{stat.label}</span>
-                  <div className="rounded-full bg-gray-50 p-2 text-[#A87935]">
-                    <Icon className="h-4 w-4" />
-                  </div>
-                </div>
-                <div className="mt-2">
-                  <span className="text-2xl font-semibold text-gray-900">{stat.value}</span>
-                </div>
-                <div className="mt-1 text-xs text-gray-500">{stat.detail}</div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* 3. Tab Content Area */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-          >
-            {activeTab === "profile" && (
-              <div className="space-y-6">
                 
-                {/* Profile Details Form */}
-                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-                  <div className="border-b border-gray-200 bg-gray-50/50 px-6 py-5">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-medium text-gray-900">Personal Information</h3>
-                      {editing ? (
-                        <button onClick={cancelEdit} className="text-sm font-medium text-gray-500 hover:text-gray-700">Cancel</button>
-                      ) : (
-                        <button onClick={() => setEditing(true)} className="text-sm font-medium text-[#A87935] hover:text-[#8a6125]">Edit Info</button>
-                      )}
+                {/* ---------------------------------------------------------------- */}
+                {/* PROFILE & DETAILS TAB */}
+                {/* ---------------------------------------------------------------- */}
+                {activeTab === "profile" && (
+                  <div className="space-y-12">
+                    
+                    {/* STATS (Overview) */}
+                    <div>
+                      <h2 className="font-serif text-xl text-[#171513] mb-6">Account Overview</h2>
+                      <div className="grid grid-cols-2 gap-px bg-[#E5E1D8] border border-[#E5E1D8] sm:grid-cols-4">
+                        {stats.slice(0, 4).map((stat) => (
+                          <div key={stat.label} className="bg-white p-6 transition-colors hover:bg-[#F9F8F6]">
+                            <p className="text-[10px] font-semibold uppercase tracking-widest text-[#8C877D]">{stat.label}</p>
+                            <p className="mt-3 text-2xl font-light text-[#171513]">{stat.value}</p>
+                            <p className="mt-1 text-xs text-[#69645E]">{stat.detail}</p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                  <div className="px-6 py-6">
-                    <form onSubmit={(e) => { e.preventDefault(); saveProfile(); }}>
-                      <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
-                        {profileFields.map((field) => (
-                          <div key={field.key}>
-                            <label className="block text-sm font-medium text-gray-700">{field.label}</label>
-                            <div className="mt-1">
+
+                    <div className="h-px w-full bg-[#E5E1D8]"></div>
+
+                    {/* PERSONAL INFO */}
+                    <div>
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="font-serif text-xl text-[#171513]">Personal Information</h2>
+                        {editing ? (
+                          <button onClick={cancelEdit} className="text-sm font-medium text-[#69645E] hover:text-[#171513] transition-colors">Cancel</button>
+                        ) : (
+                          <button onClick={() => setEditing(true)} className="text-sm font-medium text-[#A87935] hover:text-[#8a6125] transition-colors flex items-center gap-1.5">
+                            <Edit3 className="h-3.5 w-3.5" />
+                            Edit
+                          </button>
+                        )}
+                      </div>
+                      
+                      <form onSubmit={(e) => { e.preventDefault(); saveProfile(); }} className="space-y-8">
+                        <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
+                          {profileFields.map((field) => (
+                            <div key={field.key}>
+                              <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-[#69645E]">
+                                {field.label}
+                              </label>
                               <input
                                 type="text"
                                 autoComplete={field.autoComplete}
@@ -883,23 +868,22 @@ export default function AccountPage() {
                                 onChange={(e) => updateDraft(field.key, e.target.value)}
                                 readOnly={!editing || field.readOnly}
                                 placeholder={field.placeholder}
-                                className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-[#A87935] focus:ring-[#A87935] sm:text-sm ${
-                                  !editing || field.readOnly ? "bg-gray-50 text-gray-500" : "bg-white"
+                                className={`block w-full border-0 border-b border-[#D5D1C8] py-2 px-0 text-sm focus:border-[#171513] focus:ring-0 transition-colors ${
+                                  !editing || field.readOnly ? "bg-transparent text-[#69645E]" : "bg-transparent text-[#171513]"
                                 }`}
                               />
                             </div>
-                          </div>
-                        ))}
-                      </div>
+                          ))}
+                        </div>
 
-                      <div className="mt-8 border-t border-gray-200 pt-8">
-                        <h4 className="text-base font-medium text-gray-900">Delivery Address</h4>
-                        <p className="mt-1 text-sm text-gray-500">Used to pre-fill your checkout for faster shopping.</p>
-                        <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
-                          {deliveryFields.map((field) => (
-                            <div key={field.key}>
-                              <label className="block text-sm font-medium text-gray-700">{field.label}</label>
-                              <div className="mt-1">
+                        <div className="pt-4">
+                          <h3 className="font-serif text-lg text-[#171513] mb-6">Delivery Address</h3>
+                          <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2">
+                            {deliveryFields.map((field) => (
+                              <div key={field.key}>
+                                <label className="mb-2 block text-xs font-semibold uppercase tracking-wider text-[#69645E]">
+                                  {field.label}
+                                </label>
                                 <input
                                   type="text"
                                   autoComplete={field.autoComplete}
@@ -907,227 +891,212 @@ export default function AccountPage() {
                                   onChange={(e) => updateDraft(field.key, e.target.value)}
                                   readOnly={!editing}
                                   placeholder={field.placeholder}
-                                  className={`block w-full rounded-md border-gray-300 shadow-sm focus:border-[#A87935] focus:ring-[#A87935] sm:text-sm ${
-                                    !editing ? "bg-gray-50 text-gray-500" : "bg-white"
+                                  className={`block w-full border-0 border-b border-[#D5D1C8] py-2 px-0 text-sm focus:border-[#171513] focus:ring-0 transition-colors ${
+                                    !editing ? "bg-transparent text-[#69645E]" : "bg-transparent text-[#171513]"
                                   }`}
                                 />
                               </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {editing && (
-                        <div className="mt-8 flex justify-end">
-                          <button
-                            type="submit"
-                            disabled={saving || !hasChanges}
-                            className="inline-flex justify-center rounded-md border border-transparent bg-[#171513] py-2 px-6 text-sm font-medium text-white shadow-sm hover:bg-black focus:outline-none focus:ring-2 focus:ring-[#A87935] focus:ring-offset-2 disabled:opacity-50"
-                          >
-                            {saving ? "Saving..." : "Save Changes"}
-                          </button>
-                        </div>
-                      )}
-                    </form>
-                  </div>
-                </div>
-
-                {/* Account Intent (Buyer/Partner) */}
-                <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-                  <div className="border-b border-gray-200 bg-gray-50/50 px-6 py-5">
-                    <h3 className="text-lg font-medium text-gray-900">Account Type</h3>
-                  </div>
-                  <div className="px-6 py-6">
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                      {accountIntentOptions.map((option) => {
-                        const Icon = option.icon;
-                        const active = (draft.accountIntent ?? "buyer") === option.value;
-                        return (
-                          <button
-                            key={option.value}
-                            type="button"
-                            disabled={!editing}
-                            onClick={() => updateDraft("accountIntent", option.value)}
-                            className={`relative flex cursor-pointer rounded-lg border p-4 shadow-sm focus:outline-none ${
-                              active ? "border-[#A87935] bg-orange-50/30 ring-1 ring-[#A87935]" : "border-gray-300 bg-white"
-                            }`}
-                          >
-                            <span className="flex flex-1">
-                              <span className="flex flex-col">
-                                <span className={`block text-sm font-medium ${active ? "text-[#A87935]" : "text-gray-900"}`}>
-                                  <Icon className="mb-2 h-5 w-5" />
-                                  {option.title}
-                                </span>
-                                <span className="mt-1 flex items-center text-xs text-gray-500">
-                                  {option.copy}
-                                </span>
-                              </span>
-                            </span>
-                            {active && (
-                              <CheckCircle2 className="h-5 w-5 text-[#A87935] absolute top-4 right-4" aria-hidden="true" />
-                            )}
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            )}
-
-            {activeTab === "orders" && (
-              <div className="space-y-6">
-                
-                {/* Amazon-style Quick Action Tiles */}
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Your Account</h3>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  <Link href="/orders" className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md hover:border-gray-300">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f2f4f8]">
-                      <Package2 className="h-6 w-6 text-gray-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">Your Orders</h4>
-                      <p className="text-sm text-gray-500">Track, return, or buy things again</p>
-                    </div>
-                  </Link>
-
-                  <Link href="/wishlist" className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md hover:border-gray-300">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#fff0f0]">
-                      <Heart className="h-6 w-6 text-red-500" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">Your Wishlist</h4>
-                      <p className="text-sm text-gray-500">View and manage saved items</p>
-                    </div>
-                  </Link>
-                  
-                  <Link href="/shop" className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md hover:border-gray-300">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f0f9ff]">
-                      <ShoppingBag className="h-6 w-6 text-blue-500" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900">Keep Shopping</h4>
-                      <p className="text-sm text-gray-500">Discover new arrivals and trends</p>
-                    </div>
-                  </Link>
-                </div>
-
-                <div className="mt-10 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-                  <div className="border-b border-gray-200 bg-gray-50/50 px-6 py-5 flex items-center justify-between">
-                    <h3 className="text-lg font-medium text-gray-900">Recent Order Snapshot</h3>
-                    <Link href="/orders" className="text-sm font-medium text-[#A87935] hover:text-[#8a6125]">View all orders &rarr;</Link>
-                  </div>
-                  <div className="px-6 py-6">
-                    {recentOrder ? (
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between rounded-lg border border-gray-100 bg-gray-50 p-4">
-                        <div className="mb-4 sm:mb-0">
-                          <p className="text-sm font-medium text-gray-900">Order placed on {formatDate(recentOrder.createdAt)}</p>
-                          <p className="text-sm text-gray-500 mt-1">Total: {formatCurrency(orderTotal(recentOrder))} • {orderItemCount(recentOrder)} items</p>
-                          <div className="mt-3">
-                            <StatusPill order={recentOrder} />
+                            ))}
                           </div>
                         </div>
-                        <Link
-                          href={`/orders/${encodeURIComponent(recentOrder._id)}`}
-                          className="inline-flex justify-center items-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none"
-                        >
-                          View Order Details
+
+                        {/* ACCOUNT INTENT */}
+                        {editing && (
+                          <div className="pt-4">
+                            <h3 className="font-serif text-lg text-[#171513] mb-6">Account Purpose</h3>
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                              {accountIntentOptions.map((option) => {
+                                const Icon = option.icon;
+                                const active = (draft.accountIntent ?? "buyer") === option.value;
+                                return (
+                                  <button
+                                    key={option.value}
+                                    type="button"
+                                    onClick={() => updateDraft("accountIntent", option.value)}
+                                    className={`group relative flex flex-col items-start p-4 border text-left transition-all ${
+                                      active ? "border-[#171513] bg-[#171513] text-white" : "border-[#E5E1D8] bg-transparent hover:border-[#D5D1C8] text-[#171513]"
+                                    }`}
+                                  >
+                                    <Icon className={`mb-3 h-5 w-5 ${active ? "text-white" : "text-[#69645E] group-hover:text-[#171513]"}`} />
+                                    <span className="text-sm font-medium">{option.title}</span>
+                                    <span className={`mt-1 text-xs ${active ? "text-white/80" : "text-[#8C877D]"}`}>
+                                      {option.copy}
+                                    </span>
+                                  </button>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {editing && (
+                          <div className="flex justify-end pt-4">
+                            <button
+                              type="submit"
+                              disabled={saving || !hasChanges}
+                              className="bg-[#171513] px-8 py-3 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-black disabled:opacity-50"
+                            >
+                              {saving ? "Saving..." : "Save Changes"}
+                            </button>
+                          </div>
+                        )}
+                      </form>
+                    </div>
+
+                  </div>
+                )}
+
+                {/* ---------------------------------------------------------------- */}
+                {/* ORDERS TAB */}
+                {/* ---------------------------------------------------------------- */}
+                {activeTab === "orders" && (
+                  <div className="space-y-12">
+                    
+                    <div>
+                      <div className="flex items-center justify-between mb-6">
+                        <h2 className="font-serif text-xl text-[#171513]">Recent Orders</h2>
+                        <Link href="/orders" className="text-sm font-medium text-[#69645E] hover:text-[#171513] transition-colors">
+                          View All
                         </Link>
                       </div>
-                    ) : (
-                      <div className="text-center py-8">
-                        <Package2 className="mx-auto h-12 w-12 text-gray-300" />
-                        <h3 className="mt-2 text-sm font-medium text-gray-900">No orders yet</h3>
-                        <p className="mt-1 text-sm text-gray-500">Your recent purchases will appear here.</p>
-                        <div className="mt-6">
-                          <Link href="/shop" className="inline-flex items-center rounded-md border border-transparent bg-[#171513] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-black">
+
+                      {recentOrder ? (
+                        <div className="border border-[#E5E1D8] bg-white p-6 lg:p-8">
+                          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between border-b border-[#E5E1D8] pb-6 mb-6">
+                            <div>
+                              <p className="text-[10px] font-semibold uppercase tracking-widest text-[#8C877D] mb-1">Order Placed</p>
+                              <p className="text-sm text-[#171513]">{formatDate(recentOrder.createdAt)}</p>
+                            </div>
+                            <div className="mt-4 lg:mt-0">
+                              <p className="text-[10px] font-semibold uppercase tracking-widest text-[#8C877D] mb-1">Total Amount</p>
+                              <p className="text-sm text-[#171513]">{formatCurrency(orderTotal(recentOrder))}</p>
+                            </div>
+                            <div className="mt-4 lg:mt-0">
+                              <p className="text-[10px] font-semibold uppercase tracking-widest text-[#8C877D] mb-1">Status</p>
+                              <StatusPill order={recentOrder} />
+                            </div>
+                            <div className="mt-6 lg:mt-0 lg:text-right">
+                              <Link
+                                href={`/orders/${encodeURIComponent(recentOrder._id)}`}
+                                className="inline-block border border-[#171513] px-6 py-2.5 text-xs font-semibold uppercase tracking-wide text-[#171513] transition-colors hover:bg-[#171513] hover:text-white"
+                              >
+                                View Receipt
+                              </Link>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-4">
+                            {recentOrder.items.slice(0, 2).map((item: any, idx: number) => (
+                              <div key={idx} className="flex items-center gap-4">
+                                <div className="h-16 w-16 shrink-0 bg-[#F3F1ED] overflow-hidden">
+                                  {item.product?.images?.[0] && (
+                                    <img src={item.product.images[0]} alt="" className="h-full w-full object-cover" />
+                                  )}
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-[#171513]">{item.product?.title || "Product"}</p>
+                                  <p className="text-xs text-[#8C877D]">Qty: {item.quantity}</p>
+                                </div>
+                              </div>
+                            ))}
+                            {recentOrder.items.length > 2 && (
+                              <p className="text-xs text-[#69645E] pt-2">+ {recentOrder.items.length - 2} more item(s)</p>
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center border border-dashed border-[#D5D1C8] py-16 px-4 text-center">
+                          <Package2 className="h-10 w-10 text-[#D5D1C8] mb-4" />
+                          <h3 className="text-sm font-medium text-[#171513]">No orders placed yet</h3>
+                          <p className="mt-2 text-sm text-[#69645E] max-w-sm">
+                            Your recent purchases and their fulfillment status will appear here.
+                          </p>
+                          <Link href="/shop" className="mt-6 border border-[#171513] bg-[#171513] px-6 py-2.5 text-xs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-black">
                             Start Shopping
                           </Link>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-              </div>
-            )}
-
-            {activeTab === "partner" && (
-              <div className="space-y-6">
-                
-                {/* Boutique Dashboard Intro */}
-                <div className="rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm">
-                  <div className="bg-[#171513] px-6 py-8 text-white sm:px-10 flex flex-col sm:flex-row items-center justify-between">
-                    <div>
-                      <h3 className="text-2xl font-bold">Boutique Partner Hub</h3>
-                      <p className="mt-2 text-gray-400 max-w-xl">
-                        Manage your boutique profile, upload products for review, and track your payout balance in one secure location.
-                      </p>
+                      )}
                     </div>
-                    <div className="mt-6 sm:mt-0">
-                      <Link href={isPartnerProfile ? partnerPrimaryHref : hasPartnerProfile ? partnerProfileHref : "/boutiques"} className="inline-flex items-center justify-center rounded-lg bg-[#A87935] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#8a6125]">
-                        {isPartnerProfile || hasPartnerProfile ? "Go to Dashboard" : "Apply Now"}
-                      </Link>
-                    </div>
-                  </div>
-                  
-                  {isPartnerProfile ? (
-                     <div className="grid grid-cols-1 divide-y divide-gray-200 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
-                        <div className="px-6 py-5">
-                          <p className="text-sm font-medium text-gray-500">Boutique Name</p>
-                          <p className="mt-1 text-lg font-semibold text-gray-900">{selectedPartnerApplication?.boutiqueName}</p>
-                          <p className="mt-1 text-sm text-gray-500">{titleCase(selectedPartnerApplication?.status)}</p>
-                        </div>
-                        <div className="px-6 py-5">
-                          <p className="text-sm font-medium text-gray-500">Available Payout</p>
-                          <p className="mt-1 text-lg font-semibold text-gray-900">{partnerSummary.wallet ? formatCurrency(partnerSummary.wallet.summary.available) : "EGP 0"}</p>
-                          <Link href={partnerProductsHref} className="mt-1 text-sm text-[#A87935] hover:underline">Manage Wallet &rarr;</Link>
-                        </div>
-                        <div className="px-6 py-5">
-                          <p className="text-sm font-medium text-gray-500">Pending Products</p>
-                          <p className="mt-1 text-lg font-semibold text-gray-900">{partnerSummary.pendingProductCount}</p>
-                          <Link href={partnerProductsHref} className="mt-1 text-sm text-[#A87935] hover:underline">Upload more &rarr;</Link>
-                        </div>
-                     </div>
-                  ) : (
-                    <div className="px-6 py-8 text-center sm:px-10">
-                      <Store className="mx-auto h-12 w-12 text-gray-300" />
-                      <h4 className="mt-4 text-lg font-medium text-gray-900">Become a BOUT Partner</h4>
-                      <p className="mt-2 text-gray-500 max-w-lg mx-auto">
-                        Reach a premium audience and grow your luxury business. We handle the platform, you focus on curation.
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {isPartnerProfile && (
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <Link href={partnerProductsHref} className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
-                        <Package2 className="h-6 w-6 text-gray-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">Manage Products</h4>
-                        <p className="text-sm text-gray-500">Upload and edit your inventory</p>
-                      </div>
-                    </Link>
-                    <Link href={partnerSubscriptionHref} className="flex items-center gap-4 rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition hover:shadow-md">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
-                        <CreditCard className="h-6 w-6 text-gray-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-gray-900">Subscription Plan</h4>
-                        <p className="text-sm text-gray-500">View your billing and plan details</p>
-                      </div>
-                    </Link>
                   </div>
                 )}
-              </div>
-            )}
-          </motion.div>
-        </AnimatePresence>
+
+                {/* ---------------------------------------------------------------- */}
+                {/* PARTNER TAB */}
+                {/* ---------------------------------------------------------------- */}
+                {activeTab === "partner" && (
+                  <div className="space-y-12">
+                    
+                    <div className="border border-[#E5E1D8] bg-[#F9F8F6] p-8 lg:p-10">
+                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-[#E5E1D8] pb-8 mb-8">
+                        <div>
+                          <h2 className="font-serif text-2xl text-[#171513]">Boutique Hub</h2>
+                          <p className="mt-2 text-sm text-[#69645E] max-w-xl">
+                            Oversee your boutique's performance, manage inventory, and track your wallet payouts.
+                          </p>
+                        </div>
+                        <div>
+                          <Link href={isPartnerProfile ? partnerPrimaryHref : hasPartnerProfile ? partnerProfileHref : "/boutiques"} className="inline-block bg-[#171513] px-6 py-3 text-xs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-black">
+                            {isPartnerProfile || hasPartnerProfile ? "Go to Dashboard" : "Apply Now"}
+                          </Link>
+                        </div>
+                      </div>
+
+                      {isPartnerProfile ? (
+                        <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
+                          <div>
+                            <p className="text-[10px] font-semibold uppercase tracking-widest text-[#8C877D] mb-2">Boutique Name</p>
+                            <p className="text-xl font-light text-[#171513]">{selectedPartnerApplication?.boutiqueName}</p>
+                            <p className="mt-1 text-xs text-[#A87935]">{titleCase(selectedPartnerApplication?.status)}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-semibold uppercase tracking-widest text-[#8C877D] mb-2">Available Payout</p>
+                            <p className="text-xl font-light text-[#171513]">{partnerSummary.wallet ? formatCurrency(partnerSummary.wallet.summary.available) : "EGP 0"}</p>
+                            <Link href={partnerProductsHref} className="mt-1 inline-block text-xs font-medium text-[#69645E] hover:text-[#171513] underline underline-offset-4">Manage Wallet</Link>
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-semibold uppercase tracking-widest text-[#8C877D] mb-2">Pending Review</p>
+                            <p className="text-xl font-light text-[#171513]">{partnerSummary.pendingProductCount} Items</p>
+                            <Link href={partnerProductsHref} className="mt-1 inline-block text-xs font-medium text-[#69645E] hover:text-[#171513] underline underline-offset-4">Upload Catalog</Link>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="py-4">
+                          <p className="text-sm text-[#69645E] max-w-lg">
+                            Reach a premium audience and grow your luxury business. We handle the platform, you focus on curation. 
+                            Apply to become a BOUT Partner today.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {isPartnerProfile && (
+                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <Link href={partnerProductsHref} className="group flex items-center justify-between border border-[#E5E1D8] p-6 transition-colors hover:bg-[#F9F8F6]">
+                          <div>
+                            <h4 className="text-sm font-semibold text-[#171513]">Product Catalog</h4>
+                            <p className="mt-1 text-xs text-[#69645E]">Upload and edit your inventory</p>
+                          </div>
+                          <ArrowRight className="h-4 w-4 text-[#8C877D] transition-transform group-hover:translate-x-1 group-hover:text-[#171513]" />
+                        </Link>
+                        <Link href={partnerSubscriptionHref} className="group flex items-center justify-between border border-[#E5E1D8] p-6 transition-colors hover:bg-[#F9F8F6]">
+                          <div>
+                            <h4 className="text-sm font-semibold text-[#171513]">Subscription Plan</h4>
+                            <p className="mt-1 text-xs text-[#69645E]">View billing and tier details</p>
+                          </div>
+                          <ArrowRight className="h-4 w-4 text-[#8C877D] transition-transform group-hover:translate-x-1 group-hover:text-[#171513]" />
+                        </Link>
+                      </div>
+                    )}
+
+                  </div>
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
       </div>
     </main>
   );
 }
+
+
