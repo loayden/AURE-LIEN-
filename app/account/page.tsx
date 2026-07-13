@@ -764,10 +764,10 @@ export default function AccountPage() {
                   onClick={() => setActiveTab(tab.id as any)}
                   className={`
                     whitespace-nowrap px-4 py-2 text-sm font-medium transition-colors
-                    ${(activeTab === tab.id || (activeTab === "profile" && tab.id === "overview")) && tab.id !== "overview" ? "border-b-2 border-[#171513] text-[#171513]" : 
+                    ${((activeTab as string) === tab.id || (activeTab === "profile" && tab.id === "overview")) && tab.id !== "overview" ? "border-b-2 border-[#171513] text-[#171513]" : 
                       activeTab === "profile" && tab.id === "profile" ? "border-b-2 border-[#171513] text-[#171513]" :
-                      activeTab === tab.id && tab.id === "overview" ? "border-b-2 border-[#171513] text-[#171513]" :
-                      activeTab === tab.id ? "border-b-2 border-[#171513] text-[#171513]" : "text-[#69645E] hover:text-[#171513]"}
+                      (activeTab as string) === tab.id && tab.id === "overview" ? "border-b-2 border-[#171513] text-[#171513]" :
+                      (activeTab as string) === tab.id ? "border-b-2 border-[#171513] text-[#171513]" : "text-[#69645E] hover:text-[#171513]"}
                   `}
                 >
                   {tab.name}
@@ -787,7 +787,7 @@ export default function AccountPage() {
                 // Wait, activeTab is typed as "profile" | "orders" | "partner" in page.tsx.
                 // We'll use "profile" as the default active tab for details, and add "overview" functionality seamlessly.
                 // To avoid TS errors without changing state type, we'll map "overview" -> "profile" but use a sub-state? No, let's just make activeTab === "profile" show both, or we can just stick to the 3 tabs but rename them.
-                const isActive = activeTab === tab.id;
+                const isActive = (activeTab as string) === tab.id;
                 return (
                   <button
                     key={tab.id}
