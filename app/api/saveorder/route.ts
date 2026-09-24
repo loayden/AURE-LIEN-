@@ -5,6 +5,8 @@ import { attachUserCookie } from "@/lib/userSession";
 import { appendOrder, getOrdersJson } from "@/lib/orderStorage";
 import { getProductById } from "@/lib/getAllProducts";
 import { notifyOrderPlaced } from "@/lib/notifications";
+import { RATE_LIMITS, rateLimitResponse } from "@/lib/rateLimit";
+import { isOriginAllowed } from "@/lib/csrf";
 
 type OrderItem = {
   productId: string;
@@ -71,6 +73,11 @@ async function resolveUserId(req: NextRequest): Promise<{ userId: string; isNew:
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
+    const limited = await rateLimitResponse(req, RATE_LIMITS.saveorder);
+    if (limited) return limited;
+    if (!isOriginAllowed(req)) {
+      return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+    }
     const { userId, isNew } = await resolveUserId(req);
 
     let body;
@@ -84,7 +91,18 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const { items = [], total = 0, customerInfo = {}, paymentMethod = "cod" } = body;
+    const { saveOrderSchema, zodErrorMessage } = await import("@/lib/validate");
+    const zodParsed = saveOrderSchema.safeParse(body);
+    if (!zodParsed.success) {
+      return NextResponse.json({ error: zodErrorMessage(zodParsed.error) }, { status: 400 });
+    }
+
+    const { items, total, customerInfo, paymentMethod } = {
+      items: zodParsed.data.items ?? [],
+      total: zodParsed.data.total ?? 0,
+      customerInfo: zodParsed.data.customerInfo ?? {},
+      paymentMethod: zodParsed.data.paymentMethod ?? "cod",
+    };
 
     console.log("📥 Received order data:", {
       itemsCount: items.length,
@@ -171,7 +189,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     let resolvedItems: OrderItem[];
     try {
       resolvedItems = await Promise.all(
-        items.map(async (item: OrderItem) => {
+        items.map(async (item) => {
           const product = await getProductById(String(item.productId));
           if (!product) {
             throw new Error(`Product not found: ${item.productId}`);
@@ -214,8 +232,42 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       console.warn(`⚠️ Total mismatch - using server-calculated total`);
     }
 
-    // ✅ Step 1: Create new order payload
-    const orderId = `order-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+    // ✅ Step 1: Create new order payload (idempotent on retry)
+    const rawIdempotencyKey =
+      (typeof body?.idempotencyKey === "string" && body.idempotencyKey.trim()) ||
+      req.headers.get("Idempotency-Key")?.trim() ||
+      "";
+    const sanitizedKey = rawIdempotencyKey.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64);
+    const orderId = sanitizedKey
+      ? `order-${userId.slice(0, 8)}-${sanitizedKey}`
+      : `order-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+    if (sanitizedKey) {
+      try {
+        const existingOrders = (await getOrdersJson()) as Order[];
+        const existing = existingOrders.find(
+          (o) => String(o._id ?? o.id) === orderId && o.userId === userId
+        );
+        if (existing) {
+          const res = NextResponse.json(
+            {
+              success: true,
+              orderId: existing._id,
+              message: "Order already placed",
+              total: existing.totalPrice ?? existing.total,
+              itemsCount: existing.items?.length ?? 0,
+              paymentStatus: existing.paymentStatus,
+              status: existing.status,
+              deduped: true,
+            },
+            { status: 200 }
+          );
+          if (isNew) attachUserCookie(res, userId);
+          return res;
+        }
+      } catch {
+        // fall through to normal creation
+      }
+    }
     const products = resolvedItems.map((item) => ({
       _id: item.productId,
       name: item.name,
@@ -307,6 +359,14 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     // Filter orders for this user
     const userOrders = orders.filter((o) => o.userId === userId);
     console.log(`✅ Retrieved ${userOrders.length} orders for user ${userId}`);
+
+    const url = new URL(req.url);
+    if (url.searchParams.has("page") || url.searchParams.has("limit")) {
+      const { paginateArray, parsePaginationParams } = await import("@/lib/pagination");
+      const { page, limit } = parsePaginationParams(url);
+      const { data, pagination } = paginateArray(userOrders, page, limit);
+      return NextResponse.json({ orders: data, pagination }, { status: 200 });
+    }
 
     return NextResponse.json({ orders: userOrders }, { status: 200 });
   } catch (error) {

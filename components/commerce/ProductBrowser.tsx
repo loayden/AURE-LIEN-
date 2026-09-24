@@ -41,11 +41,14 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useDeferredValue, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 
 const SORT_OPTIONS: { value: SortValue; label: string }[] = [
   { value: "featured", label: "Featured" },
   { value: "newest", label: "Newest" },
+  { value: "best-selling", label: "Best Selling" },
+  { value: "top-rated", label: "Top Rated" },
   { value: "price-low", label: "Price Low-High" },
   { value: "price-high", label: "Price High-Low" },
 ];
@@ -486,7 +489,24 @@ function CompareDrawer({
   );
 }
 
-export default function ProductBrowser({
+export default function ProductBrowser(props: {
+  initialProducts?: Product[];
+  title?: string;
+  description?: string;
+  category?: string;
+  lockCategory?: boolean;
+  heroImage?: string;
+  showIntro?: boolean;
+  compactCards?: boolean;
+}) {
+  return (
+    <Suspense fallback={<div className="p-6"><ProductCardSkeleton /></div>}>
+      <ProductBrowserInner {...props} />
+    </Suspense>
+  );
+}
+
+function ProductBrowserInner({
   initialProducts,
   title = "Shop",
   description = "Browse the live BOUT catalog with clearer filters, stock labels, and faster product decisions.",
@@ -506,6 +526,10 @@ export default function ProductBrowser({
   compactCards?: boolean;
 }) {
   const hasInitialProducts = Array.isArray(initialProducts);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const urlSyncReady = useRef(false);
   const [products, setProducts] = useState<Product[]>(initialProducts ?? []);
   const [loading, setLoading] = useState(!hasInitialProducts);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -513,18 +537,41 @@ export default function ProductBrowser({
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [recentlyViewedIds, setRecentlyViewedIds] = useState<string[]>([]);
   const [cardView, setCardView] = useState<CardView>("grid");
-  const [sort, setSort] = useState<SortValue>("featured");
-  const [filters, setFilters] = useState<Filters>({
-    query: "",
-    category: category ?? "",
-    minPrice: "",
-    maxPrice: "",
-    size: "",
-    color: "",
-    availability: "all",
-    styleIntent: "all",
+  const [sort, setSort] = useState<SortValue>(() => {
+    const s = searchParams?.get("sort") as SortValue | null;
+    return s === "featured" || s === "newest" || s === "price-low" || s === "price-high" || s === "best-selling" || s === "top-rated" ? s : "featured";
   });
+  const [filters, setFilters] = useState<Filters>(() => ({
+    query: searchParams?.get("q") ?? "",
+    category: category ?? searchParams?.get("category") ?? "",
+    minPrice: searchParams?.get("minPrice") ?? "",
+    maxPrice: searchParams?.get("maxPrice") ?? "",
+    size: searchParams?.get("size") ?? "",
+    color: searchParams?.get("color") ?? "",
+    availability: (searchParams?.get("availability") as Filters["availability"]) ?? "all",
+    styleIntent: (searchParams?.get("intent") as Filters["styleIntent"]) ?? "all",
+  }));
   const deferredQuery = useDeferredValue(filters.query);
+
+  // Shareable filter URLs: sync state → ?q&category&minPrice&maxPrice&size&color&availability&intent&sort
+  useEffect(() => {
+    if (!urlSyncReady.current) {
+      urlSyncReady.current = true;
+      return;
+    }
+    const params = new URLSearchParams();
+    if (filters.query) params.set("q", filters.query);
+    if (!lockCategory && filters.category) params.set("category", filters.category);
+    if (filters.minPrice) params.set("minPrice", filters.minPrice);
+    if (filters.maxPrice) params.set("maxPrice", filters.maxPrice);
+    if (filters.size) params.set("size", filters.size);
+    if (filters.color) params.set("color", filters.color);
+    if (filters.availability !== "all") params.set("availability", filters.availability);
+    if (filters.styleIntent !== "all") params.set("intent", filters.styleIntent);
+    if (sort !== "featured") params.set("sort", sort);
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }, [filters, sort, lockCategory, pathname, router]);
 
   useEffect(() => {
     const controller = new AbortController();

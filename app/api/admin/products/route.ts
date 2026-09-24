@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getAuthFromRequest } from "@/lib/auth";
+import { getClientIpFromHeaders, logAdminAction } from "@/lib/adminAudit";
 import connectDB, { hasConfiguredMongoUri } from "@/lib/connectDB";
 import Product from "@/models/Product";
 import { CATALOG_PRICE_OFFSET_EGP } from "@/lib/catalogPrice";
@@ -244,6 +245,15 @@ export async function POST(req: NextRequest) {
     clearProductsCache();
     revalidateCatalogPages(_id);
 
+    await logAdminAction({
+      action: "admin.product.create",
+      actorId: auth.userId,
+      actorEmail: auth.email,
+      targetType: "product",
+      targetId: _id,
+      ip: getClientIpFromHeaders(req.headers),
+    });
+
     return NextResponse.json(
       { message: "Product added", product: productData, savedToMongo, savedToJson },
       { status: 201 }
@@ -295,6 +305,14 @@ export async function PUT(req: NextRequest) {
     revalidateCatalogPages(productId);
 
     const updated = await getProductById(productId);
+    await logAdminAction({
+      action: "admin.product.update",
+      actorId: auth.userId,
+      actorEmail: auth.email,
+      targetType: "product",
+      targetId: productId,
+      ip: getClientIpFromHeaders(req.headers),
+    });
     return NextResponse.json({
       message: "Product updated",
       product: updated ?? productData,
@@ -347,6 +365,15 @@ export async function DELETE(req: NextRequest) {
     clearProductsCache();
 
     revalidateCatalogPages(productId);
+
+    await logAdminAction({
+      action: "admin.product.delete",
+      actorId: auth.userId,
+      actorEmail: auth.email,
+      targetType: "product",
+      targetId: productId,
+      ip: getClientIpFromHeaders(req.headers),
+    });
 
     return NextResponse.json({
       success: true,

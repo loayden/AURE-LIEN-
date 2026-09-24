@@ -4,11 +4,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { sendEmailAsync } from "@/lib/email/sender";
 import { getWelcomeEmailHtml } from "@/lib/email/templates/welcome";
 import { attachDeviceCookie, getOrCreateDeviceId } from "@/lib/deviceIdentity";
+import { RATE_LIMITS, rateLimitResponse } from "@/lib/rateLimit";
+import { isOriginAllowed } from "@/lib/csrf";
 
 export async function POST(req: NextRequest) {
+  const limited = await rateLimitResponse(req, RATE_LIMITS.auth);
+  if (limited) return limited;
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+  }
   try {
     const body = await req.json();
-    const { name, email, password, confirmPassword } = body;
+    const { signupSchema, zodErrorMessage } = await import("@/lib/validate");
+    const parsed = signupSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: zodErrorMessage(parsed.error) }, { status: 400 });
+    }
+    const { name, email, password, confirmPassword } = parsed.data;
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -16,7 +28,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    if (password !== confirmPassword) {
+    if (password !== confirmPassword && parsed.data.confirmPassword !== undefined) {
       return NextResponse.json(
         { error: "Passwords do not match" },
         { status: 400 }

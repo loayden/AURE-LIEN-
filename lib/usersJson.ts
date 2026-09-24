@@ -14,6 +14,7 @@ import {
   readBlobTextWithLegacyPublicFallback,
   writeBlobText,
 } from "@/lib/blobStorage";
+import { useMongoStorage as hasMongoStorage } from "@/lib/mongoEnv";
 
 export interface UserRecord {
   id: string;
@@ -39,11 +40,7 @@ export interface UserRecord {
 const BLOB_USERS_PATH = "users.json";
 
 function useMongoStorage(): boolean {
-  const uri = process.env.MONGO_URI?.trim() || process.env.MONGODB_URI?.trim();
-  return Boolean(
-    uri &&
-      (uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://"))
-  );
+  return hasMongoStorage();
 }
 
 function useCloudStorage(): boolean {

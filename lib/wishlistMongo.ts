@@ -8,6 +8,7 @@ import {
   isRedisStorageAvailable,
   saveRedisWishlist,
 } from "@/lib/redisStorage";
+import { useMongoStorage as hasMongoStorage } from "@/lib/mongoEnv";
 
 export interface ProductDataSnapshot {
   _id: string;
@@ -18,11 +19,7 @@ export interface ProductDataSnapshot {
 }
 
 function useMongoStorage(): boolean {
-  const uri = process.env.MONGO_URI?.trim() || process.env.MONGODB_URI?.trim();
-  return Boolean(
-    uri &&
-      (uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://"))
-  );
+  return hasMongoStorage();
 }
 
 function normalizeWishlistItem(item: any): {

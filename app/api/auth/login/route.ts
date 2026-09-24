@@ -3,11 +3,23 @@ import { verifyPassword, signToken, TOKEN_COOKIE } from "@/lib/auth";
 import { getEnvAdminUser, isEnvAdminLogin } from "@/lib/adminAuth";
 import { NextRequest, NextResponse } from "next/server";
 import { attachDeviceCookie, getOrCreateDeviceId } from "@/lib/deviceIdentity";
+import { RATE_LIMITS, rateLimitResponse } from "@/lib/rateLimit";
+import { isOriginAllowed } from "@/lib/csrf";
 
 export async function POST(req: NextRequest) {
+  const limited = await rateLimitResponse(req, RATE_LIMITS.auth);
+  if (limited) return limited;
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+  }
   try {
     const body = await req.json();
-    const { email, password } = body;
+    const { loginSchema, zodErrorMessage } = await import("@/lib/validate");
+    const parsed = loginSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: zodErrorMessage(parsed.error) }, { status: 400 });
+    }
+    const { email, password } = parsed.data;
     const normalizedEmail = String(email ?? "").trim().toLowerCase();
 
     if (!email || !password) {
@@ -40,6 +52,14 @@ export async function POST(req: NextRequest) {
         maxAge: 60 * 60 * 24 * 7,
       });
       attachDeviceCookie(res, getOrCreateDeviceId(req).deviceId);
+
+      const { logAdminAction, getClientIpFromHeaders } = await import("@/lib/adminAudit");
+      await logAdminAction({
+        action: "admin.login",
+        actorId: envAdmin.id,
+        actorEmail: envAdmin.email,
+        ip: getClientIpFromHeaders(req.headers),
+      });
 
       return res;
     }

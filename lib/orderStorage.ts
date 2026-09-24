@@ -20,16 +20,13 @@ import {
   readBlobTextWithLegacyPublicFallback,
   writeBlobText,
 } from "@/lib/blobStorage";
+import { useMongoStorage as hasMongoStorage } from "@/lib/mongoEnv";
 
 const BLOB_ORDERS_PATH = "orders.json";
 const BLOB_ORDERS_DATA_PATH = "ordersData.json";
 
 function useMongoStorage(): boolean {
-  const uri = process.env.MONGO_URI?.trim() || process.env.MONGODB_URI?.trim();
-  return Boolean(
-    uri &&
-      (uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://"))
-  );
+  return hasMongoStorage();
 }
 
 function useCloudStorage(): boolean {

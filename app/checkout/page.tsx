@@ -256,6 +256,8 @@ function CheckoutContent() {
     });
 
     try {
+      const { trackEvent } = await import("@/lib/analytics").catch(() => ({ trackEvent: () => undefined as void }));
+      trackEvent("begin_checkout", { value: Number(total ?? 0) });
       if (paymentMethod === "card") {
         const origin = typeof window !== "undefined" ? window.location.origin : "";
         const res = await fetch("/api/checkout", {
@@ -347,6 +349,12 @@ function CheckoutContent() {
 
       const placedOrderId = typeof data?.orderId === "string" ? data.orderId : "";
 
+      try {
+        const { trackEvent } = await import("@/lib/analytics").catch(() => ({ trackEvent: () => undefined as void }));
+        trackEvent("purchase", { value: Number(data?.total ?? total ?? 0) });
+      } catch {
+        // ignore analytics errors
+      }
       router.push(
         placedOrderId
           ? `/checkout/confirmation?orderId=${encodeURIComponent(placedOrderId)}&paymentStatus=${encodeURIComponent(data?.paymentStatus || "pending")}`

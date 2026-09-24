@@ -58,6 +58,8 @@ const orderSchema = new Schema(
     status: { type: String, default: "pending" },
     paymentStatus: { type: String, default: "pending" },
     paymentMethod: { type: String, default: "" },
+    stripeSessionId: { type: String, default: "" },
+    paidAt: { type: Date },
     customerDataCleared: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
     customer: { type: customerSchema, default: {} },
@@ -66,6 +68,10 @@ const orderSchema = new Schema(
     minimize: false,
   }
 );
+
+orderSchema.index({ userId: 1, createdAt: -1 });
+orderSchema.index({ status: 1, paymentStatus: 1 });
+orderSchema.index({ stripeSessionId: 1 }, { sparse: true });
 
 const Order = models.Order || model("Order", orderSchema);
 

@@ -1,0 +1,13 @@
+{
+  "name": "BOUT — Luxury Menswear",
+  "short_name": "BOUT",
+  "description": "Crafted in silence. Designed for presence.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5F1E8",
+  "theme_color": "#F5F1E8",
+  "icons": [
+    { "src": "/logo.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/favicon.ico", "sizes": "any" }
+  ]
+}

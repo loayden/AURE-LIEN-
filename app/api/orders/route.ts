@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { attachUserCookie, getOrCreateUserId } from "@/lib/userSession";
 import { getAuthFromRequest } from "@/lib/auth";
 import { appendOrder, getOrdersJson, removeOrderById, setOrdersJson } from "@/lib/orderStorage";
+import { paginateArray, parsePaginationParams } from "@/lib/pagination";
 
 const NO_STORE_HEADERS = {
   "Cache-Control": "no-store, max-age=0",
@@ -83,6 +84,16 @@ export async function GET(req: NextRequest) {
   }
 
   const userOrders = normalizedOrders.filter(o => o.userId === userId);
+  if (searchParams.has("page") || searchParams.has("limit")) {
+    const { page, limit } = parsePaginationParams(new URL(req.url));
+    const { data, pagination } = paginateArray(userOrders, page, limit);
+    const res = NextResponse.json(
+      { orders: data, pagination },
+      { status: 200, headers: NO_STORE_HEADERS }
+    );
+    if (isNew) attachUserCookie(res, userId);
+    return res;
+  }
   const res = NextResponse.json(
     { orders: userOrders },
     { status: 200, headers: NO_STORE_HEADERS }

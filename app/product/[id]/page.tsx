@@ -1,6 +1,9 @@
 "use client";
 
 import ProductCard from "@/components/ProductCard";
+import { BackInStockButton } from "@/components/BackInStockButton";
+import { ProductReviews } from "@/components/ProductReviews";
+import { ProductPageSkeleton } from "@/components/ProductSkeleton";
 import { usePerformanceProfile } from "@/hooks/usePerformanceProfile";
 import { useTimeoutRegistry } from "@/hooks/useTimeoutRegistry";
 import { stockLabel, stockState } from "@/lib/commerce";
@@ -503,6 +506,9 @@ export default function PremiumProductPage() {
 
   useEffect(() => {
     if (!p || typeof window === "undefined") return;
+    import("@/lib/analytics").then(({ trackEvent }) => {
+      trackEvent("product_view", { productId: p._id, value: Number(p.price ?? 0) });
+    }).catch(() => undefined);
     const key = "bout:recently-viewed";
     let existing: string[] = [];
     try {
@@ -528,10 +534,10 @@ export default function PremiumProductPage() {
 
   if (loadingProduct) {
     return (
-      <div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center">
-        <p className="text-white/50 font-light tracking-widest" style={{ fontFamily: "'Jost', sans-serif" }}>
-          Loading product...
-        </p>
+      <div className="min-h-screen bg-[#F5F1E8] p-6">
+        <div className="mx-auto max-w-6xl">
+          <ProductPageSkeleton />
+        </div>
       </div>
     );
   }
@@ -587,6 +593,9 @@ export default function PremiumProductPage() {
       if (!res.ok) throw new Error(data.error || "Failed");
       setAdded(true);
       window.dispatchEvent(new Event("cart:changed"));
+      import("@/lib/analytics").then(({ trackEvent }) => {
+        trackEvent("add_to_cart", { productId: product._id, value: Number(product.price ?? 0) });
+      }).catch(() => undefined);
       registerTimeout(() => setAdded(false), 2500);
     } catch {
       showActionError("Failed to add this piece to the cart.");
@@ -1076,6 +1085,8 @@ export default function PremiumProductPage() {
               >
                 <ShareButtons product={product} />
               </motion.div>
+              {soldOut && <BackInStockButton productId={product._id} />}
+              <ProductReviews productId={product._id} />
             </motion.div>
           </div>
         </div>

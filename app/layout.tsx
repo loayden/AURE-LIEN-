@@ -13,6 +13,7 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'BOUT — Luxury Menswear & Accessories',
   description: 'Crafted in silence. Designed for presence. Explore refined tailoring, footwear, and accessories for the modern man.',
+  manifest: '/manifest.webmanifest',
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
@@ -34,6 +35,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
+  themeColor: '#F5F1E8',
 }
 
 const cormorant = Cormorant_Garamond({
@@ -41,12 +43,14 @@ const cormorant = Cormorant_Garamond({
   weight: ['300', '400'],
   style: ['normal', 'italic'],
   variable: '--font-cormorant',
+  display: 'swap',
 })
 
 const jost = Jost({
   subsets: ['latin'],
   weight: ['200', '300', '400'],
   variable: '--font-jost',
+  display: 'swap',
 })
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
