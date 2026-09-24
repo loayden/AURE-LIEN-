@@ -12,6 +12,7 @@ const ProductSchema = new mongoose.Schema(
     description: { type: String },
     material: { type: String },
     stock: { type: Number, default: 0 },
+    discount: { type: Number, min: 0, max: 90 },
     deleted: { type: Boolean, default: false },
     deletedAt: { type: Date },
   },

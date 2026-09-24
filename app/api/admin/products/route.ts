@@ -74,6 +74,12 @@ function buildProductRecord(body: Record<string, unknown>, existing?: Awaited<Re
   const stock = body.stock === "" || body.stock == null
     ? existing?.stock
     : Math.max(0, Math.floor(Number(body.stock) || 0));
+  // Optional per-product discount (0-90). Absent = keep existing (no price change).
+  const rawDiscount = body.discount;
+  const discount =
+    rawDiscount === "" || rawDiscount == null
+      ? existing?.discount
+      : Math.min(90, Math.max(0, Number(rawDiscount) || 0));
 
   return {
     _id: productId,
@@ -86,6 +92,7 @@ function buildProductRecord(body: Record<string, unknown>, existing?: Awaited<Re
     colors,
     material: String(body.material ?? existing?.material ?? "").trim() || undefined,
     stock,
+    discount,
   };
 }
 
@@ -192,6 +199,7 @@ export async function POST(req: NextRequest) {
       images,
       size,
       colors,
+      discount,
     } = body;
 
     if (!name || !category || price == null) {
@@ -218,6 +226,7 @@ export async function POST(req: NextRequest) {
         : [];
 
     const _id = `p-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    const parsedDiscount = discount === "" || discount == null ? undefined : Math.min(90, Math.max(0, Number(discount) || 0));
     const productData = {
       _id,
       name: String(name).trim(),
@@ -227,6 +236,7 @@ export async function POST(req: NextRequest) {
       images: imgList.length ? imgList : ["/images/placeholder.svg"],
       size: sizeList,
       colors: colorList,
+      ...(parsedDiscount !== undefined ? { discount: parsedDiscount } : {}),
     };
 
     const savedToMongo = await writeProductToMongo(productData);
