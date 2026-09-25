@@ -198,8 +198,8 @@ function CheckoutContent() {
   const [loyaltyUse, setLoyaltyUse] = useState(0);
   const [giftWrap, setGiftWrap] = useState(false);
   const [giftMessage, setGiftMessage] = useState("");
-  const GIFT_WRAP_FEE = 50;
-  const giftFee = giftWrap ? GIFT_WRAP_FEE : 0;
+  const [cardAvailable, setCardAvailable] = useState(true);
+  const GIFT_WRAP_FEE = 50;  const giftFee = giftWrap ? GIFT_WRAP_FEE : 0;
   const loyaltyDiscount = Math.min(Math.floor(Math.max(0, loyaltyUse) / 100) * 10, Math.max(0, subtotal - (coupon?.discount ?? 0)));
   const total = Math.max(0, subtotal - (coupon?.discount ?? 0) - loyaltyDiscount + shippingCost + giftFee);
 
@@ -229,6 +229,15 @@ function CheckoutContent() {
     fetch("/api/loyalty", { cache: "no-store" })
       .then((r) => r.json())
       .then((d) => setLoyaltyBalance(Number(d.points ?? 0)))
+      .catch(() => undefined);
+    fetch("/api/checkout/status", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d && d.stripe === false) {
+          setCardAvailable(false);
+          setPaymentMethod("cod");
+        }
+      })
       .catch(() => undefined);
   }, []);
 
@@ -664,12 +673,16 @@ function CheckoutContent() {
                           title: "Cash on delivery",
                           detail: "Order is created with pending payment status.",
                           icon: Banknote,
+                          disabled: false,
                         },
                         {
                           value: "card" as const,
                           title: "Card payment",
-                          detail: "Redirect to Stripe when payment keys are configured.",
+                          detail: cardAvailable
+                            ? "Secure card checkout."
+                            : "Card payments are not available right now — cash on delivery works.",
                           icon: CreditCard,
+                          disabled: !cardAvailable,
                         },
                       ].map((option) => {
                         const Icon = option.icon;
@@ -679,7 +692,8 @@ function CheckoutContent() {
                             type="button"
                             key={option.value}
                             onClick={() => setPaymentMethod(option.value)}
-                            className="flex min-h-[64px] items-center justify-between gap-4 rounded-xl p-4 text-left transition-colors"
+                            disabled={option.disabled}
+                            className="flex min-h-[64px] items-center justify-between gap-4 rounded-xl p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-45"
                             style={active ? {
                               background:"linear-gradient(135deg, rgba(168,121,53,0.12), rgba(168,121,53,0.04))",
                               border:"1px solid rgba(168,121,53,0.3)",
