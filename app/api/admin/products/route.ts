@@ -80,6 +80,7 @@ export function buildProductRecord(body: Record<string, unknown>, existing?: Awa
     rawDiscount === "" || rawDiscount == null
       ? existing?.discount
       : Math.min(90, Math.max(0, Number(rawDiscount) || 0));
+  const featured = body.featured === undefined ? existing?.featured : Boolean(body.featured);
 
   return {
     _id: productId,
@@ -93,6 +94,7 @@ export function buildProductRecord(body: Record<string, unknown>, existing?: Awa
     material: String(body.material ?? existing?.material ?? "").trim() || undefined,
     stock,
     discount,
+    featured,
   };
 }
 
@@ -209,6 +211,7 @@ export async function POST(req: NextRequest) {
       size,
       colors,
       discount,
+      featured,
     } = body;
 
     if (!name || !category || price == null) {
@@ -246,6 +249,7 @@ export async function POST(req: NextRequest) {
       size: sizeList,
       colors: colorList,
       ...(parsedDiscount !== undefined ? { discount: parsedDiscount } : {}),
+      ...(featured !== undefined ? { featured: Boolean(featured) } : {}),
     };
 
     const savedToMongo = await writeProductToMongo(productData);
@@ -328,8 +332,7 @@ export async function PUT(req: NextRequest) {
     try {
       const before = Number(existing?.stock ?? 0);
       const after = Number(productData.stock ?? 0);
-      if (before <= 0 && after > 0) {
-        const { default: BackInStock } = await import("@/models/BackInStock");
+      if (before <= 0 && after > 0) {        const { default: BackInStock } = await import("@/models/BackInStock");
         const { hasConfiguredMongoUri } = await import("@/lib/connectDB");
         if (hasConfiguredMongoUri()) {
           const { default: connectDB } = await import("@/lib/connectDB");
@@ -354,6 +357,38 @@ export async function PUT(req: NextRequest) {
       }
     } catch (notifyError) {
       console.warn("Back-in-stock notify skipped:", notifyError instanceof Error ? notifyError.message : String(notifyError));
+    }
+    // Price-drop: storefront price decreased → notify wishlisters (never fails the request).
+    try {
+      const oldPrice = Number(existing?.price ?? 0);
+      const newPrice = Number(productData.price ?? 0);
+      if (oldPrice > 0 && newPrice > 0 && newPrice < oldPrice) {
+        const { findWishlisters } = await import("@/lib/priceDrop");
+        const userIds = await findWishlisters(productId);
+        if (userIds.length > 0) {
+          const { findUserById } = await import("@/lib/usersJson");
+          const { sendEmailAsync } = await import("@/lib/email/sender");
+          const { getPriceDropEmailHtml } = await import("@/lib/email/templates/abandoned");
+          for (const uid of userIds.slice(0, 200)) {
+            const u = await findUserById(uid).catch(() => null);
+            const email = String(u?.email ?? "").trim();
+            if (!email) continue;
+            sendEmailAsync({
+              to: email,
+              subject: `Price drop · ${updated?.name ?? productData.name}`,
+              html: getPriceDropEmailHtml({
+                customerName: String(u?.name ?? "").trim() || email.split("@")[0],
+                productName: updated?.name ?? productData.name,
+                productId,
+                oldPrice,
+                newPrice,
+              }),
+            });
+          }
+        }
+      }
+    } catch (notifyError) {
+      console.warn("Price-drop notify skipped:", notifyError instanceof Error ? notifyError.message : String(notifyError));
     }
     await logAdminAction({
       action: "admin.product.update",

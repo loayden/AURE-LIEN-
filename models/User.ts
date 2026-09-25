@@ -5,7 +5,7 @@ const userSchema = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true, index: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ["customer", "admin"], default: "customer" },
+  role: { type: String, enum: ["customer", "admin", "support"], default: "customer" },
   accountIntent: { type: String, enum: ["buyer", "partner", "both"], default: "buyer" },
   authProvider: { type: String, enum: ["password", "google", "mixed"], default: "password" },
   googleSub: { type: String, default: "", index: true },
@@ -21,6 +21,7 @@ const userSchema = new Schema({
   twoFactorSecret: { type: String, default: "" },
   twoFactorEnabled: { type: Boolean, default: false },
   tokenVersion: { type: Number, default: 0 },
+  birthdate: { type: String, default: "" },
   createdAt: { type: Date, default: Date.now },
 });
 

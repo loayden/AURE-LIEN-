@@ -21,6 +21,7 @@ export interface ProductRecord {
   material?: string;
   stock?: number;
   discount?: number;
+  featured?: boolean;
   media360?: string[];
   videoUrl?: string;
 }
@@ -76,6 +77,7 @@ function normalizeProductRecord(product: ProductRecord): ProductRecord {
     discount: typeof product.discount === "number" && Number.isFinite(product.discount)
       ? Math.max(0, product.discount)
       : undefined,
+    featured: product.featured === true,
     media360: Array.isArray(product.media360)
       ? product.media360.map((value) => String(value).trim()).filter(Boolean)
       : undefined,

@@ -32,7 +32,37 @@ export default function AdminBoutiquesPage() {
   const [sort, setSort] = useState("newest");
   const [actingId, setActingId] = useState<string | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
+  const [terms, setTerms] = useState<Record<string, { commissionRate: string; monthlyFee: string }>>({});
   const [actionMessage, setActionMessage] = useState("");
+
+  async function saveTerms(applicationId: string) {
+    const t = terms[applicationId];
+    if (!t) return;
+    setActingId(applicationId);
+    setActionMessage("");
+    try {
+      const res = await fetch("/api/admin/boutiques", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          applicationId,
+          action: "terms",
+          ...(t.commissionRate !== "" ? { commissionRate: Number(t.commissionRate) } : {}),
+          ...(t.monthlyFee !== "" ? { monthlyFee: Number(t.monthlyFee) } : {}),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Terms save failed");
+      setApplications((prev) =>
+        prev.map((a) => (a._id === applicationId ? { ...a, commissionRate: data.application.commissionRate, monthlyFee: data.application.monthlyFee } : a))
+      );
+      setActionMessage("Commercial terms updated.");
+    } catch (e) {
+      setActionMessage(e instanceof Error ? e.message : "Terms save failed");
+    } finally {
+      setActingId(null);
+    }
+  }
 
   async function review(applicationId: string, action: "approve" | "decline" | "reopen") {
     setActingId(applicationId);
@@ -270,6 +300,47 @@ export default function AdminBoutiquesPage() {
                     <span className="text-[#3D3025]">Notes:</span> {application.notes}
                   </p>
                 ) : null}
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-2 rounded-[16px] border border-[rgba(123,103,82,0.14)] bg-white/44 p-3 sm:p-4">
+                <label className="grid gap-1 text-[10px] uppercase tracking-[0.18em] text-[#6F6254]">
+                  Commission %
+                  <input
+                    type="number"
+                    min={0}
+                    max={30}
+                    step="any"
+                    placeholder={String(application.commissionRate ?? "")}
+                    value={terms[application._id]?.commissionRate ?? ""}
+                    onChange={(e) => setTerms((prev) => ({ ...prev, [application._id]: { commissionRate: e.target.value, monthlyFee: prev[application._id]?.monthlyFee ?? "" } }))}
+                    aria-label={`Commission percent for ${application.boutiqueName}`}
+                    className="rounded-xl px-3 py-2 text-sm normal-case tracking-normal"
+                    style={{ border: "1px solid rgba(123,103,82,0.22)", background: "rgba(255,255,255,0.7)" }}
+                  />
+                </label>
+                <label className="grid gap-1 text-[10px] uppercase tracking-[0.18em] text-[#6F6254]">
+                  Monthly EGP
+                  <input
+                    type="number"
+                    min={0}
+                    step={1}
+                    placeholder={String(application.monthlyFee ?? "")}
+                    value={terms[application._id]?.monthlyFee ?? ""}
+                    onChange={(e) => setTerms((prev) => ({ ...prev, [application._id]: { commissionRate: prev[application._id]?.commissionRate ?? "", monthlyFee: e.target.value } }))}
+                    aria-label={`Monthly fee for ${application.boutiqueName}`}
+                    className="rounded-xl px-3 py-2 text-sm normal-case tracking-normal"
+                    style={{ border: "1px solid rgba(123,103,82,0.22)", background: "rgba(255,255,255,0.7)" }}
+                  />
+                </label>
+                <button
+                  type="button"
+                  disabled={actingId === application._id || (!terms[application._id]?.commissionRate && !terms[application._id]?.monthlyFee)}
+                  onClick={() => saveTerms(application._id)}
+                  className="col-span-2 inline-flex min-h-[44px] items-center justify-center rounded-full border px-4 text-[10px] uppercase tracking-[0.2em] disabled:opacity-40"
+                  style={{ borderColor: "rgba(168,121,53,0.4)", color: "var(--gold-text)" }}
+                >
+                  {actingId === application._id ? "Saving…" : "Save Terms"}
+                </button>
               </div>
 
               {(application.status === "pending" || application.status === "contacted" || application.status === "declined" || application.status === "approved") && (

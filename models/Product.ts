@@ -13,6 +13,7 @@ const ProductSchema = new mongoose.Schema(
     material: { type: String },
     stock: { type: Number, default: 0 },
     discount: { type: Number, min: 0, max: 90 },
+    featured: { type: Boolean, default: false, index: true },
     deleted: { type: Boolean, default: false },
     deletedAt: { type: Date },
   },

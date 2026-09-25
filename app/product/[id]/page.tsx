@@ -9,6 +9,7 @@ import { useTimeoutRegistry } from "@/hooks/useTimeoutRegistry";
 import { stockLabel, stockState } from "@/lib/commerce";
 import { getProductColorHex as getColorHex } from "@/lib/productColors";
 import { getProductPageContent, type ProductPageSpecification } from "@/lib/productPageContent";
+import { getSizeGuide } from "@/lib/sizeGuides";
 import products from "@/lib/productsData";
 import type { Product } from "@/lib/types";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
@@ -898,7 +899,7 @@ export default function PremiumProductPage() {
                   transition={{ delay: 0.55 }}
                   className="mb-8"
                 >
-                  <div className="mb-4 flex items-center gap-3">
+                  <div className="mb-4 flex flex-wrap items-center gap-3">
                     <p className="text-white/30 text-[9px] tracking-[0.35em] uppercase font-light">Size</p>
                     <button
                       type="button"
@@ -908,7 +909,20 @@ export default function PremiumProductPage() {
                       <Ruler className="h-3.5 w-3.5" strokeWidth={1.3} />
                       Size Guide
                     </button>
+                    {process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ? (
+                      <a
+                        href={`https://wa.me/${String(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER).replace(/\D+/g, "")}?text=${encodeURIComponent(`Hello BOUT, I need sizing help for ${product.name} (${product._id})`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex min-h-[36px] items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 text-[9px] uppercase tracking-[0.2em] text-white/50 transition-colors hover:text-white/80"
+                      >
+                        Ask on WhatsApp
+                      </a>
+                    ) : null}
                   </div>
+                  <p className="mb-4 text-[10px] uppercase tracking-[0.2em] text-white/35">
+                    Delivery within 2–4 business days inside Egypt · Cairo within 24–48 hours
+                  </p>
                   <div className="flex flex-wrap gap-3">
                     {sizes.map((size) => (
                       <motion.button
@@ -1318,16 +1332,22 @@ export default function PremiumProductPage() {
                   </button>
                 </div>
                 <div className="grid gap-3">
-                  {[
-                    ["XS / S", "Slim frame or close fit"],
-                    ["M / L", "Regular frame, standard fit"],
-                    ["XL / XXL", "Broader frame or relaxed fit"],
-                  ].map(([label, detail]) => (
-                    <div key={label} className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                      <span className="text-[11px] uppercase tracking-[0.24em] text-[#A87935]">{label}</span>
-                      <span className="text-right text-sm leading-6 tracking-[0.04em] text-white/48">{detail}</span>
-                    </div>
-                  ))}
+                  {(() => {
+                    const guide = getSizeGuide(product.category);
+                    return (
+                      <>
+                        <p className="text-[11px] uppercase tracking-[0.24em] text-[#A87935]">{guide.title}</p>
+                        {guide.rows.map((row) => (
+                          <div key={row.size} className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                            <span className="text-[11px] uppercase tracking-[0.24em] text-[#A87935]">{row.size}</span>
+                            <span className="text-right text-sm leading-6 tracking-[0.04em] text-white/48">
+                              {[row.chest, row.waist, row.foot, row.length].filter(Boolean).join(" · ")}{" — "}{row.note}
+                            </span>
+                          </div>
+                        ))}
+                      </>
+                    );
+                  })()}
                 </div>
                 <p className="mt-5 text-xs leading-6 tracking-[0.08em] text-white/40">
                   Fit varies by product. Use this as a quick guide, then contact support for precise measurements before checkout when needed.

@@ -46,3 +46,35 @@ jobs:
             echo "subscriptions returned $CODE"
             exit 1
           fi
+      - name: Call win-back cron
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+        run: |
+          PARAM=""
+          if [ "$DRY_RUN" = "true" ]; then PARAM="?dryRun=1"; fi
+          CODE=$(curl -s -o /tmp/winback.json -w "%{http_code}" \
+            "https://bout-clothes.vercel.app/api/cron/winback$PARAM" \
+            -H "Authorization: Bearer $CRON_SECRET")
+          cat /tmp/winback.json
+          echo ""
+          if [ "$CODE" != "200" ]; then
+            echo "win-back returned $CODE"
+            exit 1
+          fi
+      - name: Call low-stock cron
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+        run: |
+          PARAM=""
+          if [ "$DRY_RUN" = "true" ]; then PARAM="?dryRun=1"; fi
+          CODE=$(curl -s -o /tmp/lowstock.json -w "%{http_code}" \
+            "https://bout-clothes.vercel.app/api/cron/low-stock$PARAM" \
+            -H "Authorization: Bearer $CRON_SECRET")
+          cat /tmp/lowstock.json
+          echo ""
+          if [ "$CODE" != "200" ]; then
+            echo "low-stock returned $CODE"
+            exit 1
+          fi

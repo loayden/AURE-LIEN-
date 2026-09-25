@@ -87,6 +87,44 @@ export async function POST(req: NextRequest) {
       html: getWelcomeEmailHtml({ userName: user.name }),
     });
 
+    // Referral attribution (best-effort, never fails signup).
+    try {
+      const refCode = String((body as Record<string, unknown>).ref ?? "").trim().toUpperCase();
+      if (refCode) {
+        const { hasConfiguredMongoUri } = await import("@/lib/mongoEnv");
+        if (hasConfiguredMongoUri()) {
+          const { default: connectDB } = await import("@/lib/connectDB");
+          const { default: Referral } = await import("@/models/Referral");
+          const { grantBonus } = await import("@/lib/loyaltyLedger");
+          const { REFERRAL_BONUS_POINTS } = await import("@/lib/loyalty");
+          await connectDB();
+          const master = await Referral.findOne({ code: refCode, status: "issued", referredEmail: "" }).lean() as unknown as {
+            referrerUserId?: string;
+          } | null;
+          if (master?.referrerUserId && master.referrerUserId !== user.id) {
+            const { findUserById } = await import("@/lib/usersJson");
+            const referrerUser = await findUserById(master.referrerUserId).catch(() => null);
+            if (referrerUser && referrerUser.email.toLowerCase() !== user.email.toLowerCase()) {
+              const dup = await Referral.findOne({ code: refCode, referredEmail: user.email.toLowerCase() }).lean();
+              if (!dup) {
+                await Referral.create({
+                  code: `${refCode}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
+                  referrerUserId: master.referrerUserId,
+                  referredEmail: user.email.toLowerCase(),
+                  referredUserId: user.id,
+                  status: "converted",
+                });
+                await grantBonus(master.referrerUserId, REFERRAL_BONUS_POINTS, `Referral of ${user.email}`);
+                await grantBonus(user.id, REFERRAL_BONUS_POINTS, "Welcome referral bonus");
+              }
+            }
+          }
+        }
+      }
+    } catch {
+      // ignore referral errors
+    }
+
     const response = NextResponse.json({
       message: "Account created",
       user: { id: user.id, name: user.name, email: user.email, role: user.role },

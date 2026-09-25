@@ -28,6 +28,24 @@ export async function GET(req: NextRequest) {
       { $group: { _id: null, avg: { $avg: "$rating" } } },
     ]);
     const average = agg[0]?.avg ? Math.round(agg[0].avg * 10) / 10 : 0;
+    // Verified purchase: reviewer has an order containing this product.
+    let verifiedIds = new Set<string>();
+    try {
+      const { getOrdersJson } = await import("@/lib/orderStorage");
+      const orders = await getOrdersJson();
+      const reviewerIds = new Set(
+        (reviews as Array<{ userId?: string }>).map((r) => String(r.userId ?? "")).filter(Boolean)
+      );
+      for (const order of orders) {
+        const items = Array.isArray(order.items) ? order.items : [];
+        const hasProduct = items.some((item: { productId?: string }) => String(item.productId ?? "") === productId);
+        if (hasProduct && reviewerIds.has(String(order.userId ?? ""))) {
+          verifiedIds.add(String(order.userId));
+        }
+      }
+    } catch {
+      // verification is best-effort
+    }
     return NextResponse.json(
       {
         reviews: reviews.map((r: { userName?: string; rating?: number; title?: string; body?: string; createdAt?: Date; userId?: string }) => ({
@@ -36,6 +54,7 @@ export async function GET(req: NextRequest) {
           title: r.title ?? "",
           body: r.body ?? "",
           createdAt: r.createdAt,
+          verified: verifiedIds.has(String(r.userId ?? "")),
         })),
         average,
         count,

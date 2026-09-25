@@ -20,8 +20,7 @@ import {
   ShoppingBag,
   Sparkles,
   Store,
-} from "lucide-react";
-import Image from "next/image";
+} from "lucide-react";import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -338,6 +337,10 @@ export default function AccountPage() {
   const [twoFactorBusy, setTwoFactorBusy] = useState(false);
   const [twoFactorMessage, setTwoFactorMessage] = useState("");
   const [revoking, setRevoking] = useState(false);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [referralConverted, setReferralConverted] = useState(0);
+  const [pushMessage, setPushMessage] = useState("");
+  const [pushBusy, setPushBusy] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -421,6 +424,15 @@ export default function AccountPage() {
           const rows = Array.isArray(returnsResult.value?.returns) ? returnsResult.value.returns : [];
           setMyReturns(rows);
         }
+
+        fetch("/api/referrals", { cache: "no-store", signal: controller.signal })
+          .then((res) => (res.ok ? res.json() : null))
+          .then((data) => {
+            if (controller.signal.aborted || !data) return;
+            if (data.code) setReferralCode(String(data.code));
+            setReferralConverted(Number(data.converted ?? 0));
+          })
+          .catch(() => undefined);
       } catch (requestError) {
         if (controller.signal.aborted) return;
         if (requestError instanceof Error && requestError.message === "Unauthorized") {
@@ -591,8 +603,20 @@ export default function AccountPage() {
     }
   }
 
-  async function revokeSessions() {
-    setRevoking(true);
+  async function enablePush() {
+    setPushBusy(true);
+    setPushMessage("");
+    try {
+      const { enablePushNotifications } = await import("@/lib/pushClient");
+      const result = await enablePushNotifications();
+      setPushMessage(result.message);
+      if (result.ok) showToast(result.message, "success");
+    } finally {
+      setPushBusy(false);
+    }
+  }
+
+  async function revokeSessions() {    setRevoking(true);
     try {
       const res = await fetch("/api/auth/revoke", { method: "POST" });
       const data = await res.json().catch(() => ({}));
@@ -805,6 +829,40 @@ export default function AccountPage() {
                   </Card>
                   <Card>
                     <span className="flex items-center gap-2 text-[9px] uppercase tracking-[0.24em]" style={{ color: "var(--gold-text)" }}>
+                      <Heart className="h-3.5 w-3.5" strokeWidth={1.4} />
+                      Refer & Earn
+                    </span>
+                    {referralCode ? (
+                      <>
+                        <p className="mt-2 font-light" style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem", lineHeight: 1 }}>
+                          {referralCode}
+                        </p>
+                        <p className="mt-1 text-xs" style={{ color: "rgba(61,48,37,0.65)" }}>
+                          Share it — you both get 200 bonus points. {referralConverted} joined.
+                        </p>
+                        <div className="mt-3">
+                          <Button
+                            variant="secondary"
+                            onClick={() => {
+                              const url = `${window.location.origin}/signup?ref=${encodeURIComponent(referralCode)}`;
+                              navigator.clipboard?.writeText(url).then(
+                                () => showToast("Referral link copied.", "success"),
+                                () => showToast(url, "success")
+                              );
+                            }}
+                          >
+                            Copy Invite Link
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                      <p className="mt-2 text-sm" style={{ color: "rgba(61,48,37,0.7)" }}>
+                        Sign in to get your referral code.
+                      </p>
+                    )}
+                  </Card>
+                  <Card>
+                    <span className="flex items-center gap-2 text-[9px] uppercase tracking-[0.24em]" style={{ color: "var(--gold-text)" }}>
                       <ShieldCheck className="h-3.5 w-3.5" strokeWidth={1.4} />
                       Next Steps
                     </span>
@@ -840,8 +898,7 @@ export default function AccountPage() {
                     </ul>
                   </Card>
                   {recentOrder && (
-                    <Card className="lg:col-span-2">
-                      <div className="flex flex-wrap items-center justify-between gap-3">
+                    <Card className="lg:col-span-2">                      <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
                           <p className="text-[9px] uppercase tracking-[0.24em]" style={{ color: "var(--gold-text)" }}>
                             Latest Order · {formatDate(recentOrder.createdAt)}
@@ -1174,8 +1231,7 @@ export default function AccountPage() {
                     <span className="flex items-center gap-2 text-[9px] uppercase tracking-[0.24em]" style={{ color: "var(--gold-text)" }}>
                       <LogOut className="h-3.5 w-3.5" strokeWidth={1.4} />
                       Sessions
-                    </span>
-                    <p className="mt-2 text-sm leading-7" style={{ color: "rgba(61,48,37,0.75)" }}>
+                    </span>                    <p className="mt-2 text-sm leading-7" style={{ color: "rgba(61,48,37,0.75)" }}>
                       Signed-in devices stay valid for 7 days. Revoking signs out every device, including this one — you will need to sign in again.
                     </p>
                     <div className="mt-4">
@@ -1183,6 +1239,23 @@ export default function AccountPage() {
                         {revoking ? "Revoking…" : "Sign Out Everywhere"}
                       </Button>
                     </div>
+                  </Card>
+                  <Card>
+                    <span className="flex items-center gap-2 text-[9px] uppercase tracking-[0.24em]" style={{ color: "var(--gold-text)" }}>
+                      <Sparkles className="h-3.5 w-3.5" strokeWidth={1.4} />
+                      Notifications
+                    </span>
+                    <p className="mt-2 text-sm leading-7" style={{ color: "rgba(61,48,37,0.75)" }}>
+                      Get order updates and restock alerts on this device.
+                    </p>
+                    <div className="mt-4">
+                      <Button variant="secondary" onClick={enablePush} disabled={pushBusy}>
+                        {pushBusy ? "Enabling…" : "Enable Push"}
+                      </Button>
+                    </div>
+                    {pushMessage ? (
+                      <p className="mt-2 text-sm" role="status" style={{ color: "var(--gold-text)" }}>{pushMessage}</p>
+                    ) : null}
                   </Card>
                 </div>
               )}

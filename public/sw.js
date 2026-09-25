@@ -8,6 +8,39 @@ self.addEventListener("install", (event) => {
   event.waitUntil(self.skipWaiting());
 });
 
+self.addEventListener("push", (event) => {
+  let data = { title: "BOUT", body: "Something new for you.", url: "/orders" };
+  try {
+    const json = event.data ? event.data.json() : {};
+    data = { ...data, ...json };
+  } catch {
+    // ignore malformed payloads
+  }
+  event.waitUntil(
+    self.registration.showNotification(String(data.title).slice(0, 80), {
+      body: String(data.body).slice(0, 200),
+      icon: "/logo.png",
+      badge: "/logo.png",
+      data: { url: String(data.url || "/orders") },
+    })
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || "/orders";
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
+      for (const client of clients) {
+        if (new URL(client.url).pathname === new URL(url, self.location.origin).pathname) {
+          return client.focus();
+        }
+      }
+      return self.clients.openWindow(url);
+    })
+  );
+});
+
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches

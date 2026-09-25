@@ -21,7 +21,7 @@ export interface UserRecord {
   name: string;
   email: string;
   password: string;
-  role: "customer" | "admin";
+  role: "customer" | "admin" | "support";
   accountIntent: "buyer" | "partner" | "both";  authProvider?: "password" | "google" | "mixed";
   googleSub?: string;
   avatar?: string;
@@ -37,6 +37,7 @@ export interface UserRecord {
   twoFactorSecret?: string;
   twoFactorEnabled?: boolean;
   tokenVersion?: number;
+  birthdate?: string;
 }
 
 const BLOB_USERS_PATH = "users.json";
@@ -74,7 +75,7 @@ function normalizeUser(user: any): UserRecord {
     name: String(user?.name ?? "").trim(),
     email: String(user?.email ?? "").toLowerCase().trim(),
     password: String(user?.password ?? ""),
-    role: user?.role === "admin" ? "admin" : "customer",
+    role: user?.role === "admin" ? "admin" : user?.role === "support" ? "support" : "customer",
     accountIntent: ["buyer", "partner", "both"].includes(String(user?.accountIntent))
       ? user.accountIntent
       : "buyer",
@@ -97,6 +98,7 @@ function normalizeUser(user: any): UserRecord {
     twoFactorSecret: String(user?.twoFactorSecret ?? ""),
     twoFactorEnabled: Boolean(user?.twoFactorEnabled),
     tokenVersion: Number.isFinite(Number(user?.tokenVersion)) ? Math.max(0, Math.floor(Number(user.tokenVersion))) : 0,
+    birthdate: String(user?.birthdate ?? "").slice(0, 10),
   };
 }
 
@@ -381,7 +383,7 @@ export async function upsertGoogleUser(
   return { user: nextUser, created };
 }
 
-export async function updateUserRole(id: string, role: "customer" | "admin"): Promise<void> {
+export async function updateUserRole(id: string, role: "customer" | "admin" | "support"): Promise<void> {
   if (useMongoStorage()) {
     try {
       await connectDB();
@@ -572,13 +574,13 @@ export async function clearCustomerUserRecords(): Promise<{
   preservedAdmins: number;
 }> {
   const existingUsers = await getUsersJson();
-  const adminUsers = existingUsers.filter((user) => user.role === "admin").map(normalizeUser);
+  const adminUsers = existingUsers.filter((user) => user.role === "admin" || user.role === "support").map(normalizeUser);
   let removedUsers = Math.max(0, existingUsers.length - adminUsers.length);
 
   if (useMongoStorage()) {
     try {
       await connectDB();
-      const result = await User.deleteMany({ role: { $ne: "admin" } });
+      const result = await User.deleteMany({ role: { $nin: ["admin", "support"] } });
       removedUsers = Math.max(removedUsers, result.deletedCount ?? 0);
     } catch (error) {
       console.warn(

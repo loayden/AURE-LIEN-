@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
 
-type Review = { userName: string; rating: number; title: string; body: string; createdAt?: string };
+type Review = { userName: string; rating: number; title: string; body: string; createdAt?: string; verified?: boolean };
 
 export function ProductReviews({ productId }: { productId: string }) {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -59,7 +59,14 @@ export function ProductReviews({ productId }: { productId: string }) {
         <ul className="mt-4 space-y-3">
           {reviews.slice(0, 5).map((r, i) => (
             <li key={i} className="rounded-xl p-4" style={{ border: "1px solid rgba(123,103,82,0.18)", background: "rgba(255,255,255,0.6)" }}>
-              <p className="text-sm font-medium">{r.userName} · {"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}</p>
+              <p className="text-sm font-medium">
+                {r.userName} · {"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}
+                {r.verified ? (
+                  <span className="ml-2 rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wider" style={{ background: "rgba(80,160,100,0.12)", color: "#3C7A4D" }}>
+                    Verified purchase
+                  </span>
+                ) : null}
+              </p>
               {r.title && <p className="mt-1 text-sm font-medium">{r.title}</p>}
               {r.body && <p className="mt-1 text-sm" style={{ color: "rgba(61,48,37,0.8)" }}>{r.body}</p>}
             </li>

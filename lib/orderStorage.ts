@@ -121,6 +121,13 @@ function normalizeOrder(order: any): any {
     paymentStatus: order?.paymentStatus ?? (order?.status === "completed" ? "paid" : "pending"),
     paymentMethod: order?.paymentMethod ?? "",
     partnerPayoutStatus: String(order?.partnerPayoutStatus ?? order?.payoutStatus ?? ""),
+    couponCode: String(order?.couponCode ?? ""),
+    couponDiscount: Number(order?.couponDiscount ?? 0) || 0,
+    giftWrap: Boolean(order?.giftWrap),
+    giftMessage: String(order?.giftMessage ?? "").slice(0, 500),
+    loyaltyRedeemed: Number(order?.loyaltyRedeemed ?? 0) || 0,
+    loyaltyDiscount: Number(order?.loyaltyDiscount ?? 0) || 0,
+    trackingNumber: String(order?.trackingNumber ?? "").slice(0, 120),
     timeline: Array.isArray(order?.timeline)
       ? order.timeline
           .map((entry: unknown) => {

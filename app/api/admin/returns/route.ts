@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getAuthFromRequest } from "@/lib/auth";
+import { requireAdmin, requireAdminWrite } from "@/lib/adminRoles";
 import { getClientIpFromHeaders, logAdminAction } from "@/lib/adminAudit";
 import connectDB, { hasConfiguredMongoUri } from "@/lib/connectDB";
 import ReturnRequest from "@/models/Return";
@@ -15,8 +15,8 @@ const patchSchema = z.object({
 });
 
 export async function GET(req: NextRequest) {
-  const auth = await getAuthFromRequest(req);
-  if (!auth || auth.role !== "admin") {
+  const gate = await requireAdmin(req);
+  if ("response" in gate) {
     return NextResponse.json({ message: "Not authorized" }, { status: 403, headers: NO_STORE });
   }
   if (!hasConfiguredMongoUri()) {
@@ -40,10 +40,11 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const auth = await getAuthFromRequest(req);
-  if (!auth || auth.role !== "admin") {
+  const gate = await requireAdminWrite(req, "returns");
+  if ("response" in gate) {
     return NextResponse.json({ message: "Not authorized" }, { status: 403, headers: NO_STORE });
   }
+  const auth = gate.auth;
   const body = await req.json().catch(() => ({}));
   const parsed = patchSchema.safeParse(body);
   if (!parsed.success) {

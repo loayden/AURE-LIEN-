@@ -2,7 +2,7 @@
 
 import productsData from "@/lib/productsData";
 import { AnimatePresence, motion } from "framer-motion";
-import { Banknote, CheckCircle2, ChevronRight, CreditCard, MapPin, Package, Truck, User } from "lucide-react";
+import { Banknote, CheckCircle2, ChevronRight, CreditCard, MapPin, Package, Sparkles, Truck, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -190,7 +190,47 @@ function CheckoutContent() {
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
   const shippingCost = form.shippingMethod === "within_egypt" ? SHIPPING_COST_CAIRO : 0;
-  const total = subtotal + shippingCost;
+  const [couponInput, setCouponInput] = useState("");
+  const [coupon, setCoupon] = useState<{ code: string; discount: number } | null>(null);
+  const [couponError, setCouponError] = useState("");
+  const [couponBusy, setCouponBusy] = useState(false);
+  const [loyaltyBalance, setLoyaltyBalance] = useState(0);
+  const [loyaltyUse, setLoyaltyUse] = useState(0);
+  const [giftWrap, setGiftWrap] = useState(false);
+  const [giftMessage, setGiftMessage] = useState("");
+  const GIFT_WRAP_FEE = 50;
+  const giftFee = giftWrap ? GIFT_WRAP_FEE : 0;
+  const loyaltyDiscount = Math.min(Math.floor(Math.max(0, loyaltyUse) / 100) * 10, Math.max(0, subtotal - (coupon?.discount ?? 0)));
+  const total = Math.max(0, subtotal - (coupon?.discount ?? 0) - loyaltyDiscount + shippingCost + giftFee);
+
+  async function applyCoupon() {
+    const code = couponInput.trim();
+    if (!code || couponBusy) return;
+    setCouponBusy(true);
+    setCouponError("");
+    try {
+      const res = await fetch("/api/coupons", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Invalid coupon");
+      setCoupon({ code: data.coupon.code, discount: Number(data.coupon.discount ?? 0) });
+    } catch (e) {
+      setCoupon(null);
+      setCouponError(e instanceof Error ? e.message : "Invalid coupon");
+    } finally {
+      setCouponBusy(false);
+    }
+  }
+
+  useEffect(() => {
+    fetch("/api/loyalty", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => setLoyaltyBalance(Number(d.points ?? 0)))
+      .catch(() => undefined);
+  }, []);
 
   const update = (k: keyof FormData, v: any) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -327,6 +367,9 @@ function CheckoutContent() {
             shippingCost,
           },
           paymentMethod,
+          ...(coupon ? { couponCode: coupon.code } : {}),
+          ...(loyaltyDiscount > 0 ? { loyaltyPoints: Math.floor(loyaltyDiscount / 10) * 100 } : {}),
+          ...(giftWrap ? { giftWrap: true, giftMessage: giftMessage.trim() || undefined } : {}),
         }),
       });
 
@@ -542,6 +585,75 @@ function CheckoutContent() {
                   </GlassSection>
                 </motion.div>
 
+                {/* Offers & Gifting */}
+                <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.28, duration:0.7 }}>
+                  <GlassSection icon={<Sparkles strokeWidth={1.3} className="w-4 h-4" />} title="Offers & Gifting">
+                    <div className="flex max-w-lg flex-col gap-4">
+                      <div>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="Coupon code"
+                            value={couponInput}
+                            onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                            aria-label="Coupon code"
+                            className="min-w-0 flex-1"
+                          />
+                          <button
+                            type="button"
+                            onClick={applyCoupon}
+                            disabled={couponBusy || !couponInput.trim()}
+                            className="shrink-0 rounded-full px-5 text-[10px] uppercase tracking-[0.25em] text-[#A87935] transition-colors disabled:opacity-50 min-h-[44px]"
+                            style={{ border: "1px solid rgba(168,121,53,0.35)" }}
+                          >
+                            {couponBusy ? "Checking…" : "Apply"}
+                          </button>
+                        </div>
+                        {coupon && (
+                          <p className="mt-2 text-xs tracking-wide text-[#A87935]">
+                            {coupon.code} applied — EGP {coupon.discount.toLocaleString()} off.
+                            <button type="button" onClick={() => { setCoupon(null); setCouponInput(""); }} className="ml-2 underline">Remove</button>
+                          </p>
+                        )}
+                        {couponError && <p className="mt-2 text-xs text-red-400/80" role="alert">{couponError}</p>}
+                      </div>
+                      {loyaltyBalance >= 100 && (
+                        <div>
+                          <label className="text-white/30 text-[9px] sm:text-[10px] tracking-[0.22em] uppercase" htmlFor="loyalty-use">
+                            Loyalty points (balance {loyaltyBalance} · 100 pts = EGP 10)
+                          </label>
+                          <input
+                            id="loyalty-use"
+                            type="number"
+                            min={0}
+                            max={loyaltyBalance}
+                            step={100}
+                            value={loyaltyUse || ""}
+                            onChange={(e) => setLoyaltyUse(Math.max(0, Math.floor(Number(e.target.value) || 0)))}
+                            placeholder="Points to redeem"
+                            className="mt-2 max-w-[220px]"
+                          />
+                        </div>
+                      )}
+                      <label className="flex cursor-pointer items-center gap-3">
+                        <input type="checkbox" checked={giftWrap} onChange={(e) => setGiftWrap(e.target.checked)} />
+                        <span className="text-white/30 text-[9px] sm:text-[10px] tracking-[0.22em] uppercase">
+                          Gift wrap · EGP {GIFT_WRAP_FEE}
+                        </span>
+                      </label>
+                      {giftWrap && (
+                        <textarea
+                          value={giftMessage}
+                          onChange={(e) => setGiftMessage(e.target.value.slice(0, 500))}
+                          placeholder="Gift message (optional)"
+                          rows={2}
+                          aria-label="Gift message"
+                        />
+                      )}
+                    </div>
+                  </GlassSection>
+                </motion.div>
+
                 {/* Payment */}
                 <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.3, duration:0.7 }}>
                   <GlassSection icon={<CreditCard strokeWidth={1.3} className="w-4 h-4" />} title="Payment Method">
@@ -679,10 +791,28 @@ function CheckoutContent() {
                       <p className="text-white/30 text-[9px] tracking-[0.3em] uppercase">Subtotal</p>
                       <p className="text-white/50 text-xs">EGP {subtotal.toLocaleString()}</p>
                     </div>
+                    {coupon && (
+                      <div className="flex justify-between">
+                        <p className="text-white/30 text-[9px] tracking-[0.3em] uppercase">Coupon {coupon.code}</p>
+                        <p className="text-xs" style={{ color: "#A87935" }}>− EGP {coupon.discount.toLocaleString()}</p>
+                      </div>
+                    )}
+                    {loyaltyDiscount > 0 && (
+                      <div className="flex justify-between">
+                        <p className="text-white/30 text-[9px] tracking-[0.3em] uppercase">Loyalty</p>
+                        <p className="text-xs" style={{ color: "#A87935" }}>− EGP {loyaltyDiscount.toLocaleString()}</p>
+                      </div>
+                    )}
                     <div className="flex justify-between">
                       <p className="text-white/30 text-[9px] tracking-[0.3em] uppercase">Shipping</p>
                       <p className="text-white/50 text-xs">EGP {shippingCost.toLocaleString()}</p>
                     </div>
+                    {giftWrap && (
+                      <div className="flex justify-between">
+                        <p className="text-white/30 text-[9px] tracking-[0.3em] uppercase">Gift Wrap</p>
+                        <p className="text-white/50 text-xs">EGP {GIFT_WRAP_FEE.toLocaleString()}</p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="rounded-xl px-4 py-3.5 flex justify-between items-center"

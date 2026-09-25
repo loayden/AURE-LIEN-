@@ -12,3 +12,12 @@ export function loyaltyTier(points: number): "Bronze" | "Silver" | "Gold" {
   if (points >= 150) return "Silver";
   return "Bronze";
 }
+
+export const LOYALTY_REDEEM_STEP = 100;
+export const LOYALTY_REDEEM_VALUE_EGP = 10;
+export const REFERRAL_BONUS_POINTS = 200;
+
+export function redeemValueForPoints(points: number): number {
+  const steps = Math.floor(Math.max(0, Number(points) || 0) / LOYALTY_REDEEM_STEP);
+  return steps * LOYALTY_REDEEM_VALUE_EGP;
+}

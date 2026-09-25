@@ -4,7 +4,7 @@ import AdminBanner from "@/components/admin/AdminBanner";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { BarChart3, Building2, Download, LayoutDashboard, Package, PackageCheck, Plus, ScrollText, ShoppingBag, UserCog, Users } from "lucide-react";
+import { BarChart3, Building2, Download, LayoutDashboard, Package, PackageCheck, Plus, ScrollText, ShoppingBag, Ticket, Upload, UserCog, Users, Warehouse } from "lucide-react";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -16,7 +16,10 @@ const navItems = [
   { href: "/admin/audit", label: "Audit Log", icon: ScrollText },
   { href: "/admin/boutiques", label: "Boutiques", icon: Building2 },
   { href: "/admin/partner-products", label: "Partner Products", icon: PackageCheck },
+  { href: "/admin/coupons", label: "Coupons", icon: Ticket },
   { href: "/admin/add-product", label: "Add Product", icon: Plus },
+  { href: "/admin/import", label: "Import", icon: Upload },
+  { href: "/admin/inventory", label: "Inventory", icon: Warehouse },
 ];
 
 export default function AdminLayout({

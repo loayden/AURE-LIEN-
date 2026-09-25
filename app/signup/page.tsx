@@ -3,8 +3,9 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertCircle, ArrowRight, Building2, CheckCircle2, Eye, EyeOff, ShoppingBag, Store } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Suspense } from "react";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
 
 /* ── Password strength ── */
@@ -76,16 +77,31 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 export default function SignupPage() {
+  return (
+    <Suspense fallback={<main className="flex min-h-screen items-center justify-center bg-[#F5F1E8]"><p className="text-[10px] uppercase tracking-[0.32em] text-[#A87935]">Loading</p></main>}>
+      <SignupForm />
+    </Suspense>
+  );
+}
+
+function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [accountIntent, setAccountIntent] = useState<(typeof ACCOUNT_INTENT_OPTIONS)[number]["value"]>("buyer");
+  const [refCode, setRefCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const ref = searchParams.get("ref");
+    if (ref) setRefCode(ref.toUpperCase().slice(0, 32));
+  }, [searchParams]);
 
   const passwordsMatch = confirmPassword.length > 0 && password === confirmPassword;
   const passwordsMismatch = confirmPassword.length > 0 && password !== confirmPassword;
@@ -100,7 +116,7 @@ export default function SignupPage() {
       const res = await fetch("/api/auth/signup", {
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ name, email, password, confirmPassword, accountIntent }),
+        body: JSON.stringify({ name, email, password, confirmPassword, accountIntent, ...(refCode.trim() ? { ref: refCode.trim() } : {}) }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Sign up failed");
@@ -301,6 +317,18 @@ export default function SignupPage() {
                     </motion.p>
                   )}
                 </AnimatePresence>
+              </Field>
+
+              {/* Referral (optional) */}
+              <Field label="Referral Code (optional)">
+                <input
+                  type="text"
+                  value={refCode}
+                  onChange={(e) => setRefCode(e.target.value.toUpperCase().slice(0, 32))}
+                  placeholder="BOUT-XXXXXX"
+                  autoComplete="off"
+                  className="glass-input"
+                />
               </Field>
 
               {/* Submit */}

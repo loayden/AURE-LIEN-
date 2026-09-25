@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthFromRequest } from "@/lib/auth";
+import { requireAdmin, requireAdminWrite } from "@/lib/adminRoles";
 import { getOrdersJson } from "@/lib/orderStorage";
 import { getUsersJson } from "@/lib/usersJson";
 import { buildAddress, buildAdminCustomerIndex, getCustomerForOrder } from "@/lib/adminCustomers";
@@ -50,9 +50,9 @@ function resolveOrderUserId(order: any, customerSummary: any, customer: any) {
 }
 
 export async function GET(req: NextRequest) {
-  const auth = await getAuthFromRequest(req);
-  if (!auth || auth.role !== "admin") {
-    return NextResponse.json({ message: "Not authorized" }, { status: 403 });
+  const gate = await requireAdmin(req);
+  if ("response" in gate) {
+    return NextResponse.json({ message: "Not authorized" }, { status: 403, headers: NO_STORE_HEADERS });
   }
 
   try {
@@ -137,17 +137,19 @@ export async function GET(req: NextRequest) {
 const ORDER_STATUSES = ["pending", "paid", "processing", "shipped", "delivered", "cancelled", "refunded"] as const;
 const PAYMENT_STATUSES = ["pending", "unpaid", "paid", "refunded"] as const;
 
-/** PATCH: update order status / payment status (admin). Appends timeline + notifies customer. */
+/** PATCH: update order status / payment status (admin; support allowed). Appends timeline + notifies customer. */
 export async function PATCH(req: NextRequest) {
-  const auth = await getAuthFromRequest(req);
-  if (!auth || auth.role !== "admin") {
+  const gate = await requireAdminWrite(req, "orders");
+  if ("response" in gate) {
     return NextResponse.json({ message: "Not authorized" }, { status: 403, headers: NO_STORE_HEADERS });
   }
+  const auth = gate.auth;
   try {
     const body = await req.json().catch(() => ({}));
     const orderId = String(body.orderId ?? "").trim();
     const status = body.status === undefined ? undefined : String(body.status);
     const paymentStatus = body.paymentStatus === undefined ? undefined : String(body.paymentStatus);
+    const trackingNumber = body.trackingNumber === undefined ? undefined : String(body.trackingNumber).slice(0, 120);
     const note = String(body.note ?? "").slice(0, 500);
     if (!orderId) {
       return NextResponse.json({ error: "orderId required" }, { status: 400, headers: NO_STORE_HEADERS });
@@ -165,9 +167,30 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Order not found" }, { status: 404, headers: NO_STORE_HEADERS });
     }
     const before = { status: orders[index].status, paymentStatus: orders[index].paymentStatus };
+
+    // Real Stripe refund when moving a card order to refunded (keys required).
+    if (status === "refunded" && before.status !== "refunded" && orders[index].paymentMethod === "card") {
+      const stripeSessionId = String(orders[index].stripeSessionId ?? "");
+      if (stripeSessionId && process.env.STRIPE_SECRET_KEY?.trim()) {
+        try {
+          const { default: Stripe } = await import("stripe");
+          const stripe = new Stripe(process.env.STRIPE_SECRET_KEY.trim());
+          const session = await stripe.checkout.sessions.retrieve(stripeSessionId);
+          const paymentIntent = typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id;
+          if (!paymentIntent) throw new Error("No payment intent on session");
+          await stripe.refunds.create({ payment_intent: paymentIntent });
+        } catch (stripeError) {
+          return NextResponse.json(
+            { error: `Stripe refund failed: ${stripeError instanceof Error ? stripeError.message : "unknown error"}. Order not marked refunded.` },
+            { status: 402, headers: NO_STORE_HEADERS }
+          );
+        }
+      }
+    }
+
     if (status !== undefined) orders[index].status = status;
     if (paymentStatus !== undefined) orders[index].paymentStatus = paymentStatus;
-    const timeline = Array.isArray(orders[index].timeline) ? orders[index].timeline : [];
+    if (trackingNumber !== undefined) orders[index].trackingNumber = trackingNumber;    const timeline = Array.isArray(orders[index].timeline) ? orders[index].timeline : [];
     timeline.push({
       status: status ?? before.status,
       at: new Date().toISOString(),

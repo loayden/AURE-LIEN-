@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthFromRequest } from "@/lib/auth";
+import { requireAdmin } from "@/lib/adminRoles";
 import connectDB, { hasConfiguredMongoUri } from "@/lib/connectDB";
 import AdminAudit from "@/models/AdminAudit";
 import { parsePaginationParams } from "@/lib/pagination";
@@ -7,8 +7,8 @@ import { parsePaginationParams } from "@/lib/pagination";
 const NO_STORE = { "Cache-Control": "no-store, max-age=0" };
 
 export async function GET(req: NextRequest) {
-  const auth = await getAuthFromRequest(req);
-  if (!auth || auth.role !== "admin") {
+  const gate = await requireAdmin(req);
+  if ("response" in gate) {
     return NextResponse.json({ message: "Not authorized" }, { status: 403, headers: NO_STORE });
   }
   if (!hasConfiguredMongoUri()) {

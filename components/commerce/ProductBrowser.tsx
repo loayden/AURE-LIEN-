@@ -10,12 +10,9 @@ import {
   filterProducts,
   formatCategoryLabel,
   formatPrice,
-  getProductConfidence,
   productHref,
   productImage,
   sortProducts,
-  stockLabel,
-  stockState,
   uniqueProductColors,
   uniqueProductSizes,
 } from "@/lib/commerce";
@@ -24,7 +21,6 @@ import { getProductColorHex } from "@/lib/productColors";
 import type { Product } from "@/lib/types";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  ArrowRight,
   CheckCircle2,
   ChevronDown,
   ChevronRight,
@@ -33,7 +29,6 @@ import {
   LayoutGrid,
   List,
   Search,
-  ShoppingBag,
   SlidersHorizontal,
   Sparkles,
   Scale,
@@ -41,6 +36,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import CompareDrawer from "@/components/commerce/CompareDrawer";
+import QuickViewModal from "@/components/commerce/QuickViewModal";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useDeferredValue, useEffect, useMemo, useRef, useState } from "react";
 
@@ -171,169 +168,6 @@ function ActiveChip({
   );
 }
 
-function QuickViewModal({
-  product,
-  onClose,
-}: {
-  product: Product | null;
-  onClose: () => void;
-}) {
-  const [size, setSize] = useState<string | null>(null);
-  const [color, setColor] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setSize(null);
-    setColor(null);
-  }, [product?._id]);
-
-  async function addToCart() {
-    if (!product) return;
-    if (stockState(product) === "sold-out") {
-      showToast("This piece is sold out.", "error");
-      return;
-    }
-    if (product.size?.length > 1 && !size) {
-      showToast("Choose a size before adding.", "error");
-      return;
-    }
-    if (product.colors?.length > 1 && !color) {
-      showToast("Choose a color before adding.", "error");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const response = await fetch("/api/cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          productId: product._id,
-          quantity: 1,
-          size: size ?? product.size?.[0] ?? null,
-          color: color ?? product.colors?.[0] ?? null,
-        }),
-      });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data?.error || "Unable to add item");
-      window.dispatchEvent(new Event("cart:changed"));
-      showToast("Added to cart.", "success");
-      onClose();
-    } catch (error) {
-      showToast(error instanceof Error ? error.message : "Unable to add item.", "error");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <AnimatePresence>
-      {product ? (
-        <motion.div
-          className="fixed inset-0 z-[95] flex items-end justify-center p-0 sm:items-center sm:p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-label={`Quick view ${product.name}`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <button type="button" aria-label="Close quick view" onClick={onClose} className="absolute inset-0 h-full w-full backdrop-blur-sm" style={{ background: "rgba(61,48,37,0.28)" }} />
-          <motion.div
-            initial={{ y: 40, scale: 0.98 }}
-            animate={{ y: 0, scale: 1 }}
-            exit={{ y: 30, scale: 0.98 }}
-            className="relative grid max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-t-[28px] border border-[rgba(123,103,82,0.18)] bg-[#FFF9EF] shadow-[0_28px_80px_rgba(61,48,37,0.16)] sm:grid-cols-[0.9fr_1.1fr] sm:rounded-[28px]"
-          >
-            <button
-              type="button"
-              onClick={onClose}
-              className="absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(123,103,82,0.18)] bg-white/70 text-[#6F6254] backdrop-blur-xl hover:text-[#3D3025]"
-              aria-label="Close quick view"
-            >
-              <X className="h-4 w-4" strokeWidth={1.4} />
-            </button>
-            <div className="relative min-h-[22rem] bg-[#FFFFFF] sm:min-h-full">
-              <Image src={productImage(product)} alt={product.name} fill sizes="(max-width: 640px) 100vw, 42vw" className="object-contain p-5" />
-            </div>
-            <div className="p-5 sm:p-7">
-              <p className="mb-3 text-[10px] uppercase tracking-[0.24em] text-[#A87935]">
-                {formatCategoryLabel(product.category)}
-              </p>
-              <h2 className="font-serif text-[clamp(2rem,5vw,3.6rem)] font-light leading-[0.95] tracking-[0.03em] text-[#3D3025]">
-                {product.name}
-              </h2>
-              <p className="mt-4 text-sm leading-7 tracking-[0.04em] text-[#6F6254]">
-                {product.description || "A polished BOUT wardrobe piece with clean styling paths and a direct route to checkout."}
-              </p>
-              <div className="mt-5 flex items-center justify-between gap-4 border-y border-[rgba(123,103,82,0.16)] py-4">
-                <span className="font-serif text-2xl tracking-[0.04em] text-[#A87935]">
-                  EGP {formatPrice(product.price)}
-                </span>
-                <span className="rounded-full border border-[rgba(123,103,82,0.16)] bg-white/60 px-3 py-2 text-[10px] uppercase tracking-[0.2em] text-[#6F6254]">
-                  {stockLabel(product)}
-                </span>
-              </div>
-
-              {product.size?.length ? (
-                <div className="mt-5">
-                  <p className="mb-3 text-[9px] uppercase tracking-[0.26em] text-[#7B6E60]">Size</p>
-                  <div className="flex flex-wrap gap-2">
-                    {product.size.map((value) => (
-                      <button
-                        type="button"
-                        key={value}
-                        onClick={() => setSize(value)}
-                        className={`flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border px-4 text-[11px] uppercase tracking-[0.16em] ${size === value ? "border-[#A87935] bg-[rgba(168,121,53,0.14)] text-[#A87935]" : "border-[rgba(123,103,82,0.16)] bg-white/60 text-[#6F6254]"}`}
-                      >
-                        {value}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
-              {product.colors?.length ? (
-                <div className="mt-5">
-                  <p className="mb-3 text-[9px] uppercase tracking-[0.26em] text-[#7B6E60]">Color</p>
-                  <div className="flex flex-wrap gap-2">
-                    {product.colors.map((value) => (
-                      <button
-                        type="button"
-                        key={value}
-                        onClick={() => setColor(value)}
-                        className={`flex min-h-[44px] items-center gap-2 rounded-full border px-3 text-[11px] tracking-[0.08em] ${color === value ? "border-[#A87935] bg-[rgba(168,121,53,0.14)] text-[#A87935]" : "border-[rgba(123,103,82,0.16)] bg-white/60 text-[#6F6254]"}`}
-                      >
-                        <span className="h-4 w-4 rounded-full border border-white/20" style={{ background: getProductColorHex(value) }} />
-                        {value}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
-              <div className="mt-7 grid gap-3 sm:grid-cols-2">
-                <Link href={`/product/${encodeURIComponent(product._id)}`} className="btn-ghost justify-center">
-                  View Product
-                  <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.3} />
-                </Link>
-                <button
-                  type="button"
-                  onClick={addToCart}
-                  disabled={loading || stockState(product) === "sold-out"}
-                  className="btn-gold justify-center disabled:opacity-40"
-                >
-                  <ShoppingBag className="h-4 w-4" strokeWidth={1.3} />
-                  {stockState(product) === "sold-out" ? "Sold Out" : loading ? "Adding" : "Add"}
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        </motion.div>
-      ) : null}
-    </AnimatePresence>
-  );
-}
 
 function readRecentlyViewedIds() {
   if (typeof window === "undefined") return [];
@@ -345,149 +179,6 @@ function readRecentlyViewedIds() {
   }
 }
 
-function CompareDrawer({
-  products,
-  onRemove,
-  onClear,
-}: {
-  products: Product[];
-  onRemove: (productId: string) => void;
-  onClear: () => void;
-}) {
-  const [expanded, setExpanded] = useState(false);
-
-  if (!products.length) return null;
-
-  return (
-    <motion.div
-      initial={{ y: 24, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: 24, opacity: 0 }}
-      className="fixed inset-x-3 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-[86] mx-auto flex max-h-[min(74vh,42rem)] max-w-6xl flex-col rounded-[24px] border border-[rgba(123,103,82,0.18)] bg-[#FFF9EF]/96 p-3 shadow-[0_24px_70px_rgba(61,48,37,0.18)] backdrop-blur-2xl sm:bottom-5 sm:max-h-[82vh] sm:p-4"
-      role="region"
-      aria-label="Product comparison"
-    >
-      <div className="sticky top-0 z-10 flex flex-col gap-3 border-b border-[rgba(123,103,82,0.12)] bg-[#FFF9EF]/96 pb-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#4C3A26] text-[#FFF9EF]">
-            <Scale className="h-4 w-4" strokeWidth={1.35} />
-          </span>
-          <div>
-            <p className="eyebrow mb-1">Compare Products</p>
-            <p className="text-sm text-[#6F6254]">{products.length}/3 selected for quick decision support.</p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setExpanded((current) => !current)}
-            className="inline-flex min-h-[40px] flex-1 items-center justify-center rounded-full border border-[rgba(123,103,82,0.16)] bg-white/72 px-4 text-[10px] uppercase tracking-[0.18em] text-[#5B4E42] sm:flex-none"
-          >
-            {expanded ? "Collapse" : "Compare"}
-          </button>
-          <button
-            type="button"
-            onMouseDown={(event) => {
-              event.preventDefault();
-              onClear();
-            }}
-            onPointerDown={(event) => {
-              event.preventDefault();
-              onClear();
-            }}
-            onTouchStart={(event) => {
-              event.preventDefault();
-              onClear();
-            }}
-            onClick={onClear}
-            className="inline-flex min-h-[40px] flex-1 items-center justify-center rounded-full border border-[rgba(123,103,82,0.16)] bg-white/72 px-4 text-[10px] uppercase tracking-[0.18em] text-[#5B4E42] sm:flex-none"
-          >
-            Clear
-          </button>
-          <button
-            type="button"
-            onMouseDown={(event) => {
-              event.preventDefault();
-              onClear();
-            }}
-            onPointerDown={(event) => {
-              event.preventDefault();
-              onClear();
-            }}
-            onTouchStart={(event) => {
-              event.preventDefault();
-              onClear();
-            }}
-            onClick={onClear}
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[rgba(123,103,82,0.16)] bg-white/72 text-[#5B4E42]"
-            aria-label="Close comparison"
-          >
-            <X className="h-4 w-4" strokeWidth={1.35} />
-          </button>
-        </div>
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
-        <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] snap-x snap-mandatory">
-          {products.map((product) => (
-            <div key={product._id} className="flex min-w-[13rem] items-center gap-3 rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-white/64 p-2 snap-start">
-              <div className="relative h-14 w-12 shrink-0 overflow-hidden rounded-[12px] bg-[#FFFFFF]">
-                <Image src={productImage(product)} alt="" fill sizes="48px" className="object-contain p-1" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm text-[#3D3025]">{product.name}</p>
-                <p className="mt-1 text-[10px] uppercase tracking-[0.14em] text-[#A87935]">EGP {formatPrice(product.price)}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => onRemove(product._id)}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#6F6254]"
-                aria-label={`Remove ${product.name} from comparison`}
-              >
-                <X className="h-3.5 w-3.5" strokeWidth={1.4} />
-              </button>
-            </div>
-          ))}
-        </div>
-
-        <AnimatePresence>
-          {expanded ? (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden"
-            >
-              <div className="mt-3 grid gap-3 md:grid-cols-3">
-                {products.map((product) => {
-                  const confidence = getProductConfidence(product);
-                  return (
-                    <div key={product._id} className="rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-white/64 p-4">
-                      <p className="text-[10px] uppercase tracking-[0.18em] text-[#A87935]">{formatCategoryLabel(product.category)}</p>
-                      <h3 className="mt-2 line-clamp-2 font-serif text-2xl font-light leading-none text-[#3D3025]">{product.name}</h3>
-                      <div className="mt-4 grid gap-2 text-sm text-[#6F6254]">
-                        <span>Price: EGP {formatPrice(product.price)}</span>
-                        <span>Stock: {stockLabel(product)}</span>
-                        <span>Sizes: {product.size?.length ? product.size.join(", ") : "Not listed"}</span>
-                        <span>Colors: {product.colors?.length ? product.colors.join(", ") : "Not listed"}</span>
-                        <span>Material: {product.material || "Not listed"}</span>
-                        <span>Confidence: {confidence.score}/5</span>
-                      </div>
-                      <Link href={`/product/${encodeURIComponent(product._id)}`} className="mt-4 inline-flex min-h-[40px] items-center justify-center gap-2 rounded-full bg-[#4C3A26] px-4 text-[10px] uppercase tracking-[0.16em] text-[#FFF9EF]">
-                        View Product
-                        <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.3} />
-                      </Link>
-                    </div>
-                  );
-                })}
-              </div>
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
-      </div>
-    </motion.div>
-  );
-}
 
 export default function ProductBrowser(props: {
   initialProducts?: Product[];
@@ -575,7 +266,9 @@ function ProductBrowserInner({
 
   useEffect(() => {
     const controller = new AbortController();
-    const url = category ? `/api/products?category=${encodeURIComponent(category)}` : "/api/products";
+    const url = category
+      ? `/api/products?category=${encodeURIComponent(category)}&ratings=1`
+      : "/api/products?ratings=1";
     if (hasInitialProducts) {
       setProducts(initialProducts ?? []);
       setLoading(false);

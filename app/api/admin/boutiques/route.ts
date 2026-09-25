@@ -26,6 +26,7 @@ const reviewSchema = z.object({
   reviewNote: z.string().max(1000).optional().default(""),
   commissionRate: z.number().min(0).max(30).optional(),
   monthlyFee: z.number().min(0).max(100000).optional(),
+  categoryCommissions: z.record(z.string(), z.number().min(0).max(30)).optional(),
 });
 
 /** PATCH: approve or decline a boutique application (admin). */
@@ -43,6 +44,7 @@ export async function PATCH(req: NextRequest) {
     const updated = await updateBoutiqueTerms(parsed.data.applicationId, {
       commissionRate: parsed.data.commissionRate,
       monthlyFee: parsed.data.monthlyFee,
+      categoryCommissions: parsed.data.categoryCommissions,
     });
     if (!updated) {
       return NextResponse.json({ error: "Application not found" }, { status: 404, headers: NO_STORE_HEADERS });

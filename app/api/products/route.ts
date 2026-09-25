@@ -80,6 +80,35 @@ export async function GET(req: Request) {
       displayPrice: convertPrice(Number(p.price ?? 0), currency),
     }));
 
+    if (url.searchParams.get("ratings") === "1") {
+      try {
+        const { hasConfiguredMongoUri } = await import("@/lib/mongoEnv");
+        if (hasConfiguredMongoUri()) {
+          const { default: connectDB } = await import("@/lib/connectDB");
+          const { default: Review } = await import("@/models/Review");
+          await connectDB();
+          const agg = await Review.aggregate([
+            { $group: { _id: "$productId", avg: { $avg: "$rating" }, count: { $sum: 1 } } },
+          ]);
+          const map = new Map(
+            (agg as Array<{ _id: string; avg: number; count: number }>).map((a) => [
+              String(a._id),
+              { average: Math.round(Number(a.avg) * 10) / 10, count: Number(a.count) },
+            ])
+          );
+          for (const p of withCurrency as Array<Record<string, unknown>>) {
+            const r = map.get(String(p._id));
+            if (r) {
+              p.rating = r.average;
+              p.reviews = r.count;
+            }
+          }
+        }
+      } catch {
+        // ratings are best-effort
+      }
+    }
+
     if (!hasPagination) {
       return NextResponse.json(withCurrency, {
         status: 200,

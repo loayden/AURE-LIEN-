@@ -465,9 +465,9 @@ export function sortProducts(products: Product[], sort: SortValue) {
     return next.sort((a, b) => (b.discount ?? 0) - (a.discount ?? 0));
   }
   
-  // Default (featured): Prioritize summer products
+  // Default (featured): sponsored first, then summer products
   return next.sort((a, b) => {
-    const aIsSummer = (a.name + " " + (a.description || "")).toLowerCase().includes("summer");
+    if (Boolean(a.featured) !== Boolean(b.featured)) return a.featured ? -1 : 1;    const aIsSummer = (a.name + " " + (a.description || "")).toLowerCase().includes("summer");
     const bIsSummer = (b.name + " " + (b.description || "")).toLowerCase().includes("summer");
     if (aIsSummer && !bIsSummer) return -1;
     if (!aIsSummer && bIsSummer) return 1;

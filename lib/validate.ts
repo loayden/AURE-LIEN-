@@ -32,6 +32,10 @@ export const saveOrderSchema = z.object({
   }),
   paymentMethod: z.enum(["cod", "card", "cash_on_delivery"]).optional(),
   idempotencyKey: z.string().max(64).optional(),
+  couponCode: z.string().max(32).optional(),
+  giftWrap: z.boolean().optional(),
+  giftMessage: z.string().max(500).optional(),
+  loyaltyPoints: z.number().int().min(0).max(100000).optional(),
 });
 
 export const loginSchema = z.object({

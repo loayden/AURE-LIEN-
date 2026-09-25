@@ -14,6 +14,7 @@ export interface Product {
   description?: string;
   material?: string;
   stock?: number;
+  featured?: boolean;
   /** 360° spin images or extra angles */
   media360?: string[];
   /** Product video URL */

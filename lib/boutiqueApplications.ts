@@ -69,6 +69,7 @@ export type BoutiqueApplication = {
   subscriptionIntentionId?: string;
   paidUntil?: string;
   lastRenewalAt?: string;
+  categoryCommissions?: Record<string, number>;
   payoutProfile?: BoutiquePayoutProfile;
   sampleProducts?: string;
   notes?: string;
@@ -285,6 +286,17 @@ function cleanString(value: unknown): string {
   return String(value ?? "").trim();
 }
 
+function normalizeCategoryCommissions(value: unknown): Record<string, number> | undefined {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const out: Record<string, number> = {};
+  for (const [key, raw] of Object.entries(value as Record<string, unknown>)) {
+    const slug = String(key).trim().toLowerCase().replace(/\s+/g, "-");
+    const rate = Number(raw);
+    if (slug && Number.isFinite(rate)) out[slug] = Math.min(30, Math.max(0, rate));
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
 function normalizeStatus(value: unknown): BoutiqueApplicationStatus {
   const status = cleanString(value);
   return (["draft", "pending", "contacted", "approved", "declined"].includes(status)
@@ -435,6 +447,7 @@ function normalizeApplication(application: any): BoutiqueApplication | null {
     subscriptionIntentionId: String(application?.subscriptionIntentionId ?? "").trim() || undefined,
     paidUntil: String(application?.paidUntil ?? "").trim() || undefined,
     lastRenewalAt: String(application?.lastRenewalAt ?? "").trim() || undefined,
+    categoryCommissions: normalizeCategoryCommissions(application?.categoryCommissions),
     payoutProfile: normalizePayoutProfile(application?.payoutProfile ?? application),
     sampleProducts: String(application?.sampleProducts ?? "").trim() || undefined,
     notes: String(application?.notes ?? "").trim() || undefined,
@@ -779,7 +792,7 @@ export async function reviewBoutiqueApplication(
  */
 export async function updateBoutiqueTerms(
   applicationId: string,
-  terms: { commissionRate?: number; monthlyFee?: number }
+  terms: { commissionRate?: number; monthlyFee?: number; categoryCommissions?: Record<string, number> }
 ): Promise<BoutiqueApplication | null> {
   const applications = await getBoutiqueApplications();
   const application = applications.find((item) => item._id === applicationId);
@@ -790,6 +803,9 @@ export async function updateBoutiqueTerms(
   }
   if (terms.monthlyFee !== undefined && Number.isFinite(Number(terms.monthlyFee))) {
     patch.monthlyFee = Math.max(0, Math.floor(Number(terms.monthlyFee)));
+  }
+  if (terms.categoryCommissions !== undefined) {
+    patch.categoryCommissions = normalizeCategoryCommissions(terms.categoryCommissions) ?? {};
   }
   if (Object.keys(patch).length === 0) return application;
   return saveBoutiqueApplicationRecord(
