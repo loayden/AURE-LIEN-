@@ -46,6 +46,15 @@ const customerSchema = new Schema(
   { _id: false }
 );
 
+const timelineSchema = new Schema(
+  {
+    status: { type: String, required: true },
+    at: { type: Date, default: Date.now },
+    note: { type: String, default: "" },
+  },
+  { _id: false }
+);
+
 const orderSchema = new Schema(
   {
     _id: { type: String, required: true },
@@ -60,6 +69,7 @@ const orderSchema = new Schema(
     paymentMethod: { type: String, default: "" },
     stripeSessionId: { type: String, default: "" },
     paidAt: { type: Date },
+    timeline: { type: [timelineSchema], default: [] },
     customerDataCleared: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
     customer: { type: customerSchema, default: {} },

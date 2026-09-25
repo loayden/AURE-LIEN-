@@ -5,6 +5,7 @@ import DeferredAIChatStylist from '@/components/DeferredAIChatStylist'
 import Footer from '@/components/Footer'
 import MobileBottomNav from '@/components/MobileBottomNav'
 import Navbar from '@/components/Navbar'
+import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister'
 import ToastProvider from '@/components/ToastProvider'
 import type { Metadata, Viewport } from 'next'
 import { Cormorant_Garamond, Jost } from 'next/font/google'
@@ -56,6 +57,13 @@ const jost = Jost({
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${cormorant.variable} ${jost.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('bout:theme');if(t==='dark')document.documentElement.dataset.theme='dark';var d=localStorage.getItem('bout:dir');if(d==='rtl')document.documentElement.dir='rtl';}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body className="bg-[#F5F1E8] text-[#3D3025]">
         <AmbientBackdrop />
         <ClientErrorBoundary fallback={null}>
@@ -75,6 +83,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ClientErrorBoundary fallback={null}>
             <MobileBottomNav />
           </ClientErrorBoundary>
+          <ServiceWorkerRegister />
         </div>
         <ToastProvider />
       </body>

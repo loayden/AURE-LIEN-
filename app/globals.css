@@ -1845,3 +1845,51 @@ button:active,
 .coverflow-item {
   transform-style: preserve-3d;
 }
+
+/* ============================================
+   DARK THEME (opt-in via footer toggle; default stays light)
+   Overrides the design-token layer. Components using hardcoded
+   hex values keep light styling until migrated token-by-token.
+   ============================================ */
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --black:            #EDE4D3;
+  --surface:          #1B1510;
+  --cream:            #14100B;
+  --cream-strong:     #1E1712;
+  --cream-muted:      #2A2118;
+  --ink:              #EDE4D3;
+  --ink-soft:         #C9BBA6;
+  --ink-muted:        rgba(237, 228, 211, 0.72);
+  --gold:             #C6A75E;
+  --gold-text:        #D9BC77;
+  --gold-dim:         rgba(198, 167, 94, 0.62);
+  --gold-glow:        rgba(198, 167, 94, 0.16);
+  --ivory:            rgba(237, 228, 211, 0.88);
+  --silver:           rgba(237, 228, 211, 0.72);
+  --line-warm:        rgba(198, 167, 94, 0.22);
+  --glass-fill:       linear-gradient(135deg, rgba(30, 23, 18, 0.85) 0%, rgba(20, 16, 11, 0.72) 100%);
+  --glass-fill-md:    linear-gradient(135deg, rgba(30, 23, 18, 0.78) 0%, rgba(20, 16, 11, 0.6) 100%);
+  --glass-border:     rgba(198, 167, 94, 0.22);
+  --glass-border-sm:  rgba(198, 167, 94, 0.16);
+  --field-fill:       linear-gradient(135deg, rgba(30, 23, 18, 0.9) 0%, rgba(20, 16, 11, 0.7) 100%);
+  --field-fill-strong: rgba(30, 23, 18, 0.96);
+  --field-border:     rgba(198, 167, 94, 0.24);
+  --field-text:       rgba(237, 228, 211, 0.92);
+  --field-placeholder: rgba(237, 228, 211, 0.55);
+}
+
+[data-theme="dark"] body {
+  background: #14100B;
+  color: #EDE4D3;
+}
+
+/* ============================================
+   RTL BASE (opt-in via footer toggle)
+   Native dir=rtl handles text flow; these fix fixed-side chrome.
+   ============================================ */
+
+[dir="rtl"] .fixed.left-0 { left: auto; right: 0; }
+[dir="rtl"] .fixed.right-0 { right: auto; left: 0; }
+[dir="rtl"] input, [dir="rtl"] textarea, [dir="rtl"] select { text-align: right; }

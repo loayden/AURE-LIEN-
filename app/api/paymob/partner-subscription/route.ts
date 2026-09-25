@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
       },
       returnUrl,
     });
-    await markBoutiqueSubscriptionCheckoutStarted(application._id, plan.id, applicationPatch);
+    await markBoutiqueSubscriptionCheckoutStarted(application._id, plan.id, applicationPatch, checkout.intentionId);
 
     return NextResponse.json(
       {

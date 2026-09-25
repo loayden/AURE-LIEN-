@@ -52,7 +52,7 @@ function storefrontPriceToStoredPrice(value: unknown, fallbackStorefrontPrice?: 
   return Math.max(0, numeric);
 }
 
-function buildProductRecord(body: Record<string, unknown>, existing?: Awaited<ReturnType<typeof getProductById>>): ProductRecord {
+export function buildProductRecord(body: Record<string, unknown>, existing?: Awaited<ReturnType<typeof getProductById>>): ProductRecord {
   const productId = String(body._id ?? body.productId ?? existing?._id ?? "").trim();
   const name = String(body.name ?? existing?.name ?? "").trim();
   const category = normalizeCategory(body.category ?? existing?.category);
@@ -96,7 +96,7 @@ function buildProductRecord(body: Record<string, unknown>, existing?: Awaited<Re
   };
 }
 
-function validateProductRecord(product: ProductRecord): string | null {
+export function validateProductRecord(product: ProductRecord): string | null {
   if (!product._id) return "Product id is required";
   if (!product.name) return "Name is required";
   if (!product.category) return "Category is required";
@@ -105,7 +105,7 @@ function validateProductRecord(product: ProductRecord): string | null {
   return null;
 }
 
-async function writeProductToMongo(productData: ProductRecord): Promise<boolean> {
+export async function writeProductToMongo(productData: ProductRecord): Promise<boolean> {
   try {
     if (!hasConfiguredMongoUri()) return false;
 
@@ -171,14 +171,23 @@ export async function GET(req: NextRequest) {
   const [products, jsonProducts] = await Promise.all([getAllProducts(), readProductsJson()]);
   const jsonIds = new Set(jsonProducts.map((product) => String(product._id)));
 
+  const listed = products.map((product) => ({
+    ...product,
+    manageable: true,
+    editable: true,
+    storedInJson: jsonIds.has(String(product._id)),
+  }));
+  const url = new URL(req.url);
+  if (url.searchParams.has("page") || url.searchParams.has("limit")) {
+    const { paginateArray, parsePaginationParams } = await import("@/lib/pagination");
+    const { page, limit } = parsePaginationParams(url);
+    const { data, pagination } = paginateArray(listed, page, limit);
+    return NextResponse.json({ products: data, pagination }, { headers: NO_STORE_HEADERS });
+  }
+
   return NextResponse.json(
     {
-      products: products.map((product) => ({
-        ...product,
-        manageable: true,
-        editable: true,
-        storedInJson: jsonIds.has(String(product._id)),
-      })),
+      products: listed,
     },
     { headers: NO_STORE_HEADERS }
   );
@@ -315,6 +324,37 @@ export async function PUT(req: NextRequest) {
     revalidateCatalogPages(productId);
 
     const updated = await getProductById(productId);
+    // Back-in-stock: stock transitioned 0 → available → notify subscribers (never fails the request).
+    try {
+      const before = Number(existing?.stock ?? 0);
+      const after = Number(productData.stock ?? 0);
+      if (before <= 0 && after > 0) {
+        const { default: BackInStock } = await import("@/models/BackInStock");
+        const { hasConfiguredMongoUri } = await import("@/lib/connectDB");
+        if (hasConfiguredMongoUri()) {
+          const { default: connectDB } = await import("@/lib/connectDB");
+          await connectDB();
+          const subs = await BackInStock.find({ productId }).lean();
+          if (subs.length > 0) {
+            const { sendEmailAsync } = await import("@/lib/email/sender");
+            const { getBackInStockEmailHtml } = await import("@/lib/email/templates/shipping");
+            for (const sub of subs as Array<{ email?: string }>) {
+              const email = String(sub.email ?? "").trim();
+              if (email) {
+                sendEmailAsync({
+                  to: email,
+                  subject: `Back in stock · ${updated?.name ?? productData.name}`,
+                  html: getBackInStockEmailHtml({ productName: updated?.name ?? productData.name, productId }),
+                });
+              }
+            }
+            await BackInStock.deleteMany({ productId });
+          }
+        }
+      }
+    } catch (notifyError) {
+      console.warn("Back-in-stock notify skipped:", notifyError instanceof Error ? notifyError.message : String(notifyError));
+    }
     await logAdminAction({
       action: "admin.product.update",
       actorId: auth.userId,

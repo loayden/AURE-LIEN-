@@ -40,6 +40,14 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+    const { default: zxcvbn } = await import("zxcvbn");
+    const strength = zxcvbn(password, [name as string, email as string]);
+    if (strength.score < 2) {
+      return NextResponse.json(
+        { error: "Password is too weak. Use a longer phrase with mixed words.", warning: strength.feedback.warning || undefined },
+        { status: 400 }
+      );
+    }
 
     const existing = await findUserByEmail(email as string);
     if (existing) {

@@ -43,6 +43,39 @@ export default function WishlistPage() {
     setItems((prev) => prev.filter((p) => p._id !== productId));
   }, []);
 
+  const [movingId, setMovingId] = useState<string | null>(null);
+  const [moveError, setMoveError] = useState("");
+
+  const moveToCart = useCallback(async (product: { _id: string; size?: string[]; colors?: string[] }) => {
+    setMovingId(product._id);
+    setMoveError("");
+    try {
+      const res = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: product._id,
+          quantity: 1,
+          size: product.size?.[0] ?? null,
+          color: product.colors?.[0] ?? null,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Could not move to cart");
+      await fetch("/api/wishlist/remove", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: product._id }),
+      }).catch(() => undefined);
+      setItems((prev) => prev.filter((p) => p._id !== product._id));
+      window.dispatchEvent(new Event("cart:changed"));
+    } catch (error) {
+      setMoveError(error instanceof Error ? error.message : "Could not move to cart");
+    } finally {
+      setMovingId(null);
+    }
+  }, []);
+
   const insights = useMemo(() => getWishlistInsights(items), [items]);
   const visibleItems = useMemo(
     () =>
@@ -91,6 +124,17 @@ export default function WishlistPage() {
           ) : null}
 
           {/* ── HEADER ── */}
+          {moveError ? (
+            <div
+              className="mb-5 rounded-2xl px-4 py-3"
+              role="alert"
+              style={{ background: "rgba(154,34,34,0.08)", border: "1px solid rgba(154,34,34,0.22)" }}
+            >
+              <p className="text-[10px] uppercase tracking-[0.2em]" style={{ color: "#9A2222" }}>
+                {moveError}
+              </p>
+            </div>
+          ) : null}
           <motion.div
             initial={{ opacity:0, y:20 }}
             animate={{ opacity:1, y:0 }}
@@ -330,6 +374,14 @@ export default function WishlistPage() {
                       onWishlistUpdate={removeFromList}
                       showRemoveFromWishlist
                     />
+                    <button
+                      type="button"
+                      onClick={() => moveToCart(product)}
+                      disabled={movingId === product._id}
+                      className="mt-2 inline-flex min-h-[44px] w-full items-center justify-center rounded-full border border-[#A87935]/25 bg-[#A87935]/10 px-5 text-[9px] uppercase tracking-[0.22em] text-[#7A581F] disabled:opacity-50"
+                    >
+                      {movingId === product._id ? "Moving…" : "Move to cart"}
+                    </button>
                   </motion.div>
                 ))}
               </div>

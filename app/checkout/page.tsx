@@ -30,7 +30,7 @@ const SHIPPING_COST_CAIRO = 75;
 
 function GlassSection({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
-    <div
+    <fieldset
       className="relative overflow-hidden rounded-2xl p-5 sm:p-6"
       style={{
         background: "linear-gradient(135deg, rgba(255,248,236,0.08) 0%, rgba(255,248,236,0.025) 100%)",
@@ -38,27 +38,31 @@ function GlassSection({ icon, title, children }: { icon: React.ReactNode; title:
         WebkitBackdropFilter: "blur(24px) saturate(160%)",
         border: "1px solid rgba(255,248,236,0.09)",
         boxShadow: "0 16px 48px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,248,236,0.14)",
+        margin: 0,
+        minWidth: 0,
       }}
     >
       <div className="absolute inset-x-5 top-0 h-px pointer-events-none"
            style={{ background: "linear-gradient(90deg, transparent, rgba(255,248,236,0.18), transparent)" }} />
-      <div className="flex items-center gap-3 mb-5 sm:mb-6">
-        <div className="p-2 rounded-xl"
-             style={{
-               background: "linear-gradient(135deg, rgba(168,121,53,0.14), rgba(168,121,53,0.04))",
-               border: "1px solid rgba(168,121,53,0.2)",
-             }}>
-          <span style={{ color: "#A87935" }}>{icon}</span>
-        </div>
-        <h2
-          className="font-light text-white text-lg sm:text-xl"
-          style={{ fontFamily: "'Cormorant Garamond', serif", letterSpacing: "0.08em" }}
-        >
-          {title}
-        </h2>
-      </div>
+      <legend style={{ padding: 0, margin: 0, display: "contents" }}>
+        <span className="flex items-center gap-3 mb-5 sm:mb-6">
+          <span className="p-2 rounded-xl"
+                style={{
+                  background: "linear-gradient(135deg, rgba(168,121,53,0.14), rgba(168,121,53,0.04))",
+                  border: "1px solid rgba(168,121,53,0.2)",
+                }}>
+            <span style={{ color: "#A87935", display: "inline-flex" }}>{icon}</span>
+          </span>
+          <span
+            className="font-light text-white text-lg sm:text-xl"
+            style={{ fontFamily: "'Cormorant Garamond', serif", letterSpacing: "0.08em" }}
+          >
+            {title}
+          </span>
+        </span>
+      </legend>
       {children}
-    </div>
+    </fieldset>
   );
 }
 

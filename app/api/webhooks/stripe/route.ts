@@ -40,7 +40,23 @@ export async function POST(req: NextRequest) {
             paidAt: new Date().toISOString(),
           };
           await setOrdersJson(orders);
-          if (!wasAlreadyPaid) notifyOrderPlaced(orders[index]);
+          if (!wasAlreadyPaid) {
+            // Best-effort atomic stock reservation (first paid transition only → no double-decrement on retries).
+            try {
+              const { tryDecrementStock } = await import("@/lib/inventory");
+              const lineItems = Array.isArray(orders[index]?.items) ? orders[index].items : [];
+              await tryDecrementStock(
+                lineItems.map((item: { productId?: string; quantity?: number; name?: string }) => ({
+                  productId: String(item.productId ?? ""),
+                  quantity: Number(item.quantity ?? 1),
+                  name: String(item.name ?? ""),
+                }))
+              );
+            } catch (error) {
+              console.warn("Stripe stock reservation skipped:", error instanceof Error ? error.message : String(error));
+            }
+            notifyOrderPlaced(orders[index]);
+          }
         }
       }
 

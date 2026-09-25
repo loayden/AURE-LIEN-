@@ -37,6 +37,7 @@ export const saveOrderSchema = z.object({
 export const loginSchema = z.object({
   email: z.string().email("Valid email required"),
   password: z.string().min(1, "Password required"),
+  totp: z.string().max(10).optional(),
 });
 
 export const signupSchema = z.object({

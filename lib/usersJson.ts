@@ -22,8 +22,7 @@ export interface UserRecord {
   email: string;
   password: string;
   role: "customer" | "admin";
-  accountIntent: "buyer" | "partner" | "both";
-  authProvider?: "password" | "google" | "mixed";
+  accountIntent: "buyer" | "partner" | "both";  authProvider?: "password" | "google" | "mixed";
   googleSub?: string;
   avatar?: string;
   createdAt: string;
@@ -35,6 +34,9 @@ export interface UserRecord {
   country?: string;
   deviceId?: string;
   deviceAccountWarning?: string;
+  twoFactorSecret?: string;
+  twoFactorEnabled?: boolean;
+  tokenVersion?: number;
 }
 
 const BLOB_USERS_PATH = "users.json";
@@ -92,6 +94,9 @@ function normalizeUser(user: any): UserRecord {
     country: String(user?.country ?? "").trim(),
     deviceId: String(user?.deviceId ?? "").trim(),
     deviceAccountWarning: String(user?.deviceAccountWarning ?? "").trim(),
+    twoFactorSecret: String(user?.twoFactorSecret ?? ""),
+    twoFactorEnabled: Boolean(user?.twoFactorEnabled),
+    tokenVersion: Number.isFinite(Number(user?.tokenVersion)) ? Math.max(0, Math.floor(Number(user.tokenVersion))) : 0,
   };
 }
 
@@ -381,7 +386,7 @@ export async function updateUserRole(id: string, role: "customer" | "admin"): Pr
     try {
       await connectDB();
       await User.findOneAndUpdate(
-        { $or: [{ id }, { _id: id }] },
+        { id },
         { role }
       );
       try {
@@ -437,7 +442,7 @@ export async function updateUserProfile(
   if (useMongoStorage()) {
     try {
       await connectDB();
-      await User.findOneAndUpdate({ $or: [{ id }, { _id: id }] }, updates);
+      await User.findOneAndUpdate({ id }, updates);
       try {
         await syncUserSnapshotsFromMongo();
       } catch (error) {
@@ -491,7 +496,7 @@ export async function updateUserDeviceInfo(
   if (useMongoStorage()) {
     try {
       await connectDB();
-      await User.findOneAndUpdate({ $or: [{ id }, { _id: id }] }, updates);
+      await User.findOneAndUpdate({ id }, updates);
       try {
         await syncUserSnapshotsFromMongo();
       } catch (error) {
@@ -514,6 +519,50 @@ export async function updateUserDeviceInfo(
   if (idx === -1) return null;
 
   snapshotUsers[idx] = normalizeUser({ ...snapshotUsers[idx], ...updates });
+  await writeUserSnapshots(snapshotUsers);
+  return snapshotUsers[idx];
+}
+
+/** Security-field updater (2FA, token version). Additive; never touches other fields. */
+export async function updateUserSecurity(
+  id: string,
+  updates: Partial<Pick<UserRecord, "twoFactorSecret" | "twoFactorEnabled" | "tokenVersion" | "password">>
+): Promise<UserRecord | null> {
+  if (!id) return null;
+  const clean: Partial<UserRecord> = {};
+  if (updates.twoFactorSecret !== undefined) clean.twoFactorSecret = String(updates.twoFactorSecret);
+  if (updates.twoFactorEnabled !== undefined) clean.twoFactorEnabled = Boolean(updates.twoFactorEnabled);
+  if (updates.tokenVersion !== undefined && Number.isFinite(Number(updates.tokenVersion))) {
+    clean.tokenVersion = Math.max(0, Math.floor(Number(updates.tokenVersion)));
+  }
+  if (updates.password !== undefined) clean.password = String(updates.password);
+  if (Object.keys(clean).length === 0) return findUserById(id);
+
+  if (useMongoStorage()) {
+    try {
+      await connectDB();
+      await User.findOneAndUpdate({ id }, clean);
+      try {
+        await syncUserSnapshotsFromMongo();
+      } catch (error) {
+        console.warn(
+          "⚠️ MongoDB user security updated but snapshot sync failed:",
+          error instanceof Error ? error.message : String(error)
+        );
+      }
+      return findUserById(id);
+    } catch (error) {
+      console.warn(
+        "⚠️ MongoDB user security update failed, falling back to snapshot storage:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
+  }
+
+  const snapshotUsers = await readUserSnapshots();
+  const idx = snapshotUsers.findIndex((user) => user.id === id);
+  if (idx === -1) return null;
+  snapshotUsers[idx] = normalizeUser({ ...snapshotUsers[idx], ...clean });
   await writeUserSnapshots(snapshotUsers);
   return snapshotUsers[idx];
 }

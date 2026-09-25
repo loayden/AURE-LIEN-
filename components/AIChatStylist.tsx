@@ -7,7 +7,56 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import productsData from "@/lib/productsData";
+import type { Product } from "@/lib/types";
+
+const catalogCache: { products: Product[] } = { products: [] };
+async function resolveProducts(ids: string[]): Promise<Map<string, Product>> {
+  const missing = ids.filter((id) => !catalogCache.products.some((p) => p._id === id));
+  if (missing.length > 0) {
+    try {
+      const res = await fetch("/api/products", { cache: "force-cache" });
+      const data = await res.json();
+      const arr = Array.isArray(data) ? data : data.products ?? [];
+      const byId = new Map(catalogCache.products.map((p) => [p._id, p]));
+      for (const p of arr as Product[]) byId.set(p._id, p);
+      catalogCache.products = [...byId.values()];
+    } catch {
+      // fall through with whatever is cached
+    }
+  }
+  return new Map(catalogCache.products.map((p) => [p._id, p]));
+}
+
+function StylistProductChip({ productId }: { productId: string }) {
+  const [product, setProduct] = useState<Product | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    resolveProducts([productId]).then((map) => {
+      if (!cancelled) setProduct(map.get(productId) ?? null);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [productId]);
+  if (!product) return null;
+  return (
+    <Link
+      href={`/product/${product._id}`}
+      className="flex max-w-full items-center gap-2 rounded-xl p-2 transition-colors"
+      style={{
+        border: "1px solid rgba(168,121,53,0.18)",
+        background: "linear-gradient(135deg, rgba(168,121,53,0.1), rgba(168,121,53,0.03))",
+      }}
+    >
+      {product.images?.[0] && (
+        <span className="relative block h-10 w-10 flex-shrink-0 overflow-hidden rounded">
+          <Image src={product.images[0]} alt="" fill className="object-cover" sizes="40px" />
+        </span>
+      )}
+      <span className="max-w-[132px] truncate text-xs text-ivory sm:max-w-[100px]">{product.name}</span>
+    </Link>
+  );
+}
 
 interface Message {
   role: "user" | "assistant";
@@ -188,28 +237,9 @@ export default function AIChatStylist() {
                       <p className="whitespace-pre-wrap text-[11px] sm:text-sm">{m.content}</p>
                       {m.productIds && m.productIds.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-2">
-                          {m.productIds.slice(0, 4).map((id) => {
-                            const p = productsData.find((x) => x._id === id);
-                            if (!p) return null;
-                            return (
-                              <Link
-                                key={p._id}
-                                href={`/product/${p._id}`}
-                                className="flex max-w-full items-center gap-2 rounded-xl p-2 transition-colors"
-                                style={{
-                                  border: "1px solid rgba(168,121,53,0.18)",
-                                  background: "linear-gradient(135deg, rgba(168,121,53,0.1), rgba(168,121,53,0.03))",
-                                }}
-                              >
-                                {p.images?.[0] && (
-                                  <div className="relative h-10 w-10 flex-shrink-0 overflow-hidden rounded">
-                                    <Image src={p.images[0]} alt="" fill className="object-cover" sizes="40px" />
-                                  </div>
-                                )}
-                                <span className="max-w-[132px] truncate text-xs text-ivory sm:max-w-[100px]">{p.name}</span>
-                              </Link>
-                            );
-                          })}
+                          {m.productIds.slice(0, 4).map((id) => (
+                            <StylistProductChip key={id} productId={id} />
+                          ))}
                         </div>
                       )}
                     </div>

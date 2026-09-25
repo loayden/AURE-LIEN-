@@ -120,6 +120,19 @@ function normalizeOrder(order: any): any {
     status: order?.status ?? "pending",
     paymentStatus: order?.paymentStatus ?? (order?.status === "completed" ? "paid" : "pending"),
     paymentMethod: order?.paymentMethod ?? "",
+    timeline: Array.isArray(order?.timeline)
+      ? order.timeline
+          .map((entry: unknown) => {
+            const row = entry as Record<string, unknown>;
+            return {
+              status: String(row.status ?? ""),
+              at: safeIsoDate(row.at),
+              note: String(row.note ?? "").slice(0, 500),
+            };
+          })
+          .filter((entry: { status: string }) => entry.status)
+          .slice(-50)
+      : [],
     createdAt,
     customer: {
       dataCleared: customerDataCleared,

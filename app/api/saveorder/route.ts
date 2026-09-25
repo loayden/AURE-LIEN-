@@ -303,6 +303,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     console.log(`✅ Created new order ${newOrder._id} with ${items.length} items`);
 
+    // ✅ Atomic stock reservation (Mongo only; no-op elsewhere). Prevents oversell races.
+    const { tryDecrementStock, restoreStock } = await import("@/lib/inventory");
+    const reservation = await tryDecrementStock(
+      resolvedItems.map((item) => ({ productId: item.productId, quantity: item.quantity, name: item.name }))
+    );
+    if (!reservation.ok) {
+      const first = reservation.issues[0];
+      return NextResponse.json(
+        { error: `Only ${first.available} available for ${first.name}` },
+        { status: 409 }
+      );
+    }
+
     // ✅ Step 2: Persist the order in the shared store
     try {
       await appendOrder(newOrder);
@@ -310,6 +323,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       notifyOrderPlaced(newOrder);
     } catch (writeError) {
       console.error("❌ Failed to save order to shared storage:", writeError instanceof Error ? writeError.message : String(writeError));
+      await restoreStock(
+        resolvedItems.map((item) => ({ productId: item.productId, quantity: item.quantity }))
+      );
       return NextResponse.json(
         { error: "Failed to save order to database" },
         { status: 500 }

@@ -58,6 +58,13 @@ export async function GET(req: NextRequest) {
       result.sort((a, b) => getNewestTimestamp(b) - getNewestTimestamp(a));
     }
 
+    if (searchParams.has("page") || searchParams.has("limit")) {
+      const { paginateArray, parsePaginationParams } = await import("@/lib/pagination");
+      const { page, limit } = parsePaginationParams(new URL(req.url));
+      const { data, pagination } = paginateArray(result, page, limit);
+      return NextResponse.json({ customers: data, pagination }, { headers: NO_STORE_HEADERS });
+    }
+
     return NextResponse.json(result, { headers: NO_STORE_HEADERS });
   } catch (error) {
     console.error("Admin users API error:", error);

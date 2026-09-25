@@ -66,6 +66,7 @@ export type BoutiqueApplication = {
   trialDays: 0 | 7;
   subscriptionFlow: BoutiqueSubscriptionFlow;
   subscriptionStatus: BoutiqueSubscriptionStatus;
+  subscriptionIntentionId?: string;
   payoutProfile?: BoutiquePayoutProfile;
   sampleProducts?: string;
   notes?: string;
@@ -394,6 +395,7 @@ function normalizeApplication(application: any): BoutiqueApplication | null {
     trialDays: plan.trialDays,
     subscriptionFlow,
     subscriptionStatus: normalizeSubscriptionStatus(application?.subscriptionStatus, status, subscriptionFlow),
+    subscriptionIntentionId: String(application?.subscriptionIntentionId ?? "").trim() || undefined,
     payoutProfile: normalizePayoutProfile(application?.payoutProfile ?? application),
     sampleProducts: String(application?.sampleProducts ?? "").trim() || undefined,
     notes: String(application?.notes ?? "").trim() || undefined,
@@ -637,7 +639,8 @@ export async function submitBoutiqueApplication(
 export async function markBoutiqueSubscriptionCheckoutStarted(
   applicationId: string,
   planId?: BoutiquePlanId,
-  payload: BoutiqueApplicationWritePayload = {}
+  payload: BoutiqueApplicationWritePayload = {},
+  intentionId?: string
 ): Promise<BoutiqueApplication | null> {
   const applications = await getBoutiqueApplications();
   const application = applications.find((item) => item._id === applicationId);
@@ -659,11 +662,40 @@ export async function markBoutiqueSubscriptionCheckoutStarted(
       trialDays: plan.trialDays,
       subscriptionFlow: "paid",
       subscriptionStatus: "checkout_started",
+      subscriptionIntentionId: cleanString(intentionId) || application.subscriptionIntentionId,
       noPhysicalShop,
       streetAddress: noPhysicalShop ? "" : cleanString(payload.streetAddress ?? application.streetAddress),
     },
     application.status,
     "checkout_started"
+  );
+}
+
+/**
+ * Mark a boutique subscription paid (Paymob webhook).
+ * Idempotent: only transitions from checkout_started; returns null otherwise.
+ */
+export async function markBoutiqueSubscriptionPaid(
+  applicationId: string,
+  intentionId?: string
+): Promise<BoutiqueApplication | null> {
+  const applications = await getBoutiqueApplications();
+  const application = applications.find((item) => item._id === applicationId);
+  if (!application) return null;
+  if (application.subscriptionStatus === "subscribed") return application;
+  if (application.subscriptionStatus !== "checkout_started") return null;
+  const expected = cleanString(application.subscriptionIntentionId);
+  const received = cleanString(intentionId);
+  if (expected && received && expected !== received) return null;
+  return saveBoutiqueApplicationRecord(
+    {
+      ...application,
+      subscriptionFlow: "paid",
+      subscriptionStatus: "subscribed",
+      subscriptionIntentionId: received || application.subscriptionIntentionId,
+    },
+    application.status === "draft" ? "pending" : application.status,
+    "subscribed"
   );
 }
 

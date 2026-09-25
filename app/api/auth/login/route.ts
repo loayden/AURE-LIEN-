@@ -80,10 +80,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (user.twoFactorEnabled) {
+      const totp = String(parsed.data.totp ?? "").replace(/\s+/g, "");
+      if (!totp) {
+        return NextResponse.json({ error: "Two-factor code required", twoFactorRequired: true }, { status: 401 });
+      }
+      const { verifySync } = await import("otplib");
+      const result = verifySync({ secret: String(user.twoFactorSecret ?? ""), token: totp });
+      if (!result.valid) {
+        return NextResponse.json({ error: "Invalid two-factor code", twoFactorRequired: true }, { status: 401 });
+      }
+    }
+
     const token = signToken({
       userId: user.id,
       email: user.email,
       role: user.role,
+      v: Number(user.tokenVersion ?? 0),
     });
 
     const res = NextResponse.json({

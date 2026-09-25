@@ -24,6 +24,8 @@
     "next": "^16.1.6",
     "nodemailer": "^8.0.1",
     "openai": "^6.27.0",
+    "otplib": "^13.5.0",
+    "qrcode": "^1.5.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.5.0",
@@ -31,7 +33,8 @@
     "recharts": "^2.15.4",
     "stripe": "^20.4.1",
     "zod": "^4.3.6",
-    "zustand": "^4.5.2"
+    "zustand": "^4.5.2",
+    "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
     "@remotion/cli": "4.0.465",
@@ -41,8 +44,10 @@
     "@types/mongoose": "^5.11.96",
     "@types/node": "20.12.7",
     "@types/nodemailer": "^7.0.11",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "18.2.66",
     "@types/react-dom": "18.2.22",
+    "@types/zxcvbn": "^4.4.5",
     "autoprefixer": "^10.4.19",
     "dotenv": "^17.3.1",
     "eslint": "^9.39.4",

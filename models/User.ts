@@ -18,6 +18,9 @@ const userSchema = new Schema({
   country: { type: String, default: "" },
   deviceId: { type: String, default: "", index: true },
   deviceAccountWarning: { type: String, default: "" },
+  twoFactorSecret: { type: String, default: "" },
+  twoFactorEnabled: { type: Boolean, default: false },
+  tokenVersion: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
 });
 

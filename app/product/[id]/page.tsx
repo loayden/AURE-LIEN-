@@ -428,6 +428,8 @@ export default function PremiumProductPage() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
+  const [reviewAverage, setReviewAverage] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
   const { registerTimeout } = useTimeoutRegistry();
   const p = product;
   const allMedia = useMemo(() => {
@@ -509,6 +511,13 @@ export default function PremiumProductPage() {
     import("@/lib/analytics").then(({ trackEvent }) => {
       trackEvent("product_view", { productId: p._id, value: Number(p.price ?? 0) });
     }).catch(() => undefined);
+    fetch(`/api/reviews?productId=${encodeURIComponent(p._id)}`)
+      .then((r) => r.json())
+      .then((d) => {
+        setReviewAverage(Number(d.average ?? 0));
+        setReviewCount(Number(d.count ?? 0));
+      })
+      .catch(() => undefined);
     const key = "bout:recently-viewed";
     let existing: string[] = [];
     try {
@@ -799,16 +808,18 @@ export default function PremiumProductPage() {
                 transition={{ delay: 0.35 }}
                 className="flex items-center gap-3 mb-8"
               >
-                <div className="flex gap-1">
+                <div className="flex gap-1" aria-label={reviewCount > 0 ? `Rated ${reviewAverage} out of 5 from ${reviewCount} reviews` : "No reviews yet"}>
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}
                       size={16}
-                      className={i < 4 ? "fill-amber-400 text-amber-400" : "text-white/20"}
+                      className={i < Math.round(reviewAverage) ? "fill-amber-400 text-amber-400" : "text-white/20"}
                     />
                   ))}
                 </div>
-                <span className="text-white/50 text-[12px] tracking-widest">4.8 / 5</span>
+                <span className="text-white/50 text-[12px] tracking-widest">
+                  {reviewCount > 0 ? `${reviewAverage} / 5 (${reviewCount})` : "New · no reviews yet"}
+                </span>
               </motion.div>
 
               {/* Price - Luxe styling */}
