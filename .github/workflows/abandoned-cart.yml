@@ -1,4 +1,4 @@
-name: Abandoned cart reminders
+name: Storefront crons
 
 on:
   schedule:
@@ -27,6 +27,22 @@ jobs:
           cat /tmp/cron.json
           echo ""
           if [ "$CODE" != "200" ]; then
-            echo "cron returned $CODE"
+            echo "abandoned-cart returned $CODE"
+            exit 1
+          fi
+      - name: Call subscriptions cron
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+        run: |
+          PARAM=""
+          if [ "$DRY_RUN" = "true" ]; then PARAM="?dryRun=1"; fi
+          CODE=$(curl -s -o /tmp/sub.json -w "%{http_code}" \
+            "https://bout-clothes.vercel.app/api/cron/subscriptions$PARAM" \
+            -H "Authorization: Bearer $CRON_SECRET")
+          cat /tmp/sub.json
+          echo ""
+          if [ "$CODE" != "200" ]; then
+            echo "subscriptions returned $CODE"
             exit 1
           fi

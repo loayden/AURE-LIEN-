@@ -172,7 +172,7 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
       <div className="relative">
         <div
           ref={scrollContainerRef}
-          className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4"
+          className="flex gap-4 overflow-x-auto snap-x snap-proximity sm:snap-mandatory scrollbar-hide pb-4"
           style={{
             scrollBehavior: "smooth",
             WebkitOverflowScrolling: "touch",

@@ -120,6 +120,7 @@ function normalizeOrder(order: any): any {
     status: order?.status ?? "pending",
     paymentStatus: order?.paymentStatus ?? (order?.status === "completed" ? "paid" : "pending"),
     paymentMethod: order?.paymentMethod ?? "",
+    partnerPayoutStatus: String(order?.partnerPayoutStatus ?? order?.payoutStatus ?? ""),
     timeline: Array.isArray(order?.timeline)
       ? order.timeline
           .map((entry: unknown) => {

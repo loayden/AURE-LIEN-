@@ -496,13 +496,13 @@ function CheckoutContent() {
                       >
                         <option value="Egypt">Egypt</option>
                       </select>
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
                         <input type="text" placeholder="First name" value={form.firstName} onChange={(e) => update("firstName", e.target.value)} autoComplete="given-name" required />
                         <input type="text" placeholder="Last name" value={form.lastName} onChange={(e) => update("lastName", e.target.value)} autoComplete="family-name" required />
                       </div>
                       <input type="text" placeholder="Address" value={form.address} onChange={(e) => update("address", e.target.value)} autoComplete="street-address" required />
                       <input type="text" placeholder="Apartment, suite, etc. (optional)" value={form.apartment} onChange={(e) => update("apartment", e.target.value)} />
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
                         <input type="text" placeholder="City" value={form.city} onChange={(e) => update("city", e.target.value)} autoComplete="address-level2" required />
                         <input type="text" placeholder="Postal code (optional)" value={form.postalCode} onChange={(e) => update("postalCode", e.target.value)} />
                       </div>

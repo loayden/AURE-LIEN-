@@ -67,6 +67,8 @@ export type BoutiqueApplication = {
   subscriptionFlow: BoutiqueSubscriptionFlow;
   subscriptionStatus: BoutiqueSubscriptionStatus;
   subscriptionIntentionId?: string;
+  paidUntil?: string;
+  lastRenewalAt?: string;
   payoutProfile?: BoutiquePayoutProfile;
   sampleProducts?: string;
   notes?: string;
@@ -124,10 +126,13 @@ export function getBoutiquePartnerPlan(planId: unknown = "starter") {
   return normalizePlan(planId);
 }
 
+export const SUBSCRIPTION_PERIOD_DAYS = 30;
+export const SUBSCRIPTION_GRACE_DAYS = 3;
+
 export function getBoutiquePartnerAccess(
   application: Pick<
     BoutiqueApplication,
-    "_id" | "status" | "createdAt" | "trialDays" | "subscriptionStatus"
+    "_id" | "status" | "createdAt" | "trialDays" | "subscriptionStatus" | "paidUntil"
   >,
   now = new Date()
 ): BoutiquePartnerAccess {
@@ -154,6 +159,38 @@ export function getBoutiquePartnerAccess(
   }
 
   if (application.subscriptionStatus === "subscribed") {
+    const paidUntilTime = application.paidUntil ? new Date(application.paidUntil).getTime() : NaN;
+    if (Number.isFinite(paidUntilTime)) {
+      const msOverdue = now.getTime() - paidUntilTime;
+      const graceMs = SUBSCRIPTION_GRACE_DAYS * 24 * 60 * 60 * 1000;
+      if (msOverdue > graceMs) {
+        return {
+          canManageProducts: false,
+          reason: "checkout_required",
+          message: "Your subscription has lapsed. Renew to continue managing products.",
+          daysRemaining: 0,
+          subscriptionUrl,
+        };
+      }
+      if (msOverdue > 0) {
+        const daysLeft = Math.max(0, Math.ceil((graceMs - msOverdue) / (24 * 60 * 60 * 1000)));
+        return {
+          canManageProducts: true,
+          reason: "subscribed",
+          message: `Subscription in ${SUBSCRIPTION_GRACE_DAYS}-day grace period. ${daysLeft} day${daysLeft === 1 ? "" : "s"} left to renew.`,
+          daysRemaining: daysLeft,
+          subscriptionUrl,
+        };
+      }
+      const daysLeft = Math.max(0, Math.ceil((paidUntilTime - now.getTime()) / (24 * 60 * 60 * 1000)));
+      return {
+        canManageProducts: true,
+        reason: "subscribed",
+        message: `Subscription active. Renews in ${daysLeft} day${daysLeft === 1 ? "" : "s"}.`,
+        daysRemaining: daysLeft,
+        subscriptionUrl,
+      };
+    }
     return {
       canManageProducts: true,
       reason: "subscribed",
@@ -396,6 +433,8 @@ function normalizeApplication(application: any): BoutiqueApplication | null {
     subscriptionFlow,
     subscriptionStatus: normalizeSubscriptionStatus(application?.subscriptionStatus, status, subscriptionFlow),
     subscriptionIntentionId: String(application?.subscriptionIntentionId ?? "").trim() || undefined,
+    paidUntil: String(application?.paidUntil ?? "").trim() || undefined,
+    lastRenewalAt: String(application?.lastRenewalAt ?? "").trim() || undefined,
     payoutProfile: normalizePayoutProfile(application?.payoutProfile ?? application),
     sampleProducts: String(application?.sampleProducts ?? "").trim() || undefined,
     notes: String(application?.notes ?? "").trim() || undefined,
@@ -594,8 +633,8 @@ async function saveBoutiqueApplicationRecord(
     _id: existing?._id || cleanString(payload._id) || `boutique-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
     planId: plan.id,
     planName: plan.name,
-    monthlyFee: plan.monthlyFee,
-    commissionRate: plan.commissionRate,
+    monthlyFee: payload.monthlyFee ?? existing?.monthlyFee ?? plan.monthlyFee,
+    commissionRate: payload.commissionRate ?? existing?.commissionRate ?? plan.commissionRate,
     trialDays: plan.trialDays,
     subscriptionFlow: payload.subscriptionFlow ?? existing?.subscriptionFlow ?? (plan.id === "starter" ? "trial" : "paid"),
     subscriptionStatus: subscriptionStatus ?? payload.subscriptionStatus ?? existing?.subscriptionStatus,
@@ -649,6 +688,7 @@ export async function markBoutiqueSubscriptionCheckoutStarted(
   const noPhysicalShop = typeof payload.noPhysicalShop === "boolean"
     ? payload.noPhysicalShop
     : Boolean(application.noPhysicalShop);
+  const planChanged = plan.id !== application.planId;
 
   return saveBoutiqueApplicationRecord(
     {
@@ -657,8 +697,8 @@ export async function markBoutiqueSubscriptionCheckoutStarted(
       _id: application._id,
       planId: plan.id,
       planName: plan.name,
-      monthlyFee: plan.monthlyFee,
-      commissionRate: plan.commissionRate,
+      monthlyFee: planChanged ? plan.monthlyFee : (payload.monthlyFee ?? (application as { monthlyFee?: number }).monthlyFee ?? plan.monthlyFee),
+      commissionRate: planChanged ? plan.commissionRate : (payload.commissionRate ?? (application as { commissionRate?: number }).commissionRate ?? plan.commissionRate),
       trialDays: plan.trialDays,
       subscriptionFlow: "paid",
       subscriptionStatus: "checkout_started",
@@ -687,15 +727,99 @@ export async function markBoutiqueSubscriptionPaid(
   const expected = cleanString(application.subscriptionIntentionId);
   const received = cleanString(intentionId);
   if (expected && received && expected !== received) return null;
+  const now = new Date();
+  const base = Math.max(now.getTime(), new Date(application.paidUntil ?? 0).getTime() || 0);
+  const paidUntil = new Date(base + SUBSCRIPTION_PERIOD_DAYS * 24 * 60 * 60 * 1000).toISOString();
   return saveBoutiqueApplicationRecord(
     {
       ...application,
       subscriptionFlow: "paid",
       subscriptionStatus: "subscribed",
       subscriptionIntentionId: received || application.subscriptionIntentionId,
+      paidUntil,
+      lastRenewalAt: now.toISOString(),
     },
     application.status === "draft" ? "pending" : application.status,
     "subscribed"
+  );
+}
+
+/**
+ * Admin review of a boutique application.
+ * Allowed: pending/contacted → approved/declined, approved → declined
+ * (suspend), declined → pending (reopen). Drafts stay untouched.
+ */
+export async function reviewBoutiqueApplication(
+  applicationId: string,
+  review: { status: "approved" | "declined" | "pending"; reviewNote?: string }
+): Promise<BoutiqueApplication | null> {
+  const applications = await getBoutiqueApplications();
+  const application = applications.find((item) => item._id === applicationId);
+  if (!application) return null;
+  const from = application.status;
+  const to = review.status;
+  const allowed =
+    ((from === "pending" || from === "contacted") && (to === "approved" || to === "declined")) ||
+    (from === "approved" && to === "declined") ||
+    (from === "declined" && to === "pending");
+  if (!allowed) return null;
+  return saveBoutiqueApplicationRecord(
+    {
+      ...application,
+      notes: review.reviewNote ? `${application.notes ? `${application.notes}\n` : ""}[Admin review] ${review.reviewNote}` : application.notes,
+    },
+    review.status,
+    application.subscriptionStatus
+  );
+}
+
+/**
+ * Admin-adjustable commercial terms. Additive; plan pricing stays the source
+ * of truth unless explicitly overridden here.
+ */
+export async function updateBoutiqueTerms(
+  applicationId: string,
+  terms: { commissionRate?: number; monthlyFee?: number }
+): Promise<BoutiqueApplication | null> {
+  const applications = await getBoutiqueApplications();
+  const application = applications.find((item) => item._id === applicationId);
+  if (!application) return null;
+  const patch: BoutiqueApplicationWritePayload = {};
+  if (terms.commissionRate !== undefined && Number.isFinite(Number(terms.commissionRate))) {
+    patch.commissionRate = Math.min(30, Math.max(0, Number(terms.commissionRate)));
+  }
+  if (terms.monthlyFee !== undefined && Number.isFinite(Number(terms.monthlyFee))) {
+    patch.monthlyFee = Math.max(0, Math.floor(Number(terms.monthlyFee)));
+  }
+  if (Object.keys(patch).length === 0) return application;
+  return saveBoutiqueApplicationRecord(
+    { ...application, ...patch },
+    application.status,
+    application.subscriptionStatus
+  );
+}
+
+/**
+ * Partner edits their own application details while still in
+ * draft/pending/contacted. Plan, pricing, and subscription state are untouched.
+ */
+export async function updateBoutiqueApplicationDetails(
+  applicationId: string,
+  patch: Partial<Pick<BoutiqueApplication, "boutiqueName" | "ownerName" | "phone" | "email" | "city" | "area" | "streetAddress" | "noPhysicalShop" | "googleMapsUrl" | "instagram" | "categories" | "productCount" | "averagePrice" | "sampleProducts" | "notes">>
+): Promise<BoutiqueApplication | null> {
+  const applications = await getBoutiqueApplications();
+  const application = applications.find((item) => item._id === applicationId);
+  if (!application) return null;
+  if (application.status !== "draft" && application.status !== "pending" && application.status !== "contacted") {
+    return null;
+  }
+  const cleanPatch = Object.fromEntries(
+    Object.entries(patch).filter(([, value]) => value !== undefined)
+  ) as Partial<BoutiqueApplication>;
+  return saveBoutiqueApplicationRecord(
+    { ...application, ...cleanPatch },
+    application.status,
+    application.subscriptionStatus
   );
 }
 

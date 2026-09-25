@@ -2,6 +2,7 @@ import { sendEmailAsync } from "@/lib/email/sender";
 import { getOrderConfirmationEmailHtml, type OrderProduct } from "@/lib/email/templates/order-confirmation";
 import {
   getPartnerApplicationEmailHtml,
+  getPartnerApplicationDecisionEmailHtml,
   getPartnerProductDecisionEmailHtml,
   getPartnerProductSubmittedEmailHtml,
 } from "@/lib/email/templates/transactional";
@@ -133,8 +134,36 @@ export function notifyPartnerApplicationReceived(application: BoutiqueApplicatio
   });
 }
 
-export function notifyPartnerProductSubmitted(product: PartnerProductDraft): void {
+export function notifyPartnerApplicationDecision(
+  application: BoutiqueApplication,
+  status: "approved" | "declined",
+  reviewNote?: string
+): void {
   notifyEmail({
+    to: application.email,
+    subject: status === "approved"
+      ? `BOUT approved ${application.boutiqueName}`
+      : `BOUT application update · ${application.boutiqueName}`,
+    html: getPartnerApplicationDecisionEmailHtml({
+      ownerName: application.ownerName,
+      boutiqueName: application.boutiqueName,
+      applicationId: application._id,
+      status,
+      reviewNote,
+    }),
+  });
+
+  sendWhatsAppMessageAsync({
+    to: application.phone,
+    body: compactText([
+      status === "approved"
+        ? `BOUT: ${application.boutiqueName} is approved. Open your product desk to add products.`
+        : `BOUT: Update on ${application.boutiqueName} — not approved right now. Check your email for details.`,
+    ]),
+  });
+}
+
+export function notifyPartnerProductSubmitted(product: PartnerProductDraft): void {  notifyEmail({
     to: product.partnerEmail,
     subject: `BOUT product approval · ${product.name}`,
     html: getPartnerProductSubmittedEmailHtml({

@@ -69,6 +69,7 @@ const orderSchema = new Schema(
     paymentMethod: { type: String, default: "" },
     stripeSessionId: { type: String, default: "" },
     paidAt: { type: Date },
+    partnerPayoutStatus: { type: String, default: "" },
     timeline: { type: [timelineSchema], default: [] },
     customerDataCleared: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },

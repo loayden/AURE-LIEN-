@@ -133,8 +133,7 @@ export function getPartnerProductDecisionEmailHtml(data: {
   status: "approved" | "rejected";
   reviewNote?: string;
   liveUrl?: string;
-}): string {
-  return baseEmailTemplate({
+}): string {  return baseEmailTemplate({
     title: data.status === "approved" ? "Product approved" : "Product review update",
     eyebrow: "Admin Review",
     greeting: `Hello ${data.partnerName || "Boutique partner"},`,
@@ -148,5 +147,74 @@ export function getPartnerProductDecisionEmailHtml(data: {
     ],
     ctaHref: data.liveUrl || `${SITE_URL}/partners/products`,
     ctaLabel: data.status === "approved" ? "View Live Product" : "Open Product Desk",
+  });
+}
+
+export function getPartnerApplicationDecisionEmailHtml(data: {
+  ownerName: string;
+  boutiqueName: string;
+  applicationId: string;
+  status: "approved" | "declined";
+  reviewNote?: string;
+}): string {
+  return baseEmailTemplate({
+    title: data.status === "approved" ? "Boutique application approved" : "Boutique application update",
+    eyebrow: "Partner Application",
+    greeting: `Hello ${data.ownerName || "Boutique partner"},`,
+    intro: data.status === "approved"
+      ? `Great news — ${data.boutiqueName} is approved. Add your products from the partner desk and they will go live after a quick review.`
+      : `Thank you for your interest in ${data.boutiqueName}. We cannot approve the application right now — see the note below. You may update your details and reapply.`,
+    rows: [
+      { label: "Boutique", value: data.boutiqueName },
+      { label: "Status", value: data.status === "approved" ? "Approved" : "Declined for now" },
+      { label: "Admin Note", value: data.reviewNote || "No note provided" },
+    ],
+    ctaHref: `${SITE_URL}/partners/products?applicationId=${encodeURIComponent(data.applicationId)}`,
+    ctaLabel: data.status === "approved" ? "Open Product Desk" : "Update Application",
+  });
+}
+
+export function getSubscriptionEmailHtml(data: {
+  ownerName: string;
+  boutiqueName: string;
+  kind: "trial_ending" | "renewal_due" | "lapsed" | "renewed";
+  planName: string;
+  detail?: string;
+  actionUrl?: string;
+}): string {
+  const copy = {
+    trial_ending: {
+      title: "Trial ending soon",
+      intro: `Your ${data.planName} trial for ${data.boutiqueName} ends soon. Complete checkout to keep selling without interruption.`,
+      cta: "Continue Subscription",
+    },
+    renewal_due: {
+      title: "Subscription renewal due",
+      intro: `Your ${data.planName} subscription for ${data.boutiqueName} renews soon. Complete the renewal checkout to stay active.`,
+      cta: "Renew Now",
+    },
+    lapsed: {
+      title: "Subscription lapsed",
+      intro: `Your ${data.planName} subscription for ${data.boutiqueName} has lapsed. Product management is paused until you renew.`,
+      cta: "Renew Subscription",
+    },
+    renewed: {
+      title: "Subscription renewed",
+      intro: `Your ${data.planName} subscription for ${data.boutiqueName} is active again. Welcome back.`,
+      cta: "Open Product Desk",
+    },
+  }[data.kind];
+  return baseEmailTemplate({
+    title: copy.title,
+    eyebrow: "Subscription",
+    greeting: `Hello ${data.ownerName || "Boutique partner"},`,
+    intro: copy.intro,
+    rows: [
+      { label: "Boutique", value: data.boutiqueName },
+      { label: "Plan", value: data.planName },
+      ...(data.detail ? [{ label: "Details", value: data.detail }] : []),
+    ],
+    ctaHref: data.actionUrl || `${SITE_URL}/partners/subscription`,
+    ctaLabel: copy.cta,
   });
 }

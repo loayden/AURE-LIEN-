@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPaymobSignatureFromRequest, verifyPaymobHmac } from "@/lib/paymobVerify";
 import { markBoutiqueSubscriptionPaid } from "@/lib/boutiqueApplications";
+import { getPublicBaseUrl } from "@/lib/baseUrl";
 import { sendEmailAsync } from "@/lib/email/sender";
 import { trackServerEvent } from "@/lib/monitoring";
 
@@ -26,10 +27,18 @@ export async function POST(req: NextRequest) {
     if (applicationId) {
       const paid = await markBoutiqueSubscriptionPaid(applicationId, intentionId || undefined);
       if (paid) {
+        const { getSubscriptionEmailHtml } = await import("@/lib/email/templates/transactional");
         sendEmailAsync({
           to: paid.email,
           subject: `BOUT subscription active · ${paid.boutiqueName}`,
-          html: `<p>Dear ${paid.ownerName || "partner"},</p><p>Your <strong>${paid.planName}</strong> subscription for <strong>${paid.boutiqueName}</strong> is now active. You can manage products from your partner desk.</p>`,
+          html: getSubscriptionEmailHtml({
+            ownerName: paid.ownerName,
+            boutiqueName: paid.boutiqueName,
+            kind: "renewed",
+            planName: paid.planName,
+            detail: paid.paidUntil ? `Current period ends ${new Date(paid.paidUntil).toLocaleDateString()}` : undefined,
+            actionUrl: `${getPublicBaseUrl(req)}/partners/products?applicationId=${encodeURIComponent(paid._id)}`,
+          }),
         });
       }
     }

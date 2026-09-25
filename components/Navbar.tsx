@@ -117,9 +117,24 @@ function DesktopMenuItem({ item }: { item: MenuItem }) {
   }, []);
 
   return (
-    <li className="relative flex items-center" onMouseEnter={enter} onMouseLeave={leave}>
+    <li
+      className="relative flex items-center"
+      onMouseEnter={enter}
+      onMouseLeave={leave}
+      onFocus={enter}
+      onBlur={leave}
+    >
       <Link
         href={item.link}
+        onClick={(e) => {
+          if (item.submenu && !open) {
+            // Touch devices have no hover: first tap opens, second navigates.
+            e.preventDefault();
+            enter();
+          }
+        }}
+        aria-expanded={item.submenu ? open : undefined}
+        aria-haspopup={item.submenu ? "true" : undefined}
         className="group relative flex min-h-[44px] min-w-[44px] items-center gap-1.5 rounded-full px-3.5 py-2 transition-all duration-300"
         style={{ color: navText, fontSize: "10px", letterSpacing: "0.22em", fontFamily: "'Jost', sans-serif", fontWeight: 300 }}
       >
@@ -143,7 +158,7 @@ function DesktopMenuItem({ item }: { item: MenuItem }) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.97 }}
             transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute left-1/2 top-full z-50 mt-3 min-w-[210px] -translate-x-1/2 overflow-hidden"
+            className="absolute left-1/2 top-full z-50 mt-3 min-w-[210px] max-w-[calc(100vw-2rem)] -translate-x-1/2 overflow-hidden"
             style={{
               borderRadius: 18,
               background: creamGlass,

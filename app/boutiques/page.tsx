@@ -1,4 +1,5 @@
 import BoutiquePartnersPage from "@/components/BoutiquePartnersPage";
+import { BoutiqueDirectory } from "@/components/BoutiqueDirectory";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -8,5 +9,10 @@ export const metadata: Metadata = {
 };
 
 export default function BoutiquesPage() {
-  return <BoutiquePartnersPage />;
+  return (
+    <>
+      <BoutiquePartnersPage />
+      <BoutiqueDirectory />
+    </>
+  );
 }

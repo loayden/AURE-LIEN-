@@ -30,6 +30,31 @@ export default function AdminBoutiquesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [sort, setSort] = useState("newest");
+  const [actingId, setActingId] = useState<string | null>(null);
+  const [notes, setNotes] = useState<Record<string, string>>({});
+  const [actionMessage, setActionMessage] = useState("");
+
+  async function review(applicationId: string, action: "approve" | "decline" | "reopen") {
+    setActingId(applicationId);
+    setActionMessage("");
+    try {
+      const res = await fetch("/api/admin/boutiques", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ applicationId, action, reviewNote: notes[applicationId] ?? "" }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Review failed");
+      setApplications((prev) =>
+        prev.map((a) => (a._id === applicationId ? { ...a, status: data.application.status } : a))
+      );
+      setActionMessage(`${applicationId} ${action === "approve" ? "approved" : action === "reopen" ? "reopened" : "declined"}.`);
+    } catch (e) {
+      setActionMessage(e instanceof Error ? e.message : "Review failed");
+    } finally {
+      setActingId(null);
+    }
+  }
 
   useEffect(() => {
     const controller = new AbortController();
@@ -246,10 +271,74 @@ export default function AdminBoutiquesPage() {
                   </p>
                 ) : null}
               </div>
+
+              {(application.status === "pending" || application.status === "contacted" || application.status === "declined" || application.status === "approved") && (
+                <div className="mt-4 rounded-[16px] border border-[rgba(168,121,53,0.25)] bg-[rgba(168,121,53,0.06)] p-3 sm:p-4">
+                  {(application.status === "pending" || application.status === "contacted") && (
+                    <>
+                      <label className="grid gap-2 text-[10px] uppercase tracking-[0.18em] text-[#6F6254]">
+                        Review note (sent to partner)
+                        <input
+                          value={notes[application._id] ?? ""}
+                          onChange={(e) => setNotes((prev) => ({ ...prev, [application._id]: e.target.value }))}
+                          placeholder="Optional note"
+                          maxLength={1000}
+                          aria-label={`Review note for ${application.boutiqueName}`}
+                          className="rounded-xl px-4 py-2.5 text-sm normal-case tracking-normal"
+                          style={{ border: "1px solid rgba(123,103,82,0.22)", background: "rgba(255,255,255,0.7)" }}
+                        />
+                      </label>
+                      <div className="mt-3 grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          disabled={actingId === application._id}
+                          onClick={() => review(application._id, "approve")}
+                          className="inline-flex min-h-[48px] items-center justify-center rounded-full px-4 text-[10px] uppercase tracking-[0.2em] text-white disabled:opacity-50"
+                          style={{ background: "linear-gradient(135deg, #4C3A26, #7D592B)" }}
+                        >
+                          {actingId === application._id ? "Working…" : "Approve"}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={actingId === application._id}
+                          onClick={() => review(application._id, "decline")}
+                          className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[rgba(154,34,34,0.3)] px-4 text-[10px] uppercase tracking-[0.2em] text-[#9A2222] disabled:opacity-50"
+                        >
+                          Decline
+                        </button>
+                      </div>
+                    </>
+                  )}
+                  {application.status === "declined" && (
+                    <button
+                      type="button"
+                      disabled={actingId === application._id}
+                      onClick={() => review(application._id, "reopen")}
+                      className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full border border-[rgba(168,121,53,0.3)] px-4 text-[10px] uppercase tracking-[0.2em] disabled:opacity-50"
+                      style={{ color: "var(--gold-text)" }}
+                    >
+                      {actingId === application._id ? "Working…" : "Reopen application"}
+                    </button>
+                  )}
+                  {application.status === "approved" && (
+                    <button
+                      type="button"
+                      disabled={actingId === application._id}
+                      onClick={() => review(application._id, "decline")}
+                      className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full border border-[rgba(154,34,34,0.3)] px-4 text-[10px] uppercase tracking-[0.2em] text-[#9A2222] disabled:opacity-50"
+                    >
+                      {actingId === application._id ? "Working…" : "Suspend boutique"}
+                    </button>
+                  )}
+                </div>
+              )}
             </AdminPanel>
           ))}
         </div>
       )}
+      {actionMessage ? (
+        <p className="mt-4 text-sm" role="status" style={{ color: "var(--gold-text)" }}>{actionMessage}</p>
+      ) : null}
     </div>
   );
 }

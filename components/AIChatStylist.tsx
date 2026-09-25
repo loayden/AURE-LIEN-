@@ -150,7 +150,7 @@ export default function AIChatStylist() {
         <motion.button
           type="button"
           onClick={() => setOpen(true)}
-          className="fixed bottom-4 right-4 z-50 flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full border transition-shadow sm:bottom-8 sm:right-8 sm:h-14 sm:w-14"
+          className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] right-4 z-50 flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full border transition-shadow sm:bottom-8 sm:right-8 sm:h-14 sm:w-14"
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           aria-label="Open stylist chat"
