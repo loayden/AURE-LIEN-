@@ -1,6 +1,6 @@
 import CategoryCollectionPage from "@/components/CategoryCollectionPage";
 
-export const revalidate = 30;
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Pants & Denim | BOUT",
