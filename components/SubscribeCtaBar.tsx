@@ -64,12 +64,12 @@ export function SubscribeCtaBar() {
       <Link
         href="/boutiques/apply"
         tabIndex={visible ? 0 : -1}
-        className="flex min-h-[56px] items-center justify-center gap-3 rounded-full px-6 text-[11px] uppercase tracking-[0.22em] text-white shadow-[0_18px_50px_rgba(23,21,19,0.35)] sm:px-8"
-        style={{ background: "linear-gradient(135deg, #4C3A26, #7D592B)" }}
+        className="flex min-h-[56px] items-center justify-center gap-3 rounded-full px-6 text-[11px] tracking-[0.22em] text-white shadow-[0_18px_50px_rgba(23,21,19,0.35)] sm:px-8"
+        style={{ background: "linear-gradient(135deg, #4C3A26, #7D592B)", fontFamily: "Tahoma, Arial, sans-serif" }}
       >
-        <span className="sm:hidden">Sell With Us — 7 Days Free</span>
-        <span className="hidden sm:inline">Open Your Boutique — 7 Days Free</span>
-        <span aria-hidden>→</span>
+        <span className="sm:hidden">بيع معانا — 7 أيام مجانا</span>
+        <span className="hidden sm:inline">افتح بوتيكك — 7 أيام مجانا</span>
+        <span aria-hidden>←</span>
       </Link>
     </div>
   );

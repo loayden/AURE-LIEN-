@@ -34,26 +34,26 @@ export async function VerifiedBoutiquesStrip() {
     // No verified boutiques yet: honest acquisition banner, never fake listings.
     return (
       <section
-        aria-label="Verified boutiques — coming soon"
+        aria-label="بوتيكات موثّقة — قريبًا"
         data-testid="verified-boutiques-strip"
         className="border-y border-[#DDDAD2] bg-[#FFFDF8] px-4 py-10 sm:px-6 sm:py-12 md:px-10"
       >
-        <div className="mx-auto flex w-full max-w-[92rem] flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+        <div dir="rtl" lang="ar" className="mx-auto flex w-full max-w-[92rem] flex-col items-start justify-between gap-4 sm:flex-row sm:items-center" style={{ fontFamily: "Tahoma, Arial, sans-serif" }}>
           <div>
-            <p className="text-[10px] uppercase tracking-[0.22em] text-[#725D2C]">Verified Boutiques</p>
+            <p className="text-[10px] tracking-[0.22em] text-[#725D2C]">بوتيكات موثّقة</p>
             <h2 className="mt-2 font-serif text-2xl font-light text-[#171513] sm:text-4xl">
-              Cairo&apos;s best shops — joining now.
+              أفضل محلات القاهرة — بتنضم دلوقتي.
             </h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-[#5A5650]">
-              We verify every physical store before it sells. Own one? Get the badge, the section, and the customers.
+              بنوثّق كل محل حقيقي قبل ما يبيع. عندك بوتيك؟ خد الشارة والقسم والعملاء.
             </p>
           </div>
           <Link
             href="/boutiques/apply"
-            className="inline-flex min-h-[52px] shrink-0 items-center gap-2 rounded-full px-7 text-[11px] uppercase tracking-[0.2em] text-white"
+            className="inline-flex min-h-[52px] shrink-0 items-center gap-2 rounded-full px-7 text-[11px] tracking-[0.2em] text-white"
             style={{ background: "linear-gradient(135deg, #4C3A26, #7D592B)" }}
           >
-            Verify My Boutique — Free
+            وثّق بوتيكك — مجانا
           </Link>
         </div>
       </section>
@@ -62,23 +62,23 @@ export async function VerifiedBoutiquesStrip() {
 
   return (
     <section
-      aria-label="Verified boutiques"
+      aria-label="بوتيكات موثّقة"
       data-testid="verified-boutiques-strip"
       className="border-y border-[#DDDAD2] bg-[#FFFDF8] px-4 py-10 sm:px-6 sm:py-14 md:px-10"
     >
-      <div className="mx-auto w-full max-w-[92rem]">
+      <div dir="rtl" lang="ar" className="mx-auto w-full max-w-[92rem]" style={{ fontFamily: "Tahoma, Arial, sans-serif" }}>
         <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.22em] text-[#725D2C]">Verified Boutiques</p>
+            <p className="text-[10px] tracking-[0.22em] text-[#725D2C]">بوتيكات موثّقة</p>
             <h2 className="mt-2 font-serif text-3xl font-light text-[#171513] sm:text-5xl">
-              Shop real stores.
+              تسوّق من محلات حقيقية.
             </h2>
           </div>
           <Link
             href="/boutiques"
             className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-[#D5D1C8] bg-white px-5 text-sm text-[#171513] transition hover:border-[#171513]"
           >
-            All boutiques
+            كل البوتيكات
           </Link>
         </div>
         <div className="flex gap-4 overflow-x-auto pb-2" style={{ scrollSnapType: "x proximity" }}>
@@ -92,16 +92,16 @@ export async function VerifiedBoutiquesStrip() {
               {b.cover ? (
                 <span className="relative block aspect-[16/10] w-full overflow-hidden bg-[#EAE1D3]">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={b.cover} alt={`${b.name} storefront`} className="h-full w-full object-cover" loading="lazy" />
+                  <img src={b.cover} alt={`واجهة ${b.name}`} className="h-full w-full object-cover" loading="lazy" />
                 </span>
               ) : null}
               <span className="block p-4">
-                <span className="mb-2 inline-block rounded-full px-2.5 py-1 text-[9px] uppercase tracking-[0.18em]" style={{ background: "rgba(80,160,100,0.12)", color: "#3C7A4D" }}>
-                  ✓ Verified store
+                <span className="mb-2 inline-block rounded-full px-2.5 py-1 text-[9px] tracking-[0.18em]" style={{ background: "rgba(80,160,100,0.12)", color: "#3C7A4D" }}>
+                  ✓ محل موثّق
                 </span>
                 <span className="block font-serif text-xl font-light text-[#171513]">{b.name}</span>
-                <span className="mt-1 block text-[11px] uppercase tracking-[0.16em] text-[#6F6254]">
-                  {b.city}{b.area ? ` · ${b.area}` : ""} · {b.pieces} {b.pieces === 1 ? "piece" : "pieces"}
+                <span className="mt-1 block text-[11px] tracking-[0.16em] text-[#6F6254]">
+                  {b.city}{b.area ? ` · ${b.area}` : ""} · {b.pieces} {b.pieces === 1 ? "قطعة" : "قطعة"}
                 </span>
               </span>
             </Link>
