@@ -17,6 +17,27 @@ interface SearchProduct {
   images?: string[];
 }
 
+// Lightweight suggestion cache (names + categories), fetched once per session.
+let suggestionCache: { names: string[]; categories: string[] } | null = null;
+async function loadSuggestions(): Promise<{ names: string[]; categories: string[] }> {
+  if (suggestionCache) return suggestionCache;
+  try {
+    const res = await fetch("/api/products", { cache: "force-cache" });
+    const data: unknown = await res.json();
+    const arr: SearchProduct[] = Array.isArray(data)
+      ? (data as SearchProduct[])
+      : Array.isArray((data as { products?: unknown }).products)
+        ? ((data as { products: SearchProduct[] }).products)
+        : [];
+    const names = [...new Set(arr.map((p: SearchProduct) => String(p.name ?? "").trim()).filter(Boolean))].slice(0, 400);
+    const categories = [...new Set(arr.map((p: SearchProduct) => String(p.category ?? "").trim()).filter(Boolean))].slice(0, 40);
+    suggestionCache = { names, categories };
+  } catch {
+    suggestionCache = { names: [], categories: [] };
+  }
+  return suggestionCache;
+}
+
 export default function SearchOverlay({
   open,
   onClose,
@@ -28,6 +49,7 @@ export default function SearchOverlay({
   const [results, setResults] = useState<SearchProduct[]>([]);
   const [searching, setSearching] = useState(false);
   const [portalReady, setPortalReady] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const { lowEndDevice, prefersReducedMotion } = usePerformanceProfile();
   const deferredQuery = useDeferredValue(q);
   const trimmedQuery = deferredQuery.trim();
@@ -41,6 +63,28 @@ export default function SearchOverlay({
   }, []);
 
   useEffect(() => { if (!open) setQ(""); }, [open]);
+
+  // Autocomplete suggestions from cached catalog names/categories.
+  useEffect(() => {
+    if (!open) return;
+    const needle = q.trim().toLowerCase();
+    if (needle.length < 1) {
+      setSuggestions([]);
+      return;
+    }
+    let cancelled = false;
+    loadSuggestions().then((cache) => {
+      if (cancelled) return;
+      const nameHits = cache.names.filter((n) => n.toLowerCase().includes(needle)).slice(0, 4);
+      const catHits = cache.categories
+        .filter((c) => c.toLowerCase().includes(needle) && !nameHits.includes(c))
+        .slice(0, 2);
+      setSuggestions([...nameHits, ...catHits]);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [open, q]);
 
   useEffect(() => {
     if (!trimmedQuery) {
@@ -61,7 +105,11 @@ export default function SearchOverlay({
       })
       .then((data) => {
         if (!controller.signal.aborted) {
-          setResults(Array.isArray(data.products) ? data.products.slice(0, 12) : []);
+          const list = Array.isArray(data.products) ? data.products.slice(0, 12) : [];
+          setResults(list);
+          import("@/lib/analytics").then(({ trackEvent }) => {
+            trackEvent("search", { query: trimmedQuery.slice(0, 100), results_count: list.length });
+          }).catch(() => undefined);
         }
       })
       .catch(() => {
@@ -173,6 +221,25 @@ export default function SearchOverlay({
                style={{ fontFamily: "'Jost', sans-serif" }}>
               Press Esc to close
             </p>
+
+            {/* Autocomplete suggestions */}
+            {suggestions.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2 pl-1" role="listbox" aria-label="Suggestions">
+                {suggestions.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    role="option"
+                    aria-selected="false"
+                    onClick={() => setQ(s)}
+                    className="rounded-full px-3 py-1.5 text-[11px] tracking-wide"
+                    style={{ background: "rgba(255,255,255,0.55)", border: "1px solid rgba(123,103,82,0.2)", color: "#7A581F" }}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
           </motion.div>
 
           {/* ── RESULTS ── */}

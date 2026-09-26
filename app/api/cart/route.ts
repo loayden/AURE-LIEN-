@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllProducts, getProductById } from "@/lib/getAllProducts";
 import { attachUserCookie, getOrCreateUserId } from "@/lib/userSession";
+import { RATE_LIMITS, rateLimitResponse } from "@/lib/rateLimit";
+import { isOriginAllowed } from "@/lib/csrf";
 import {
   clearCartByUser,
   getCartByUser,
@@ -68,16 +70,21 @@ export async function GET(req: NextRequest) {
 
 // POST: add to cart
 export async function POST(req: NextRequest) {
+  const limited = await rateLimitResponse(req, RATE_LIMITS.cart);
+  if (limited) return limited;
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+  }
   try {
     const body = await req.json();
+    const { cartItemSchema, zodErrorMessage } = await import("@/lib/validate");
+    const parsed = cartItemSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: zodErrorMessage(parsed.error) }, { status: 400 });
+    }
     const { userId, isNew } = getOrCreateUserId(req);
     const cart = await getCartByUser(userId);
-    const { productId, quantity, size, color } = body as {
-      productId?: string;
-      quantity?: number;
-      size?: string | null;
-      color?: string | null;
-    };
+    const { productId, quantity, size, color } = parsed.data;
 
     if (!productId || typeof productId !== "string" || !isPositiveInteger(quantity)) {
       return NextResponse.json({ error: "Invalid cart data" }, { status: 400 });
@@ -148,6 +155,11 @@ export async function POST(req: NextRequest) {
 
 // PUT: update quantity
 export async function PUT(req: NextRequest) {
+  const limited = await rateLimitResponse(req, RATE_LIMITS.cart);
+  if (limited) return limited;
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+  }
   try {
     const body = await req.json();
     const { userId, isNew } = getOrCreateUserId(req);
@@ -193,6 +205,11 @@ export async function PUT(req: NextRequest) {
 
 // DELETE: remove item(s)
 export async function DELETE(req: NextRequest) {
+  const limited = await rateLimitResponse(req, RATE_LIMITS.cart);
+  if (limited) return limited;
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+  }
   try {
     const { userId, isNew } = getOrCreateUserId(req);
     let cart = await getCartByUser(userId);

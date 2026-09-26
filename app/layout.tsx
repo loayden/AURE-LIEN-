@@ -5,6 +5,7 @@ import DeferredAIChatStylist from '@/components/DeferredAIChatStylist'
 import Footer from '@/components/Footer'
 import MobileBottomNav from '@/components/MobileBottomNav'
 import Navbar from '@/components/Navbar'
+import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister'
 import ToastProvider from '@/components/ToastProvider'
 import type { Metadata, Viewport } from 'next'
 import { Cormorant_Garamond, Jost } from 'next/font/google'
@@ -13,6 +14,7 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'BOUT — Luxury Menswear & Accessories',
   description: 'Crafted in silence. Designed for presence. Explore refined tailoring, footwear, and accessories for the modern man.',
+  manifest: '/manifest.webmanifest',
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
@@ -34,6 +36,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
+  themeColor: '#F5F1E8',
 }
 
 const cormorant = Cormorant_Garamond({
@@ -41,18 +44,33 @@ const cormorant = Cormorant_Garamond({
   weight: ['300', '400'],
   style: ['normal', 'italic'],
   variable: '--font-cormorant',
+  display: 'swap',
 })
 
 const jost = Jost({
   subsets: ['latin'],
   weight: ['200', '300', '400'],
   variable: '--font-jost',
+  display: 'swap',
 })
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${cormorant.variable} ${jost.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('bout:theme');if(t==='dark')document.documentElement.dataset.theme='dark';var d=localStorage.getItem('bout:dir');if(d==='rtl')document.documentElement.dir='rtl';}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body className="bg-[#F5F1E8] text-[#3D3025]">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[200] focus:rounded-full focus:bg-[#171513] focus:px-5 focus:py-3 focus:text-sm focus:text-white"
+        >
+          Skip to main content
+        </a>
         <AmbientBackdrop />
         <ClientErrorBoundary fallback={null}>
           <Cursor />
@@ -71,6 +89,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ClientErrorBoundary fallback={null}>
             <MobileBottomNav />
           </ClientErrorBoundary>
+          <ServiceWorkerRegister />
         </div>
         <ToastProvider />
       </body>

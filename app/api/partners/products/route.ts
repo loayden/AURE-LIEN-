@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthFromRequest } from "@/lib/auth";
 import { getBoutiqueApplications, getBoutiquePartnerAccess } from "@/lib/boutiqueApplications";
-import { createPartnerProductDraft, getPartnerProducts } from "@/lib/partnerProducts";
+import { createPartnerProductDraft, deletePartnerProductDraft, getPartnerProducts, updatePartnerProductDraft } from "@/lib/partnerProducts";
 import { notifyPartnerProductSubmitted } from "@/lib/notifications";
 
 const NO_STORE_HEADERS = {
@@ -165,5 +165,72 @@ export async function POST(req: NextRequest) {
       { error: "Failed to submit partner product" },
       { status: 500, headers: NO_STORE_HEADERS }
     );
+  }
+}
+
+async function resolveOwnedDraft(req: NextRequest, draftId: string) {
+  const auth = await getAuthFromRequest(req);
+  if (!auth) return { error: NextResponse.json({ error: "Sign in first." }, { status: 401, headers: NO_STORE_HEADERS }) };
+  const drafts = await getPartnerProducts();
+  const draft = drafts.find((d) => d._id === draftId);
+  if (!draft) return { error: NextResponse.json({ error: "Product not found" }, { status: 404, headers: NO_STORE_HEADERS }) };
+  const applications = await getBoutiqueApplications();
+  const application = applications.find((a) => a._id === draft.applicationId);
+  if (!application || !ownsApplication(application, auth)) {
+    return { error: NextResponse.json({ error: "Not authorized for this product" }, { status: 403, headers: NO_STORE_HEADERS }) };
+  }
+  const access = getBoutiquePartnerAccess(application);
+  if (!access.canManageProducts) {
+    return { error: NextResponse.json({ code: access.reason, error: access.message, access }, { status: 402, headers: NO_STORE_HEADERS }) };
+  }
+  return { auth, draft };
+}
+
+/** PUT: partner edits own draft (resets to pending re-review). */
+export async function PUT(req: NextRequest) {
+  try {
+    const body = await req.json().catch(() => ({}));
+    const draftId = cleanString(body._id ?? body.productId ?? body.id);
+    if (!draftId) {
+      return NextResponse.json({ error: "Product id is required" }, { status: 400, headers: NO_STORE_HEADERS });
+    }
+    const resolved = await resolveOwnedDraft(req, draftId);
+    if (resolved.error) return resolved.error;
+    const updated = await updatePartnerProductDraft(draftId, {
+      name: body.name !== undefined ? String(body.name) : undefined,
+      category: body.category !== undefined ? String(body.category) : undefined,
+      price: body.price !== undefined ? Number(body.price) : undefined,
+      images: Array.isArray(body.images) ? body.images.map((v: unknown) => String(v)) : typeof body.images === "string" ? String(body.images).split(",") : undefined,
+      size: Array.isArray(body.size) ? body.size.map((v: unknown) => String(v)) : typeof body.size === "string" ? String(body.size).split(",") : undefined,
+      colors: Array.isArray(body.colors) ? body.colors.map((v: unknown) => String(v)) : typeof body.colors === "string" ? String(body.colors).split(",") : undefined,
+      description: body.description !== undefined ? String(body.description) : undefined,
+      material: body.material !== undefined ? String(body.material) : undefined,
+      stock: body.stock !== undefined && body.stock !== "" ? Number(body.stock) : undefined,
+    });
+    if (!updated) {
+      return NextResponse.json({ error: "Invalid product data" }, { status: 400, headers: NO_STORE_HEADERS });
+    }
+    notifyPartnerProductSubmitted(updated);
+    return NextResponse.json({ success: true, product: updated }, { headers: NO_STORE_HEADERS });
+  } catch (error) {
+    console.error("Partner product update error:", error instanceof Error ? error.message : String(error));
+    return NextResponse.json({ error: "Failed to update product" }, { status: 500, headers: NO_STORE_HEADERS });
+  }
+}
+
+/** DELETE: partner removes own draft (live copy unpublished). */
+export async function DELETE(req: NextRequest) {
+  try {
+    const draftId = cleanString(new URL(req.url).searchParams.get("id") ?? new URL(req.url).searchParams.get("productId"));
+    if (!draftId) {
+      return NextResponse.json({ error: "Product id is required" }, { status: 400, headers: NO_STORE_HEADERS });
+    }
+    const resolved = await resolveOwnedDraft(req, draftId);
+    if (resolved.error) return resolved.error;
+    await deletePartnerProductDraft(draftId);
+    return NextResponse.json({ success: true }, { headers: NO_STORE_HEADERS });
+  } catch (error) {
+    console.error("Partner product delete error:", error instanceof Error ? error.message : String(error));
+    return NextResponse.json({ error: "Failed to delete product" }, { status: 500, headers: NO_STORE_HEADERS });
   }
 }

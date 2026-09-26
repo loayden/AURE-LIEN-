@@ -3,11 +3,23 @@ import { verifyPassword, signToken, TOKEN_COOKIE } from "@/lib/auth";
 import { getEnvAdminUser, isEnvAdminLogin } from "@/lib/adminAuth";
 import { NextRequest, NextResponse } from "next/server";
 import { attachDeviceCookie, getOrCreateDeviceId } from "@/lib/deviceIdentity";
+import { RATE_LIMITS, rateLimitResponse } from "@/lib/rateLimit";
+import { isOriginAllowed } from "@/lib/csrf";
 
 export async function POST(req: NextRequest) {
+  const limited = await rateLimitResponse(req, RATE_LIMITS.auth);
+  if (limited) return limited;
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+  }
   try {
     const body = await req.json();
-    const { email, password } = body;
+    const { loginSchema, zodErrorMessage } = await import("@/lib/validate");
+    const parsed = loginSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: zodErrorMessage(parsed.error) }, { status: 400 });
+    }
+    const { email, password } = parsed.data;
     const normalizedEmail = String(email ?? "").trim().toLowerCase();
 
     if (!email || !password) {
@@ -41,6 +53,14 @@ export async function POST(req: NextRequest) {
       });
       attachDeviceCookie(res, getOrCreateDeviceId(req).deviceId);
 
+      const { logAdminAction, getClientIpFromHeaders } = await import("@/lib/adminAudit");
+      await logAdminAction({
+        action: "admin.login",
+        actorId: envAdmin.id,
+        actorEmail: envAdmin.email,
+        ip: getClientIpFromHeaders(req.headers),
+      });
+
       return res;
     }
 
@@ -60,10 +80,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    if (user.twoFactorEnabled) {
+      const totp = String(parsed.data.totp ?? "").replace(/\s+/g, "");
+      if (!totp) {
+        return NextResponse.json({ error: "Two-factor code required", twoFactorRequired: true }, { status: 401 });
+      }
+      const { verifySync } = await import("otplib");
+      const result = verifySync({ secret: String(user.twoFactorSecret ?? ""), token: totp });
+      if (!result.valid) {
+        return NextResponse.json({ error: "Invalid two-factor code", twoFactorRequired: true }, { status: 401 });
+      }
+    }
+
     const token = signToken({
       userId: user.id,
       email: user.email,
       role: user.role,
+      v: Number(user.tokenVersion ?? 0),
     });
 
     const res = NextResponse.json({

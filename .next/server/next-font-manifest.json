@@ -25,6 +25,11 @@
       "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
       "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
     ],
+    "[project]/app/admin/boutiques/page": [
+      "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
+      "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
+      "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
+    ],
     "[project]/app/admin/lookbooks/page": [
       "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
       "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
@@ -40,7 +45,22 @@
       "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
       "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
     ],
+    "[project]/app/admin/partner-products/page": [
+      "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
+      "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
+      "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
+    ],
     "[project]/app/admin/products/page": [
+      "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
+      "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
+      "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
+    ],
+    "[project]/app/admin/profile/page": [
+      "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
+      "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
+      "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
+    ],
+    "[project]/app/admin/quality/page": [
       "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
       "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
       "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
@@ -71,6 +91,16 @@
       "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
     ],
     "[project]/app/boots/page": [
+      "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
+      "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
+      "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
+    ],
+    "[project]/app/boutiques/apply/page": [
+      "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
+      "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
+      "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
+    ],
+    "[project]/app/boutiques/page": [
       "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
       "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
       "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
@@ -111,6 +141,11 @@
       "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
     ],
     "[project]/app/footwear/page": [
+      "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
+      "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
+      "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
+    ],
+    "[project]/app/forgot-password/page": [
       "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
       "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
       "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
@@ -176,6 +211,26 @@
       "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
     ],
     "[project]/app/pants-denim/page": [
+      "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
+      "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
+      "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
+    ],
+    "[project]/app/partners/checkout/page": [
+      "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
+      "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
+      "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
+    ],
+    "[project]/app/partners/products/page": [
+      "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
+      "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
+      "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
+    ],
+    "[project]/app/partners/profile/page": [
+      "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
+      "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
+      "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"
+    ],
+    "[project]/app/partners/subscription/page": [
       "static/media/8bd76523131fa0fc-s.p.0jox806dnq5~c.woff2",
       "static/media/01e4147cff8141ee-s.p.10ked.7w885.g.woff2",
       "static/media/81cef6a21128489e-s.p.0rb1wy2~c~egv.woff2"

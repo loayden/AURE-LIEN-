@@ -152,7 +152,8 @@ export function buildPartnerWallet(input: {
       [product._id, product],
     ])
   );
-  const commissionRate = Math.max(0, Number(application.commissionRate ?? 0));
+  const baseRate = Math.max(0, Number(application.commissionRate ?? 0));
+  const categoryRates = (application.categoryCommissions ?? {}) as Record<string, number>;
   const lines: PartnerWalletOrderLine[] = [];
 
   for (const order of orders) {
@@ -162,8 +163,10 @@ export function buildPartnerWallet(input: {
       const partnerProduct = productById.get(item.productId);
       if (!partnerProduct) continue;
 
+      const categorySlug = String(partnerProduct.category ?? "").trim().toLowerCase().replace(/\s+/g, "-");
+      const rate = Number.isFinite(Number(categoryRates[categorySlug])) ? Number(categoryRates[categorySlug]) : baseRate;
       const grossAmount = item.price * item.quantity;
-      const commissionAmount = Math.round((grossAmount * commissionRate) / 100);
+      const commissionAmount = Math.round((grossAmount * Math.max(0, Math.min(30, rate))) / 100);
       const estimatedPayout = Math.max(0, grossAmount - commissionAmount);
 
       lines.push({
@@ -224,7 +227,7 @@ export function buildPartnerWallet(input: {
       ownerName: application.ownerName,
       phone: application.phone,
       planName: application.planName,
-      commissionRate,
+      commissionRate: baseRate,
       monthlyFee: application.monthlyFee,
       trialDays: application.trialDays,
     },

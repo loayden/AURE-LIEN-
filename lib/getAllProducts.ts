@@ -73,6 +73,9 @@ function normalizeProduct(raw: any): Product {
     description: raw?.description ? String(raw.description) : undefined,
     material: raw?.material ? String(raw.material) : undefined,
     stock: typeof raw?.stock === "number" ? raw.stock : undefined,
+    featured: raw?.featured === true,
+    boutiqueId: String(raw?.boutiqueId ?? "").trim() || undefined,
+    boutiqueName: String(raw?.boutiqueName ?? "").trim() || undefined,
     media360: Array.isArray(raw?.media360)
       ? raw.media360.map((value: unknown) => normalizeImagePath(value))
       : undefined,

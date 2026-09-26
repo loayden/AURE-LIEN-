@@ -1,0 +1,80 @@
+name: Storefront crons
+
+on:
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Preview without sending (true/false)"
+        required: false
+        default: "true"
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call abandoned-cart cron
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+        run: |
+          PARAM=""
+          if [ "$DRY_RUN" = "true" ]; then PARAM="?dryRun=1"; fi
+          CODE=$(curl -s -o /tmp/cron.json -w "%{http_code}" \
+            "https://bout-clothes.vercel.app/api/cron/abandoned-cart$PARAM" \
+            -H "Authorization: Bearer $CRON_SECRET")
+          cat /tmp/cron.json
+          echo ""
+          if [ "$CODE" != "200" ]; then
+            echo "abandoned-cart returned $CODE"
+            exit 1
+          fi
+      - name: Call subscriptions cron
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+        run: |
+          PARAM=""
+          if [ "$DRY_RUN" = "true" ]; then PARAM="?dryRun=1"; fi
+          CODE=$(curl -s -o /tmp/sub.json -w "%{http_code}" \
+            "https://bout-clothes.vercel.app/api/cron/subscriptions$PARAM" \
+            -H "Authorization: Bearer $CRON_SECRET")
+          cat /tmp/sub.json
+          echo ""
+          if [ "$CODE" != "200" ]; then
+            echo "subscriptions returned $CODE"
+            exit 1
+          fi
+      - name: Call win-back cron
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+        run: |
+          PARAM=""
+          if [ "$DRY_RUN" = "true" ]; then PARAM="?dryRun=1"; fi
+          CODE=$(curl -s -o /tmp/winback.json -w "%{http_code}" \
+            "https://bout-clothes.vercel.app/api/cron/winback$PARAM" \
+            -H "Authorization: Bearer $CRON_SECRET")
+          cat /tmp/winback.json
+          echo ""
+          if [ "$CODE" != "200" ]; then
+            echo "win-back returned $CODE"
+            exit 1
+          fi
+      - name: Call low-stock cron
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+        run: |
+          PARAM=""
+          if [ "$DRY_RUN" = "true" ]; then PARAM="?dryRun=1"; fi
+          CODE=$(curl -s -o /tmp/lowstock.json -w "%{http_code}" \
+            "https://bout-clothes.vercel.app/api/cron/low-stock$PARAM" \
+            -H "Authorization: Bearer $CRON_SECRET")
+          cat /tmp/lowstock.json
+          echo ""
+          if [ "$CODE" != "200" ]; then
+            echo "low-stock returned $CODE"
+            exit 1
+          fi

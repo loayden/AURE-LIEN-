@@ -20,16 +20,13 @@ import {
   readBlobTextWithLegacyPublicFallback,
   writeBlobText,
 } from "@/lib/blobStorage";
+import { useMongoStorage as hasMongoStorage } from "@/lib/mongoEnv";
 
 const BLOB_ORDERS_PATH = "orders.json";
 const BLOB_ORDERS_DATA_PATH = "ordersData.json";
 
 function useMongoStorage(): boolean {
-  const uri = process.env.MONGO_URI?.trim() || process.env.MONGODB_URI?.trim();
-  return Boolean(
-    uri &&
-      (uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://"))
-  );
+  return hasMongoStorage();
 }
 
 function useCloudStorage(): boolean {
@@ -123,6 +120,27 @@ function normalizeOrder(order: any): any {
     status: order?.status ?? "pending",
     paymentStatus: order?.paymentStatus ?? (order?.status === "completed" ? "paid" : "pending"),
     paymentMethod: order?.paymentMethod ?? "",
+    partnerPayoutStatus: String(order?.partnerPayoutStatus ?? order?.payoutStatus ?? ""),
+    couponCode: String(order?.couponCode ?? ""),
+    couponDiscount: Number(order?.couponDiscount ?? 0) || 0,
+    giftWrap: Boolean(order?.giftWrap),
+    giftMessage: String(order?.giftMessage ?? "").slice(0, 500),
+    loyaltyRedeemed: Number(order?.loyaltyRedeemed ?? 0) || 0,
+    loyaltyDiscount: Number(order?.loyaltyDiscount ?? 0) || 0,
+    trackingNumber: String(order?.trackingNumber ?? "").slice(0, 120),
+    timeline: Array.isArray(order?.timeline)
+      ? order.timeline
+          .map((entry: unknown) => {
+            const row = entry as Record<string, unknown>;
+            return {
+              status: String(row.status ?? ""),
+              at: safeIsoDate(row.at),
+              note: String(row.note ?? "").slice(0, 500),
+            };
+          })
+          .filter((entry: { status: string }) => entry.status)
+          .slice(-50)
+      : [],
     createdAt,
     customer: {
       dataCleared: customerDataCleared,

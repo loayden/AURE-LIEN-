@@ -1,16 +1,69 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, CheckCircle2, Clock3, CreditCard, Hash, PackageCheck } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock3, CreditCard, Hash, PackageCheck, RotateCcw, Truck } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useEffect, useState } from "react";
+
+type ConfirmItem = { productId?: string; name?: string; price?: number; quantity?: number; image?: string; size?: string | null; color?: string | null };
+type ConfirmOrder = {
+  _id: string;
+  status?: string;
+  paymentStatus?: string;
+  totalPrice?: number;
+  total?: number;
+  createdAt?: string;
+  items?: ConfirmItem[];
+  customer?: { city?: string; shippingMethod?: string };
+};
+
+function titleCase(value?: string) {
+  if (!value) return "Pending";
+  return value.replace(/[-_]/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+}
 
 function ConfirmationContent() {
-  const searchParams = useSearchParams();
-  const orderId = searchParams.get("orderId") || "";
+  const searchParams = useSearchParams();  const orderId = searchParams.get("orderId") || "";
   const paymentStatus = searchParams.get("paymentStatus") || (searchParams.get("session_id") ? "paid" : "pending");
   const paid = paymentStatus === "paid";
+  const [order, setOrder] = useState<ConfirmOrder | null>(null);
+  const [reordering, setReordering] = useState(false);
+  const [reorderMessage, setReorderMessage] = useState("");
+
+  useEffect(() => {
+    if (!orderId) return;
+    fetch(`/api/orders?orderId=${encodeURIComponent(orderId)}`, { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => {
+        const found = Array.isArray(d.orders) ? d.orders[0] : null;
+        if (found) setOrder(found);
+      })
+      .catch(() => undefined);
+  }, [orderId]);
+
+  async function reorder() {
+    if (!order || reordering) return;
+    setReordering(true);
+    setReorderMessage("");
+    try {
+      const items = (order.items ?? []).filter((i) => i.productId);
+      for (const item of items) {
+        const res = await fetch("/api/cart", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ productId: item.productId, quantity: Number(item.quantity ?? 1), size: item.size ?? null, color: item.color ?? null }),
+        });
+        if (!res.ok) throw new Error("Some items are no longer available");
+      }
+      window.dispatchEvent(new Event("cart:changed"));
+      window.location.href = "/cart";
+    } catch (e) {
+      setReorderMessage(e instanceof Error ? e.message : "Could not reorder");
+    } finally {
+      setReordering(false);
+    }
+  }
 
   return (
     <main className="liquid-page flex min-h-screen items-center px-4 py-24 sm:px-6 md:px-10">
@@ -56,9 +109,29 @@ function ConfirmationContent() {
               <CreditCard className="mb-3 h-4 w-4 text-[#A87935]" strokeWidth={1.35} />
               <p className="eyebrow mb-2">Payment Status</p>
               <p className="text-sm uppercase tracking-[0.16em] text-white/72">
-                {paid ? "Paid" : "Pending"}
+                {order ? (order.paymentStatus === "paid" ? "Paid" : titleCase(order.paymentStatus)) : paid ? "Paid" : "Pending"}
               </p>
             </div>
+            {order && (
+              <>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-left sm:col-span-2">
+                  <Truck className="mb-3 h-4 w-4 text-[#A87935]" strokeWidth={1.35} />
+                  <p className="eyebrow mb-2">Receipt</p>
+                  <div className="space-y-1.5">
+                    {(order.items ?? []).map((item, i) => (
+                      <p key={i} className="flex justify-between gap-3 text-sm text-white/72">
+                        <span className="truncate">{item.name || "Product"} × {item.quantity ?? 1}</span>
+                        <span className="shrink-0">EGP {((item.price ?? 0) * (item.quantity ?? 1)).toLocaleString()}</span>
+                      </p>
+                    ))}
+                    <p className="flex justify-between gap-3 border-t border-white/10 pt-2 text-sm text-white/85">
+                      <span>Total</span>
+                      <span>EGP {Number(order.totalPrice ?? order.total ?? 0).toLocaleString()}</span>
+                    </p>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
@@ -66,10 +139,17 @@ function ConfirmationContent() {
               View Orders
               <ArrowRight className="h-4 w-4" strokeWidth={1.3} />
             </Link>
+            {order && (order.items ?? []).length > 0 && (
+              <button type="button" onClick={reorder} disabled={reordering} className="btn-ghost justify-center disabled:opacity-50">
+                <RotateCcw className="h-4 w-4" strokeWidth={1.3} />
+                {reordering ? "Adding…" : "Reorder"}
+              </button>
+            )}
             <Link href="/shop" className="btn-ghost justify-center">
               Continue Shopping
             </Link>
           </div>
+          {reorderMessage && <p className="mt-3 text-sm text-red-300/80" role="alert">{reorderMessage}</p>}
         </div>
 
         <div className="mt-4 flex items-center justify-center gap-2 text-[10px] uppercase tracking-[0.24em] text-white/28">

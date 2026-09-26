@@ -2,7 +2,7 @@ import { promises as fs } from "fs";
 import connectDB, { hasConfiguredMongoUri } from "@/lib/connectDB";
 import { paths } from "@/lib/dataPaths";
 import { CATALOG_PRICE_OFFSET_EGP } from "@/lib/catalogPrice";
-import { upsertProductJson, type ProductRecord } from "@/lib/productsJson";
+import { upsertProductJson, removeProductJson, type ProductRecord } from "@/lib/productsJson";
 import ProductModel from "@/models/Product";
 import {
   appendRedisPartnerProduct,
@@ -301,6 +301,8 @@ function toApprovedProductRecord(product: PartnerProductDraft): ProductRecord {
     description: product.description,
     material: product.material,
     stock: product.stock,
+    boutiqueId: product.applicationId,
+    boutiqueName: product.boutiqueName,
   };
 }
 
@@ -352,8 +354,82 @@ export async function reviewPartnerProduct(
     await upsertApprovedProduct(toApprovedProductRecord(nextProduct));
   }
 
+  if (review.status === "rejected" && products[index]?.status === "approved") {
+    // Was live: pull it from the shop so rejections take effect immediately.
+    await unpublishPartnerProduct(nextProduct.productId).catch((error) => {
+      console.warn("Partner unpublish skipped:", error instanceof Error ? error.message : String(error));
+    });
+  }
+
   const nextProducts = [...products];
   nextProducts[index] = nextProduct;
   await setPartnerProducts(nextProducts);
   return nextProduct;
+}
+
+/** Remove a live shop copy of a partner product (JSON + Mongo tombstone). Never throws. */
+export async function unpublishPartnerProduct(productId: string): Promise<void> {
+  const id = String(productId ?? "").trim();
+  if (!id) return;
+  try {
+    await removeProductJson(id);
+  } catch (error) {
+    console.warn("Partner JSON unpublish skipped:", error instanceof Error ? error.message : String(error));
+  }
+  if (!hasConfiguredMongoUri()) return;
+  try {
+    await connectDB();
+    await ProductModel.findOneAndUpdate(
+      { _id: id },
+      { $set: { deleted: true, deletedAt: new Date() } }
+    );
+  } catch (error) {
+    console.warn("Partner Mongo unpublish skipped:", error instanceof Error ? error.message : String(error));
+  }
+}
+
+/** Partner edits their own draft. Edits reset approved/rejected drafts to pending re-review. */
+export async function updatePartnerProductDraft(
+  draftId: string,
+  patch: Partial<Pick<PartnerProductDraft, "name" | "category" | "price" | "images" | "size" | "colors" | "description" | "material" | "stock">>
+): Promise<PartnerProductDraft | null> {
+  const products = await getPartnerProducts();
+  const index = products.findIndex((product) => product._id === draftId);
+  if (index === -1) return null;
+  const current = products[index];
+  const next: PartnerProductDraft = {
+    ...current,
+    name: patch.name !== undefined ? String(patch.name).trim() || current.name : current.name,
+    category: patch.category !== undefined ? String(patch.category).trim().toLowerCase().replace(/\s+/g, "-") || current.category : current.category,
+    price: patch.price !== undefined && Number.isFinite(Number(patch.price)) ? Math.max(0, Math.floor(Number(patch.price))) : current.price,
+    images: patch.images !== undefined && patch.images.length > 0 ? patch.images : current.images,
+    size: patch.size !== undefined ? patch.size : current.size,
+    colors: patch.colors !== undefined ? patch.colors : current.colors,
+    description: patch.description !== undefined ? String(patch.description).trim() || undefined : current.description,
+    material: patch.material !== undefined ? String(patch.material).trim() || undefined : current.material,
+    stock: patch.stock !== undefined ? Math.max(0, Math.floor(Number(patch.stock) || 0)) : current.stock,
+    status: "pending",
+    reviewNote: undefined,
+    reviewedBy: undefined,
+    reviewedAt: undefined,
+    updatedAt: new Date().toISOString(),
+  };
+  if (!next.name || !next.category || !(next.price > 0) || next.images.length === 0) return null;
+  const nextProducts = [...products];
+  nextProducts[index] = next;
+  await setPartnerProducts(nextProducts);
+  return next;
+}
+
+/** Partner deletes their own draft (also unpublishes a live copy). */
+export async function deletePartnerProductDraft(draftId: string): Promise<PartnerProductDraft | null> {
+  const products = await getPartnerProducts();
+  const index = products.findIndex((product) => product._id === draftId);
+  if (index === -1) return null;
+  const [removed] = products.splice(index, 1);
+  await setPartnerProducts(products);
+  if (removed?.status === "approved" && removed?.productId) {
+    await unpublishPartnerProduct(removed.productId).catch(() => undefined);
+  }
+  return removed ?? null;
 }

@@ -113,6 +113,13 @@ export default function OrderDetailsPage() {
                 <p className="eyebrow mb-2">Support</p>
                 <p className="text-sm uppercase tracking-[0.16em] text-[#3D3025]/78">Available</p>
               </div>
+              {(order as { trackingNumber?: string }).trackingNumber ? (
+                <div className="rounded-2xl border border-[#7B6752]/12 bg-[#FFF9EF]/70 p-4 sm:col-span-2">
+                  <Truck className="mb-3 h-4 w-4 text-[#A87935]" strokeWidth={1.35} />
+                  <p className="eyebrow mb-2">Tracking Number</p>
+                  <p className="break-all text-sm tracking-[0.08em] text-[#3D3025]/78">{(order as { trackingNumber?: string }).trackingNumber}</p>
+                </div>
+              ) : null}
             </div>
 
             <div className="mb-6">

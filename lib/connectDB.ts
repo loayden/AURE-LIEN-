@@ -1,4 +1,8 @@
 import mongoose from "mongoose";
+import {
+  getConfiguredMongoUri,
+  hasConfiguredMongoUri as hasMongoUri,
+} from "@/lib/mongoEnv";
 
 declare global {
   var mongoose: {
@@ -20,34 +24,22 @@ const opts = {
 
 const LOCAL_MONGODB_URI = "mongodb://127.0.0.1:27017/luxuryshop";
 
-function isValidMongoUri(uri: string): boolean {
-  return uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://");
-}
-
 export function hasConfiguredMongoUri(): boolean {
-  const configuredUri = process.env.MONGO_URI?.trim() || process.env.MONGODB_URI?.trim();
-
-  return Boolean(configuredUri && isValidMongoUri(configuredUri));
+  return hasMongoUri();
 }
 
 function getMongoUri(): string {
-  const configuredUri = process.env.MONGO_URI?.trim() || process.env.MONGODB_URI?.trim();
+  const configuredUri = getConfiguredMongoUri();
 
   if (configuredUri) {
-    if (isValidMongoUri(configuredUri)) {
-      return configuredUri;
-    }
-
-    throw new Error(
-      'Invalid MongoDB connection string. Expected it to start with "mongodb://" or "mongodb+srv://".'
-    );
+    return configuredUri;
   }
 
   if (process.env.NODE_ENV !== "production") {
     return LOCAL_MONGODB_URI;
   }
 
-  throw new Error("Missing MongoDB connection string. Set MONGO_URI or MONGODB_URI.");
+  throw new Error("Missing MongoDB connection string. Set MONGO_URI, MONGODB_URI, or DATABASE_URL.");
 }
 
 export default async function connectDB(): Promise<mongoose.Connection> {

@@ -8,7 +8,12 @@ import nodemailer from "nodemailer";
 
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
-const SITE_URL = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
+const VERCEL_HOST = (process.env.VERCEL_URL ?? "").trim().replace(/\/+$/, "");
+export const SITE_URL = (
+  process.env.NEXT_PUBLIC_URL ||
+  (VERCEL_HOST ? `https://${VERCEL_HOST.replace(/^https?:\/\//, "")}` : "") ||
+  (process.env.NODE_ENV === "production" ? "" : "http://localhost:3000")
+).replace(/\/+$/, "") || "http://localhost:3000";
 
 function getTransporter() {
   if (!EMAIL_USER || !EMAIL_PASS) {
@@ -61,5 +66,3 @@ export async function sendEmail(options: SendEmailOptions): Promise<boolean> {
 export function sendEmailAsync(options: SendEmailOptions): void {
   sendEmail(options).catch(() => {});
 }
-
-export { SITE_URL };

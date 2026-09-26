@@ -14,15 +14,15 @@ import {
   readBlobTextWithLegacyPublicFallback,
   writeBlobText,
 } from "@/lib/blobStorage";
+import { useMongoStorage as hasMongoStorage } from "@/lib/mongoEnv";
 
 export interface UserRecord {
   id: string;
   name: string;
   email: string;
   password: string;
-  role: "customer" | "admin";
-  accountIntent: "buyer" | "partner" | "both";
-  authProvider?: "password" | "google" | "mixed";
+  role: "customer" | "admin" | "support";
+  accountIntent: "buyer" | "partner" | "both";  authProvider?: "password" | "google" | "mixed";
   googleSub?: string;
   avatar?: string;
   createdAt: string;
@@ -34,16 +34,16 @@ export interface UserRecord {
   country?: string;
   deviceId?: string;
   deviceAccountWarning?: string;
+  twoFactorSecret?: string;
+  twoFactorEnabled?: boolean;
+  tokenVersion?: number;
+  birthdate?: string;
 }
 
 const BLOB_USERS_PATH = "users.json";
 
 function useMongoStorage(): boolean {
-  const uri = process.env.MONGO_URI?.trim() || process.env.MONGODB_URI?.trim();
-  return Boolean(
-    uri &&
-      (uri.startsWith("mongodb://") || uri.startsWith("mongodb+srv://"))
-  );
+  return hasMongoStorage();
 }
 
 function useCloudStorage(): boolean {
@@ -75,7 +75,7 @@ function normalizeUser(user: any): UserRecord {
     name: String(user?.name ?? "").trim(),
     email: String(user?.email ?? "").toLowerCase().trim(),
     password: String(user?.password ?? ""),
-    role: user?.role === "admin" ? "admin" : "customer",
+    role: user?.role === "admin" ? "admin" : user?.role === "support" ? "support" : "customer",
     accountIntent: ["buyer", "partner", "both"].includes(String(user?.accountIntent))
       ? user.accountIntent
       : "buyer",
@@ -95,6 +95,10 @@ function normalizeUser(user: any): UserRecord {
     country: String(user?.country ?? "").trim(),
     deviceId: String(user?.deviceId ?? "").trim(),
     deviceAccountWarning: String(user?.deviceAccountWarning ?? "").trim(),
+    twoFactorSecret: String(user?.twoFactorSecret ?? ""),
+    twoFactorEnabled: Boolean(user?.twoFactorEnabled),
+    tokenVersion: Number.isFinite(Number(user?.tokenVersion)) ? Math.max(0, Math.floor(Number(user.tokenVersion))) : 0,
+    birthdate: String(user?.birthdate ?? "").slice(0, 10),
   };
 }
 
@@ -379,12 +383,12 @@ export async function upsertGoogleUser(
   return { user: nextUser, created };
 }
 
-export async function updateUserRole(id: string, role: "customer" | "admin"): Promise<void> {
+export async function updateUserRole(id: string, role: "customer" | "admin" | "support"): Promise<void> {
   if (useMongoStorage()) {
     try {
       await connectDB();
       await User.findOneAndUpdate(
-        { $or: [{ id }, { _id: id }] },
+        { id },
         { role }
       );
       try {
@@ -440,7 +444,7 @@ export async function updateUserProfile(
   if (useMongoStorage()) {
     try {
       await connectDB();
-      await User.findOneAndUpdate({ $or: [{ id }, { _id: id }] }, updates);
+      await User.findOneAndUpdate({ id }, updates);
       try {
         await syncUserSnapshotsFromMongo();
       } catch (error) {
@@ -494,7 +498,7 @@ export async function updateUserDeviceInfo(
   if (useMongoStorage()) {
     try {
       await connectDB();
-      await User.findOneAndUpdate({ $or: [{ id }, { _id: id }] }, updates);
+      await User.findOneAndUpdate({ id }, updates);
       try {
         await syncUserSnapshotsFromMongo();
       } catch (error) {
@@ -521,18 +525,62 @@ export async function updateUserDeviceInfo(
   return snapshotUsers[idx];
 }
 
+/** Security-field updater (2FA, token version). Additive; never touches other fields. */
+export async function updateUserSecurity(
+  id: string,
+  updates: Partial<Pick<UserRecord, "twoFactorSecret" | "twoFactorEnabled" | "tokenVersion" | "password">>
+): Promise<UserRecord | null> {
+  if (!id) return null;
+  const clean: Partial<UserRecord> = {};
+  if (updates.twoFactorSecret !== undefined) clean.twoFactorSecret = String(updates.twoFactorSecret);
+  if (updates.twoFactorEnabled !== undefined) clean.twoFactorEnabled = Boolean(updates.twoFactorEnabled);
+  if (updates.tokenVersion !== undefined && Number.isFinite(Number(updates.tokenVersion))) {
+    clean.tokenVersion = Math.max(0, Math.floor(Number(updates.tokenVersion)));
+  }
+  if (updates.password !== undefined) clean.password = String(updates.password);
+  if (Object.keys(clean).length === 0) return findUserById(id);
+
+  if (useMongoStorage()) {
+    try {
+      await connectDB();
+      await User.findOneAndUpdate({ id }, clean);
+      try {
+        await syncUserSnapshotsFromMongo();
+      } catch (error) {
+        console.warn(
+          "⚠️ MongoDB user security updated but snapshot sync failed:",
+          error instanceof Error ? error.message : String(error)
+        );
+      }
+      return findUserById(id);
+    } catch (error) {
+      console.warn(
+        "⚠️ MongoDB user security update failed, falling back to snapshot storage:",
+        error instanceof Error ? error.message : String(error)
+      );
+    }
+  }
+
+  const snapshotUsers = await readUserSnapshots();
+  const idx = snapshotUsers.findIndex((user) => user.id === id);
+  if (idx === -1) return null;
+  snapshotUsers[idx] = normalizeUser({ ...snapshotUsers[idx], ...clean });
+  await writeUserSnapshots(snapshotUsers);
+  return snapshotUsers[idx];
+}
+
 export async function clearCustomerUserRecords(): Promise<{
   removedUsers: number;
   preservedAdmins: number;
 }> {
   const existingUsers = await getUsersJson();
-  const adminUsers = existingUsers.filter((user) => user.role === "admin").map(normalizeUser);
+  const adminUsers = existingUsers.filter((user) => user.role === "admin" || user.role === "support").map(normalizeUser);
   let removedUsers = Math.max(0, existingUsers.length - adminUsers.length);
 
   if (useMongoStorage()) {
     try {
       await connectDB();
-      const result = await User.deleteMany({ role: { $ne: "admin" } });
+      const result = await User.deleteMany({ role: { $nin: ["admin", "support"] } });
       removedUsers = Math.max(removedUsers, result.deletedCount ?? 0);
     } catch (error) {
       console.warn(

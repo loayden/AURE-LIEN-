@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "test": "vitest run tests/unit.test.ts",
     "reel:audio": "node scripts/generate-boutique-reel-audio.mjs",
     "reel:studio": "remotion studio remotion/index.ts",
     "reel:render": "npm run reel:audio && remotion render remotion/index.ts BoutiqueReelAd public/videos/boutique-reel-ad.mp4 --codec=h264 --audio-codec=aac --pixel-format=yuv420p",
@@ -24,13 +25,18 @@
     "next": "^16.1.6",
     "nodemailer": "^8.0.1",
     "openai": "^6.27.0",
+    "otplib": "^13.5.0",
+    "qrcode": "^1.5.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.5.0",
     "react-intersection-observer": "^10.0.3",
     "recharts": "^2.15.4",
     "stripe": "^20.4.1",
-    "zustand": "^4.5.2"
+    "web-push": "^3.6.7",
+    "zod": "^4.3.6",
+    "zustand": "^4.5.2",
+    "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
     "@remotion/cli": "4.0.465",
@@ -40,18 +46,23 @@
     "@types/mongoose": "^5.11.96",
     "@types/node": "20.12.7",
     "@types/nodemailer": "^7.0.11",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "18.2.66",
     "@types/react-dom": "18.2.22",
+    "@types/web-push": "^3.6.4",
+    "@types/zxcvbn": "^4.4.5",
     "autoprefixer": "^10.4.19",
     "dotenv": "^17.3.1",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.4",
+    "playwright": "^1.63.0",
     "postcss": "^8.5.13",
     "remotion": "4.0.465",
     "tailwindcss": "^3.4.3",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^1.6.1"
   },
   "overrides": {
     "postcss": "^8.5.13"

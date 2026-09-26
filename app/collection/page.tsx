@@ -6,7 +6,7 @@ import { ArrowRight, Briefcase, Gift, Layers, Moon, Plane, Sparkles, SunMedium }
 import Image from "next/image";
 import Link from "next/link";
 
-export const revalidate = 30;
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "BOUT Collections",

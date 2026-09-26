@@ -3,7 +3,7 @@ import { withPublicAssetVersion } from "@/lib/publicAsset";
 import { productWhiteBgImages } from "@/lib/generatedProductWhiteBgImages";
 
 export type StockState = "in-stock" | "low-stock" | "sold-out" | "available";
-export type SortValue = "featured" | "newest" | "price-low" | "price-high";
+export type SortValue = "featured" | "newest" | "price-low" | "price-high" | "best-selling" | "top-rated";
 export type AvailabilityFilter = "all" | StockState;
 export type StyleIntent = "all" | "work" | "weekend" | "night" | "travel" | "gift";
 
@@ -454,5 +454,23 @@ export function sortProducts(products: Product[], sort: SortValue) {
   if (sort === "price-low") return next.sort((a, b) => a.price - b.price);
   if (sort === "price-high") return next.sort((a, b) => b.price - a.price);
   if (sort === "newest") return next.reverse();
-  return next;
+  if (sort === "best-selling") {
+    // Low stock first (selling fast), sold-out last.
+    const rank = (p: Product) =>
+      typeof p.stock !== "number" ? 1 : p.stock <= 0 ? 2 : 0;
+    return next.sort((a, b) => rank(a) - rank(b) || (a.stock ?? 999) - (b.stock ?? 999));
+  }
+  if (sort === "top-rated") {
+    // Highest discount first until review aggregates mature.
+    return next.sort((a, b) => (b.discount ?? 0) - (a.discount ?? 0));
+  }
+  
+  // Default (featured): sponsored first, then summer products
+  return next.sort((a, b) => {
+    if (Boolean(a.featured) !== Boolean(b.featured)) return a.featured ? -1 : 1;    const aIsSummer = (a.name + " " + (a.description || "")).toLowerCase().includes("summer");
+    const bIsSummer = (b.name + " " + (b.description || "")).toLowerCase().includes("summer");
+    if (aIsSummer && !bIsSummer) return -1;
+    if (!aIsSummer && bIsSummer) return 1;
+    return 0;
+  });
 }

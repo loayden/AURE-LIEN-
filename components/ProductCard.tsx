@@ -160,9 +160,9 @@ const ProductCardMedia = memo(function ProductCardMedia({
           key={current}
           custom={direction}
           variants={slideVariants}
-          initial="enter"
+          initial={images.length > 1 ? "enter" : false}
           animate="center"
-          exit="exit"
+          exit={images.length > 1 ? "exit" : undefined}
           transition={{ duration: 0.48, ease: [0.22, 1, 0.36, 1] }}
           className="absolute inset-0"
         >
@@ -870,6 +870,16 @@ function ProductCardComponent({
             }}>
             {product.name}
           </h3>
+
+          {typeof product.rating === "number" && Number(product.reviews ?? 0) > 0 ? (
+            <p
+              className="mt-1 text-[11px] tracking-wide"
+              style={{ color: "var(--gold-text)" }}
+              aria-label={`Rated ${product.rating} out of 5 from ${product.reviews} reviews`}
+            >
+              ★ {Number(product.rating).toFixed(1)} <span style={{ color: "rgba(61,48,37,0.55)" }}>({product.reviews})</span>
+            </p>
+          ) : null}
 
           <div className={`flex items-end justify-between gap-3 border-t border-[rgba(123,103,82,0.12)] ${compact ? "pt-2" : "pt-2.5"}`}>
             <div>

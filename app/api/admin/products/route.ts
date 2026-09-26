@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { getAuthFromRequest } from "@/lib/auth";
+import { getClientIpFromHeaders, logAdminAction } from "@/lib/adminAudit";
 import connectDB, { hasConfiguredMongoUri } from "@/lib/connectDB";
 import Product from "@/models/Product";
 import { CATALOG_PRICE_OFFSET_EGP } from "@/lib/catalogPrice";
@@ -51,7 +52,7 @@ function storefrontPriceToStoredPrice(value: unknown, fallbackStorefrontPrice?: 
   return Math.max(0, numeric);
 }
 
-function buildProductRecord(body: Record<string, unknown>, existing?: Awaited<ReturnType<typeof getProductById>>): ProductRecord {
+export function buildProductRecord(body: Record<string, unknown>, existing?: Awaited<ReturnType<typeof getProductById>>): ProductRecord {
   const productId = String(body._id ?? body.productId ?? existing?._id ?? "").trim();
   const name = String(body.name ?? existing?.name ?? "").trim();
   const category = normalizeCategory(body.category ?? existing?.category);
@@ -73,6 +74,13 @@ function buildProductRecord(body: Record<string, unknown>, existing?: Awaited<Re
   const stock = body.stock === "" || body.stock == null
     ? existing?.stock
     : Math.max(0, Math.floor(Number(body.stock) || 0));
+  // Optional per-product discount (0-90). Absent = keep existing (no price change).
+  const rawDiscount = body.discount;
+  const discount =
+    rawDiscount === "" || rawDiscount == null
+      ? existing?.discount
+      : Math.min(90, Math.max(0, Number(rawDiscount) || 0));
+  const featured = body.featured === undefined ? existing?.featured : Boolean(body.featured);
 
   return {
     _id: productId,
@@ -85,10 +93,14 @@ function buildProductRecord(body: Record<string, unknown>, existing?: Awaited<Re
     colors,
     material: String(body.material ?? existing?.material ?? "").trim() || undefined,
     stock,
+    discount,
+    featured,
+    boutiqueId: existing?.boutiqueId,
+    boutiqueName: existing?.boutiqueName,
   };
 }
 
-function validateProductRecord(product: ProductRecord): string | null {
+export function validateProductRecord(product: ProductRecord): string | null {
   if (!product._id) return "Product id is required";
   if (!product.name) return "Name is required";
   if (!product.category) return "Category is required";
@@ -97,7 +109,7 @@ function validateProductRecord(product: ProductRecord): string | null {
   return null;
 }
 
-async function writeProductToMongo(productData: ProductRecord): Promise<boolean> {
+export async function writeProductToMongo(productData: ProductRecord): Promise<boolean> {
   try {
     if (!hasConfiguredMongoUri()) return false;
 
@@ -163,14 +175,23 @@ export async function GET(req: NextRequest) {
   const [products, jsonProducts] = await Promise.all([getAllProducts(), readProductsJson()]);
   const jsonIds = new Set(jsonProducts.map((product) => String(product._id)));
 
+  const listed = products.map((product) => ({
+    ...product,
+    manageable: true,
+    editable: true,
+    storedInJson: jsonIds.has(String(product._id)),
+  }));
+  const url = new URL(req.url);
+  if (url.searchParams.has("page") || url.searchParams.has("limit")) {
+    const { paginateArray, parsePaginationParams } = await import("@/lib/pagination");
+    const { page, limit } = parsePaginationParams(url);
+    const { data, pagination } = paginateArray(listed, page, limit);
+    return NextResponse.json({ products: data, pagination }, { headers: NO_STORE_HEADERS });
+  }
+
   return NextResponse.json(
     {
-      products: products.map((product) => ({
-        ...product,
-        manageable: true,
-        editable: true,
-        storedInJson: jsonIds.has(String(product._id)),
-      })),
+      products: listed,
     },
     { headers: NO_STORE_HEADERS }
   );
@@ -191,6 +212,8 @@ export async function POST(req: NextRequest) {
       images,
       size,
       colors,
+      discount,
+      featured,
     } = body;
 
     if (!name || !category || price == null) {
@@ -217,6 +240,7 @@ export async function POST(req: NextRequest) {
         : [];
 
     const _id = `p-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    const parsedDiscount = discount === "" || discount == null ? undefined : Math.min(90, Math.max(0, Number(discount) || 0));
     const productData = {
       _id,
       name: String(name).trim(),
@@ -226,6 +250,8 @@ export async function POST(req: NextRequest) {
       images: imgList.length ? imgList : ["/images/placeholder.svg"],
       size: sizeList,
       colors: colorList,
+      ...(parsedDiscount !== undefined ? { discount: parsedDiscount } : {}),
+      ...(featured !== undefined ? { featured: Boolean(featured) } : {}),
     };
 
     const savedToMongo = await writeProductToMongo(productData);
@@ -243,6 +269,15 @@ export async function POST(req: NextRequest) {
 
     clearProductsCache();
     revalidateCatalogPages(_id);
+
+    await logAdminAction({
+      action: "admin.product.create",
+      actorId: auth.userId,
+      actorEmail: auth.email,
+      targetType: "product",
+      targetId: _id,
+      ip: getClientIpFromHeaders(req.headers),
+    });
 
     return NextResponse.json(
       { message: "Product added", product: productData, savedToMongo, savedToJson },
@@ -295,6 +330,76 @@ export async function PUT(req: NextRequest) {
     revalidateCatalogPages(productId);
 
     const updated = await getProductById(productId);
+    // Back-in-stock: stock transitioned 0 → available → notify subscribers (never fails the request).
+    try {
+      const before = Number(existing?.stock ?? 0);
+      const after = Number(productData.stock ?? 0);
+      if (before <= 0 && after > 0) {        const { default: BackInStock } = await import("@/models/BackInStock");
+        const { hasConfiguredMongoUri } = await import("@/lib/connectDB");
+        if (hasConfiguredMongoUri()) {
+          const { default: connectDB } = await import("@/lib/connectDB");
+          await connectDB();
+          const subs = await BackInStock.find({ productId }).lean();
+          if (subs.length > 0) {
+            const { sendEmailAsync } = await import("@/lib/email/sender");
+            const { getBackInStockEmailHtml } = await import("@/lib/email/templates/shipping");
+            for (const sub of subs as Array<{ email?: string }>) {
+              const email = String(sub.email ?? "").trim();
+              if (email) {
+                sendEmailAsync({
+                  to: email,
+                  subject: `Back in stock · ${updated?.name ?? productData.name}`,
+                  html: getBackInStockEmailHtml({ productName: updated?.name ?? productData.name, productId }),
+                });
+              }
+            }
+            await BackInStock.deleteMany({ productId });
+          }
+        }
+      }
+    } catch (notifyError) {
+      console.warn("Back-in-stock notify skipped:", notifyError instanceof Error ? notifyError.message : String(notifyError));
+    }
+    // Price-drop: storefront price decreased → notify wishlisters (never fails the request).
+    try {
+      const oldPrice = Number(existing?.price ?? 0);
+      const newPrice = Number(productData.price ?? 0);
+      if (oldPrice > 0 && newPrice > 0 && newPrice < oldPrice) {
+        const { findWishlisters } = await import("@/lib/priceDrop");
+        const userIds = await findWishlisters(productId);
+        if (userIds.length > 0) {
+          const { findUserById } = await import("@/lib/usersJson");
+          const { sendEmailAsync } = await import("@/lib/email/sender");
+          const { getPriceDropEmailHtml } = await import("@/lib/email/templates/abandoned");
+          for (const uid of userIds.slice(0, 200)) {
+            const u = await findUserById(uid).catch(() => null);
+            const email = String(u?.email ?? "").trim();
+            if (!email) continue;
+            sendEmailAsync({
+              to: email,
+              subject: `Price drop · ${updated?.name ?? productData.name}`,
+              html: getPriceDropEmailHtml({
+                customerName: String(u?.name ?? "").trim() || email.split("@")[0],
+                productName: updated?.name ?? productData.name,
+                productId,
+                oldPrice,
+                newPrice,
+              }),
+            });
+          }
+        }
+      }
+    } catch (notifyError) {
+      console.warn("Price-drop notify skipped:", notifyError instanceof Error ? notifyError.message : String(notifyError));
+    }
+    await logAdminAction({
+      action: "admin.product.update",
+      actorId: auth.userId,
+      actorEmail: auth.email,
+      targetType: "product",
+      targetId: productId,
+      ip: getClientIpFromHeaders(req.headers),
+    });
     return NextResponse.json({
       message: "Product updated",
       product: updated ?? productData,
@@ -347,6 +452,15 @@ export async function DELETE(req: NextRequest) {
     clearProductsCache();
 
     revalidateCatalogPages(productId);
+
+    await logAdminAction({
+      action: "admin.product.delete",
+      actorId: auth.userId,
+      actorEmail: auth.email,
+      targetType: "product",
+      targetId: productId,
+      ip: getClientIpFromHeaders(req.headers),
+    });
 
     return NextResponse.json({
       success: true,

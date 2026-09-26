@@ -1510,6 +1510,17 @@ select:-webkit-autofill:focus {
   animation: shimmer 2.4s linear infinite;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .shimmer {
+    animation: none;
+  }
+}
+
+/* Formal headings: balanced wrapping prevents widows */
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
 /* ============================================
    SCROLL LOCK
    ============================================ */
@@ -1775,3 +1786,173 @@ button:active,
     letter-spacing: 0.06em;
   }
 }
+
+/* ============================================
+   PROMO BANNER TICKER
+   ============================================ */
+
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.promo-ticker-track {
+  animation: ticker-scroll 32s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .promo-ticker-track {
+    animation: none;
+  }
+}
+
+/* ============================================
+   FLASH DEAL BADGE PULSE
+   ============================================ */
+
+@keyframes flash-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+  50%      { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
+}
+
+.flash-deal-badge {
+  animation: flash-pulse 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flash-deal-badge {
+    animation: none;
+  }
+}
+
+/* ============================================
+   HOTSPOT PULSE
+   ============================================ */
+
+@keyframes hotspot-pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+.hotspot-pulse {
+  animation: hotspot-pulse 2s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hotspot-pulse {
+    animation: none;
+  }
+}
+
+/* ============================================
+   3D COVERFLOW UTILS
+   ============================================ */
+
+.coverflow-container {
+  perspective: 1000px;
+}
+
+.coverflow-item {
+  transform-style: preserve-3d;
+}
+
+/* ============================================
+   DARK THEME (opt-in via footer toggle; default stays light)
+   Overrides the design-token layer. Components using hardcoded
+   hex values keep light styling until migrated token-by-token.
+   ============================================ */
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --black:            #EDE4D3;
+  --surface:          #1B1510;
+  --cream:            #14100B;
+  --cream-strong:     #1E1712;
+  --cream-muted:      #2A2118;
+  --ink:              #EDE4D3;
+  --ink-soft:         #C9BBA6;
+  --ink-muted:        rgba(237, 228, 211, 0.72);
+  --gold:             #C6A75E;
+  --gold-text:        #D9BC77;
+  --gold-dim:         rgba(198, 167, 94, 0.62);
+  --gold-glow:        rgba(198, 167, 94, 0.16);
+  --ivory:            rgba(237, 228, 211, 0.88);
+  --silver:           rgba(237, 228, 211, 0.72);
+  --line-warm:        rgba(198, 167, 94, 0.22);
+  --glass-fill:       linear-gradient(135deg, rgba(30, 23, 18, 0.85) 0%, rgba(20, 16, 11, 0.72) 100%);
+  --glass-fill-md:    linear-gradient(135deg, rgba(30, 23, 18, 0.78) 0%, rgba(20, 16, 11, 0.6) 100%);
+  --glass-border:     rgba(198, 167, 94, 0.22);
+  --glass-border-sm:  rgba(198, 167, 94, 0.16);
+  --field-fill:       linear-gradient(135deg, rgba(30, 23, 18, 0.9) 0%, rgba(20, 16, 11, 0.7) 100%);
+  --field-fill-strong: rgba(30, 23, 18, 0.96);
+  --field-border:     rgba(198, 167, 94, 0.24);
+  --field-text:       rgba(237, 228, 211, 0.92);
+  --field-placeholder: rgba(237, 228, 211, 0.55);
+}
+
+[data-theme="dark"] body {
+  background: #14100B;
+  color: #EDE4D3;
+}
+
+/* Dark remaps for hardcoded light surfaces (extends the token layer). */
+[data-theme="dark"] [class~="bg-white"],
+[data-theme="dark"] [class*="bg-white/9"],
+[data-theme="dark"] [class*="bg-white/8"],
+[data-theme="dark"] [class*="bg-white/7"],
+[data-theme="dark"] [class*="bg-white/6"],
+[data-theme="dark"] [class*="bg-white/5"] {
+  background-color: rgba(30, 23, 18, 0.92) !important;
+}
+
+[data-theme="dark"] [class*="bg-[#F7F7F4]"],
+[data-theme="dark"] [class*="bg-[#F5F1E8]"],
+[data-theme="dark"] [class*="bg-[#FFF9EF]"],
+[data-theme="dark"] [class*="bg-[#FDFCF9]"],
+[data-theme="dark"] [class*="bg-[#F3F1ED]"],
+[data-theme="dark"] [class*="bg-[#F8F7F2]"],
+[data-theme="dark"] [class*="bg-[#F7F4EF]"],
+[data-theme="dark"] [class*="bg-[#F9F8F6]"] {
+  background-color: #1B1510 !important;
+}
+
+[data-theme="dark"] [class*="text-[#171513]"],
+[data-theme="dark"] [class*="text-[#3D3025]"],
+[data-theme="dark"] [class*="text-[#2F241C]"],
+[data-theme="dark"] [class*="text-[#3F3B36]"],
+[data-theme="dark"] [class*="text-[#5F554B]"] {
+  color: #EDE4D3 !important;
+}
+
+[data-theme="dark"] [class*="text-[#69645E]"],
+[data-theme="dark"] [class*="text-[#5A5650]"],
+[data-theme="dark"] [class*="text-[#6F6254]"],
+[data-theme="dark"] [class*="text-[#8C877D]"],
+[data-theme="dark"] [class*="text-[#7B6E60]"] {
+  color: #C9BBA6 !important;
+}
+
+[data-theme="dark"] [class*="border-[#D5D1C8]"],
+[data-theme="dark"] [class*="border-[#E2DFD8]"],
+[data-theme="dark"] [class*="border-[#E5E1D8]"],
+[data-theme="dark"] [class*="border-[#DEDAD2]"],
+[data-theme="dark"] [class*="border-[#DDDAD2]"],
+[data-theme="dark"] [class*="border-[#D9D4CA]"],
+[data-theme="dark"] [class*="border-[rgba(123,103,82"] {
+  border-color: rgba(198, 167, 94, 0.22) !important;
+}
+
+[data-theme="dark"] [class*="bg-[#171513]"] {
+  background-color: #EDE4D3 !important;
+  color: #171513 !important;
+}
+
+/* ============================================
+   RTL BASE (opt-in via footer toggle)
+   Native dir=rtl handles text flow; these fix fixed-side chrome.
+   ============================================ */
+
+[dir="rtl"] .fixed.left-0 { left: auto; right: 0; }
+[dir="rtl"] .fixed.right-0 { right: auto; left: 0; }
+[dir="rtl"] input, [dir="rtl"] textarea, [dir="rtl"] select { text-align: right; }
