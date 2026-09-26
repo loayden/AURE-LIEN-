@@ -526,6 +526,7 @@ function SummerCollectionSection({
   onShopFullSet: (items: readonly SummerCollectionProduct[]) => void;
 }) {
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+  const [showcasePaused, setShowcasePaused] = useState(false);
   const [slideDirection, setSlideDirection] = useState(1);
   const pointerStartXRef = useRef<number | null>(null);
   const lastWheelSwitchRef = useRef(0);
@@ -559,12 +560,13 @@ function SummerCollectionSection({
   useEffect(() => {
     if (showcaseSlides.length <= 1) return undefined;
 
+    if (showcasePaused) return undefined;
     const timer = window.setInterval(() => {
       switchByOffset(1);
     }, 5000);
 
     return () => window.clearInterval(timer);
-  }, [switchByOffset, activeSlideIndex, showcaseSlides.length]);
+  }, [switchByOffset, activeSlideIndex, showcaseSlides.length, showcasePaused]);
 
   const startShowcaseGesture = useCallback((clientX: number) => {
     pointerStartXRef.current = clientX;
@@ -667,17 +669,17 @@ function SummerCollectionSection({
                   type="button"
                   onClick={() => switchByOffset(-1)}
                   aria-label="Previous summer outfit"
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/35 bg-white/20 text-white shadow-[0_12px_34px_rgba(0,0,0,0.16)] backdrop-blur-md transition hover:bg-white/28 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:h-10 sm:w-10"
+                  className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-white/35 bg-white/20 text-white shadow-[0_12px_34px_rgba(0,0,0,0.16)] backdrop-blur-md transition-colors hover:bg-white/28 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:h-10 sm:w-10"
                 >
-                  <ChevronLeft className="h-4 w-4" strokeWidth={1.5} />
+                  <ChevronLeft className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
                 </button>
                 <button
                   type="button"
                   onClick={() => switchByOffset(1)}
                   aria-label="Next summer outfit"
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/35 bg-white/20 text-white shadow-[0_12px_34px_rgba(0,0,0,0.16)] backdrop-blur-md transition hover:bg-white/28 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:h-10 sm:w-10"
+                  className="flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-white/35 bg-white/20 text-white shadow-[0_12px_34px_rgba(0,0,0,0.16)] backdrop-blur-md transition-colors hover:bg-white/28 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white sm:h-10 sm:w-10"
                 >
-                  <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
+                  <ChevronRight className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
                 </button>
               </div>
               <div className="absolute inset-x-3 bottom-4 max-w-[15.5rem] text-white sm:inset-x-6 sm:bottom-6 sm:max-w-xl">
@@ -696,7 +698,20 @@ function SummerCollectionSection({
                   ) : null}
                 </div>
               </div>
-              <div className="absolute bottom-6 right-6 hidden gap-2 sm:flex">
+              <div className="absolute bottom-6 right-6 hidden items-center gap-2 sm:flex">
+                <button
+                  type="button"
+                  onClick={() => setShowcasePaused((paused) => !paused)}
+                  aria-label={showcasePaused ? "Play outfit slideshow" : "Pause outfit slideshow"}
+                  aria-pressed={showcasePaused}
+                  className="flex h-11 w-11 items-center justify-center rounded-full border border-white/35 bg-white/20 text-white backdrop-blur-md transition-colors hover:bg-white/28 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                >
+                  {showcasePaused ? (
+                    <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="currentColor" aria-hidden="true"><path d="M4 2.5v11l9-5.5z" /></svg>
+                  ) : (
+                    <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="currentColor" aria-hidden="true"><path d="M3.5 2.5h3.4v11H3.5zM9.1 2.5h3.4v11H9.1z" /></svg>
+                  )}
+                </button>
                 {showcaseSlides.map((slide, index) => (
                   <button
                     key={slide.id}
@@ -704,10 +719,15 @@ function SummerCollectionSection({
                     onClick={() => switchToSlide(index, index >= activeSlideIndex ? 1 : -1)}
                     aria-label={`Show ${slide.name}`}
                     aria-current={activeSlide.id === slide.id ? "true" : undefined}
-                    className={`h-2.5 rounded-full border border-white/50 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${
-                      activeSlide.id === slide.id ? "w-9 bg-white" : "w-2.5 bg-white/20 hover:bg-white/45"
-                    }`}
-                  />
+                    className="flex min-h-[44px] min-w-[44px] items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`h-2.5 rounded-full border border-white/50 transition-[width,background-color] ${
+                        activeSlide.id === slide.id ? "w-9 bg-white" : "w-2.5 bg-white/20 hover:bg-white/45"
+                      }`}
+                    />
+                  </button>
                 ))}
               </div>
             </div>
@@ -718,11 +738,11 @@ function SummerCollectionSection({
                 href={item.href}
                 aria-label={`Open ${item.name} product details`}
                 data-testid={`summer-hotspot-${item.id}`}
-                className="group/hotspot absolute z-20 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#171513] sm:h-12 sm:w-12"
+                className="group/hotspot absolute z-20 flex h-11 w-11 min-h-[44px] min-w-[44px] -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#171513] sm:h-12 sm:w-12"
                 style={{ left: `${item.hotspot.x}%`, top: `${item.hotspot.y}%` }}
               >
                 <span className="absolute h-9 w-9 rounded-full border border-white/40 bg-white/10 shadow-[0_16px_34px_rgba(0,0,0,0.2)] backdrop-blur-md transition duration-300 group-hover/hotspot:scale-110 group-hover/hotspot:bg-white/24 sm:h-12 sm:w-12" />
-                <span className="absolute hidden h-9 w-9 animate-ping rounded-full border border-white/50 opacity-35 sm:block" />
+                <span aria-hidden="true" className="absolute hidden h-9 w-9 animate-ping rounded-full border border-white/50 opacity-35 motion-reduce:hidden sm:block" />
                 <span className="relative h-2.5 w-2.5 rounded-full bg-white shadow-[0_0_0_5px_rgba(255,255,255,0.14),0_10px_24px_rgba(0,0,0,0.24)] sm:h-3.5 sm:w-3.5 sm:shadow-[0_0_0_6px_rgba(255,255,255,0.16),0_10px_24px_rgba(0,0,0,0.24)]" />
                 <span className="pointer-events-none absolute left-1/2 top-[calc(100%+0.65rem)] hidden min-w-[15rem] -translate-x-1/2 rounded-lg border border-white/15 bg-[#171513]/90 px-4 py-3 text-left text-[#F8F7F2] shadow-[0_18px_42px_rgba(0,0,0,0.22)] backdrop-blur-xl transition duration-300 group-hover/hotspot:block sm:block sm:translate-y-2 sm:opacity-0 sm:group-hover/hotspot:translate-y-0 sm:group-hover/hotspot:opacity-100">
                   <span className="block text-[10px] uppercase tracking-[0.18em] text-[#D8C08A]">{item.category}</span>
@@ -773,7 +793,7 @@ function SummerCollectionSection({
                     </span>
                   </span>
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#D5D1C8] text-[#171513] transition group-hover:border-[#171513]">
-                    <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
+                    <ChevronRight className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
                   </span>
                 </Link>
               ))}
@@ -812,7 +832,7 @@ function BoutiqueReelFeature() {
       whileInView="show"
       viewport={{ once: true, amount: 0.18 }}
       data-testid="boutique-reel-ad-section"
-      className="bg-[#171513] px-4 py-10 text-[#F8F7F2] [content-visibility:auto] [contain-intrinsic-size:980px] sm:px-6 sm:py-14 md:px-10"
+      className="bg-[#171513] px-4 py-8 text-[#F8F7F2] [content-visibility:auto] [contain-intrinsic-size:980px] sm:px-6 sm:py-10 md:px-10"
     >
       <div className="mx-auto grid w-full max-w-[92rem] gap-8 lg:grid-cols-[0.78fr_1.22fr] lg:items-center">
         <motion.div variants={fadeUp}>
@@ -861,7 +881,7 @@ function BoutiquePartnerSection() {
       whileInView="show"
       viewport={{ once: true, amount: 0.18 }}
       data-testid="home-boutiques-section"
-      className="border-y border-[#DDDAD2] bg-[#F5F1E8] px-4 py-10 [content-visibility:auto] [contain-intrinsic-size:820px] sm:px-6 sm:py-14 md:px-10"
+      className="border-y border-[#DDDAD2] bg-[#F5F1E8] px-4 py-8 [content-visibility:auto] [contain-intrinsic-size:820px] sm:px-6 sm:py-10 md:px-10"
     >
       <div className="mx-auto grid w-full max-w-[92rem] gap-4 lg:grid-cols-[1.08fr_0.92fr] lg:items-stretch">
         <motion.div variants={imageReveal} className="relative min-h-[28rem] overflow-hidden rounded-lg border border-[#D5D1C8] bg-[#171513] shadow-[0_28px_72px_rgba(23,21,19,0.14)] sm:min-h-[36rem]">
@@ -932,7 +952,7 @@ function BoutiquePartnerSection() {
               className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-[#D5D1C8] bg-white px-6 py-3 text-sm text-[#171513] transition hover:border-[#171513]"
             >
               View partner model
-              <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
+              <ChevronRight className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
             </Link>
           </div>
         </motion.div>
@@ -969,7 +989,7 @@ function ProductActionButton({
       }}
     >
       <ShoppingBag className="h-4 w-4" strokeWidth={1.45} />
-      <span>{busy ? "Adding" : requiresChoice ? "Choose" : "Add"}</span>
+      <span>{busy ? "Adding" : requiresChoice ? "Choose options" : "Add to Cart"}</span>
     </motion.button>
   );
 }
@@ -1065,7 +1085,7 @@ const HeroMoodProductCard = memo(function HeroMoodProductCard({ product, classNa
           <div className="mt-3 flex items-end justify-between gap-2">
             <p className="text-xs font-medium text-[#725D2C] sm:text-sm">EGP {formatPrice(product.price)}</p>
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#D5D1C8] text-[#171513] transition group-hover:border-[#171513]">
-              <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+              <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden="true" />
             </span>
           </div>
         </div>
@@ -1156,7 +1176,7 @@ function FlashDealsSection({
       whileInView="show"
       viewport={{ once: true, amount: 0.14 }}
       data-testid="flash-deals-section"
-      className="border-b border-[#DDDAD2] bg-gradient-to-br from-[#FFF8EC] via-white to-[#FEF3E2] px-4 py-8 [content-visibility:auto] [contain-intrinsic-size:520px] sm:px-6 sm:py-12 md:px-10"
+      className="border-b border-[#DDDAD2] bg-gradient-to-br from-[#FFF8EC] via-white to-[#FEF3E2] px-4 py-8 [content-visibility:auto] [contain-intrinsic-size:520px] sm:px-6 sm:py-10 md:px-10"
     >
       <div className="mx-auto w-full max-w-[92rem]">
         <motion.div variants={fadeUp} className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -1222,7 +1242,7 @@ function FlashDealsSection({
                     </div>
                     <div className="mt-2">
                       <div className="h-1.5 overflow-hidden rounded-full bg-[#FEE2E2]">
-                        <div className="h-full rounded-full bg-[#DC2626] transition-all" style={{ width: `${claimed}%` }} />
+                        <div className="h-full rounded-full bg-[#DC2626] transition-[width]" style={{ width: `${claimed}%` }} />
                       </div>
                       <p className="mt-1 text-[10px] text-[#DC2626]">{claimed}% claimed</p>
                     </div>
@@ -1258,7 +1278,7 @@ function TrendingNowSection({
       whileInView="show"
       viewport={{ once: true, amount: 0.14 }}
       data-testid="trending-now-section"
-      className="bg-white px-4 py-10 [content-visibility:auto] [contain-intrinsic-size:680px] sm:px-6 sm:py-14 md:px-10"
+      className="bg-white px-4 py-8 [content-visibility:auto] [contain-intrinsic-size:680px] sm:px-6 sm:py-10 md:px-10"
     >
       <div className="mx-auto w-full max-w-[92rem]">
         <SectionIntro
@@ -1379,7 +1399,7 @@ function RecentlyViewedSection({ products }: { products: Product[] }) {
       whileInView="show"
       viewport={{ once: true, amount: 0.14 }}
       data-testid="recently-viewed-section"
-      className="bg-[#F7F7F4] px-4 py-8 [content-visibility:auto] [contain-intrinsic-size:420px] sm:px-6 sm:py-12 md:px-10"
+      className="bg-[#F7F7F4] px-4 py-8 [content-visibility:auto] [contain-intrinsic-size:420px] sm:px-6 sm:py-10 md:px-10"
     >
       <div className="mx-auto w-full max-w-[92rem]">
         <motion.div variants={fadeUp} className="mb-5 flex items-center gap-3">
@@ -1418,6 +1438,27 @@ function RecentlyViewedSection({ products }: { products: Product[] }) {
 }
 
 // === MODERN SECTIONS TO INSERT BEFORE `export default function HomePageClient` ===
+function TrustProofBar({ pieces, departments, lowStock }: { pieces: number; departments: number; lowStock: number }) {
+  const stats = [
+    { value: String(pieces), label: "Curated pieces" },
+    { value: String(departments), label: "Departments" },
+    { value: "COD", label: "Cash on delivery" },
+    ...(lowStock > 0 ? [{ value: String(lowStock), label: "Almost gone" }] : []),
+  ];
+  return (
+    <section aria-label="Why shop with BOUT" className="border-b border-[#DDDAD2] bg-white px-5 py-5 sm:px-6 md:px-10">
+      <dl className="mx-auto grid w-full max-w-[92rem] grid-cols-2 gap-3 sm:grid-cols-4">
+        {stats.map((stat) => (
+          <div key={stat.label} className="flex items-center justify-center gap-2.5 text-center">
+            <dt className="sr-only">{stat.label}</dt>
+            <dd className="font-serif text-xl font-light tabular-nums text-[#171513] sm:text-2xl">{stat.value}</dd>
+            <dd className="text-[10px] uppercase tracking-[0.18em] text-[#725D2C]">{stat.label}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
 
 
 // ─── 3D Category Coverflow ───
@@ -1430,7 +1471,7 @@ function CategoryCoverflowSection() {
       initial="hidden"
       whileInView="show"
       viewport={{ once: true, amount: 0.14 }}
-      className="bg-[#FDFCF9] py-16 overflow-hidden [content-visibility:auto] [contain-intrinsic-size:600px]"
+      className="bg-[#FDFCF9] py-12 overflow-hidden [content-visibility:auto] [contain-intrinsic-size:600px]"
     >
       <div className="text-center px-4 mb-10">
         <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-light text-[#171513]">Explore Collections</h2>
@@ -1514,7 +1555,7 @@ function NewsletterSection() {
       initial="hidden"
       whileInView="show"
       viewport={{ once: true, amount: 0.3 }}
-      className="border-y border-[#DDDAD2] bg-[#F3F1ED] px-4 py-16 sm:px-6 sm:py-24 [content-visibility:auto] [contain-intrinsic-size:400px] relative overflow-hidden"
+      className="border-y border-[#DDDAD2] bg-[#F3F1ED] px-4 py-12 sm:px-6 sm:py-16 [content-visibility:auto] [contain-intrinsic-size:400px] relative overflow-hidden"
     >
       {/* Decorative grain overlay */}
       <div className="absolute inset-0 grain-overlay opacity-[0.03] pointer-events-none" />
@@ -1551,12 +1592,17 @@ function NewsletterSection() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 className="flex flex-col sm:flex-row gap-3"
               >
+                <label htmlFor="home-newsletter-email" className="sr-only">Email address</label>
                 <input
+                  id="home-newsletter-email"
+                  name="email"
                   type="email"
+                  autoComplete="email"
+                  spellCheck={false}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Your email address"
-                  className="flex-1 bg-white border border-[#D5D1C8] rounded-xl px-4 py-3 sm:py-0 text-sm focus:outline-none focus:ring-2 focus:ring-[#D8C08A]/50 focus:border-[#D8C08A] transition-all shadow-sm"
+                  placeholder="Your email address…"
+                  className="flex-1 bg-white border border-[#D5D1C8] rounded-xl px-4 py-3 sm:py-0 text-sm focus:outline-none focus:ring-2 focus:ring-[#D8C08A]/50 focus:border-[#D8C08A] transition-[background-color,border-color,box-shadow] shadow-sm"
                   required
                 />
                 <button
@@ -1826,7 +1872,7 @@ export default function HomePageClient({ initialProducts, boutiquesStrip }: { in
     <LayoutGroup id="storefront-handoff">
     <>
 
-    <motion.main className="min-h-screen overflow-hidden bg-[#F7F7F4] pb-24 text-[#171513] md:pb-0">
+    <motion.main id="main-content" className="min-h-screen overflow-hidden bg-[#F7F7F4] pb-24 text-[#171513] md:pb-0">
       <PromoBannerBar />
 
       <section className="border-b border-[#DDDAD2] bg-[#F7F7F4] px-5 pt-[72px] sm:px-6 md:px-10">
@@ -1901,7 +1947,7 @@ export default function HomePageClient({ initialProducts, boutiquesStrip }: { in
                   className="absolute right-2 top-1.5 z-20 inline-flex h-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#171513] px-4 text-sm text-[#F8F7F2] transition hover:bg-[#725D2C]"
                   style={{ backgroundColor: "#171513", color: "#F8F7F2", borderColor: "#171513" }}
                 >
-                  <span>Find</span>
+                  <span>Search</span>
                   <AnimatedArrow className="h-3.5 w-3.5" />
                 </motion.button>
               </motion.form>
@@ -1944,10 +1990,10 @@ export default function HomePageClient({ initialProducts, boutiquesStrip }: { in
                   </p>
                   <Link
                     href={activeMood.href}
-                    className="inline-flex min-h-[34px] items-center gap-1.5 rounded-full border border-[#D5D1C8] bg-white px-3 text-xs text-[#171513] transition hover:border-[#171513]"
+                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-[#D5D1C8] bg-white px-4 text-xs text-[#171513] transition-colors hover:border-[#171513]"
                   >
-                    View
-                    <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+                    View {activeMood.label}
+                    <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden="true" />
                   </Link>
                 </div>
                 <AnimatePresence mode="popLayout">
@@ -2044,7 +2090,7 @@ export default function HomePageClient({ initialProducts, boutiquesStrip }: { in
                             className="flex h-11 w-11 items-center justify-center rounded-full border border-[#D5D1C8] bg-white/80 text-[#171513] transition disabled:cursor-not-allowed disabled:opacity-35"
                             aria-label="Show previous product"
                           >
-                            <ChevronRight className="h-4 w-4 rotate-180" strokeWidth={1.5} />
+                            <ChevronRight className="h-4 w-4 rotate-180" strokeWidth={1.5} aria-hidden="true" />
                           </button>
                           <button
                             type="button"
@@ -2053,7 +2099,7 @@ export default function HomePageClient({ initialProducts, boutiquesStrip }: { in
                             className="flex h-11 w-11 items-center justify-center rounded-full border border-[#D5D1C8] bg-white/80 text-[#171513] transition disabled:cursor-not-allowed disabled:opacity-35"
                             aria-label="Show next product"
                           >
-                            <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
+                            <ChevronRight className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
                           </button>
                         </div>
                       ) : null}
@@ -2083,7 +2129,7 @@ export default function HomePageClient({ initialProducts, boutiquesStrip }: { in
                     <motion.span
                       className="inline-flex"
                     >
-                      <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
+                      <ChevronRight className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
                     </motion.span>
                   </motion.span>
                 </Link>
@@ -2147,7 +2193,7 @@ export default function HomePageClient({ initialProducts, boutiquesStrip }: { in
                   className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#D5D1C8] text-[#171513] transition hover:border-[#171513]"
                   aria-label={`View ${activeMood.label}`}
                 >
-                  <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+                  <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden="true" />
                 </Link>
               </div>
               <AnimatePresence mode="popLayout">
@@ -2170,6 +2216,12 @@ export default function HomePageClient({ initialProducts, boutiquesStrip }: { in
       </section>
 
       <CategoryCoverflowSection />
+
+      <TrustProofBar
+        pieces={products.length}
+        departments={QUICK_DEPARTMENTS.length}
+        lowStock={products.filter((product) => typeof product.stock === "number" && product.stock > 0 && product.stock <= 3).length}
+      />
 
       <FlashDealsSection products={products} onAction={handleProductAction} addingId={addingId} />
 
@@ -2196,7 +2248,7 @@ export default function HomePageClient({ initialProducts, boutiquesStrip }: { in
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.18 }}
-        className="bg-white px-5 py-12 [content-visibility:auto] [contain-intrinsic-size:760px] sm:px-6 sm:py-14 md:px-10"
+        className="bg-white px-5 py-10 [content-visibility:auto] [contain-intrinsic-size:760px] sm:px-6 sm:py-10 md:px-10"
       >
         <div className="mx-auto w-full max-w-[92rem]">
           <SectionIntro
@@ -2259,7 +2311,7 @@ export default function HomePageClient({ initialProducts, boutiquesStrip }: { in
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.16 }}
-        className="bg-[#171513] px-5 py-12 text-[#F8F7F2] [content-visibility:auto] [contain-intrinsic-size:900px] sm:px-6 sm:py-14 md:px-10"
+        className="bg-[#171513] px-5 py-10 text-[#F8F7F2] [content-visibility:auto] [contain-intrinsic-size:900px] sm:px-6 sm:py-10 md:px-10"
       >
         <div className="mx-auto w-full max-w-[92rem]">
           <SectionIntro
@@ -2363,7 +2415,7 @@ export default function HomePageClient({ initialProducts, boutiquesStrip }: { in
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.16 }}
-        className="bg-[#F7F7F4] px-5 py-12 [content-visibility:auto] [contain-intrinsic-size:900px] sm:px-6 sm:py-14 md:px-10"
+        className="bg-[#F7F7F4] px-5 py-10 [content-visibility:auto] [contain-intrinsic-size:900px] sm:px-6 sm:py-10 md:px-10"
       >
         <div className="mx-auto w-full max-w-[92rem]">
           <SectionIntro
@@ -2396,7 +2448,7 @@ export default function HomePageClient({ initialProducts, boutiquesStrip }: { in
                         {path.title}
                       </h3>
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#F8F7F2] text-[#171513]">
-                        <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
+                        <ChevronRight className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
                       </span>
                     </div>
                   </div>
@@ -2430,7 +2482,7 @@ export default function HomePageClient({ initialProducts, boutiquesStrip }: { in
                         className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#F8F7F2] text-[#171513]"
                         whileHover={{ scale: 1.08 }}
                       >
-                        <ChevronRight className="h-4 w-4" strokeWidth={1.5} />
+                        <ChevronRight className="h-4 w-4" strokeWidth={1.5} aria-hidden="true" />
                       </motion.span>
                     </div>
                   </div>
@@ -2446,7 +2498,7 @@ export default function HomePageClient({ initialProducts, boutiquesStrip }: { in
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.18 }}
-        className="border-y border-[#DDDAD2] bg-white px-5 py-12 [content-visibility:auto] [contain-intrinsic-size:760px] sm:px-6 sm:py-14 md:px-10"
+        className="border-y border-[#DDDAD2] bg-white px-5 py-10 [content-visibility:auto] [contain-intrinsic-size:760px] sm:px-6 sm:py-10 md:px-10"
       >
         <div className="mx-auto w-full max-w-[92rem]">
           <div className="mb-8 lg:mb-0 lg:grid lg:grid-cols-[0.72fr_1.28fr] lg:items-center lg:gap-8">
@@ -2493,7 +2545,7 @@ export default function HomePageClient({ initialProducts, boutiquesStrip }: { in
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, amount: 0.18 }}
-        className="bg-[#F7F7F4] px-5 py-12 [content-visibility:auto] [contain-intrinsic-size:720px] sm:px-6 sm:py-14 md:px-10"
+        className="bg-[#F7F7F4] px-5 py-10 [content-visibility:auto] [contain-intrinsic-size:720px] sm:px-6 sm:py-10 md:px-10"
       >
         <div className="mx-auto w-full max-w-[92rem]">
           {/* Service items: horizontal scroll on mobile, grid on desktop */}

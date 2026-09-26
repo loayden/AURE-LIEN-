@@ -149,7 +149,7 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
             whileTap={{ scale: 0.9 }}
             onClick={() => handleScroll("left")}
             disabled={!canScrollLeft}
-            className={`p-3 rounded-full transition-all ${
+            className={`p-3 rounded-full transition-colors ${
               canScrollLeft ? "bg-white/10 hover:bg-white/20" : "bg-white/5 opacity-50"
             }`}
           >
@@ -160,7 +160,7 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
             whileTap={{ scale: 0.9 }}
             onClick={() => handleScroll("right")}
             disabled={!canScrollRight}
-            className={`p-3 rounded-full transition-all ${
+            className={`p-3 rounded-full transition-colors ${
               canScrollRight ? "bg-white/10 hover:bg-white/20" : "bg-white/5 opacity-50"
             }`}
           >
@@ -271,7 +271,7 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
               width: selectedIndex === i ? 32 : 8,
               backgroundColor: selectedIndex === i ? "#A87935" : "rgba(255,248,236,0.2)",
             }}
-            className="h-1 rounded-full transition-all"
+            className="h-1 rounded-full transition-[width]"
           />
         ))}
       </motion.div>
@@ -943,7 +943,9 @@ export default function PremiumProductPage() {
                         whileHover={{ scale: 1.08 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setSelectedSize(size)}
-                        className="px-6 py-3 rounded-full text-sm font-light tracking-[0.1em] transition-all duration-300"
+                        aria-pressed={selectedSize === size}
+                        aria-label={`Select size ${size}`}
+                        className="px-6 py-3 rounded-full text-sm font-light tracking-[0.1em] transition-colors duration-300"
                         style={selectedSize === size ? {
                           background: "linear-gradient(135deg, rgba(168,121,53,0.25), rgba(168,121,53,0.1))",
                           border: "1px solid rgba(168,121,53,0.5)",
@@ -1001,7 +1003,7 @@ export default function PremiumProductPage() {
                           whileTap={{ scale: 0.98 }}
                           onClick={() => setSelectedColor(color)}
                           title={color}
-                          className="group relative flex min-h-[58px] items-center gap-3 rounded-2xl px-3 text-left transition-all duration-300"
+                          className="group relative flex min-h-[58px] items-center gap-3 rounded-2xl px-3 text-left transition-colors duration-300"
                           style={{
                             background: isSelected
                               ? "linear-gradient(135deg, rgba(255,249,239,0.96), rgba(246,232,208,0.78))"

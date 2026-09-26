@@ -169,7 +169,7 @@ export default function QuickViewModal({
                   className="btn-gold justify-center disabled:opacity-40"
                 >
                   <ShoppingBag className="h-4 w-4" strokeWidth={1.3} />
-                  {stockState(product) === "sold-out" ? "Sold Out" : loading ? "Adding" : "Add"}
+                  {stockState(product) === "sold-out" ? "Sold Out" : loading ? "Adding" : "Add to Cart"}
                 </button>
               </div>
             </div>

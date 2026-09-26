@@ -1,6 +1,7 @@
 "use client";
 
 import ProductCard from "@/components/ProductCard";
+import { EmptyStateArt } from "@/components/EmptyStateArt";
 import { ProductCardSkeleton } from "@/components/Skeleton";
 import { showToast } from "@/components/ToastProvider";
 import {
@@ -736,9 +737,7 @@ function ProductBrowserInner({
             </div>
           ) : (
             <div className="flex min-h-[30rem] flex-col items-center justify-center rounded-[28px] border border-[rgba(123,103,82,0.16)] bg-white/60 px-6 py-16 text-center">
-              <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-3xl border border-[rgba(123,103,82,0.16)] bg-white/60">
-                <Search className="h-7 w-7 text-[#7B6E60]" strokeWidth={1.1} />
-              </div>
+              <EmptyStateArt letter="S" label="No matching pieces illustration" />
               <h2 className="font-serif text-3xl font-light tracking-[0.04em]">
                 No pieces <em className="gold-italic">found</em>
               </h2>

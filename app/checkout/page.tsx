@@ -83,6 +83,14 @@ function CheckoutContent() {
   });
   const cancelOnLeaveReadyRef = useRef(false);
   const paymentRedirectInProgressRef = useRef(false);
+  const errorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (error) {
+      const t = window.setTimeout(() => errorRef.current?.focus({ preventScroll: false }), 60);
+      return () => window.clearTimeout(t);
+    }
+  }, [error]);
   const canceledParam = searchParams.get("canceled");
   const canceledOrderId = searchParams.get("orderId");
 
@@ -504,7 +512,11 @@ function CheckoutContent() {
           <AnimatePresence>
             {error && (
               <motion.div initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}
-                className="mb-6 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl flex items-center gap-3"
+                ref={errorRef}
+                tabIndex={-1}
+                role="alert"
+                aria-live="assertive"
+                className="mb-6 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl flex items-center gap-3 outline-none"
                 style={{ background:"rgba(255,60,60,0.08)", border:"1px solid rgba(255,80,80,0.2)", backdropFilter:"blur(16px)" }}>
                 <span className="text-red-400/70 text-xs tracking-[0.2em] font-light">{error}</span>
               </motion.div>
@@ -523,9 +535,9 @@ function CheckoutContent() {
                     <div className="flex flex-col gap-3 max-w-lg">
                       <p className="text-white/25 text-[9px] sm:text-[10px] tracking-[0.25em] font-light">
                         Have an account?{" "}
-                        <Link href="/login" className="text-[#A87935] hover:underline transition-all">Sign in</Link>
+                        <Link href="/login" className="text-[#A87935] hover:underline transition-colors">Sign in</Link>
                       </p>
-                      <input type="email" placeholder="Email address" value={form.email} onChange={(e) => update("email", e.target.value)} autoComplete="email" required />
+                      <input type="email" name="email" aria-label="Email address" spellCheck={false} placeholder="Email address…" value={form.email} onChange={(e) => update("email", e.target.value)} autoComplete="email" required />
                       <label className="flex items-center gap-3 cursor-pointer group">
                         <input type="checkbox" checked={form.newsletter} onChange={(e) => update("newsletter", e.target.checked)} />
                         <span className="text-white/30 text-[9px] sm:text-[10px] tracking-[0.22em] uppercase group-hover:text-white/50 transition-colors">
@@ -549,16 +561,16 @@ function CheckoutContent() {
                         <option value="Egypt">Egypt</option>
                       </select>
                       <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
-                        <input type="text" placeholder="First name" value={form.firstName} onChange={(e) => update("firstName", e.target.value)} autoComplete="given-name" required />
-                        <input type="text" placeholder="Last name" value={form.lastName} onChange={(e) => update("lastName", e.target.value)} autoComplete="family-name" required />
+                        <input type="text" name="firstName" aria-label="First name" value={form.firstName} onChange={(e) => update("firstName", e.target.value)} autoComplete="given-name" required />
+                        <input type="text" name="lastName" aria-label="Last name" value={form.lastName} onChange={(e) => update("lastName", e.target.value)} autoComplete="family-name" required />
                       </div>
-                      <input type="text" placeholder="Address" value={form.address} onChange={(e) => update("address", e.target.value)} autoComplete="street-address" required />
-                      <input type="text" placeholder="Apartment, suite, etc. (optional)" value={form.apartment} onChange={(e) => update("apartment", e.target.value)} />
+                      <input type="text" name="address" aria-label="Street address" value={form.address} onChange={(e) => update("address", e.target.value)} autoComplete="street-address" required />
+                      <input type="text" name="apartment" aria-label="Apartment (optional)" value={form.apartment} onChange={(e) => update("apartment", e.target.value)} />
                       <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
-                        <input type="text" placeholder="City" value={form.city} onChange={(e) => update("city", e.target.value)} autoComplete="address-level2" required />
-                        <input type="text" placeholder="Postal code (optional)" value={form.postalCode} onChange={(e) => update("postalCode", e.target.value)} />
+                        <input type="text" name="city" aria-label="City" value={form.city} onChange={(e) => update("city", e.target.value)} autoComplete="address-level2" required />
+                        <input type="text" name="postalCode" aria-label="Postal code (optional)" value={form.postalCode} onChange={(e) => update("postalCode", e.target.value)} />
                       </div>
-                      <input type="tel" placeholder="Phone number" value={form.phone} onChange={(e) => update("phone", e.target.value)} autoComplete="tel" required />
+                      <input type="tel" name="phone" aria-label="Phone number" value={form.phone} onChange={(e) => update("phone", e.target.value)} autoComplete="tel" required />
                     </div>
                   </GlassSection>
                 </motion.div>
@@ -568,7 +580,7 @@ function CheckoutContent() {
                   <GlassSection icon={<Truck strokeWidth={1.3} className="w-4 h-4" />} title="Shipping Method">
                     <div className="max-w-lg">
                       <label
-                        className="flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all duration-300 min-h-[56px]"
+                        className="flex items-center justify-between p-4 rounded-xl cursor-pointer transition-colors duration-300 min-h-[56px]"
                         style={form.shippingMethod === "within_egypt" ? {
                           background:"linear-gradient(135deg, rgba(168,121,53,0.12), rgba(168,121,53,0.04))",
                           border:"1px solid rgba(168,121,53,0.3)",
@@ -866,7 +878,7 @@ function CheckoutContent() {
               </h2>
               <p className="text-white/25 text-sm font-light tracking-widest mb-8">Add items to your cart first.</p>
               <Link href="/shop"
-                className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full text-[#A87935] text-[10px] tracking-[0.3em] uppercase font-light transition-all duration-500 hover:scale-[1.02] min-h-[44px]"
+                className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full text-[#A87935] text-[10px] tracking-[0.3em] uppercase font-light transition-[transform,background-color] duration-500 hover:scale-[1.02] min-h-[44px]"
                 style={{ background:"linear-gradient(135deg, rgba(168,121,53,0.14), rgba(168,121,53,0.04))", border:"1px solid rgba(168,121,53,0.25)", backdropFilter:"blur(16px)" }}>
                 Continue Shopping
               </Link>

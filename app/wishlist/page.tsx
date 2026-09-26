@@ -1,6 +1,7 @@
 "use client";
 
 import ProductCard from "@/components/ProductCard";
+import { EmptyStateArt } from "@/components/EmptyStateArt";
 import { formatPrice, productMatchesStyleIntent } from "@/lib/commerce";
 import type { StyleIntent } from "@/lib/commerce";
 import type { Product } from "@/lib/types";
@@ -314,15 +315,7 @@ export default function WishlistPage() {
               transition={{ duration:0.8 }}
               className="flex flex-col items-center justify-center text-center py-28"
             >
-              <div
-                className="w-16 h-16 rounded-3xl flex items-center justify-center mb-6"
-                style={{
-                  background:"rgba(255,249,239,0.72)",
-                  border:"1px solid rgba(123,103,82,0.12)",
-                }}
-              >
-                <Heart strokeWidth={1} className="w-7 h-7 text-[#A87935]" />
-              </div>
+              <EmptyStateArt letter="W" label="Empty wishlist illustration" />
               <h2
                 className="font-light text-[#3D3025] mb-3"
                 style={{

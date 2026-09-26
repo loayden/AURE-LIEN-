@@ -7,8 +7,19 @@ export function withPublicAssetVersion(path: string): string {
   if (!path.startsWith("/uploads/") && !path.startsWith("/images/")) return path;
 
   const [base, query = ""] = path.split("?");
+  // Encode each segment so filenames with & ? # ( ) spaces survive next/image.
+  const encoded = base
+    .split("/")
+    .map((segment) => {
+      try {
+        return encodeURIComponent(decodeURIComponent(segment));
+      } catch {
+        return encodeURIComponent(segment);
+      }
+    })
+    .join("/");
   const params = new URLSearchParams(query);
   params.set("v", PUBLIC_ASSET_VERSION);
 
-  return `${base}?${params.toString()}`;
+  return `${encoded}?${params.toString()}`;
 }

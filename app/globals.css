@@ -1510,6 +1510,17 @@ select:-webkit-autofill:focus {
   animation: shimmer 2.4s linear infinite;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .shimmer {
+    animation: none;
+  }
+}
+
+/* Formal headings: balanced wrapping prevents widows */
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
 /* ============================================
    SCROLL LOCK
    ============================================ */
@@ -1883,6 +1894,58 @@ button:active,
 [data-theme="dark"] body {
   background: #14100B;
   color: #EDE4D3;
+}
+
+/* Dark remaps for hardcoded light surfaces (extends the token layer). */
+[data-theme="dark"] [class~="bg-white"],
+[data-theme="dark"] [class*="bg-white/9"],
+[data-theme="dark"] [class*="bg-white/8"],
+[data-theme="dark"] [class*="bg-white/7"],
+[data-theme="dark"] [class*="bg-white/6"],
+[data-theme="dark"] [class*="bg-white/5"] {
+  background-color: rgba(30, 23, 18, 0.92) !important;
+}
+
+[data-theme="dark"] [class*="bg-[#F7F7F4]"],
+[data-theme="dark"] [class*="bg-[#F5F1E8]"],
+[data-theme="dark"] [class*="bg-[#FFF9EF]"],
+[data-theme="dark"] [class*="bg-[#FDFCF9]"],
+[data-theme="dark"] [class*="bg-[#F3F1ED]"],
+[data-theme="dark"] [class*="bg-[#F8F7F2]"],
+[data-theme="dark"] [class*="bg-[#F7F4EF]"],
+[data-theme="dark"] [class*="bg-[#F9F8F6]"] {
+  background-color: #1B1510 !important;
+}
+
+[data-theme="dark"] [class*="text-[#171513]"],
+[data-theme="dark"] [class*="text-[#3D3025]"],
+[data-theme="dark"] [class*="text-[#2F241C]"],
+[data-theme="dark"] [class*="text-[#3F3B36]"],
+[data-theme="dark"] [class*="text-[#5F554B]"] {
+  color: #EDE4D3 !important;
+}
+
+[data-theme="dark"] [class*="text-[#69645E]"],
+[data-theme="dark"] [class*="text-[#5A5650]"],
+[data-theme="dark"] [class*="text-[#6F6254]"],
+[data-theme="dark"] [class*="text-[#8C877D]"],
+[data-theme="dark"] [class*="text-[#7B6E60]"] {
+  color: #C9BBA6 !important;
+}
+
+[data-theme="dark"] [class*="border-[#D5D1C8]"],
+[data-theme="dark"] [class*="border-[#E2DFD8]"],
+[data-theme="dark"] [class*="border-[#E5E1D8]"],
+[data-theme="dark"] [class*="border-[#DEDAD2]"],
+[data-theme="dark"] [class*="border-[#DDDAD2]"],
+[data-theme="dark"] [class*="border-[#D9D4CA]"],
+[data-theme="dark"] [class*="border-[rgba(123,103,82"] {
+  border-color: rgba(198, 167, 94, 0.22) !important;
+}
+
+[data-theme="dark"] [class*="bg-[#171513]"] {
+  background-color: #EDE4D3 !important;
+  color: #171513 !important;
 }
 
 /* ============================================

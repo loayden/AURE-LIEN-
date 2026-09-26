@@ -160,9 +160,9 @@ const ProductCardMedia = memo(function ProductCardMedia({
           key={current}
           custom={direction}
           variants={slideVariants}
-          initial="enter"
+          initial={images.length > 1 ? "enter" : false}
           animate="center"
-          exit="exit"
+          exit={images.length > 1 ? "exit" : undefined}
           transition={{ duration: 0.48, ease: [0.22, 1, 0.36, 1] }}
           className="absolute inset-0"
         >
