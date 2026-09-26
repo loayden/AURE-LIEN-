@@ -15,6 +15,9 @@ export interface Product {
   material?: string;
   stock?: number;
   featured?: boolean;
+  boutiqueId?: string;
+  boutiqueName?: string;
+  boutique?: { id: string; slug: string; name: string } | null;
   /** 360° spin images or extra angles */
   media360?: string[];
   /** Product video URL */

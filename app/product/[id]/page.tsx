@@ -802,6 +802,19 @@ export default function PremiumProductPage() {
                 {product.name}
               </motion.h1>
 
+              {product.boutique ? (
+                <p className="mb-6 text-[11px] uppercase tracking-[0.2em] text-white/45">
+                  Sold by{" "}
+                  <a
+                    href={`/boutiques/${encodeURIComponent(product.boutique.slug)}`}
+                    className="text-[#A87935] underline-offset-4 hover:underline"
+                  >
+                    {product.boutique.name}
+                  </a>{" "}
+                  · <span className="text-white/60">✓ verified store</span>
+                </p>
+              ) : null}
+
               {/* Rating */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}

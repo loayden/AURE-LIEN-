@@ -17,14 +17,17 @@ export async function GET() {
       liveCount.set(p.applicationId, (liveCount.get(p.applicationId) ?? 0) + 1);
     }
     const boutiques = applications
-      .filter((a) => a.status === "approved")
+      .filter((a) => a.status === "approved" && a.verification?.status === "verified")
       .map((a) => ({
         id: a._id,
+        slug: a.storefrontSlug || a._id,
         boutiqueName: a.boutiqueName,
         city: a.city,
         area: a.area,
         categories: a.categories,
         instagram: a.instagram,
+        coverPhoto: a.shopPhotos?.[0] ?? "",
+        verifiedAt: a.verification?.verifiedAt,
         liveProducts: liveCount.get(a._id) ?? 0,
       }));
     return NextResponse.json({ boutiques }, { headers: NO_STORE });

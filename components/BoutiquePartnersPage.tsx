@@ -7,14 +7,17 @@ import {
   ArrowRight,
   Building2,
   CalendarDays,
+  Camera,
   CheckCircle2,
   ClipboardList,
+  LocateFixed,
   MapPin,
   Percent,
   ShieldCheck,
   Sparkles,
   Store,
   UploadCloud,
+  X,
   type LucideIcon,
 } from "lucide-react";
 import Image from "next/image";
@@ -88,6 +91,9 @@ type FormState = {
   planId: (typeof PLAN_OPTIONS)[number]["id"];
   sampleProducts: string;
   notes: string;
+  shopPhotos: string[];
+  mapPin: { lat: number; lng: number } | null;
+  declarationAccepted: boolean;
 };
 
 const initialForm: FormState = {
@@ -107,6 +113,9 @@ const initialForm: FormState = {
   planId: "starter",
   sampleProducts: "",
   notes: "",
+  shopPhotos: [],
+  mapPin: null,
+  declarationAccepted: false,
 };
 
 const LOCAL_BOUTIQUE_DRAFT_KEY = "bout:starter-boutique-application-draft:v1";
@@ -154,6 +163,17 @@ function normalizeDraftForm(draft: any): FormState {
     planId: "starter",
     sampleProducts: String(draft?.sampleProducts ?? ""),
     notes: String(draft?.notes ?? ""),
+    shopPhotos: Array.isArray(draft?.shopPhotos)
+      ? draft.shopPhotos.map((v: unknown) => String(v ?? "")).filter(Boolean).slice(0, 8)
+      : [],
+    mapPin:
+      draft?.mapPin && typeof draft.mapPin === "object" && Number.isFinite(Number((draft.mapPin as Record<string, unknown>).lat))
+        ? {
+            lat: Number((draft.mapPin as Record<string, unknown>).lat),
+            lng: Number((draft.mapPin as Record<string, unknown>).lng),
+          }
+        : null,
+    declarationAccepted: false,
   };
 }
 
@@ -164,6 +184,9 @@ function normalizeLocalDraftForm(form?: Partial<FormState>): FormState {
     categories: Array.isArray(form?.categories) && form.categories.length ? form.categories : initialForm.categories,
     planId: "starter",
     noPhysicalShop: Boolean(form?.noPhysicalShop),
+    shopPhotos: Array.isArray(form?.shopPhotos) ? form.shopPhotos.slice(0, 8) : [],
+    mapPin: form?.mapPin ?? null,
+    declarationAccepted: false,
   };
 }
 
@@ -220,6 +243,193 @@ function SectionHeading({
         </h3>
         <p className="mt-1 max-w-2xl text-[0.76rem] leading-5 text-[#6F6254] sm:mt-2 sm:text-sm sm:leading-7">{copy}</p>
       </div>
+    </div>
+  );
+}
+
+function ShopProofSection({
+  form,
+  update,
+  ensureDraftId,
+}: {
+  form: FormState;
+  update: <K extends keyof FormState>(key: K, value: FormState[K]) => void;
+  ensureDraftId: () => Promise<string>;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const [locating, setLocating] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  async function uploadFiles(files: FileList | null) {
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    setUploadError("");
+    try {
+      const id = await ensureDraftId();
+      const data = new FormData();
+      data.append("draftId", id);
+      const remaining = 8 - form.shopPhotos.length;
+      [...files].slice(0, Math.max(0, remaining)).forEach((file) => data.append("photos", file));
+      const response = await fetch("/api/boutiques/photos", { method: "POST", body: data });
+      const json = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(json.error || "Upload failed");
+      const urls = Array.isArray(json.urls) ? json.urls : [];
+      update("shopPhotos", [...form.shopPhotos, ...urls].slice(0, 8));
+      showToast("Shop photos uploaded.", "success");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Upload failed";
+      setUploadError(message);
+      showToast(message, "error");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
+  function removePhoto(url: string) {
+    update(
+      "shopPhotos",
+      form.shopPhotos.filter((photo) => photo !== url)
+    );
+  }
+
+  function useMyLocation() {
+    if (!("geolocation" in navigator)) {
+      showToast("Geolocation is not available on this device.", "error");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        update("mapPin", {
+          lat: Math.round(position.coords.latitude * 1e6) / 1e6,
+          lng: Math.round(position.coords.longitude * 1e6) / 1e6,
+        });
+        setLocating(false);
+      },
+      () => {
+        setLocating(false);
+        showToast("Could not read your location. Enter coordinates manually.", "error");
+      },
+      { timeout: 10000 }
+    );
+  }
+
+  const pin = form.mapPin;
+  const bbox =
+    pin != null
+      ? `${pin.lng - 0.02},${pin.lat - 0.02},${pin.lng + 0.02},${pin.lat + 0.02}`
+      : "31.15,29.96,31.32,30.12";
+
+  return (
+    <div className="grid gap-3 sm:gap-4">
+      <div>
+        <FieldLabel>صور المحل الحقيقي ({form.shopPhotos.length}/8 — على الأقل 3)</FieldLabel>
+        <p className="mb-2 text-[0.76rem] leading-5 text-[#6F6254] sm:text-sm sm:leading-7">
+          صوّر واجهة المحل واليافطة من الخارج + صورة من الداخل. الصور دي اللي هتظهر لعملائك بعد التوثيق.
+        </p>
+        {form.shopPhotos.length > 0 && (
+          <div className="mb-2 grid grid-cols-3 gap-2 sm:grid-cols-4">
+            {form.shopPhotos.map((url) => (
+              <div key={url} className="group relative aspect-square overflow-hidden rounded-[14px] border border-[rgba(123,103,82,0.16)] bg-white/70">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt="Shop photo" className="h-full w-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removePhoto(url)}
+                  aria-label="Remove photo"
+                  className="absolute right-1.5 top-1.5 flex h-9 w-9 items-center justify-center rounded-full bg-black/55 text-white"
+                >
+                  <X className="h-4 w-4" strokeWidth={1.6} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/avif"
+          multiple
+          className="hidden"
+          aria-label="Upload shop photos"
+          onChange={(event) => uploadFiles(event.target.files)}
+        />
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading || form.shopPhotos.length >= 8}
+          className="inline-flex min-h-[48px] items-center gap-2 rounded-full border border-[rgba(168,121,53,0.3)] bg-[rgba(168,121,53,0.08)] px-5 text-[10px] uppercase tracking-[0.16em] text-[#7A581F] disabled:opacity-50"
+        >
+          <Camera className="h-4 w-4" strokeWidth={1.4} />
+          {uploading ? "Uploading…" : form.shopPhotos.length === 0 ? "Upload shop photos" : "Add more photos"}
+        </button>
+        {uploadError ? (
+          <p className="mt-2 text-xs text-[#9A2222]" role="alert">{uploadError}</p>
+        ) : null}
+      </div>
+
+      <div>
+        <FieldLabel>دبوس الموقع على الخريطة</FieldLabel>
+        <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
+          <label>
+            <span className="sr-only">Latitude</span>
+            <input
+              inputMode="decimal"
+              dir="ltr"
+              placeholder="Lat — 30.0444"
+              value={pin != null ? String(pin.lat) : ""}
+              onChange={(event) => {
+                const lat = Number(event.target.value);
+                update("mapPin", Number.isFinite(lat) ? { lat, lng: pin?.lng ?? 31.2357 } : null);
+              }}
+            />
+          </label>
+          <label>
+            <span className="sr-only">Longitude</span>
+            <input
+              inputMode="decimal"
+              dir="ltr"
+              placeholder="Lng — 31.2357"
+              value={pin != null ? String(pin.lng) : ""}
+              onChange={(event) => {
+                const lng = Number(event.target.value);
+                update("mapPin", Number.isFinite(lng) ? { lat: pin?.lat ?? 30.0444, lng } : null);
+              }}
+            />
+          </label>
+          <button
+            type="button"
+            onClick={useMyLocation}
+            disabled={locating}
+            className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full border border-[rgba(123,103,82,0.18)] bg-white/76 px-4 text-[10px] uppercase tracking-[0.14em] text-[#6F6254] disabled:opacity-50"
+          >
+            <LocateFixed className="h-4 w-4" strokeWidth={1.4} />
+            {locating ? "…" : "My location"}
+          </button>
+        </div>
+        <div className="mt-2 overflow-hidden rounded-[16px] border border-[rgba(123,103,82,0.16)]">
+          <iframe
+            title="Shop location preview"
+            src={`https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik${pin != null ? `&marker=${pin.lat},${pin.lng}` : ""}`}
+            className="h-48 w-full sm:h-56"
+            loading="lazy"
+          />
+        </div>
+      </div>
+
+      <label className="flex cursor-pointer items-start gap-3 rounded-[16px] border border-[rgba(168,121,53,0.22)] bg-[rgba(168,121,53,0.06)] p-3 sm:p-4">
+        <input
+          type="checkbox"
+          checked={form.declarationAccepted}
+          onChange={(event) => update("declarationAccepted", event.target.checked)}
+          className="mt-1 h-5 w-5 shrink-0"
+        />
+        <span className="text-[0.8rem] leading-6 text-[#5F554B] sm:text-sm sm:leading-7">
+          أقر أن هذه صور حقيقية لمحلي التجاري وتم التقاطها خلال آخر ٣٠ يومًا، وأوافق على مراجعتها قبل النشر.
+        </span>
+      </label>
     </div>
   );
 }
@@ -384,8 +594,15 @@ export default function BoutiquePartnersPage({ mode = "landing" }: BoutiquePartn
     [draftId, form, getDraftPayload, getDraftSignature, writeLocalDraft]
   );
 
-  function startPaidCheckout(planId: string) {
-    setNavigatingPlan(planId);
+  async function ensureDraftId(): Promise<string> {
+    if (draftId) return draftId;
+    const saved = await saveDraft({ force: true });
+    const id = saved?._id || draftId;
+    if (!id) throw new Error("Could not save draft. Try again.");
+    return id;
+  }
+
+  function startPaidCheckout(planId: string) {    setNavigatingPlan(planId);
     router.push(`/partners/checkout?plan=${encodeURIComponent(planId)}`);
   }
 
@@ -502,6 +719,16 @@ export default function BoutiquePartnersPage({ mode = "landing" }: BoutiquePartn
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!form.noPhysicalShop) {
+      if (form.shopPhotos.length < 3) {
+        showToast("Upload at least 3 real photos of your shop to continue.", "error");
+        return;
+      }
+      if (!form.declarationAccepted) {
+        showToast("Please accept the photo declaration to continue.", "error");
+        return;
+      }
+    }
     setSubmitting(true);
     setResult(null);
 
@@ -1010,9 +1237,8 @@ export default function BoutiquePartnersPage({ mode = "landing" }: BoutiquePartn
                 </div>
 
                 <div className="rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-[#FFFDF8] p-3 shadow-[0_12px_34px_rgba(61,48,37,0.055)] sm:rounded-[26px] sm:p-5">
-                  <div className="mb-3 grid grid-cols-4 gap-1.5 sm:mb-5 sm:gap-2" dir="ltr" aria-label="Application progress">
-                    {["Boutique", "Location", "Catalog", "Notes"].map((step, index) => (
-                      <span
+                  <div className="mb-3 grid grid-cols-5 gap-1.5 sm:mb-5 sm:gap-2" dir="ltr" aria-label="Application progress">
+                    {["Boutique", "Location", "Catalog", "Notes", "Proof"].map((step, index) => (                      <span
                         key={step}
                         className="rounded-full border border-[rgba(168,121,53,0.18)] bg-[rgba(168,121,53,0.08)] px-1.5 py-2 text-center text-[7px] uppercase tracking-[0.08em] text-[#7A581F] sm:px-3 sm:text-[9px] sm:tracking-[0.14em]"
                       >
@@ -1191,6 +1417,24 @@ export default function BoutiquePartnersPage({ mode = "landing" }: BoutiquePartn
                       <textarea value={form.notes} onChange={(event) => update("notes", event.target.value)} placeholder="مواعيد الاستلام، سياسة الاستبدال، طريقة تجهيز الطلبات..." />
                     </label>
                   </div>
+                </div>
+
+                <div className="rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-[#FFFDF8] p-3 shadow-[0_12px_34px_rgba(61,48,37,0.055)] sm:rounded-[26px] sm:p-5">
+                  <SectionHeading
+                    icon={Camera}
+                    step="STEP 05"
+                    title="توثيق المحل"
+                    copy="ارفع صور حقيقية لمحلك (3 على الأقل) وحدد موقعه على الخريطة. القسم ده بيظهر لعملائك بعد التوثيق."
+                  />
+                  {form.noPhysicalShop ? (
+                    <div className="rounded-[16px] border border-dashed border-[rgba(168,121,53,0.22)] bg-white/72 p-3 text-[#6F6254] sm:rounded-[20px] sm:p-4">
+                      <p className="text-[0.8rem] leading-6 sm:text-sm sm:leading-7">
+                        اخترت البيع أونلاين فقط — تخطَّ الخطوة دي وكمل الإرسال مباشرة.
+                      </p>
+                    </div>
+                  ) : (
+                    <ShopProofSection form={form} update={update} ensureDraftId={ensureDraftId} />
+                  )}
                 </div>
 
                 <div className="rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-white/78 p-3 shadow-[0_12px_32px_rgba(61,48,37,0.06)] sm:rounded-[24px] sm:p-4">

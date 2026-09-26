@@ -70,6 +70,15 @@ export type BoutiqueApplication = {
   paidUntil?: string;
   lastRenewalAt?: string;
   categoryCommissions?: Record<string, number>;
+  shopPhotos?: string[];
+  mapPin?: { lat: number; lng: number };
+  storefrontSlug?: string;
+  verification?: {
+    status: "pending" | "verified" | "rejected";
+    verifiedAt?: string;
+    verifiedBy?: string;
+    checklist?: { photosMatchMap: boolean; signageVisible: boolean; detailsConfirmed: boolean };
+  };
   payoutProfile?: BoutiquePayoutProfile;
   sampleProducts?: string;
   notes?: string;
@@ -286,8 +295,7 @@ function cleanString(value: unknown): string {
   return String(value ?? "").trim();
 }
 
-function normalizeCategoryCommissions(value: unknown): Record<string, number> | undefined {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+function normalizeCategoryCommissions(value: unknown): Record<string, number> | undefined {  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
   const out: Record<string, number> = {};
   for (const [key, raw] of Object.entries(value as Record<string, unknown>)) {
     const slug = String(key).trim().toLowerCase().replace(/\s+/g, "-");
@@ -295,6 +303,62 @@ function normalizeCategoryCommissions(value: unknown): Record<string, number> | 
     if (slug && Number.isFinite(rate)) out[slug] = Math.min(30, Math.max(0, rate));
   }
   return Object.keys(out).length > 0 ? out : undefined;
+}
+
+function normalizeShopPhotos(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((v) => String(v ?? "").trim())
+    .filter((v) => {
+      if (v.startsWith("/uploads/")) return true;
+      if (!v.startsWith("https://")) return false;
+      try {
+        // Only our own storage hosts — never arbitrary hotlinks.
+        return new URL(v).hostname.endsWith(".public.blob.vercel-storage.com");
+      } catch {
+        return false;
+      }
+    })
+    .slice(0, 8);
+}
+
+function normalizeMapPin(value: unknown): { lat: number; lng: number } | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const lat = Number((value as Record<string, unknown>).lat);
+  const lng = Number((value as Record<string, unknown>).lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return undefined;
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return undefined;
+  return { lat: Math.round(lat * 1e6) / 1e6, lng: Math.round(lng * 1e6) / 1e6 };
+}
+
+function normalizeVerification(value: unknown): BoutiqueApplication["verification"] | undefined {
+  if (!value || typeof value !== "object") return undefined;
+  const row = value as Record<string, unknown>;
+  const status = String(row.status ?? "");
+  if (status !== "pending" && status !== "verified" && status !== "rejected") return undefined;
+  const checklist = row.checklist as Record<string, unknown> | undefined;
+  return {
+    status,
+    verifiedAt: row.verifiedAt ? safeIsoDate(row.verifiedAt) : undefined,
+    verifiedBy: String(row.verifiedBy ?? "").slice(0, 200) || undefined,
+    checklist: checklist
+      ? {
+          photosMatchMap: Boolean(checklist.photosMatchMap),
+          signageVisible: Boolean(checklist.signageVisible),
+          detailsConfirmed: Boolean(checklist.detailsConfirmed),
+        }
+      : undefined,
+  };
+}
+
+export function slugifyBoutiqueName(name: string): string {
+  return String(name ?? "")
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9\u0600-\u06FF]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60);
 }
 
 function normalizeStatus(value: unknown): BoutiqueApplicationStatus {
@@ -448,6 +512,10 @@ function normalizeApplication(application: any): BoutiqueApplication | null {
     paidUntil: String(application?.paidUntil ?? "").trim() || undefined,
     lastRenewalAt: String(application?.lastRenewalAt ?? "").trim() || undefined,
     categoryCommissions: normalizeCategoryCommissions(application?.categoryCommissions),
+    shopPhotos: normalizeShopPhotos(application?.shopPhotos),
+    mapPin: normalizeMapPin(application?.mapPin),
+    storefrontSlug: String(application?.storefrontSlug ?? "").trim().slice(0, 80) || undefined,
+    verification: normalizeVerification(application?.verification),
     payoutProfile: normalizePayoutProfile(application?.payoutProfile ?? application),
     sampleProducts: String(application?.sampleProducts ?? "").trim() || undefined,
     notes: String(application?.notes ?? "").trim() || undefined,
@@ -821,7 +889,7 @@ export async function updateBoutiqueTerms(
  */
 export async function updateBoutiqueApplicationDetails(
   applicationId: string,
-  patch: Partial<Pick<BoutiqueApplication, "boutiqueName" | "ownerName" | "phone" | "email" | "city" | "area" | "streetAddress" | "noPhysicalShop" | "googleMapsUrl" | "instagram" | "categories" | "productCount" | "averagePrice" | "sampleProducts" | "notes">>
+  patch: Partial<Pick<BoutiqueApplication, "boutiqueName" | "ownerName" | "phone" | "email" | "city" | "area" | "streetAddress" | "noPhysicalShop" | "googleMapsUrl" | "instagram" | "categories" | "productCount" | "averagePrice" | "sampleProducts" | "notes" | "shopPhotos" | "mapPin">>
 ): Promise<BoutiqueApplication | null> {
   const applications = await getBoutiqueApplications();
   const application = applications.find((item) => item._id === applicationId);
@@ -837,6 +905,58 @@ export async function updateBoutiqueApplicationDetails(
     application.status,
     application.subscriptionStatus
   );
+}
+
+/**
+ * Admin verification of the physical shop. Verified boutiques get a public
+ * section; unverified ones stay invisible. Fully idempotent.
+ */
+export async function verifyBoutiqueShop(
+  applicationId: string,
+  review: {
+    verified: boolean;
+    checklist: { photosMatchMap: boolean; signageVisible: boolean; detailsConfirmed: boolean };
+    verifiedBy?: string;
+  }
+): Promise<BoutiqueApplication | null> {
+  const applications = await getBoutiqueApplications();
+  const application = applications.find((item) => item._id === applicationId);
+  if (!application) return null;
+  if (review.verified) {
+    if (!review.checklist.photosMatchMap || !review.checklist.signageVisible || !review.checklist.detailsConfirmed) {
+      return null;
+    }
+  }
+  const slug = review.verified
+    ? application.storefrontSlug || (await ensureUniqueSlug(application.boutiqueName, application._id))
+    : application.storefrontSlug;
+  return saveBoutiqueApplicationRecord(
+    {
+      ...application,
+      storefrontSlug: slug,
+      verification: {
+        status: review.verified ? "verified" : "rejected",
+        verifiedAt: new Date().toISOString(),
+        verifiedBy: cleanString(review.verifiedBy).slice(0, 200) || undefined,
+        checklist: { ...review.checklist },
+      },
+    },
+    application.status,
+    application.subscriptionStatus
+  );
+}
+
+async function ensureUniqueSlug(boutiqueName: string, applicationId: string): Promise<string> {
+  const applications = await getBoutiqueApplications();
+  const taken = new Set(
+    applications.filter((a) => a._id !== applicationId).map((a) => String(a.storefrontSlug ?? ""))
+  );
+  const base = slugifyBoutiqueName(boutiqueName) || `boutique-${applicationId.slice(-6)}`;
+  if (!taken.has(base)) return base;
+  for (let i = 2; i < 100; i++) {
+    if (!taken.has(`${base}-${i}`)) return `${base}-${i}`;
+  }
+  return `${base}-${applicationId.slice(-6)}`;
 }
 
 export async function findBoutiqueApplicationDraft(options: {

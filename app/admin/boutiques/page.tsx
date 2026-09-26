@@ -33,7 +33,35 @@ export default function AdminBoutiquesPage() {
   const [actingId, setActingId] = useState<string | null>(null);
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [terms, setTerms] = useState<Record<string, { commissionRate: string; monthlyFee: string }>>({});
+  const [checklist, setChecklist] = useState<Record<string, { photosMatchMap: boolean; signageVisible: boolean; detailsConfirmed: boolean }>>({});
   const [actionMessage, setActionMessage] = useState("");
+
+  async function verifyShop(applicationId: string, verified: boolean) {
+    const checks = checklist[applicationId] ?? { photosMatchMap: false, signageVisible: false, detailsConfirmed: false };
+    if (verified && (!checks.photosMatchMap || !checks.signageVisible || !checks.detailsConfirmed)) {
+      setActionMessage("Confirm all three checklist items to verify.");
+      return;
+    }
+    setActingId(applicationId);
+    setActionMessage("");
+    try {
+      const res = await fetch("/api/admin/boutiques", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ applicationId, action: verified ? "verify" : "unverify", checklist: checks }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Verification failed");
+      setApplications((prev) =>
+        prev.map((a) => (a._id === applicationId ? { ...a, verification: data.application.verification, storefrontSlug: data.application.storefrontSlug } : a))
+      );
+      setActionMessage(verified ? "Boutique verified — section is live." : "Verification removed — section hidden.");
+    } catch (e) {
+      setActionMessage(e instanceof Error ? e.message : "Verification failed");
+    } finally {
+      setActingId(null);
+    }
+  }
 
   async function saveTerms(applicationId: string) {
     const t = terms[applicationId];
@@ -281,6 +309,87 @@ export default function AdminBoutiquesPage() {
                 <p className="mt-3 text-[10px] uppercase tracking-[0.2em] text-[#8A6A32]">
                   No card numbers stored
                 </p>
+              </div>
+
+              <div className="mt-4 rounded-[16px] border border-[rgba(123,103,82,0.14)] bg-white/44 p-3 sm:mt-5 sm:rounded-[22px] sm:p-4">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                  <p className="eyebrow">Shop Verification</p>
+                  {application.verification?.status === "verified" ? (
+                    <span className="rounded-full bg-[rgba(80,160,100,0.12)] px-3 py-1 text-[9px] uppercase tracking-[0.18em] text-[#3C7A4D]">
+                      Verified{application.storefrontSlug ? ` · /${application.storefrontSlug}` : ""}
+                    </span>
+                  ) : application.verification?.status === "rejected" ? (
+                    <span className="rounded-full bg-[rgba(154,34,34,0.08)] px-3 py-1 text-[9px] uppercase tracking-[0.18em] text-[#9A2222]">
+                      Needs new photos
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-[rgba(168,121,53,0.1)] px-3 py-1 text-[9px] uppercase tracking-[0.18em] text-[#7A581F]">
+                      Unverified
+                    </span>
+                  )}
+                </div>
+                {(application.shopPhotos ?? []).length > 0 ? (
+                  <div className="mb-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
+                    {(application.shopPhotos ?? []).map((url) => (
+                      <a key={url} href={url} target="_blank" rel="noreferrer" className="block aspect-square overflow-hidden rounded-[12px] border border-[rgba(123,103,82,0.16)] bg-white/70">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={url} alt={`Shop photo — ${application.boutiqueName}`} className="h-full w-full object-cover" loading="lazy" />
+                      </a>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mb-3 text-xs leading-6 text-[#6F6254]">No shop photos uploaded yet.</p>
+                )}
+                <div className="grid gap-2">
+                  {(
+                    [
+                      ["photosMatchMap", "Photos match the map location"],
+                      ["signageVisible", "Storefront signage visible"],
+                      ["detailsConfirmed", "Details confirmed (name, address)"],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <label key={key} className="flex cursor-pointer items-center gap-3 text-xs text-[#3D3025] sm:text-sm">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(checklist[application._id]?.[key])}
+                        onChange={(e) =>
+                          setChecklist((prev) => {
+                            const current = prev[application._id] ?? {
+                              photosMatchMap: false,
+                              signageVisible: false,
+                              detailsConfirmed: false,
+                            };
+                            return {
+                              ...prev,
+                              [application._id]: { ...current, [key]: e.target.checked },
+                            };
+                          })
+                        }
+                        className="h-5 w-5 shrink-0"
+                      />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    disabled={actingId === application._id}
+                    onClick={() => verifyShop(application._id, true)}
+                    className="inline-flex min-h-[48px] items-center justify-center rounded-full px-4 text-[10px] uppercase tracking-[0.2em] text-white disabled:opacity-50"
+                    style={{ background: "linear-gradient(135deg, #2F5D3A, #4C8A57)" }}
+                  >
+                    {actingId === application._id ? "Working…" : "Verify & Publish"}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={actingId === application._id}
+                    onClick={() => verifyShop(application._id, false)}
+                    className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[rgba(154,34,34,0.3)] px-4 text-[10px] uppercase tracking-[0.2em] text-[#9A2222] disabled:opacity-50"
+                  >
+                    Unverify
+                  </button>
+                </div>
               </div>
 
               <div className="mt-4 grid gap-2 text-xs leading-6 text-[#6F6254] sm:mt-5 sm:gap-3 sm:text-sm sm:leading-7">

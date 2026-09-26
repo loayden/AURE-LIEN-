@@ -78,6 +78,10 @@ function serializeDraft(application: BoutiqueApplication | null) {
     payoutProfile: application.payoutProfile,
     sampleProducts: application.sampleProducts ?? "",
     notes: application.notes ?? "",
+    shopPhotos: application.shopPhotos ?? [],
+    mapPin: application.mapPin,
+    storefrontSlug: application.storefrontSlug,
+    verification: application.verification,
     status: application.status,
     updatedAt: application.updatedAt,
   };
@@ -199,6 +203,16 @@ async function saveDraftFromRequest(req: NextRequest) {
       }),
       sampleProducts: cleanString(body?.sampleProducts) || undefined,
       notes: cleanString(body?.notes) || undefined,
+      shopPhotos: Array.isArray(body?.shopPhotos)
+        ? body.shopPhotos.map((v: unknown) => String(v ?? "").trim()).filter(Boolean).slice(0, 8)
+        : undefined,
+      mapPin:
+        body?.mapPin && typeof body.mapPin === "object"
+          ? {
+              lat: Number((body.mapPin as Record<string, unknown>).lat),
+              lng: Number((body.mapPin as Record<string, unknown>).lng),
+            }
+          : undefined,
     });
 
     const res = NextResponse.json({ success: true, draft: serializeDraft(draft) }, { headers: NO_STORE_HEADERS });

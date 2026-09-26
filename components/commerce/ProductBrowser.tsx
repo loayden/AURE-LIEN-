@@ -63,6 +63,7 @@ type CardView = "grid" | "list";
 type Filters = {
   query: string;
   category: string;
+  boutique: string;
   minPrice: string;
   maxPrice: string;
   size: string;
@@ -235,6 +236,7 @@ function ProductBrowserInner({
   const [filters, setFilters] = useState<Filters>(() => ({
     query: searchParams?.get("q") ?? "",
     category: category ?? searchParams?.get("category") ?? "",
+    boutique: searchParams?.get("boutique") ?? "",
     minPrice: searchParams?.get("minPrice") ?? "",
     maxPrice: searchParams?.get("maxPrice") ?? "",
     size: searchParams?.get("size") ?? "",
@@ -244,7 +246,7 @@ function ProductBrowserInner({
   }));
   const deferredQuery = useDeferredValue(filters.query);
 
-  // Shareable filter URLs: sync state → ?q&category&minPrice&maxPrice&size&color&availability&intent&sort
+  // Shareable filter URLs: sync state → ?q&category&boutique&minPrice&maxPrice&size&color&availability&intent&sort
   useEffect(() => {
     if (!urlSyncReady.current) {
       urlSyncReady.current = true;
@@ -253,6 +255,7 @@ function ProductBrowserInner({
     const params = new URLSearchParams();
     if (filters.query) params.set("q", filters.query);
     if (!lockCategory && filters.category) params.set("category", filters.category);
+    if (filters.boutique) params.set("boutique", filters.boutique);
     if (filters.minPrice) params.set("minPrice", filters.minPrice);
     if (filters.maxPrice) params.set("maxPrice", filters.maxPrice);
     if (filters.size) params.set("size", filters.size);
@@ -308,6 +311,16 @@ function ProductBrowserInner({
 
   const sizes = useMemo(() => uniqueProductSizes(products), [products]);
   const colors = useMemo(() => uniqueProductColors(products), [products]);
+  const boutiques = useMemo(() => {
+    const byId = new Map<string, string>();
+    for (const product of products) {
+      const id = String(product.boutiqueId ?? "").trim();
+      if (id && !byId.has(id)) byId.set(id, String(product.boutiqueName ?? "").trim() || "Partner boutique");
+    }
+    return [...byId.entries()]
+      .map(([value, label]) => ({ value, label }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [products]);
   const visibleProducts = useMemo(() => {
     const filtered = filterProducts(products, {
       ...filters,
@@ -316,7 +329,10 @@ function ProductBrowserInner({
       minPrice: filters.minPrice ? Number(filters.minPrice) : null,
       maxPrice: filters.maxPrice ? Number(filters.maxPrice) : null,
     });
-    return sortProducts(filtered, sort);
+    const byBoutique = filters.boutique
+      ? filtered.filter((product) => String(product.boutiqueId ?? "") === filters.boutique)
+      : filtered;
+    return sortProducts(byBoutique, sort);
   }, [category, deferredQuery, filters, lockCategory, products, sort]);
   const compareProducts = useMemo(
     () =>
@@ -341,6 +357,9 @@ function ProductBrowserInner({
     filters.maxPrice ? { key: "maxPrice", label: `To EGP ${formatPrice(Number(filters.maxPrice))}` } : null,
     filters.size ? { key: "size", label: `Size ${filters.size}` } : null,
     filters.color ? { key: "color", label: filters.color } : null,
+    filters.boutique
+      ? { key: "boutique", label: boutiques.find((b) => b.value === filters.boutique)?.label ?? "Boutique" }
+      : null,
     filters.availability !== "all"
       ? { key: "availability", label: AVAILABILITY_OPTIONS.find((item) => item.value === filters.availability)?.label ?? filters.availability }
       : null,
@@ -357,6 +376,7 @@ function ProductBrowserInner({
     setFilters({
       query: "",
       category: category ?? "",
+      boutique: "",
       minPrice: "",
       maxPrice: "",
       size: "",
@@ -411,6 +431,15 @@ function ProductBrowserInner({
             { value: "", label: "All Categories" },
             ...CATEGORY_META.map((item) => ({ value: item.slug, label: item.title })),
           ]}
+        />
+      ) : null}
+
+      {boutiques.length > 0 ? (
+        <SelectControl
+          label="Boutique"
+          value={filters.boutique}
+          onChange={(value) => setFilters((current) => ({ ...current, boutique: value }))}
+          options={[{ value: "", label: "All Boutiques" }, ...boutiques]}
         />
       ) : null}
 

@@ -174,8 +174,7 @@ export function getPartnerApplicationDecisionEmailHtml(data: {
   });
 }
 
-export function getSubscriptionEmailHtml(data: {
-  ownerName: string;
+export function getSubscriptionEmailHtml(data: {  ownerName: string;
   boutiqueName: string;
   kind: "trial_ending" | "renewal_due" | "lapsed" | "renewed";
   planName: string;
@@ -216,5 +215,28 @@ export function getSubscriptionEmailHtml(data: {
     ],
     ctaHref: data.actionUrl || `${SITE_URL}/partners/subscription`,
     ctaLabel: copy.cta,
+  });
+}
+
+export function getVerificationEmailHtml(data: {
+  ownerName: string;
+  boutiqueName: string;
+  applicationId: string;
+  verified: boolean;
+  storefrontUrl?: string;
+}): string {
+  return baseEmailTemplate({
+    title: data.verified ? "Boutique verified" : "Verification update",
+    eyebrow: "Shop Verification",
+    greeting: `Hello ${data.ownerName || "Boutique partner"},`,
+    intro: data.verified
+      ? `Your physical shop for ${data.boutiqueName} is verified. Your public boutique section is now live with your shop photos.`
+      : `We could not verify the shop photos for ${data.boutiqueName} yet. Upload clearer photos (storefront signage + interior) and we will review again.`,
+    rows: [
+      { label: "Boutique", value: data.boutiqueName },
+      { label: "Status", value: data.verified ? "Verified · live" : "Needs new photos" },
+    ],
+    ctaHref: data.storefrontUrl || `${SITE_URL}/partners/products?applicationId=${encodeURIComponent(data.applicationId)}`,
+    ctaLabel: data.verified ? "View Live Section" : "Upload New Photos",
   });
 }

@@ -2,10 +2,12 @@ import Link from "next/link";
 
 type Boutique = {
   id: string;
+  slug: string;
   boutiqueName: string;
   city: string;
   area: string;
   categories: string[];
+  coverPhoto: string;
   liveProducts: number;
 };
 
@@ -24,10 +26,10 @@ async function getBoutiques(): Promise<Boutique[]> {
 }
 
 export async function BoutiqueDirectory() {
-  const boutiques = await getBoutiques();
+  const boutiques = (await getBoutiques()).sort((a, b) => b.liveProducts - a.liveProducts);
   if (boutiques.length === 0) return null;
   return (
-    <section aria-label="Our boutiques" className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 md:px-10">
+    <section aria-label="Our boutiques" className="mx-auto max-w-7xl px-4 pb-4 pt-20 sm:px-6 sm:pt-24 md:px-10">
       <p className="text-[9px] uppercase tracking-[0.45em]" style={{ color: "var(--gold-text)" }}>
         Our Boutiques
       </p>
@@ -35,16 +37,27 @@ export async function BoutiqueDirectory() {
         {boutiques.map((b) => (
           <Link
             key={b.id}
-            href={`/boutiques/${b.id}`}
-            className="rounded-2xl p-5 transition-shadow"
+            href={`/boutiques/${encodeURIComponent(b.slug || b.id)}`}
+            className="overflow-hidden rounded-2xl transition-shadow"
             style={{ border: "1px solid rgba(123,103,82,0.18)", background: "rgba(255,255,255,0.6)" }}
           >
-            <h3 className="font-light text-xl" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-              {b.boutiqueName}
-            </h3>
-            <p className="mt-1 text-xs uppercase tracking-[0.18em]" style={{ color: "rgba(61,48,37,0.65)" }}>
-              {b.city}{b.area ? ` · ${b.area}` : ""} · {b.liveProducts} {b.liveProducts === 1 ? "piece" : "pieces"}
-            </p>
+            {b.coverPhoto ? (
+              <span className="relative block aspect-[16/9] w-full overflow-hidden bg-[#EAE1D3]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={b.coverPhoto} alt={`${b.boutiqueName} storefront`} className="h-full w-full object-cover" loading="lazy" />
+              </span>
+            ) : null}
+            <span className="block p-5">
+              <span className="mb-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[9px] uppercase tracking-[0.18em]" style={{ background: "rgba(80,160,100,0.12)", color: "#3C7A4D" }}>
+                ✓ Verified store
+              </span>
+              <span className="block font-light text-xl" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                {b.boutiqueName}
+              </span>
+              <span className="mt-1 block text-xs uppercase tracking-[0.18em]" style={{ color: "rgba(61,48,37,0.65)" }}>
+                {b.city}{b.area ? ` · ${b.area}` : ""} · {b.liveProducts} {b.liveProducts === 1 ? "piece" : "pieces"}
+              </span>
+            </span>
           </Link>
         ))}
       </div>

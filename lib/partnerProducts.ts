@@ -301,6 +301,8 @@ function toApprovedProductRecord(product: PartnerProductDraft): ProductRecord {
     description: product.description,
     material: product.material,
     stock: product.stock,
+    boutiqueId: product.applicationId,
+    boutiqueName: product.boutiqueName,
   };
 }
 

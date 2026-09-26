@@ -95,6 +95,8 @@ export function buildProductRecord(body: Record<string, unknown>, existing?: Awa
     stock,
     discount,
     featured,
+    boutiqueId: existing?.boutiqueId,
+    boutiqueName: existing?.boutiqueName,
   };
 }
 

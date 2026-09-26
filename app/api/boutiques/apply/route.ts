@@ -97,8 +97,7 @@ export async function POST(req: NextRequest) {
       })
     );
 
-    if (duplicateStarterTrial) {
-      const access = getBoutiquePartnerAccess(duplicateStarterTrial);
+    if (duplicateStarterTrial) {      const access = getBoutiquePartnerAccess(duplicateStarterTrial);
       const productsUrl = `/partners/products?applicationId=${encodeURIComponent(duplicateStarterTrial._id)}`;
       const redirectUrl = access.canManageProducts ? productsUrl : access.subscriptionUrl;
       return NextResponse.json(
@@ -114,9 +113,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const proofPhotos = Array.isArray(body.shopPhotos)
+      ? body.shopPhotos.map((v: unknown) => String(v ?? "").trim()).filter(Boolean).slice(0, 8)
+      : [];
+    if (!noPhysicalShop && proofPhotos.length < 3) {
+      return NextResponse.json(
+        { error: "Upload at least 3 real photos of your shop to submit." },
+        { status: 400, headers: NO_STORE_HEADERS }
+      );
+    }
+    if (!noPhysicalShop && body.declarationAccepted !== true) {
+      return NextResponse.json(
+        { error: "Please accept the photo declaration to submit." },
+        { status: 400, headers: NO_STORE_HEADERS }
+      );
+    }
+
     const application = await submitBoutiqueApplication({
-      _id: currentApplicationId,
-      partnerUserId: auth?.userId,
+      _id: currentApplicationId,      partnerUserId: auth?.userId,
       draftOwnerId,
       boutiqueName: cleanString(body.boutiqueName),
       ownerName: cleanString(body.ownerName),
@@ -142,6 +156,16 @@ export async function POST(req: NextRequest) {
       subscriptionStatus: "trial_submitted",
       sampleProducts: cleanString(body.sampleProducts) || undefined,
       notes: cleanString(body.notes) || undefined,
+      shopPhotos: Array.isArray(body.shopPhotos)
+        ? body.shopPhotos.map((v: unknown) => String(v ?? "").trim()).filter(Boolean).slice(0, 8)
+        : [],
+      mapPin:
+        body.mapPin && typeof body.mapPin === "object"
+          ? {
+              lat: Number((body.mapPin as Record<string, unknown>).lat),
+              lng: Number((body.mapPin as Record<string, unknown>).lng),
+            }
+          : undefined,
     });
     notifyPartnerApplicationReceived(application);
 
@@ -214,12 +238,22 @@ export async function PUT(req: NextRequest) {
       streetAddress: body.streetAddress !== undefined ? cleanString(body.streetAddress) : undefined,
       noPhysicalShop: typeof body.noPhysicalShop === "boolean" ? body.noPhysicalShop : undefined,
       googleMapsUrl: body.googleMapsUrl !== undefined ? normalizeUrl(body.googleMapsUrl) : undefined,
-      instagram: body.instagram !== undefined ? cleanString(body.instagram) : undefined,
+      instagram: body.instagram !== undefined ? normalizeUrl(body.instagram) : undefined,
       categories: list(body.categories),
       productCount: num(body.productCount) !== undefined ? Math.max(0, Math.floor(num(body.productCount) as number)) : undefined,
       averagePrice: num(body.averagePrice) !== undefined ? Math.max(0, Math.floor(num(body.averagePrice) as number)) : undefined,
       sampleProducts: body.sampleProducts !== undefined ? cleanString(body.sampleProducts) : undefined,
       notes: body.notes !== undefined ? cleanString(body.notes) : undefined,
+      shopPhotos: Array.isArray(body.shopPhotos)
+        ? body.shopPhotos.map((v: unknown) => String(v ?? "").trim()).filter(Boolean).slice(0, 8)
+        : undefined,
+      mapPin:
+        body.mapPin && typeof body.mapPin === "object"
+          ? {
+              lat: Number((body.mapPin as Record<string, unknown>).lat),
+              lng: Number((body.mapPin as Record<string, unknown>).lng),
+            }
+          : undefined,
     });
     if (!updated) {
       return NextResponse.json({ error: "Application can no longer be edited" }, { status: 409, headers: NO_STORE_HEADERS });

@@ -1583,7 +1583,7 @@ function NewsletterSection() {
   );
 }
 
-export default function HomePageClient({ initialProducts }: { initialProducts: Product[] }) {
+export default function HomePageClient({ initialProducts, boutiquesStrip }: { initialProducts: Product[]; boutiquesStrip?: React.ReactNode }) {
   const router = useRouter();
   const mobileCarouselRef = useRef<HTMLDivElement | null>(null);
   const mobileCarouselCardRefs = useRef<Array<HTMLDivElement | null>>([]);
@@ -2186,6 +2186,8 @@ export default function HomePageClient({ initialProducts }: { initialProducts: P
       <BrandPromiseBar />
 
       <BoutiquePartnerSection />
+
+      {boutiquesStrip}
 
       <NewsletterSection />
 
