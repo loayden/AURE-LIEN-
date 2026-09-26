@@ -29,7 +29,7 @@ export async function BoutiqueDirectory() {
   const boutiques = (await getBoutiques()).sort((a, b) => b.liveProducts - a.liveProducts);
   if (boutiques.length === 0) return null;
   return (
-    <section aria-label="Our boutiques" className="mx-auto max-w-7xl px-4 pb-4 pt-20 sm:px-6 sm:pt-24 md:px-10">
+    <section aria-label="Our boutiques" className="mx-auto max-w-7xl px-4 pb-4 sm:px-6 md:px-10">
       <p className="text-[9px] uppercase tracking-[0.45em]" style={{ color: "var(--gold-text)" }}>
         Our Boutiques
       </p>
