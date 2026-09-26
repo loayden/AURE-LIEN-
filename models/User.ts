@@ -22,6 +22,8 @@ const userSchema = new Schema({
   twoFactorEnabled: { type: Boolean, default: false },
   tokenVersion: { type: Number, default: 0 },
   birthdate: { type: String, default: "" },
+  resetTokenHash: { type: String, default: "" },
+  resetExpires: { type: Date },
   createdAt: { type: Date, default: Date.now },
 });
 

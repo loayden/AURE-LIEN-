@@ -8,6 +8,13 @@ const MAX_MESSAGE_LENGTH = 1200;
 const CHAT_TIMEOUT_MS = 12000;
 
 export async function POST(req: NextRequest) {
+  const { RATE_LIMITS, rateLimitResponse } = await import("@/lib/rateLimit");
+  const { isOriginAllowed } = await import("@/lib/csrf");
+  const limited = await rateLimitResponse(req, RATE_LIMITS.ai);
+  if (limited) return limited;
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+  }
   if (!process.env.OPENAI_API_KEY) {
     return NextResponse.json(
       { error: "AI service not configured" },

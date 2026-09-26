@@ -89,6 +89,7 @@ export const RATE_LIMITS = {
   checkout: { limit: 30, windowSec: 60, prefix: "checkout" },
   saveorder: { limit: 30, windowSec: 60, prefix: "saveorder" },
   cart: { limit: 60, windowSec: 60, prefix: "cart" },
+  ai: { limit: 20, windowSec: 60, prefix: "ai" },
   admin: { limit: 60, windowSec: 60, prefix: "admin" },
   upload: { limit: 20, windowSec: 60, prefix: "upload" },
 } as const;

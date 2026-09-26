@@ -38,6 +38,7 @@ type AccountUser = {
   city?: string;
   postalCode?: string;
   country?: string;
+  birthdate?: string;
 };
 
 type AccountOrderItem = {
@@ -121,6 +122,7 @@ type FieldConfig = {
   placeholder: string;
   autoComplete?: string;
   readOnly?: boolean;
+  type?: string;
 };
 
 type TabId = "overview" | "orders" | "profile" | "boutique" | "security";
@@ -130,6 +132,7 @@ const profileFields: FieldConfig[] = [
   { key: "email", label: "Email", placeholder: "Email address", autoComplete: "email", readOnly: true },
   { key: "phone", label: "Phone", placeholder: "Phone number", autoComplete: "tel" },
   { key: "city", label: "City", placeholder: "City", autoComplete: "address-level2" },
+  { key: "birthdate", label: "Birthday (for a gift)", placeholder: "", autoComplete: "bday", type: "date" },
 ];
 
 const deliveryFields: FieldConfig[] = [
@@ -1041,6 +1044,7 @@ export default function AccountPage() {
                             {field.label}
                           </span>
                           <Input
+                            type={field.type ?? "text"}
                             autoComplete={field.autoComplete}
                             value={String(draft[field.key] ?? "")}
                             onChange={(e) => updateDraft(field.key, e.target.value)}

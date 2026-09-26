@@ -418,8 +418,11 @@ export async function updateUserRole(id: string, role: "customer" | "admin" | "s
 
 export async function updateUserProfile(
   id: string,
-  data: Partial<Pick<UserRecord, "name" | "phone" | "address" | "apartment" | "city" | "postalCode" | "country" | "accountIntent">>
+  data: Partial<Pick<UserRecord, "name" | "phone" | "address" | "apartment" | "city" | "postalCode" | "country" | "accountIntent" | "birthdate">>
 ): Promise<UserRecord | null> {
+  const birthdate = typeof data.birthdate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(data.birthdate.trim())
+    ? data.birthdate.trim()
+    : undefined;
   const updates = {
     name: data.name?.trim(),
     phone: data.phone?.trim(),
@@ -431,6 +434,7 @@ export async function updateUserProfile(
     accountIntent: ["buyer", "partner", "both"].includes(String(data.accountIntent))
       ? data.accountIntent
       : undefined,
+    birthdate,
   };
 
   Object.keys(updates).forEach((key) => {

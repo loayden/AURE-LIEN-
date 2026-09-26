@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import { paginateArray, parsePaginationParams } from "@/lib/pagination";
 import { convertPrice, formatConvertedPrice, getSupportedCurrencies } from "@/lib/currency";
 import { loyaltyTier, pointsForTotal, redeemValueForPoints } from "@/lib/loyalty";
+import { cartItemSchema, loginSchema, saveOrderSchema, signupSchema } from "@/lib/validate";
+import { normalizeCouponCode } from "@/lib/coupons";
 
 describe("pagination", () => {
   it("paginates arrays with metadata", () => {
@@ -56,5 +58,43 @@ describe("loyalty", () => {
   it("redeems in 100-point steps", () => {
     expect(redeemValueForPoints(250)).toBe(20);
     expect(redeemValueForPoints(99)).toBe(0);
+  });
+});
+
+describe("validation schemas", () => {
+  it("accepts valid cart items, rejects junk", () => {
+    expect(cartItemSchema.safeParse({ productId: "p-1", quantity: 2 }).success).toBe(true);
+    expect(cartItemSchema.safeParse({ productId: "", quantity: 0 }).success).toBe(false);
+    expect(cartItemSchema.safeParse({ productId: "p-1", quantity: 100 }).success).toBe(false);
+  });
+
+  it("requires email-shaped login", () => {
+    expect(loginSchema.safeParse({ email: "a@b.com", password: "x" }).success).toBe(true);
+    expect(loginSchema.safeParse({ email: "nope", password: "x" }).success).toBe(false);
+  });
+
+  it("enforces signup rules", () => {
+    const good = { name: "N", email: "a@b.com", password: "long enough phrase", confirmPassword: "long enough phrase" };
+    expect(signupSchema.safeParse(good).success).toBe(true);
+    expect(signupSchema.safeParse({ ...good, password: "short" }).success).toBe(false);
+    expect(signupSchema.safeParse({ ...good, confirmPassword: "mismatch" }).success).toBe(false);
+  });
+
+  it("requires order essentials", () => {
+    const good = {
+      items: [{ productId: "p-1", quantity: 1 }],
+      total: 100,
+      customerInfo: { email: "a@b.com", name: "N", address: "A" },
+    };
+    expect(saveOrderSchema.safeParse(good).success).toBe(true);
+    expect(saveOrderSchema.safeParse({ ...good, items: [] }).success).toBe(false);
+    expect(saveOrderSchema.safeParse({ ...good, customerInfo: { email: "bad", address: "A" } }).success).toBe(false);
+  });
+});
+
+describe("coupons", () => {
+  it("normalizes codes safely", () => {
+    expect(normalizeCouponCode("  welcome-10!! ")).toBe("WELCOME-10");
+    expect(normalizeCouponCode("")).toBe("");
   });
 });

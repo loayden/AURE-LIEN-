@@ -18,6 +18,7 @@ function publicUser(user: any) {
     city: user.city ?? "",
     postalCode: user.postalCode ?? "",
     country: user.country ?? "",
+    birthdate: user.birthdate ?? "",
   };
 }
 
@@ -58,6 +59,7 @@ export async function PATCH(req: NextRequest) {
       postalCode: typeof body.postalCode === "string" ? body.postalCode : undefined,
       country: typeof body.country === "string" ? body.country : undefined,
       accountIntent: typeof body.accountIntent === "string" ? body.accountIntent : undefined,
+      birthdate: typeof body.birthdate === "string" ? body.birthdate : undefined,
     });
 
     if (!updated) {

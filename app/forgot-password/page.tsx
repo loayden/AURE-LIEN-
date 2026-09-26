@@ -1,14 +1,33 @@
+"use client";
+
 import { ArrowLeft, Mail, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Forgot Password | BOUT",
-  description: "Recover access to your BOUT account.",
-};
+import { useState } from "react";
 
 export default function ForgotPasswordPage() {
-  const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@boutique-eg.com";
+  const [email, setEmail] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      const res = await fetch("/api/auth/forgot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) throw new Error("Could not send reset link");
+      setSent(true);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not send reset link");
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <main
@@ -41,26 +60,48 @@ export default function ForgotPasswordPage() {
         >
           Reset access safely.
         </h1>
-        <p className="mx-auto mt-5 max-w-sm text-sm font-light leading-7 text-[#6F6257]">
-          Password reset automation is being protected before launch. Send the account email to support and an admin will verify the request before changing access.
-        </p>
-
-        <div className="mt-7 rounded-2xl border border-[#A87935]/18 bg-[#FFF8EC]/64 p-4 text-left">
-          <p className="text-[9px] uppercase tracking-[0.34em] text-[#A87935]">Support Email</p>
-          <a
-            href={`mailto:${supportEmail}?subject=BOUT password reset request`}
-            className="mt-3 flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-[#A87935]/25 bg-[#4C3A26] px-4 py-3 text-[10px] uppercase tracking-[0.24em] text-[#FFF8EC] transition hover:bg-[#3D3025]"
-          >
-            <Mail className="h-4 w-4" strokeWidth={1.3} />
-            Email Support
-          </a>
-        </div>
+        {sent ? (
+          <p className="mx-auto mt-5 max-w-sm text-sm font-light leading-7 text-[#6F6257]">
+            If an account exists for that email, a reset link valid for 1 hour is on its way.
+          </p>
+        ) : (
+          <form onSubmit={submit} className="mt-6 text-left">
+            <label className="mb-2 block text-[10px] uppercase tracking-[0.24em]" style={{ color: "var(--gold-text)" }} htmlFor="forgot-email">
+              Account email
+            </label>
+            <input
+              id="forgot-email"
+              type="email"
+              name="email"
+              autoComplete="email"
+              spellCheck={false}
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="you@example.com…"
+              className="min-h-[52px] w-full rounded-[14px] border px-5 text-[0.95rem] text-[#3D3025] outline-none"
+              style={{ border: "1px solid rgba(123,103,82,0.22)", background: "rgba(255,255,255,0.7)" }}
+            />
+            {error ? (
+              <p className="mt-2 text-sm text-[#9A2222]" role="alert">{error}</p>
+            ) : null}
+            <button
+              type="submit"
+              disabled={busy}
+              className="mt-4 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-[10px] uppercase tracking-[0.24em] text-[#FFF8EC] transition disabled:opacity-50"
+              style={{ background: "linear-gradient(135deg, #4C3A26, #7D592B)" }}
+            >
+              <Mail className="h-4 w-4" strokeWidth={1.3} />
+              {busy ? "Sending…" : "Send Reset Link"}
+            </button>
+          </form>
+        )}
 
         <Link
           href="/login"
           className="mx-auto mt-6 inline-flex min-h-[44px] items-center justify-center gap-2 px-4 text-[10px] uppercase tracking-[0.28em] text-[#7B6E60] transition hover:text-[#A87935]"
         >
-          <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.3} />
+          <ArrowLeft className="h-3.5 w-3.5" />
           Back to Login
         </Link>
       </section>
