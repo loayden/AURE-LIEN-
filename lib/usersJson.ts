@@ -14,7 +14,7 @@ import {
   readBlobTextWithLegacyPublicFallback,
   writeBlobText,
 } from "@/lib/blobStorage";
-import { useMongoStorage as hasMongoStorage } from "@/lib/mongoEnv";
+import { useMongoStorage as hasMongoStorage, mongoOnly } from "@/lib/mongoEnv";
 
 export interface UserRecord {
   id: string;
@@ -224,6 +224,10 @@ async function writeUserSnapshots(users: UserRecord[]) {
 }
 
 export async function getUsersJson(): Promise<UserRecord[]> {
+  if (mongoOnly()) {
+    return readMongoUsers();
+  }
+
   const snapshotUsers = await readUserSnapshots();
 
   if (!useMongoStorage()) {
@@ -290,13 +294,15 @@ export async function createUser(
         user,
         { upsert: true, new: true, setDefaultsOnInsert: true }
       );
-      try {
-        await syncUserSnapshotsFromMongo();
-      } catch (error) {
-        console.warn(
-          "⚠️ User saved to MongoDB but snapshot sync failed:",
-          error instanceof Error ? error.message : String(error)
-        );
+      if (!mongoOnly()) {
+        try {
+          await syncUserSnapshotsFromMongo();
+        } catch (error) {
+          console.warn(
+            "⚠️ User saved to MongoDB but snapshot sync failed:",
+            error instanceof Error ? error.message : String(error)
+          );
+        }
       }
       return user;
     } catch (error) {
@@ -361,13 +367,15 @@ export async function upsertGoogleUser(
         nextUser,
         { upsert: true, new: true, setDefaultsOnInsert: true }
       );
-      try {
-        await syncUserSnapshotsFromMongo();
-      } catch (error) {
-        console.warn(
-          "⚠️ Google user saved to MongoDB but snapshot sync failed:",
-          error instanceof Error ? error.message : String(error)
-        );
+      if (!mongoOnly()) {
+        try {
+          await syncUserSnapshotsFromMongo();
+        } catch (error) {
+          console.warn(
+            "⚠️ Google user saved to MongoDB but snapshot sync failed:",
+            error instanceof Error ? error.message : String(error)
+          );
+        }
       }
       return { user: nextUser, created };
     } catch (error) {
@@ -391,13 +399,15 @@ export async function updateUserRole(id: string, role: "customer" | "admin" | "s
         { id },
         { role }
       );
-      try {
-        await syncUserSnapshotsFromMongo();
-      } catch (error) {
-        console.warn(
-          "⚠️ MongoDB user role updated but snapshot sync failed:",
-          error instanceof Error ? error.message : String(error)
-        );
+      if (!mongoOnly()) {
+        try {
+          await syncUserSnapshotsFromMongo();
+        } catch (error) {
+          console.warn(
+            "⚠️ MongoDB user role updated but snapshot sync failed:",
+            error instanceof Error ? error.message : String(error)
+          );
+        }
       }
       return;
     } catch (error) {
@@ -449,13 +459,15 @@ export async function updateUserProfile(
     try {
       await connectDB();
       await User.findOneAndUpdate({ id }, updates);
-      try {
-        await syncUserSnapshotsFromMongo();
-      } catch (error) {
-        console.warn(
-          "⚠️ MongoDB user profile updated but snapshot sync failed:",
-          error instanceof Error ? error.message : String(error)
-        );
+      if (!mongoOnly()) {
+        try {
+          await syncUserSnapshotsFromMongo();
+        } catch (error) {
+          console.warn(
+            "⚠️ MongoDB user profile updated but snapshot sync failed:",
+            error instanceof Error ? error.message : String(error)
+          );
+        }
       }
       return findUserById(id);
     } catch (error) {
@@ -503,13 +515,15 @@ export async function updateUserDeviceInfo(
     try {
       await connectDB();
       await User.findOneAndUpdate({ id }, updates);
-      try {
-        await syncUserSnapshotsFromMongo();
-      } catch (error) {
-        console.warn(
-          "⚠️ MongoDB user device updated but snapshot sync failed:",
-          error instanceof Error ? error.message : String(error)
-        );
+      if (!mongoOnly()) {
+        try {
+          await syncUserSnapshotsFromMongo();
+        } catch (error) {
+          console.warn(
+            "⚠️ MongoDB user device updated but snapshot sync failed:",
+            error instanceof Error ? error.message : String(error)
+          );
+        }
       }
       return findUserById(id);
     } catch (error) {
@@ -548,13 +562,15 @@ export async function updateUserSecurity(
     try {
       await connectDB();
       await User.findOneAndUpdate({ id }, clean);
-      try {
-        await syncUserSnapshotsFromMongo();
-      } catch (error) {
-        console.warn(
-          "⚠️ MongoDB user security updated but snapshot sync failed:",
-          error instanceof Error ? error.message : String(error)
-        );
+      if (!mongoOnly()) {
+        try {
+          await syncUserSnapshotsFromMongo();
+        } catch (error) {
+          console.warn(
+            "⚠️ MongoDB user security updated but snapshot sync failed:",
+            error instanceof Error ? error.message : String(error)
+          );
+        }
       }
       return findUserById(id);
     } catch (error) {
@@ -594,7 +610,9 @@ export async function clearCustomerUserRecords(): Promise<{
     }
   }
 
-  await writeUserSnapshots(adminUsers);
+  if (!mongoOnly()) {
+    await writeUserSnapshots(adminUsers);
+  }
   return {
     removedUsers,
     preservedAdmins: adminUsers.length,

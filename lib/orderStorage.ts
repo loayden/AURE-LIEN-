@@ -20,7 +20,7 @@ import {
   readBlobTextWithLegacyPublicFallback,
   writeBlobText,
 } from "@/lib/blobStorage";
-import { useMongoStorage as hasMongoStorage } from "@/lib/mongoEnv";
+import { useMongoStorage as hasMongoStorage, mongoOnly } from "@/lib/mongoEnv";
 
 const BLOB_ORDERS_PATH = "orders.json";
 const BLOB_ORDERS_DATA_PATH = "ordersData.json";
@@ -307,6 +307,10 @@ async function readBlobByPathname(pathname: string): Promise<string | null> {
 
 /** Read orders array (used by /api/orders and /api/saveorder) */
 export async function getOrdersJson(): Promise<any[]> {
+  if (mongoOnly()) {
+    return readMongoOrders();
+  }
+
   const snapshotOrders = await readOrderSnapshots();
 
   if (useMongoStorage()) {
@@ -331,13 +335,15 @@ export async function appendOrder(order: any): Promise<any> {
       normalized,
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
-    try {
-      await syncOrderSnapshotsFromMongo();
-    } catch (error) {
-      console.warn(
-        "⚠️ Order saved to MongoDB but snapshot sync failed:",
-        error instanceof Error ? error.message : String(error)
-      );
+    if (!mongoOnly()) {
+      try {
+        await syncOrderSnapshotsFromMongo();
+      } catch (error) {
+        console.warn(
+          "⚠️ Order saved to MongoDB but snapshot sync failed:",
+          error instanceof Error ? error.message : String(error)
+        );
+      }
     }
     return normalized;
   }
@@ -393,7 +399,7 @@ export async function removeOrderById(orderId: string, userId?: string): Promise
     await connectDB();
     const filter = userId ? { _id: orderId, userId } : { _id: orderId };
     const result = await Order.deleteOne(filter);
-    if (result.deletedCount > 0) {
+    if (result.deletedCount > 0 && !mongoOnly()) {
       try {
         await syncOrderSnapshotsFromMongo([orderId]);
       } catch (error) {
@@ -453,13 +459,15 @@ export async function setOrdersJson(orders: any[]): Promise<void> {
     await connectDB();
     if (normalized.length === 0) {
       await Order.deleteMany({});
-      try {
-        await writeOrderSnapshots([]);
-      } catch (error) {
-        console.warn(
-          "⚠️ MongoDB orders cleared but snapshot sync failed:",
-          error instanceof Error ? error.message : String(error)
-        );
+      if (!mongoOnly()) {
+        try {
+          await writeOrderSnapshots([]);
+        } catch (error) {
+          console.warn(
+            "⚠️ MongoDB orders cleared but snapshot sync failed:",
+            error instanceof Error ? error.message : String(error)
+          );
+        }
       }
       return;
     }
@@ -474,13 +482,15 @@ export async function setOrdersJson(orders: any[]): Promise<void> {
         },
       }))
     );
-    try {
-      await writeOrderSnapshots(normalized);
-    } catch (error) {
-      console.warn(
-        "⚠️ MongoDB orders updated but snapshot sync failed:",
-        error instanceof Error ? error.message : String(error)
-      );
+    if (!mongoOnly()) {
+      try {
+        await writeOrderSnapshots(normalized);
+      } catch (error) {
+        console.warn(
+          "⚠️ MongoDB orders updated but snapshot sync failed:",
+          error instanceof Error ? error.message : String(error)
+        );
+      }
     }
     return;
   }

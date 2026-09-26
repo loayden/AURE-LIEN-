@@ -1,9 +1,9 @@
 var R=require("../../../chunks/ssr/[turbopack]_runtime.js")("server/app/admin/products/page.js")
 R.c("server/chunks/ssr/[root-of-the-server]__08q5a_b._.js")
 R.c("server/chunks/ssr/node_modules_next_dist_esm_build_templates_app-page_0ldpv1r.js")
-R.c("server/chunks/ssr/[root-of-the-server]__0k1gh9c._.js")
-R.c("server/chunks/ssr/node_modules_next_dist_06hehg4._.js")
-R.c("server/chunks/ssr/[root-of-the-server]__0zwdxc1._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0m-np-2._.js")
+R.c("server/chunks/ssr/node_modules_next_dist_0l.0_h~._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__00_5qf3._.js")
 R.c("server/chunks/ssr/app_error_tsx_11t4ysq._.js")
 R.c("server/chunks/ssr/app_not-found_tsx_0u42gv_._.js")
 R.c("server/chunks/ssr/node_modules_next_dist_client_components_0ee1czk._.js")
@@ -11,5 +11,5 @@ R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_unauthor
 R.c("server/chunks/ssr/app_global-error_tsx_0m9qisk._.js")
 R.c("server/chunks/ssr/app_admin_layout_tsx_12a.fw9._.js")
 R.c("server/chunks/ssr/_next-internal_server_app_admin_products_page_actions_0bqda6e.js")
-R.m(3786)
-module.exports=R.m(3786).exports
+R.m(803786)
+module.exports=R.m(803786).exports

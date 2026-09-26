@@ -38,6 +38,17 @@ export function useMongoStorage(): boolean {
   return hasConfiguredMongoUri();
 }
 
+/**
+ * When `BOUT_MONGO_ONLY=1` the app skips all JSON-snapshot / Blob / Redis
+ * persistence layers and reads/writes exclusively through MongoDB.
+ * Enable this once you have a stable Mongo connection in production
+ * so you eliminate the triple-write overhead.
+ */
+export function mongoOnly(): boolean {
+  const raw = String(process.env.BOUT_MONGO_ONLY ?? "").trim().toLowerCase();
+  return hasConfiguredMongoUri() && ["1", "true", "yes"].includes(raw);
+}
+
 export function requireMongoUri(): string {
   const uri = getConfiguredMongoUri();
   if (uri) return uri;
