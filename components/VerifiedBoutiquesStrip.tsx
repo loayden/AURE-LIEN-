@@ -30,7 +30,35 @@ export async function VerifiedBoutiquesStrip() {
     .sort((a, b) => b.pieces - a.pieces)
     .slice(0, 10);
 
-  if (boutiques.length === 0) return null;
+  if (boutiques.length === 0) {
+    // No verified boutiques yet: honest acquisition banner, never fake listings.
+    return (
+      <section
+        aria-label="Verified boutiques — coming soon"
+        data-testid="verified-boutiques-strip"
+        className="border-y border-[#DDDAD2] bg-[#FFFDF8] px-4 py-10 sm:px-6 sm:py-12 md:px-10"
+      >
+        <div className="mx-auto flex w-full max-w-[92rem] flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.22em] text-[#725D2C]">Verified Boutiques</p>
+            <h2 className="mt-2 font-serif text-2xl font-light text-[#171513] sm:text-4xl">
+              Cairo&apos;s best shops — joining now.
+            </h2>
+            <p className="mt-2 max-w-xl text-sm leading-6 text-[#5A5650]">
+              We verify every physical store before it sells. Own one? Get the badge, the section, and the customers.
+            </p>
+          </div>
+          <Link
+            href="/boutiques/apply"
+            className="inline-flex min-h-[52px] shrink-0 items-center gap-2 rounded-full px-7 text-[11px] uppercase tracking-[0.2em] text-white"
+            style={{ background: "linear-gradient(135deg, #4C3A26, #7D592B)" }}
+          >
+            Verify My Boutique — Free
+          </Link>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
