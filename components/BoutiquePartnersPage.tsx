@@ -21,6 +21,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import Image from "next/image";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import { useRouter } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -855,13 +856,13 @@ export default function BoutiquePartnersPage({ mode = "landing" }: BoutiquePartn
             </div>
 
             <div className="mt-4 grid w-full min-w-0 grid-cols-2 gap-2 sm:mt-5 sm:flex sm:flex-row-reverse sm:gap-3" dir="rtl">
-              <a href="/boutiques/apply" className="btn-gold col-span-2 justify-center" style={{ letterSpacing: "0.03em" }}>
+              <UnifiedButton href="/boutiques/apply" variant="primary" size="md" fullWidth style={{ letterSpacing: "0.03em" }}>
                 ابدأ تجربة 7 أيام
                 <ArrowRight className="h-4 w-4 rotate-180" strokeWidth={1.4} />
-              </a>
-              <a href="#partner-plans" className="btn-ghost col-span-2 justify-center" style={{ letterSpacing: "0.03em" }}>
+              </UnifiedButton>
+              <UnifiedButton href="#partner-plans" variant="ghost" size="md" fullWidth style={{ letterSpacing: "0.03em" }}>
                 شوف الباقات
-              </a>
+              </UnifiedButton>
             </div>
 
             <div className="mt-3 grid grid-cols-3 gap-1.5 rounded-[14px] border border-[rgba(123,103,82,0.12)] bg-white/58 p-2 text-[0.65rem] leading-4 text-[#6F6254] shadow-[0_8px_22px_rgba(61,48,37,0.04)] sm:mt-4 sm:gap-2 sm:rounded-[18px] sm:p-3 sm:text-xs sm:leading-5">
@@ -964,24 +965,28 @@ export default function BoutiquePartnersPage({ mode = "landing" }: BoutiquePartn
                 ابدأ 7 أيام مجانا على Starter. لو الخدمة مناسبة للبوتيك، كمل الاشتراك بعد نهاية التجربة.
               </p>
               {!draftLoaded || draftSaving ? (
-                <button
+                <UnifiedButton
                   type="button"
-                  disabled
-                  className="btn-gold justify-center"
+                  variant="primary"
+                  size="md"
+                  className="justify-center"
                   style={{ letterSpacing: "0.03em" }}
+                  disabled
                 >
                   Checking Access
                   <ArrowRight className="h-4 w-4" strokeWidth={1.35} />
-                </button>
+                </UnifiedButton>
               ) : (
-                <a
+                <UnifiedButton
                   href={starterCtaHref}
-                  className="btn-gold justify-center"
+                  variant="primary"
+                  size="md"
+                  className="justify-center"
                   style={{ letterSpacing: "0.03em" }}
                 >
                   {starterCtaLabel}
                   <ArrowRight className="h-4 w-4" strokeWidth={1.35} />
-                </a>
+                </UnifiedButton>
               )}
             </div>
           </div>
@@ -1026,16 +1031,19 @@ export default function BoutiquePartnersPage({ mode = "landing" }: BoutiquePartn
                 <p className="mt-3 rounded-[14px] border border-[rgba(123,103,82,0.12)] bg-[#F8F5EF]/80 p-2.5 text-[0.72rem] leading-5 text-[#6F6254] sm:mt-4 sm:rounded-[16px] sm:p-3 sm:text-xs sm:leading-6">
                   الترقية دي تظهر للشريك بعد ما يبدأ بـ Starter. الخطة دي مدفوعة بدون تجربة مجانية.
                 </p>
-                <button
+                <UnifiedButton
                   type="button"
+                  variant="primary"
+                  size="md"
+                  fullWidth
                   onClick={() => startPaidCheckout(plan.id)}
                   disabled={navigatingPlan === plan.id}
-                  className="btn-gold mt-3 w-full justify-center sm:mt-4"
+                  className="mt-3 sm:mt-4"
                   style={{ letterSpacing: "0.03em" }}
                 >
                   {navigatingPlan === plan.id ? "Opening Checkout" : "Subscribe"}
                   <ArrowRight className="h-4 w-4" strokeWidth={1.35} />
-                </button>
+                </UnifiedButton>
               </article>
             ))}
           </div>
@@ -1439,9 +1447,9 @@ export default function BoutiquePartnersPage({ mode = "landing" }: BoutiquePartn
 
                 <div className="rounded-[18px] border border-[rgba(123,103,82,0.14)] bg-white/78 p-3 shadow-[0_12px_32px_rgba(61,48,37,0.06)] sm:rounded-[24px] sm:p-4">
                   <div className="flex flex-col gap-2 sm:flex-row sm:flex-row-reverse sm:items-center sm:justify-between sm:gap-3">
-                    <button type="submit" disabled={submitting} className="btn-gold justify-center" style={{ letterSpacing: "0.03em" }}>
+                    <UnifiedButton type="submit" variant="primary" size="md" className="justify-center" style={{ letterSpacing: "0.03em" }} disabled={submitting}>
                       {submitting ? "جاري الإرسال" : "إرسال طلب الشراكة"}
-                    </button>
+                    </UnifiedButton>
                     <span className="inline-flex items-center justify-center gap-2 text-center text-xs leading-5 text-[#6F6254] sm:justify-start sm:text-sm">
                       <MapPin className="h-4 w-4 text-[#A87935]" strokeWidth={1.35} />
                       بعد الإرسال هتروح لصفحة رفع المنتجات
@@ -1482,8 +1490,10 @@ export default function BoutiquePartnersPage({ mode = "landing" }: BoutiquePartn
             padding-right: 0 !important;
           }
 
-          .boutique-partner-page .btn-gold,
-          .boutique-partner-page .btn-ghost {
+          .boutique-partner-page .btn-primary,
+          .boutique-partner-page .btn-gold-glass,
+          .boutique-partner-page .btn-ghost,
+          .boutique-partner-page .btn-outline {
             font-size: 0.75rem;
             letter-spacing: 0.03em !important;
             text-transform: none;

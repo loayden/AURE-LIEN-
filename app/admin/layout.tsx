@@ -2,6 +2,7 @@
 
 import AdminBanner from "@/components/admin/AdminBanner";
 import Link from "next/link";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { BarChart3, Building2, Download, LayoutDashboard, Package, PackageCheck, Plus, ScrollText, ShoppingBag, Ticket, Upload, UserCog, Users, Warehouse } from "lucide-react";
@@ -93,15 +94,17 @@ export default function AdminLayout({
 
             {error ? <AdminBanner message={error} /> : null}
 
-            <button
+            <UnifiedButton
               type="button"
+              variant="primary"
+              size="md"
+              fullWidth
               onClick={handleExportOrders}
               disabled={exporting}
-              className="btn-gold w-full justify-center"
             >
               <Download className="h-4 w-4 shrink-0" />
               {exporting ? "Exporting" : "Download Orders"}
-            </button>
+            </UnifiedButton>
           </aside>
 
           <section className="glass-panel p-4 sm:p-7 md:p-8">{children}</section>

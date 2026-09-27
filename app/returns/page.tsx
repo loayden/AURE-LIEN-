@@ -1,5 +1,6 @@
 import { ArrowRight, PackageCheck, RefreshCcw, ShieldCheck, Truck } from "lucide-react";
 import Link from "next/link";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 
 export const metadata = {
   title: "Returns & Exchanges | BOUT",
@@ -68,10 +69,10 @@ export default function ReturnsPage() {
                 Open your order history, copy the order number, and contact the BOUT team through the active support channel.
               </p>
             </div>
-            <Link href="/orders" className="btn-gold justify-center">
+            <UnifiedButton href="/orders" variant="primary" size="md" className="justify-center">
               View Orders
               <ArrowRight className="h-4 w-4" strokeWidth={1.3} />
-            </Link>
+            </UnifiedButton>
           </div>
         </section>
       </div>

@@ -5,6 +5,7 @@ import { withPublicAssetVersion } from "@/lib/publicAsset";
 import { ArrowRight, Briefcase, Gift, Layers, Moon, Plane, Sparkles, SunMedium } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 
 export const dynamic = "force-dynamic";
 
@@ -85,13 +86,13 @@ export default async function CollectionPage() {
               A clearer gateway into the catalog: start broad with the main departments, then move into focused edits when the silhouette is already decided.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link href="/shop" className="btn-gold justify-center">
+              <UnifiedButton href="/shop" variant="primary" size="md" className="justify-center">
                 Shop All
                 <ArrowRight className="h-4 w-4" strokeWidth={1.3} />
-              </Link>
-              <Link href="/shop" className="btn-ghost justify-center">
+              </UnifiedButton>
+              <UnifiedButton href="/shop" variant="ghost" size="md" className="justify-center">
                 Browse Shop
-              </Link>
+              </UnifiedButton>
             </div>
           </div>
         </div>
@@ -187,9 +188,9 @@ export default async function CollectionPage() {
                 Narrow the <em className="gold-italic">choice</em>
               </h2>
             </div>
-            <Link href="/shop" className="btn-ghost justify-center">
+            <UnifiedButton href="/shop" variant="ghost" size="md" className="justify-center">
               Full Shop
-            </Link>
+            </UnifiedButton>
           </div>
 
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-4">

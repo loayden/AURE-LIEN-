@@ -5,6 +5,7 @@ import { formatPrice } from "@/lib/commerce";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, Building2, CheckCircle2, CreditCard, MapPin, ShieldCheck, Store } from "lucide-react";
 import Link from "next/link";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import { useSearchParams } from "next/navigation";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -357,9 +358,9 @@ export default function PartnerSubscriptionCheckoutPage() {
                 <p className="eyebrow mb-2" dir="ltr">BUSINESS DETAILS</p>
                 <h2 className="title-display text-[2rem] leading-none sm:text-[2.7rem]">بيانات الاشتراك</h2>
               </div>
-              <Link href={changePlanHref} className="btn-ghost justify-center">
+              <UnifiedButton href={changePlanHref} variant="ghost" size="md" className="justify-center">
                 تغيير الباقة
-              </Link>
+              </UnifiedButton>
             </div>
 
             <div
@@ -427,7 +428,7 @@ export default function PartnerSubscriptionCheckoutPage() {
                     </p>
                   </div>
                 </div>
-                <button
+<UnifiedButton
                   type="button"
                   onClick={() => {
                     const nextNoShop = !form.noPhysicalShop;
@@ -438,10 +439,12 @@ export default function PartnerSubscriptionCheckoutPage() {
                       streetAddress: nextNoShop ? "" : current.streetAddress,
                     }));
                   }}
-                  className={form.noPhysicalShop ? "btn-gold justify-center" : "btn-ghost justify-center"}
+                  variant={form.noPhysicalShop ? "primary" : "ghost"}
+                  size="md"
+                  className="justify-center"
                 >
                   {form.noPhysicalShop ? "Add Shop Address" : "I Don't Have a Shop Yet"}
-                </button>
+                </UnifiedButton>
               </div>
 
               <AnimatePresence mode="popLayout">
@@ -478,10 +481,10 @@ export default function PartnerSubscriptionCheckoutPage() {
               <p className="text-xs leading-6 text-[#6F6254]">
                 Payment opens through Paymob. BOUT stores only the application, plan, and shop status.
               </p>
-              <button type="submit" disabled={draftSaving || paying} className="btn-gold justify-center">
+              <UnifiedButton type="submit" variant="primary" size="md" className="justify-center" disabled={draftSaving || paying}>
                 {paying ? "Opening Paymob" : draftSaving ? "Saving Draft" : "Subscribe"}
                 <ArrowRight className="h-4 w-4" strokeWidth={1.35} />
-              </button>
+              </UnifiedButton>
             </div>
           </motion.form>
         </section>

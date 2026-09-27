@@ -5,6 +5,7 @@ import { useTimeoutRegistry } from "@/hooks/useTimeoutRegistry";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Product } from "@/lib/types";
@@ -263,16 +264,15 @@ export default function AIChatStylist() {
                   placeholder="Ask for outfit ideas..."
                   className="glass-input flex-1 px-4 py-3 text-base sm:text-sm"
                 />
-                <motion.button
+                <UnifiedButton
                   type="button"
+                  variant="primary"
+                  size="sm"
                   onClick={send}
                   disabled={loading}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="btn-gold min-h-[44px] min-w-[44px] px-4 py-3 text-[11px] disabled:opacity-50 sm:px-4 sm:py-2 sm:text-sm"
                 >
                   Send
-                </motion.button>
+                </UnifiedButton>
               </div>
             </motion.div>
           )}

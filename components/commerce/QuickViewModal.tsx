@@ -14,6 +14,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, ShoppingBag, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import { useEffect, useState } from "react";
 
 export default function QuickViewModal({
@@ -158,19 +159,21 @@ export default function QuickViewModal({
               ) : null}
 
               <div className="mt-7 grid gap-3 sm:grid-cols-2">
-                <Link href={`/product/${encodeURIComponent(product._id)}`} className="btn-ghost justify-center">
+                <UnifiedButton href={`/product/${encodeURIComponent(product._id)}`} variant="ghost" size="md" className="justify-center">
                   View Product
                   <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.3} />
-                </Link>
-                <button
+                </UnifiedButton>
+                <UnifiedButton
                   type="button"
+                  variant="primary"
+                  size="md"
+                  className="justify-center"
                   onClick={addToCart}
                   disabled={loading || stockState(product) === "sold-out"}
-                  className="btn-gold justify-center disabled:opacity-40"
                 >
                   <ShoppingBag className="h-4 w-4" strokeWidth={1.3} />
                   {stockState(product) === "sold-out" ? "Sold Out" : loading ? "Adding" : "Add to Cart"}
-                </button>
+                </UnifiedButton>
               </div>
             </div>
           </motion.div>

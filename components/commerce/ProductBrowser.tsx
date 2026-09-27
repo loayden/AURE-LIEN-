@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import CompareDrawer from "@/components/commerce/CompareDrawer";
 import QuickViewModal from "@/components/commerce/QuickViewModal";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -535,9 +536,9 @@ function ProductBrowserInner({
         </div>
       ) : null}
 
-      <button type="button" onClick={resetFilters} className="btn-ghost justify-center">
+      <UnifiedButton type="button" variant="ghost" size="sm" className="justify-center" onClick={resetFilters}>
         Reset Filters
-      </button>
+      </UnifiedButton>
     </div>
   );
 
@@ -744,9 +745,9 @@ function ProductBrowserInner({
               <p className="mt-3 max-w-md text-sm leading-7 tracking-[0.05em] text-[#6F6254]">
                 Adjust the filters or reset the catalog view to continue browsing.
               </p>
-              <button type="button" onClick={resetFilters} className="btn-gold mt-7">
+              <UnifiedButton type="button" variant="primary" size="md" onClick={resetFilters}>
                 Reset Filters
-              </button>
+              </UnifiedButton>
             </div>
           )}
         </div>
@@ -798,9 +799,16 @@ function ProductBrowserInner({
                 {filterPanel}
               </div>
               <div className="sticky bottom-0 z-10 shrink-0 border-t border-[rgba(123,103,82,0.12)] bg-[#FFF9EF]/95 p-5 backdrop-blur-md">
-                <button type="button" onClick={() => setMobileFiltersOpen(false)} className="btn-gold min-h-[52px] w-full justify-center text-sm shadow-[0_12px_28px_rgba(168,121,53,0.16)]">
+                <UnifiedButton
+                  type="button"
+                  variant="primary"
+                  size="md"
+                  fullWidth
+                  onClick={() => setMobileFiltersOpen(false)}
+                  className="shadow-[0_12px_28px_rgba(168,121,53,0.16)]"
+                >
                   Show {visibleProducts.length} Results
-                </button>
+                </UnifiedButton>
               </div>
             </motion.div>
           </motion.div>

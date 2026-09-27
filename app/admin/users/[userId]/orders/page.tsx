@@ -4,6 +4,7 @@ import AdminBanner from "@/components/admin/AdminBanner";
 import AdminEmptyState from "@/components/admin/AdminEmptyState";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminPanel from "@/components/admin/AdminPanel";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -117,13 +118,14 @@ export default function AdminUserOrdersPage() {
 
   return (
     <div className="space-y-8">
-      <Link
+      <UnifiedButton
         href="/admin/users"
-        className="btn-ghost inline-flex"
+        variant="ghost"
+        size="sm"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Users
-      </Link>
+      </UnifiedButton>
 
       <AdminPageHeader
         title={user ? `${user.name} Orders` : "Client Orders"}

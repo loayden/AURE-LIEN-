@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, Clock3, CreditCard, Hash, PackageCheck, RotateCcw, Truck } from "lucide-react";
 import Link from "next/link";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
@@ -135,19 +136,19 @@ function ConfirmationContent() {
           </div>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <Link href={orderId ? `/orders?orderId=${encodeURIComponent(orderId)}` : "/orders"} className="btn-gold justify-center">
+            <UnifiedButton href={orderId ? `/orders?orderId=${encodeURIComponent(orderId)}` : "/orders"} variant="primary" size="md" className="justify-center">
               View Orders
               <ArrowRight className="h-4 w-4" strokeWidth={1.3} />
-            </Link>
+            </UnifiedButton>
             {order && (order.items ?? []).length > 0 && (
-              <button type="button" onClick={reorder} disabled={reordering} className="btn-ghost justify-center disabled:opacity-50">
+              <UnifiedButton type="button" variant="ghost" size="md" className="justify-center" onClick={reorder} disabled={reordering}>
                 <RotateCcw className="h-4 w-4" strokeWidth={1.3} />
                 {reordering ? "Adding…" : "Reorder"}
-              </button>
+              </UnifiedButton>
             )}
-            <Link href="/shop" className="btn-ghost justify-center">
+            <UnifiedButton href="/shop" variant="ghost" size="md" className="justify-center">
               Continue Shopping
-            </Link>
+            </UnifiedButton>
           </div>
           {reorderMessage && <p className="mt-3 text-sm text-red-300/80" role="alert">{reorderMessage}</p>}
         </div>

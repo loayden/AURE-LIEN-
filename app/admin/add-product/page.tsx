@@ -3,6 +3,7 @@
 import AdminBanner from "@/components/admin/AdminBanner";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminPanel from "@/components/admin/AdminPanel";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import { useState } from "react";
 
 const CATEGORIES = [
@@ -144,9 +145,9 @@ export default function AdminAddProductPage() {
           />
         </div>
           {message ? <AdminBanner message={message.text} tone={message.type} /> : null}
-          <button type="submit" disabled={submitting} className="btn-gold w-full justify-center">
+          <UnifiedButton type="submit" variant="primary" size="md" fullWidth disabled={submitting}>
             {submitting ? "Adding Product" : "Add Product"}
-          </button>
+          </UnifiedButton>
         </form>
       </AdminPanel>
     </div>

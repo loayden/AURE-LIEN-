@@ -3,6 +3,7 @@
 import AdminBanner from "@/components/admin/AdminBanner";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminPanel from "@/components/admin/AdminPanel";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -67,13 +68,14 @@ export default function UploadPage() {
             />
           </div>
 
-          <button
+          <UnifiedButton
             type="submit"
-            className="btn-gold min-h-[44px] min-w-[44px] px-6 py-3"
+            variant="primary"
+            size="md"
             disabled={loading}
           >
             {loading ? "Uploading" : "Upload"}
-          </button>
+          </UnifiedButton>
         </form>
 
         {error ? <div className="mt-5"><AdminBanner message={error} /></div> : null}

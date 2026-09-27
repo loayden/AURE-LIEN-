@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import { useEffect, useMemo, useState } from "react";
 
 type CartLine = {
@@ -166,9 +167,9 @@ export default function MiniCartDrawer({
                   <p className="mt-3 max-w-xs text-sm leading-6 tracking-[0.06em] text-[#6F6254]">
                     Save the pieces you want, then return here for a faster checkout.
                   </p>
-                  <Link href="/shop" onClick={onClose} className="btn-gold mt-7">
+                  <UnifiedButton href="/shop" variant="primary" size="md" className="mt-7 w-full justify-center" onClick={onClose}>
                     Shop Now
-                  </Link>
+                  </UnifiedButton>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -249,12 +250,12 @@ export default function MiniCartDrawer({
                   </span>
                 </div>
                 <div className="grid gap-2 sm:grid-cols-2">
-                  <Link href="/cart" onClick={onClose} className="btn-ghost justify-center">
+                  <UnifiedButton href="/cart" variant="ghost" size="md" className="justify-center" onClick={onClose}>
                     Cart
-                  </Link>
-                  <Link href="/checkout" onClick={onClose} className="btn-gold justify-center">
+                  </UnifiedButton>
+                  <UnifiedButton href="/checkout" variant="primary" size="md" className="justify-center" onClick={onClose}>
                     Checkout
-                  </Link>
+                  </UnifiedButton>
                 </div>
               </div>
             ) : null}
