@@ -114,7 +114,7 @@ const STYLE_PATHS = [
     title: "Final detail",
     copy: "Bags, belts, sunglasses",
     href: "/accessories",
-    image: withPublicAssetVersion("/uploads/accessories.jpg"),
+    image: withPublicAssetVersion("/uploads/Bags & Wallets.jpg"),
   },
 ] as const;
 
