@@ -27,12 +27,18 @@ export default function ProductActionButton({
       whileTap={state === "sold-out" || busy ? undefined : { scale: 0.94 }}
       animate={busy ? { scale: [1, 0.96, 1] } : { scale: 1 }}
       transition={{ duration: 0.26, ease: easeOut }}
-      className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-[#171513] px-4 py-2.5 text-sm text-[#F8F7F2] transition hover:bg-[#725D2C] disabled:cursor-not-allowed disabled:bg-[#D9D5CC] disabled:text-[#65605A]"
-      style={{
-        backgroundColor: state === "sold-out" || busy ? "#D9D5CC" : "#171513",
-        color: state === "sold-out" || busy ? "#65605A" : "#F8F7F2",
-        borderColor: state === "sold-out" || busy ? "#D9D5CC" : "#171513",
-      }}
+      className="btn-primary inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full !min-h-[40px] !px-4 !py-2 !text-[10px]"
+      style={
+        state === "sold-out" || busy
+          ? {
+              background: "#D9D5CC",
+              backgroundColor: "#D9D5CC",
+              color: "#65605A",
+              borderColor: "#D9D5CC",
+              boxShadow: "none",
+            }
+          : undefined
+      }
     >
       <ShoppingBag className="h-4 w-4" strokeWidth={1.45} />
       <span>{busy ? "Adding" : requiresChoice ? "Choose options" : "Add to Cart"}</span>

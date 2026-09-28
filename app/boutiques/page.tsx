@@ -1,5 +1,6 @@
 import { BoutiqueDirectory } from "@/components/BoutiqueDirectory";
 import { SubscribeCtaBar } from "@/components/SubscribeCtaBar";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import { getBoutiqueApplications } from "@/lib/boutiqueApplications";
 import { getPartnerProducts } from "@/lib/partnerProducts";
 import type { Metadata } from "next";
@@ -55,20 +56,12 @@ export default async function BoutiquesPage() {
             )}
           </p>
           <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-            <Link
-              href="/shop"
-              className="inline-flex min-h-[52px] items-center justify-center rounded-full px-8 text-[10px] tracking-[0.25em] text-white"
-              style={{ background: "linear-gradient(135deg, #4C3A26, #7D592B)" }}
-            >
+            <UnifiedButton href="/shop" variant="primary" size="md">
               تسوّق كل القطع
-            </Link>
-            <Link
-              href="/boutiques/apply"
-              className="inline-flex min-h-[52px] items-center justify-center rounded-full border px-8 text-[10px] tracking-[0.25em]"
-              style={{ borderColor: "rgba(168,121,53,0.4)", color: "var(--gold-text)" }}
-            >
+            </UnifiedButton>
+            <UnifiedButton href="/boutiques/apply" variant="gold" size="md">
               بيع معانا — 7 أيام مجانا
-            </Link>
+            </UnifiedButton>
           </div>
           <div className="mt-6 grid grid-cols-3 gap-3" role="list" aria-label="إحصائيات السوق">
             {[
@@ -130,8 +123,7 @@ export default async function BoutiquesPage() {
                 بعناية {flagship.app.ownerName}. ادخل — كل قطعة عدّت على مراجعة BOUT.
               </span>
               <span
-                className="mt-6 inline-flex min-h-[52px] items-center rounded-full px-8 text-[10px] tracking-[0.25em]"
-                style={{ background: "#D9BC77", color: "#2A2118" }}
+                className="btn-gold-glass mt-6 inline-flex min-h-[52px] items-center rounded-full px-8 text-[10px] tracking-[0.25em]"
               >
                 زور البوتيك ←
               </span>
@@ -176,20 +168,12 @@ export default async function BoutiquesPage() {
                 ))}
               </ul>
               <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-                <Link
-                  href="/boutiques/apply"
-                  className="inline-flex min-h-[52px] items-center justify-center rounded-full px-8 text-[10px] tracking-[0.25em]"
-                  style={{ background: "#D9BC77", color: "#2A2118" }}
-                >
+                <UnifiedButton href="/boutiques/apply" variant="primary" size="md">
                   ابدأ الفترة المجانية
-                </Link>
-                <Link
-                  href="/partners/subscription"
-                  className="inline-flex min-h-[52px] items-center justify-center rounded-full border px-8 text-[10px] tracking-[0.25em]"
-                  style={{ borderColor: "rgba(217,188,119,0.4)", color: "#FFF9EF" }}
-                >
+                </UnifiedButton>
+                <UnifiedButton href="/partners/subscription" variant="gold" size="md">
                   قارن الخطط
-                </Link>
+                </UnifiedButton>
               </div>
             </div>
             <div
@@ -208,13 +192,15 @@ export default async function BoutiquesPage() {
               <p className="mt-1 text-xs" style={{ color: "rgba(255,249,239,0.5)" }}>
                 إلغاء في أي وقت · احتفظ بـ 90% من كل بيعة
               </p>
-              <Link
+              <UnifiedButton
                 href="/boutiques/apply"
-                className="mt-4 inline-flex min-h-[52px] w-full items-center justify-center rounded-full px-8 text-[10px] tracking-[0.25em]"
-                style={{ background: "#D9BC77", color: "#2A2118" }}
+                variant="primary"
+                size="md"
+                fullWidth
+                className="mt-4"
               >
                 احجز أسبوعك المجاني
-              </Link>
+              </UnifiedButton>
             </div>
           </div>
 

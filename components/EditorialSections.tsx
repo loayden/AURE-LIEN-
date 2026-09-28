@@ -214,7 +214,6 @@ export default function EditorialSections({ products }: { products: Product[] })
                 />
                 <motion.div
                   variants={productsStagger}
-                  className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-xl sm:p-6"
                 >
                   <ProductRail products={look3Products} />
                 </motion.div>

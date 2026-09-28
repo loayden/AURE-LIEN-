@@ -9,7 +9,7 @@ import {
   sectionReveal,
   tileReveal,
 } from "@/components/home/sectionMotion";
-import Link from "next/link";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 
 export { easeOut, fadeUp, imageReveal, sectionReveal, tileReveal };
 
@@ -51,17 +51,14 @@ export function SectionIntro({
           whileHover={{ y: -2 }}
           whileTap={{ scale: 0.97 }}
         >
-          <Link
+          <UnifiedButton
             href={action.href}
-            className={`inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full px-5 py-3 text-sm transition ${
-              inverted
-                ? "bg-[#F8F7F2] text-[#171513] hover:bg-[#D8C08A]"
-                : "border border-[#D5D1C8] bg-white text-[#171513] hover:border-[#171513]"
-            }`}
+            variant="primary"
+            size="sm"
           >
             {action.label}
             <AnimatedArrow />
-          </Link>
+          </UnifiedButton>
         </motion.div>
       ) : null}
     </motion.div>

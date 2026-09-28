@@ -3,6 +3,7 @@
 import NewsletterForm from "@/components/NewsletterForm";
 import ProductCard from "@/components/ProductCard";
 import EditorialSections from "@/components/EditorialSections";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import { AnimatedArrow } from "@/components/home/AnimatedArrow";
 import BrandPromiseBar from "@/components/home/BrandPromiseBar";
 import { SectionIntro } from "@/components/home/SectionIntro";
@@ -685,22 +686,20 @@ function SummerCollectionSection({
           </AnimatePresence>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <button
+            <UnifiedButton
               type="button"
+              variant="primary"
+              size="md"
               onClick={() => onShopFullSet(activeSlide.products)}
               disabled={addSetBusy}
-              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-[#171513] px-6 py-3 text-sm text-[#F8F7F2] transition hover:bg-[#725D2C] disabled:cursor-not-allowed disabled:bg-[#D9D5CC] disabled:text-[#65605A]"
             >
               <ShoppingBag className="h-4 w-4" strokeWidth={1.5} />
               {addSetBusy ? "Adding set" : "Shop full set"}
-            </button>
-            <Link
-              href="/shop"
-              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-[#D5D1C8] bg-white px-6 py-3 text-sm text-[#171513] transition hover:border-[#171513]"
-            >
+            </UnifiedButton>
+            <UnifiedButton href="/shop" variant="gold" size="md">
               <ShoppingBag className="h-4 w-4" strokeWidth={1.5} />
               View in shop
-            </Link>
+            </UnifiedButton>
           </div>
         </motion.div>
       </div>
@@ -1206,10 +1205,12 @@ function NewsletterSection() {
                   className="flex-1 bg-white border border-[#D5D1C8] rounded-xl px-4 py-3 sm:py-0 text-sm focus:outline-none focus:ring-2 focus:ring-[#D8C08A]/50 focus:border-[#D8C08A] transition-[background-color,border-color,box-shadow] shadow-sm"
                   required
                 />
-                <button
+                <UnifiedButton
                   type="submit"
+                  variant="primary"
+                  size="md"
+                  className="min-w-[140px]"
                   disabled={status === 'loading'}
-                  className="bg-[#171513] text-[#F8F7F2] px-6 py-3 rounded-xl text-xs uppercase tracking-wider font-bold hover:bg-[#2A2724] transition-colors shadow-lg disabled:opacity-70 flex items-center justify-center min-w-[140px]"
                 >
                   {status === 'loading' ? (
                     <motion.div
@@ -1220,7 +1221,7 @@ function NewsletterSection() {
                   ) : (
                     "Subscribe"
                   )}
-                </button>
+                </UnifiedButton>
               </motion.div>
             )}
           </AnimatePresence>
@@ -1545,8 +1546,7 @@ export default function HomePageClient({ initialProducts, boutiquesStrip }: { in
                 <motion.button
                   type="submit"
                   whileTap={{ scale: 0.94 }}
-                  className="absolute right-2 top-1.5 z-20 inline-flex h-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center gap-1.5 rounded-full bg-[#171513] px-4 text-sm text-[#F8F7F2] transition hover:bg-[#725D2C]"
-                  style={{ backgroundColor: "#171513", color: "#F8F7F2", borderColor: "#171513" }}
+                  className="btn-primary !absolute right-2 top-1.5 z-20 inline-flex h-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center gap-1.5 rounded-full !px-4 text-[11px]"
                 >
                   <span>Search</span>
                   <AnimatedArrow className="h-3.5 w-3.5" />
@@ -1589,13 +1589,14 @@ export default function HomePageClient({ initialProducts, boutiquesStrip }: { in
                   <p className="text-xs uppercase tracking-[0.18em] text-[#725D2C]">
                     {activeMood.label}
                   </p>
-                  <Link
+                  <UnifiedButton
                     href={activeMood.href}
-                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-[#D5D1C8] bg-white px-4 text-xs text-[#171513] transition-colors hover:border-[#171513]"
+                    variant="ghost"
+                    size="sm"
                   >
                     View {activeMood.label}
                     <ChevronRight className="h-3.5 w-3.5" strokeWidth={1.5} aria-hidden="true" />
-                  </Link>
+                  </UnifiedButton>
                 </div>
                 <AnimatePresence mode="popLayout">
                   <motion.div
@@ -2114,14 +2115,14 @@ export default function HomePageClient({ initialProducts, boutiquesStrip }: { in
                 Balanced layers, clean textures, and prices visible before you commit.
               </p>
               <div className="mt-5 flex gap-3 sm:mt-7">
-                <Link href="/discover" className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-[#171513] px-5 py-3 text-sm text-[#F8F7F2] transition hover:bg-[#725D2C] sm:px-6">
+                <UnifiedButton href="/discover" variant="primary" size="md">
                   Discover
                   <AnimatedArrow />
-                </Link>
-                <Link href="/wishlist" className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-[#D5D1C8] bg-white px-5 py-3 text-sm text-[#171513] transition hover:border-[#171513] sm:px-6">
+                </UnifiedButton>
+                <UnifiedButton href="/wishlist" variant="gold" size="md">
                   <Heart className="h-4 w-4" strokeWidth={1.5} />
                   Wishlist
-                </Link>
+                </UnifiedButton>
               </div>
             </div>
 

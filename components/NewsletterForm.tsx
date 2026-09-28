@@ -2,6 +2,7 @@
 
 import { showToast } from "@/components/ToastProvider";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import { useState } from "react";
 
 export default function NewsletterForm({
@@ -68,14 +69,15 @@ export default function NewsletterForm({
           aria-label="Email address"
           className="min-h-[52px] flex-1 border-0 bg-transparent px-4 text-base text-[#3D3025] outline-none placeholder:text-[#5B4E42] focus:shadow-none"
         />
-        <button
+        <UnifiedButton
           type="submit"
+          variant="gold"
+          size="sm"
           disabled={status === "loading"}
-          className="inline-flex min-h-[52px] min-w-[44px] items-center justify-center gap-2 rounded-xl border border-[rgba(168,121,53,0.30)] bg-[rgba(168,121,53,0.08)] px-5 text-[10px] uppercase tracking-[0.28em] text-[#A87935] transition-colors hover:bg-[rgba(168,121,53,0.13)] disabled:opacity-50"
         >
           {status === "loading" ? "Joining" : "Join"}
           <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.3} />
-        </button>
+        </UnifiedButton>
       </div>
       {message && !compact ? (
         <p className={status === "error" ? "mt-3 text-center text-xs tracking-[0.08em] text-red-700/80" : "mt-3 text-center text-xs tracking-[0.08em] text-[#6F6254]"}>

@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import { useEffect, useState } from "react";
 
 /**
@@ -61,16 +61,18 @@ export function SubscribeCtaBar() {
         visible ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0"
       } bottom-[calc(5.5rem+env(safe-area-inset-bottom))] px-4 sm:bottom-6 sm:px-0 md:left-auto md:right-6 md:w-auto md:px-0`}
     >
-      <Link
+      <UnifiedButton
         href="/boutiques/apply"
+        variant="primary"
+        size="md"
         tabIndex={visible ? 0 : -1}
-        className="flex min-h-[56px] items-center justify-center gap-3 rounded-full px-6 text-[11px] tracking-[0.22em] text-white shadow-[0_18px_50px_rgba(23,21,19,0.35)] sm:px-8"
-        style={{ background: "linear-gradient(135deg, #4C3A26, #7D592B)", fontFamily: "Tahoma, Arial, sans-serif" }}
+        className="min-h-[56px] !min-h-[56px] gap-3 px-6 shadow-[0_18px_50px_rgba(23,21,19,0.35)] sm:px-8"
+        style={{ fontFamily: "Tahoma, Arial, sans-serif" }}
       >
         <span className="sm:hidden">بيع معانا — 7 أيام مجانا</span>
         <span className="hidden sm:inline">افتح بوتيكك — 7 أيام مجانا</span>
         <span aria-hidden>←</span>
-      </Link>
+      </UnifiedButton>
     </div>
   );
 }
