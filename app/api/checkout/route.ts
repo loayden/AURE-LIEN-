@@ -3,6 +3,9 @@ import Stripe from "stripe";
 import { getProductById } from "@/lib/getAllProducts";
 import { appendOrder } from "@/lib/orderStorage";
 import { attachUserCookie, getOrCreateUserId } from "@/lib/userSession";
+import { getPublicBaseUrl } from "@/lib/baseUrl";
+import { RATE_LIMITS, rateLimitResponse } from "@/lib/rateLimit";
+import { isOriginAllowed } from "@/lib/csrf";
 import { randomUUID } from "crypto";
 
 function getStripe(): Stripe | null {
@@ -16,12 +19,17 @@ function appendQueryParam(url: string, key: string, value: string) {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = await rateLimitResponse(req, RATE_LIMITS.checkout);
+  if (limited) return limited;
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+  }
   const stripe = getStripe();
   if (!stripe) {
     return NextResponse.json({ error: "Stripe not configured" }, { status: 503 });
   }
   try {
-    const { items, successUrl, cancelUrl, customerInfo } = await req.json();
+    const { items, successUrl, cancelUrl, customerInfo, idempotencyKey } = await req.json();
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json({ error: "items required" }, { status: 400 });
     }
@@ -54,17 +62,30 @@ export async function POST(req: NextRequest) {
     );
 
     const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = resolvedItems.map(
-      ({ product, quantity }) => ({
-        price_data: {
+      ({ product, quantity }) => {
+        const baseUrl = getPublicBaseUrl(req) || req.nextUrl.origin || (process.env.NODE_ENV === "production" ? "" : "http://localhost:3000");
+        let imageUrl: string | undefined;
+        try {
+          if (product.images?.length) {
+            imageUrl = product.images[0].startsWith("http")
+              ? product.images[0]
+              : new URL(product.images[0], baseUrl).toString();
+          }
+        } catch {
+          imageUrl = undefined;
+        }
+        return {
+          price_data: {
             currency: "egp",
             product_data: {
               name: product.name,
-              images: product.images?.length ? [new URL(product.images[0], process.env.NEXT_PUBLIC_URL || "http://localhost:3000").toString()] : undefined,
+              images: imageUrl ? [imageUrl] : undefined,
             },
             unit_amount: Math.round(product.price * 100),
-        },
-        quantity,
-      })
+          },
+          quantity,
+        };
+      }
     );
 
     const shippingCost = Number(customerInfo?.shippingCost ?? 0) || 0;
@@ -73,22 +94,31 @@ export async function POST(req: NextRequest) {
       shippingCost
     );
 
-    const success = successUrl || `${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/checkout/confirmation?paymentStatus=paid`;
+    const baseUrl = getPublicBaseUrl(req) || req.nextUrl.origin || (process.env.NODE_ENV === "production" ? "" : "http://localhost:3000");
+    const success = successUrl || `${baseUrl}/checkout/confirmation?paymentStatus=paid`;
     const successWithOrder = `${success}${success.includes("?") ? "&" : "?"}orderId=${encodeURIComponent(orderId)}`;
-    const cancel = cancelUrl || `${process.env.NEXT_PUBLIC_URL || "http://localhost:3000"}/checkout?canceled=1`;
+    const cancel = cancelUrl || `${baseUrl}/checkout?canceled=1`;
     const cancelWithOrder = appendQueryParam(cancel, "orderId", orderId);
 
-    const session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      line_items: lineItems,
-      success_url: successWithOrder,
-      cancel_url: cancelWithOrder,
-      client_reference_id: userId,
-      metadata: {
-        orderId,
-        userId,
+    const stripeIdempotencyKey =
+      (typeof idempotencyKey === "string" && idempotencyKey.trim()) ||
+      req.headers.get("Idempotency-Key")?.trim() ||
+      orderId;
+
+    const session = await stripe.checkout.sessions.create(
+      {
+        mode: "payment",
+        line_items: lineItems,
+        success_url: successWithOrder,
+        cancel_url: cancelWithOrder,
+        client_reference_id: userId,
+        metadata: {
+          orderId,
+          userId,
+        },
       },
-    });
+      { idempotencyKey: `checkout-${userId}-${stripeIdempotencyKey}`.slice(0, 255) }
+    );
 
     await appendOrder({
       _id: orderId,

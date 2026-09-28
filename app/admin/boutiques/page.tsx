@@ -30,6 +30,89 @@ export default function AdminBoutiquesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [sort, setSort] = useState("newest");
+  const [actingId, setActingId] = useState<string | null>(null);
+  const [notes, setNotes] = useState<Record<string, string>>({});
+  const [terms, setTerms] = useState<Record<string, { commissionRate: string; monthlyFee: string }>>({});
+  const [checklist, setChecklist] = useState<Record<string, { photosMatchMap: boolean; signageVisible: boolean; detailsConfirmed: boolean }>>({});
+  const [actionMessage, setActionMessage] = useState("");
+
+  async function verifyShop(applicationId: string, verified: boolean) {
+    const checks = checklist[applicationId] ?? { photosMatchMap: false, signageVisible: false, detailsConfirmed: false };
+    if (verified && (!checks.photosMatchMap || !checks.signageVisible || !checks.detailsConfirmed)) {
+      setActionMessage("Confirm all three checklist items to verify.");
+      return;
+    }
+    setActingId(applicationId);
+    setActionMessage("");
+    try {
+      const res = await fetch("/api/admin/boutiques", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ applicationId, action: verified ? "verify" : "unverify", checklist: checks }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Verification failed");
+      setApplications((prev) =>
+        prev.map((a) => (a._id === applicationId ? { ...a, verification: data.application.verification, storefrontSlug: data.application.storefrontSlug } : a))
+      );
+      setActionMessage(verified ? "Boutique verified — section is live." : "Verification removed — section hidden.");
+    } catch (e) {
+      setActionMessage(e instanceof Error ? e.message : "Verification failed");
+    } finally {
+      setActingId(null);
+    }
+  }
+
+  async function saveTerms(applicationId: string) {
+    const t = terms[applicationId];
+    if (!t) return;
+    setActingId(applicationId);
+    setActionMessage("");
+    try {
+      const res = await fetch("/api/admin/boutiques", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          applicationId,
+          action: "terms",
+          ...(t.commissionRate !== "" ? { commissionRate: Number(t.commissionRate) } : {}),
+          ...(t.monthlyFee !== "" ? { monthlyFee: Number(t.monthlyFee) } : {}),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Terms save failed");
+      setApplications((prev) =>
+        prev.map((a) => (a._id === applicationId ? { ...a, commissionRate: data.application.commissionRate, monthlyFee: data.application.monthlyFee } : a))
+      );
+      setActionMessage("Commercial terms updated.");
+    } catch (e) {
+      setActionMessage(e instanceof Error ? e.message : "Terms save failed");
+    } finally {
+      setActingId(null);
+    }
+  }
+
+  async function review(applicationId: string, action: "approve" | "decline" | "reopen") {
+    setActingId(applicationId);
+    setActionMessage("");
+    try {
+      const res = await fetch("/api/admin/boutiques", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ applicationId, action, reviewNote: notes[applicationId] ?? "" }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Review failed");
+      setApplications((prev) =>
+        prev.map((a) => (a._id === applicationId ? { ...a, status: data.application.status } : a))
+      );
+      setActionMessage(`${applicationId} ${action === "approve" ? "approved" : action === "reopen" ? "reopened" : "declined"}.`);
+    } catch (e) {
+      setActionMessage(e instanceof Error ? e.message : "Review failed");
+    } finally {
+      setActingId(null);
+    }
+  }
 
   useEffect(() => {
     const controller = new AbortController();
@@ -228,6 +311,87 @@ export default function AdminBoutiquesPage() {
                 </p>
               </div>
 
+              <div className="mt-4 rounded-[16px] border border-[rgba(123,103,82,0.14)] bg-white/44 p-3 sm:mt-5 sm:rounded-[22px] sm:p-4">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                  <p className="eyebrow">Shop Verification</p>
+                  {application.verification?.status === "verified" ? (
+                    <span className="rounded-full bg-[rgba(80,160,100,0.12)] px-3 py-1 text-[9px] uppercase tracking-[0.18em] text-[#3C7A4D]">
+                      Verified{application.storefrontSlug ? ` · /${application.storefrontSlug}` : ""}
+                    </span>
+                  ) : application.verification?.status === "rejected" ? (
+                    <span className="rounded-full bg-[rgba(154,34,34,0.08)] px-3 py-1 text-[9px] uppercase tracking-[0.18em] text-[#9A2222]">
+                      Needs new photos
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-[rgba(168,121,53,0.1)] px-3 py-1 text-[9px] uppercase tracking-[0.18em] text-[#7A581F]">
+                      Unverified
+                    </span>
+                  )}
+                </div>
+                {(application.shopPhotos ?? []).length > 0 ? (
+                  <div className="mb-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
+                    {(application.shopPhotos ?? []).map((url) => (
+                      <a key={url} href={url} target="_blank" rel="noreferrer" className="block aspect-square overflow-hidden rounded-[12px] border border-[rgba(123,103,82,0.16)] bg-white/70">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={url} alt={`Shop photo — ${application.boutiqueName}`} className="h-full w-full object-cover" loading="lazy" />
+                      </a>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mb-3 text-xs leading-6 text-[#6F6254]">No shop photos uploaded yet.</p>
+                )}
+                <div className="grid gap-2">
+                  {(
+                    [
+                      ["photosMatchMap", "Photos match the map location"],
+                      ["signageVisible", "Storefront signage visible"],
+                      ["detailsConfirmed", "Details confirmed (name, address)"],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <label key={key} className="flex cursor-pointer items-center gap-3 text-xs text-[#3D3025] sm:text-sm">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(checklist[application._id]?.[key])}
+                        onChange={(e) =>
+                          setChecklist((prev) => {
+                            const current = prev[application._id] ?? {
+                              photosMatchMap: false,
+                              signageVisible: false,
+                              detailsConfirmed: false,
+                            };
+                            return {
+                              ...prev,
+                              [application._id]: { ...current, [key]: e.target.checked },
+                            };
+                          })
+                        }
+                        className="h-5 w-5 shrink-0"
+                      />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    disabled={actingId === application._id}
+                    onClick={() => verifyShop(application._id, true)}
+                    className="inline-flex min-h-[48px] items-center justify-center rounded-full px-4 text-[10px] uppercase tracking-[0.2em] text-white disabled:opacity-50"
+                    style={{ background: "linear-gradient(135deg, #2F5D3A, #4C8A57)" }}
+                  >
+                    {actingId === application._id ? "Working…" : "Verify & Publish"}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={actingId === application._id}
+                    onClick={() => verifyShop(application._id, false)}
+                    className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[rgba(154,34,34,0.3)] px-4 text-[10px] uppercase tracking-[0.2em] text-[#9A2222] disabled:opacity-50"
+                  >
+                    Unverify
+                  </button>
+                </div>
+              </div>
+
               <div className="mt-4 grid gap-2 text-xs leading-6 text-[#6F6254] sm:mt-5 sm:gap-3 sm:text-sm sm:leading-7">
                 <p>
                   <span className="text-[#3D3025]">Plan:</span> {application.planName}
@@ -246,10 +410,115 @@ export default function AdminBoutiquesPage() {
                   </p>
                 ) : null}
               </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-2 rounded-[16px] border border-[rgba(123,103,82,0.14)] bg-white/44 p-3 sm:p-4">
+                <label className="grid gap-1 text-[10px] uppercase tracking-[0.18em] text-[#6F6254]">
+                  Commission %
+                  <input
+                    type="number"
+                    min={0}
+                    max={30}
+                    step="any"
+                    placeholder={String(application.commissionRate ?? "")}
+                    value={terms[application._id]?.commissionRate ?? ""}
+                    onChange={(e) => setTerms((prev) => ({ ...prev, [application._id]: { commissionRate: e.target.value, monthlyFee: prev[application._id]?.monthlyFee ?? "" } }))}
+                    aria-label={`Commission percent for ${application.boutiqueName}`}
+                    className="rounded-xl px-3 py-2 text-sm normal-case tracking-normal"
+                    style={{ border: "1px solid rgba(123,103,82,0.22)", background: "rgba(255,255,255,0.7)" }}
+                  />
+                </label>
+                <label className="grid gap-1 text-[10px] uppercase tracking-[0.18em] text-[#6F6254]">
+                  Monthly EGP
+                  <input
+                    type="number"
+                    min={0}
+                    step={1}
+                    placeholder={String(application.monthlyFee ?? "")}
+                    value={terms[application._id]?.monthlyFee ?? ""}
+                    onChange={(e) => setTerms((prev) => ({ ...prev, [application._id]: { commissionRate: prev[application._id]?.commissionRate ?? "", monthlyFee: e.target.value } }))}
+                    aria-label={`Monthly fee for ${application.boutiqueName}`}
+                    className="rounded-xl px-3 py-2 text-sm normal-case tracking-normal"
+                    style={{ border: "1px solid rgba(123,103,82,0.22)", background: "rgba(255,255,255,0.7)" }}
+                  />
+                </label>
+                <button
+                  type="button"
+                  disabled={actingId === application._id || (!terms[application._id]?.commissionRate && !terms[application._id]?.monthlyFee)}
+                  onClick={() => saveTerms(application._id)}
+                  className="col-span-2 inline-flex min-h-[44px] items-center justify-center rounded-full border px-4 text-[10px] uppercase tracking-[0.2em] disabled:opacity-40"
+                  style={{ borderColor: "rgba(168,121,53,0.4)", color: "var(--gold-text)" }}
+                >
+                  {actingId === application._id ? "Saving…" : "Save Terms"}
+                </button>
+              </div>
+
+              {(application.status === "pending" || application.status === "contacted" || application.status === "declined" || application.status === "approved") && (
+                <div className="mt-4 rounded-[16px] border border-[rgba(168,121,53,0.25)] bg-[rgba(168,121,53,0.06)] p-3 sm:p-4">
+                  {(application.status === "pending" || application.status === "contacted") && (
+                    <>
+                      <label className="grid gap-2 text-[10px] uppercase tracking-[0.18em] text-[#6F6254]">
+                        Review note (sent to partner)
+                        <input
+                          value={notes[application._id] ?? ""}
+                          onChange={(e) => setNotes((prev) => ({ ...prev, [application._id]: e.target.value }))}
+                          placeholder="Optional note"
+                          maxLength={1000}
+                          aria-label={`Review note for ${application.boutiqueName}`}
+                          className="rounded-xl px-4 py-2.5 text-sm normal-case tracking-normal"
+                          style={{ border: "1px solid rgba(123,103,82,0.22)", background: "rgba(255,255,255,0.7)" }}
+                        />
+                      </label>
+                      <div className="mt-3 grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          disabled={actingId === application._id}
+                          onClick={() => review(application._id, "approve")}
+                          className="inline-flex min-h-[48px] items-center justify-center rounded-full px-4 text-[10px] uppercase tracking-[0.2em] text-white disabled:opacity-50"
+                          style={{ background: "linear-gradient(135deg, #4C3A26, #7D592B)" }}
+                        >
+                          {actingId === application._id ? "Working…" : "Approve"}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={actingId === application._id}
+                          onClick={() => review(application._id, "decline")}
+                          className="inline-flex min-h-[48px] items-center justify-center rounded-full border border-[rgba(154,34,34,0.3)] px-4 text-[10px] uppercase tracking-[0.2em] text-[#9A2222] disabled:opacity-50"
+                        >
+                          Decline
+                        </button>
+                      </div>
+                    </>
+                  )}
+                  {application.status === "declined" && (
+                    <button
+                      type="button"
+                      disabled={actingId === application._id}
+                      onClick={() => review(application._id, "reopen")}
+                      className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full border border-[rgba(168,121,53,0.3)] px-4 text-[10px] uppercase tracking-[0.2em] disabled:opacity-50"
+                      style={{ color: "var(--gold-text)" }}
+                    >
+                      {actingId === application._id ? "Working…" : "Reopen application"}
+                    </button>
+                  )}
+                  {application.status === "approved" && (
+                    <button
+                      type="button"
+                      disabled={actingId === application._id}
+                      onClick={() => review(application._id, "decline")}
+                      className="inline-flex min-h-[48px] w-full items-center justify-center rounded-full border border-[rgba(154,34,34,0.3)] px-4 text-[10px] uppercase tracking-[0.2em] text-[#9A2222] disabled:opacity-50"
+                    >
+                      {actingId === application._id ? "Working…" : "Suspend boutique"}
+                    </button>
+                  )}
+                </div>
+              )}
             </AdminPanel>
           ))}
         </div>
       )}
+      {actionMessage ? (
+        <p className="mt-4 text-sm" role="status" style={{ color: "var(--gold-text)" }}>{actionMessage}</p>
+      ) : null}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
-import productsData from "@/lib/productsData";
+import { getAllProducts } from "@/lib/getAllProducts";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY || "" });
 const MAX_MESSAGES = 12;
@@ -8,6 +8,13 @@ const MAX_MESSAGE_LENGTH = 1200;
 const CHAT_TIMEOUT_MS = 12000;
 
 export async function POST(req: NextRequest) {
+  const { RATE_LIMITS, rateLimitResponse } = await import("@/lib/rateLimit");
+  const { isOriginAllowed } = await import("@/lib/csrf");
+  const limited = await rateLimitResponse(req, RATE_LIMITS.ai);
+  if (limited) return limited;
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+  }
   if (!process.env.OPENAI_API_KEY) {
     return NextResponse.json(
       { error: "AI service not configured" },
@@ -32,9 +39,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "messages required" }, { status: 400 });
     }
 
-    const productList = productsData
+    const catalog = await getAllProducts().catch(() => []);
+    const productList = catalog
+      .filter((p) => typeof p.stock !== "number" || p.stock > 0)
       .slice(0, 80)
-      .map((p) => `${p.name} ($${p.price}, id: ${p._id}, category: ${p.category})`)
+      .map((p) => `${p.name} (EGP ${p.price}, id: ${p._id}, category: ${p.category})`)
       .join("\n");
 
     const systemContent = `You are a luxury fashion stylist for Maison Aurelia. Help the customer with outfit ideas, styling tips, and product recommendations. Only recommend products from this catalog (use the exact product id when suggesting):

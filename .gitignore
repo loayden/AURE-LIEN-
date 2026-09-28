@@ -6,3 +6,6 @@ tsconfig.tsbuildinfo
 .DS_Store
 *.swp
 *.swo
+
+output/
+allfiles.txt

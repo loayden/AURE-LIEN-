@@ -4,6 +4,7 @@ import AdminBanner from "@/components/admin/AdminBanner";
 import AdminEmptyState from "@/components/admin/AdminEmptyState";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminPanel from "@/components/admin/AdminPanel";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -149,27 +150,29 @@ export default function AdminOrdersPage() {
 
   return (
     <div className="space-y-8">
-      <Link
+      <UnifiedButton
         href="/admin"
-        className="btn-ghost inline-flex"
+        variant="ghost"
+        size="sm"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Admin
-      </Link>
+      </UnifiedButton>
 
       <AdminPageHeader
         title="All Orders"
         description="Every transaction, whether it came from a registered account or a guest checkout."
         action={
-          <button
+          <UnifiedButton
             type="button"
+            variant="primary"
+            size="sm"
             onClick={handleExportJson}
             disabled={exporting || orders.length === 0}
-            className="btn-gold disabled:opacity-50"
           >
             <Download className="h-4 w-4" />
             {exporting ? "Exporting" : "Download Orders"}
-          </button>
+          </UnifiedButton>
         }
       />
 

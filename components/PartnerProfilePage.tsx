@@ -16,6 +16,7 @@ import {
   Wallet,
 } from "lucide-react";
 import Link from "next/link";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
@@ -376,10 +377,10 @@ export default function PartnerProfilePage() {
                 <p className="body-copy body-copy-strong">
                   No boutique application is connected to this account yet. Create one first, then this partner profile will show review status, product readiness, wallet, and payout setup.
                 </p>
-                <Link href="/boutiques/apply" className="btn-gold mt-5 w-full justify-center sm:w-auto">
+                <UnifiedButton href="/boutiques/apply" variant="primary" size="md" className="mt-5 w-full justify-center sm:w-auto">
                   Start Boutique Application
                   <ArrowRight strokeWidth={1.2} className="h-4 w-4" />
-                </Link>
+                </UnifiedButton>
               </div>
             )}
           </section>

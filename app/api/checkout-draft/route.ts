@@ -44,6 +44,9 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 /** POST: save checkout draft for current user */
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
+    const { RATE_LIMITS, rateLimitResponse } = await import("@/lib/rateLimit");
+    const limited = await rateLimitResponse(req, RATE_LIMITS.cart);
+    if (limited) return limited;
     const { userId, isNew } = await resolveUserId(req);
     
     let body;
@@ -66,10 +69,24 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
+    if (items.length > 50) {
+      return NextResponse.json(
+        { error: "Too many items in draft" },
+        { status: 400 }
+      );
+    }
+
     if (typeof form !== "object" || form === null) {
       return NextResponse.json(
         { error: "Form must be an object" },
         { status: 400 }
+      );
+    }
+
+    if (JSON.stringify(body).length > 100_000) {
+      return NextResponse.json(
+        { error: "Draft is too large" },
+        { status: 413 }
       );
     }
 

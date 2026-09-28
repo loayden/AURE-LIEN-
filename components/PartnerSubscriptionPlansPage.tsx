@@ -4,6 +4,7 @@ import { formatPrice } from "@/lib/commerce";
 import { motion } from "framer-motion";
 import { ArrowRight, CheckCircle2, Clock, CreditCard, ShieldCheck, Sparkles, Store } from "lucide-react";
 import Link from "next/link";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import { useEffect, useMemo, useState } from "react";
 
 const PLAN_OPTIONS = [
@@ -224,10 +225,10 @@ export default function PartnerSubscriptionPlansPage({ applicationId = "" }: Par
               </div>
             ) : null}
             {!selectedApplication && !loading ? (
-              <Link href="/boutiques/apply" className="btn-gold mt-3 w-full justify-center sm:mt-4">
+              <UnifiedButton href="/boutiques/apply" variant="primary" size="md" fullWidth className="mt-3 sm:mt-4">
                 Start 7-Day Free Trial
                 <ArrowRight className="h-4 w-4" strokeWidth={1.35} />
-              </Link>
+              </UnifiedButton>
             ) : null}
           </motion.aside>
         </section>
@@ -285,10 +286,10 @@ export default function PartnerSubscriptionPlansPage({ applicationId = "" }: Par
                   ))}
                 </div>
 
-                <Link href={checkoutHref(plan.id)} className="btn-gold mt-3 w-full justify-center sm:mt-4">
+                <UnifiedButton href={checkoutHref(plan.id)} variant="primary" size="md" fullWidth className="mt-3 sm:mt-4">
                   <CreditCard className="h-4 w-4" strokeWidth={1.35} />
                   {ctaLabel}
-                </Link>
+                </UnifiedButton>
               </motion.article>
             );
           })}

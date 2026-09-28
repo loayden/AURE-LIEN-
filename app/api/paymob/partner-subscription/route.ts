@@ -6,6 +6,7 @@ import {
   markBoutiqueSubscriptionCheckoutStarted,
 } from "@/lib/boutiqueApplications";
 import { createPaymobPartnerCheckout, getPaymobSetupStatus } from "@/lib/paymob";
+import { getPublicBaseUrl } from "@/lib/baseUrl";
 
 const NO_STORE_HEADERS = {
   "Cache-Control": "no-store, max-age=0",
@@ -81,7 +82,7 @@ export async function POST(req: NextRequest) {
       googleMapsUrl: normalizeUrl(body.googleMapsUrl) || application.googleMapsUrl,
     };
 
-    const origin = req.nextUrl.origin || process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
+    const origin = getPublicBaseUrl(req) || req.nextUrl.origin || (process.env.NODE_ENV === "production" ? "" : "http://localhost:3000");
     const returnUrl = `${origin}/partners/products?applicationId=${encodeURIComponent(application._id)}&payment=returned`;
     const checkout = await createPaymobPartnerCheckout({
       amountEgp: plan.monthlyFee,
@@ -97,7 +98,7 @@ export async function POST(req: NextRequest) {
       },
       returnUrl,
     });
-    await markBoutiqueSubscriptionCheckoutStarted(application._id, plan.id, applicationPatch);
+    await markBoutiqueSubscriptionCheckoutStarted(application._id, plan.id, applicationPatch, checkout.intentionId);
 
     return NextResponse.json(
       {

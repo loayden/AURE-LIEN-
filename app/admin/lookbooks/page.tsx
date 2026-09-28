@@ -5,6 +5,7 @@ import AdminEmptyState from "@/components/admin/AdminEmptyState";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminPanel from "@/components/admin/AdminPanel";
 import { BookOpen } from "lucide-react";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import { useEffect, useMemo, useState } from "react";
 import productsData from "@/lib/productsData";
 
@@ -240,20 +241,12 @@ export default function AdminLookbooksPage() {
           ))}
         </div>
         <div className="flex gap-4">
-          <button
-            type="button"
-            onClick={addSection}
-            className="btn-ghost"
-          >
+          <UnifiedButton type="button" variant="ghost" size="md" onClick={addSection}>
             Add Section
-          </button>
-          <button
-            type="button"
-            onClick={saveNew}
-            className="btn-gold"
-          >
+          </UnifiedButton>
+          <UnifiedButton type="button" variant="primary" size="md" onClick={saveNew}>
             Create Lookbook
-          </button>
+          </UnifiedButton>
         </div>
       </AdminPanel>
 
@@ -271,30 +264,33 @@ export default function AdminLookbooksPage() {
               </span>
             </div>
             <div className="flex gap-2">
-              <button
+              <UnifiedButton
                 type="button"
+                variant="ghost"
+                size="sm"
                 onClick={() => setEditing((e) => (e?._id === lb._id ? null : lb))}
-                className="btn-ghost px-4"
               >
                 {editing?._id === lb._id ? "Cancel" : "Edit"}
-              </button>
+              </UnifiedButton>
               {editing?._id === lb._id && (
-                <button
+                <UnifiedButton
                   type="button"
+                  variant="primary"
+                  size="sm"
                   onClick={() => updateLookbook(lb._id, { published: !lb.published })}
-                  className="btn-gold px-4"
                 >
                   {lb.published ? "Unpublish" : "Publish"}
-                </button>
+                </UnifiedButton>
               )}
-              <button
+              <UnifiedButton
                 type="button"
+                variant="ghost"
+                size="sm"
                 onClick={() => deleteLookbook(lb._id)}
-                className="btn-ghost px-4"
-                style={{ color: "#9A2222", borderColor: "rgba(154,34,34,0.22)" }}
+                className="text-[#9A2222] border-[#9A2222]/22 hover:bg-[#9A2222]/05"
               >
                 Delete
-              </button>
+              </UnifiedButton>
             </div>
           </div>
         ))}

@@ -23,9 +23,20 @@ function validateProfile(profile?: BoutiquePayoutProfile): string | null {
   if (profile.method === "bank_account") {
     if (!profile.bankName) return "Bank name is required.";
     if (!profile.iban) return "IBAN or bank account reference is required.";
+    const compact = String(profile.iban).replace(/\s+/g, "").toUpperCase();
+    // Egyptian IBAN: EG + 2 check digits + 25 BBAN chars (29 total). Accept
+    // raw domestic account numbers too, but flag malformed IBANs.
+    if (/^EG/i.test(compact) && !/^EG[0-9]{2}[A-Z0-9]{25}$/.test(compact)) {
+      return "That IBAN does not look valid. Egyptian IBANs are 29 characters starting with EG.";
+    }
+    if (compact.length < 8) return "Bank account reference is too short.";
   }
-  if (profile.method === "mobile_wallet" && !profile.mobileWalletPhone) {
-    return "Mobile wallet phone number is required.";
+  if (profile.method === "mobile_wallet") {
+    if (!profile.mobileWalletPhone) return "Mobile wallet phone number is required.";
+    const digits = String(profile.mobileWalletPhone).replace(/\D+/g, "").replace(/^20/, "");
+    if (!/^01[0-9]{9}$/.test(digits)) {
+      return "Mobile wallet number must be an 11-digit Egyptian number (01xxxxxxxxx).";
+    }
   }
   if (profile.method === "paymob_merchant" && !profile.paymobMerchantId) {
     return "Paymob merchant or sub-merchant ID is required.";

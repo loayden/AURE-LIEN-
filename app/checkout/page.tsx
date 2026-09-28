@@ -2,7 +2,7 @@
 
 import productsData from "@/lib/productsData";
 import { AnimatePresence, motion } from "framer-motion";
-import { Banknote, CheckCircle2, ChevronRight, CreditCard, MapPin, Package, Truck, User } from "lucide-react";
+import { Banknote, CheckCircle2, ChevronRight, CreditCard, MapPin, Package, Sparkles, Truck, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -30,7 +30,7 @@ const SHIPPING_COST_CAIRO = 75;
 
 function GlassSection({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return (
-    <div
+    <fieldset
       className="relative overflow-hidden rounded-2xl p-5 sm:p-6"
       style={{
         background: "linear-gradient(135deg, rgba(255,248,236,0.08) 0%, rgba(255,248,236,0.025) 100%)",
@@ -38,27 +38,31 @@ function GlassSection({ icon, title, children }: { icon: React.ReactNode; title:
         WebkitBackdropFilter: "blur(24px) saturate(160%)",
         border: "1px solid rgba(255,248,236,0.09)",
         boxShadow: "0 16px 48px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,248,236,0.14)",
+        margin: 0,
+        minWidth: 0,
       }}
     >
       <div className="absolute inset-x-5 top-0 h-px pointer-events-none"
            style={{ background: "linear-gradient(90deg, transparent, rgba(255,248,236,0.18), transparent)" }} />
-      <div className="flex items-center gap-3 mb-5 sm:mb-6">
-        <div className="p-2 rounded-xl"
-             style={{
-               background: "linear-gradient(135deg, rgba(168,121,53,0.14), rgba(168,121,53,0.04))",
-               border: "1px solid rgba(168,121,53,0.2)",
-             }}>
-          <span style={{ color: "#A87935" }}>{icon}</span>
-        </div>
-        <h2
-          className="font-light text-white text-lg sm:text-xl"
-          style={{ fontFamily: "'Cormorant Garamond', serif", letterSpacing: "0.08em" }}
-        >
-          {title}
-        </h2>
-      </div>
+      <legend style={{ padding: 0, margin: 0, display: "contents" }}>
+        <span className="flex items-center gap-3 mb-5 sm:mb-6">
+          <span className="p-2 rounded-xl"
+                style={{
+                  background: "linear-gradient(135deg, rgba(168,121,53,0.14), rgba(168,121,53,0.04))",
+                  border: "1px solid rgba(168,121,53,0.2)",
+                }}>
+            <span style={{ color: "#A87935", display: "inline-flex" }}>{icon}</span>
+          </span>
+          <span
+            className="font-light text-white text-lg sm:text-xl"
+            style={{ fontFamily: "'Cormorant Garamond', serif", letterSpacing: "0.08em" }}
+          >
+            {title}
+          </span>
+        </span>
+      </legend>
       {children}
-    </div>
+    </fieldset>
   );
 }
 
@@ -79,6 +83,14 @@ function CheckoutContent() {
   });
   const cancelOnLeaveReadyRef = useRef(false);
   const paymentRedirectInProgressRef = useRef(false);
+  const errorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (error) {
+      const t = window.setTimeout(() => errorRef.current?.focus({ preventScroll: false }), 60);
+      return () => window.clearTimeout(t);
+    }
+  }, [error]);
   const canceledParam = searchParams.get("canceled");
   const canceledOrderId = searchParams.get("orderId");
 
@@ -186,7 +198,56 @@ function CheckoutContent() {
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
   const shippingCost = form.shippingMethod === "within_egypt" ? SHIPPING_COST_CAIRO : 0;
-  const total = subtotal + shippingCost;
+  const [couponInput, setCouponInput] = useState("");
+  const [coupon, setCoupon] = useState<{ code: string; discount: number } | null>(null);
+  const [couponError, setCouponError] = useState("");
+  const [couponBusy, setCouponBusy] = useState(false);
+  const [loyaltyBalance, setLoyaltyBalance] = useState(0);
+  const [loyaltyUse, setLoyaltyUse] = useState(0);
+  const [giftWrap, setGiftWrap] = useState(false);
+  const [giftMessage, setGiftMessage] = useState("");
+  const [cardAvailable, setCardAvailable] = useState(true);
+  const GIFT_WRAP_FEE = 50;  const giftFee = giftWrap ? GIFT_WRAP_FEE : 0;
+  const loyaltyDiscount = Math.min(Math.floor(Math.max(0, loyaltyUse) / 100) * 10, Math.max(0, subtotal - (coupon?.discount ?? 0)));
+  const total = Math.max(0, subtotal - (coupon?.discount ?? 0) - loyaltyDiscount + shippingCost + giftFee);
+
+  async function applyCoupon() {
+    const code = couponInput.trim();
+    if (!code || couponBusy) return;
+    setCouponBusy(true);
+    setCouponError("");
+    try {
+      const res = await fetch("/api/coupons", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Invalid coupon");
+      setCoupon({ code: data.coupon.code, discount: Number(data.coupon.discount ?? 0) });
+    } catch (e) {
+      setCoupon(null);
+      setCouponError(e instanceof Error ? e.message : "Invalid coupon");
+    } finally {
+      setCouponBusy(false);
+    }
+  }
+
+  useEffect(() => {
+    fetch("/api/loyalty", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => setLoyaltyBalance(Number(d.points ?? 0)))
+      .catch(() => undefined);
+    fetch("/api/checkout/status", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d && d.stripe === false) {
+          setCardAvailable(false);
+          setPaymentMethod("cod");
+        }
+      })
+      .catch(() => undefined);
+  }, []);
 
   const update = (k: keyof FormData, v: any) => setForm((f) => ({ ...f, [k]: v }));
 
@@ -256,6 +317,8 @@ function CheckoutContent() {
     });
 
     try {
+      const { trackEvent } = await import("@/lib/analytics").catch(() => ({ trackEvent: () => undefined as void }));
+      trackEvent("begin_checkout", { value: Number(total ?? 0) });
       if (paymentMethod === "card") {
         const origin = typeof window !== "undefined" ? window.location.origin : "";
         const res = await fetch("/api/checkout", {
@@ -321,6 +384,9 @@ function CheckoutContent() {
             shippingCost,
           },
           paymentMethod,
+          ...(coupon ? { couponCode: coupon.code } : {}),
+          ...(loyaltyDiscount > 0 ? { loyaltyPoints: Math.floor(loyaltyDiscount / 10) * 100 } : {}),
+          ...(giftWrap ? { giftWrap: true, giftMessage: giftMessage.trim() || undefined } : {}),
         }),
       });
 
@@ -347,6 +413,12 @@ function CheckoutContent() {
 
       const placedOrderId = typeof data?.orderId === "string" ? data.orderId : "";
 
+      try {
+        const { trackEvent } = await import("@/lib/analytics").catch(() => ({ trackEvent: () => undefined as void }));
+        trackEvent("purchase", { value: Number(data?.total ?? total ?? 0) });
+      } catch {
+        // ignore analytics errors
+      }
       router.push(
         placedOrderId
           ? `/checkout/confirmation?orderId=${encodeURIComponent(placedOrderId)}&paymentStatus=${encodeURIComponent(data?.paymentStatus || "pending")}`
@@ -440,7 +512,11 @@ function CheckoutContent() {
           <AnimatePresence>
             {error && (
               <motion.div initial={{ opacity:0, y:-8 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0 }}
-                className="mb-6 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl flex items-center gap-3"
+                ref={errorRef}
+                tabIndex={-1}
+                role="alert"
+                aria-live="assertive"
+                className="mb-6 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl flex items-center gap-3 outline-none"
                 style={{ background:"rgba(255,60,60,0.08)", border:"1px solid rgba(255,80,80,0.2)", backdropFilter:"blur(16px)" }}>
                 <span className="text-red-400/70 text-xs tracking-[0.2em] font-light">{error}</span>
               </motion.div>
@@ -459,9 +535,9 @@ function CheckoutContent() {
                     <div className="flex flex-col gap-3 max-w-lg">
                       <p className="text-white/25 text-[9px] sm:text-[10px] tracking-[0.25em] font-light">
                         Have an account?{" "}
-                        <Link href="/login" className="text-[#A87935] hover:underline transition-all">Sign in</Link>
+                        <Link href="/login" className="text-[#A87935] hover:underline transition-colors">Sign in</Link>
                       </p>
-                      <input type="email" placeholder="Email address" value={form.email} onChange={(e) => update("email", e.target.value)} autoComplete="email" required />
+                      <input type="email" name="email" aria-label="Email address" spellCheck={false} placeholder="Email address…" value={form.email} onChange={(e) => update("email", e.target.value)} autoComplete="email" required />
                       <label className="flex items-center gap-3 cursor-pointer group">
                         <input type="checkbox" checked={form.newsletter} onChange={(e) => update("newsletter", e.target.checked)} />
                         <span className="text-white/30 text-[9px] sm:text-[10px] tracking-[0.22em] uppercase group-hover:text-white/50 transition-colors">
@@ -484,17 +560,17 @@ function CheckoutContent() {
                       >
                         <option value="Egypt">Egypt</option>
                       </select>
-                      <div className="grid grid-cols-2 gap-3">
-                        <input type="text" placeholder="First name" value={form.firstName} onChange={(e) => update("firstName", e.target.value)} autoComplete="given-name" required />
-                        <input type="text" placeholder="Last name" value={form.lastName} onChange={(e) => update("lastName", e.target.value)} autoComplete="family-name" required />
+                      <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
+                        <input type="text" name="firstName" aria-label="First name" value={form.firstName} onChange={(e) => update("firstName", e.target.value)} autoComplete="given-name" required />
+                        <input type="text" name="lastName" aria-label="Last name" value={form.lastName} onChange={(e) => update("lastName", e.target.value)} autoComplete="family-name" required />
                       </div>
-                      <input type="text" placeholder="Address" value={form.address} onChange={(e) => update("address", e.target.value)} autoComplete="street-address" required />
-                      <input type="text" placeholder="Apartment, suite, etc. (optional)" value={form.apartment} onChange={(e) => update("apartment", e.target.value)} />
-                      <div className="grid grid-cols-2 gap-3">
-                        <input type="text" placeholder="City" value={form.city} onChange={(e) => update("city", e.target.value)} autoComplete="address-level2" required />
-                        <input type="text" placeholder="Postal code (optional)" value={form.postalCode} onChange={(e) => update("postalCode", e.target.value)} />
+                      <input type="text" name="address" aria-label="Street address" value={form.address} onChange={(e) => update("address", e.target.value)} autoComplete="street-address" required />
+                      <input type="text" name="apartment" aria-label="Apartment (optional)" value={form.apartment} onChange={(e) => update("apartment", e.target.value)} />
+                      <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
+                        <input type="text" name="city" aria-label="City" value={form.city} onChange={(e) => update("city", e.target.value)} autoComplete="address-level2" required />
+                        <input type="text" name="postalCode" aria-label="Postal code (optional)" value={form.postalCode} onChange={(e) => update("postalCode", e.target.value)} />
                       </div>
-                      <input type="tel" placeholder="Phone number" value={form.phone} onChange={(e) => update("phone", e.target.value)} autoComplete="tel" required />
+                      <input type="tel" name="phone" aria-label="Phone number" value={form.phone} onChange={(e) => update("phone", e.target.value)} autoComplete="tel" required />
                     </div>
                   </GlassSection>
                 </motion.div>
@@ -504,7 +580,7 @@ function CheckoutContent() {
                   <GlassSection icon={<Truck strokeWidth={1.3} className="w-4 h-4" />} title="Shipping Method">
                     <div className="max-w-lg">
                       <label
-                        className="flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all duration-300 min-h-[56px]"
+                        className="flex items-center justify-between p-4 rounded-xl cursor-pointer transition-colors duration-300 min-h-[56px]"
                         style={form.shippingMethod === "within_egypt" ? {
                           background:"linear-gradient(135deg, rgba(168,121,53,0.12), rgba(168,121,53,0.04))",
                           border:"1px solid rgba(168,121,53,0.3)",
@@ -530,6 +606,75 @@ function CheckoutContent() {
                   </GlassSection>
                 </motion.div>
 
+                {/* Offers & Gifting */}
+                <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.28, duration:0.7 }}>
+                  <GlassSection icon={<Sparkles strokeWidth={1.3} className="w-4 h-4" />} title="Offers & Gifting">
+                    <div className="flex max-w-lg flex-col gap-4">
+                      <div>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="Coupon code"
+                            value={couponInput}
+                            onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                            aria-label="Coupon code"
+                            className="min-w-0 flex-1"
+                          />
+                          <button
+                            type="button"
+                            onClick={applyCoupon}
+                            disabled={couponBusy || !couponInput.trim()}
+                            className="shrink-0 rounded-full px-5 text-[10px] uppercase tracking-[0.25em] text-[#A87935] transition-colors disabled:opacity-50 min-h-[44px]"
+                            style={{ border: "1px solid rgba(168,121,53,0.35)" }}
+                          >
+                            {couponBusy ? "Checking…" : "Apply"}
+                          </button>
+                        </div>
+                        {coupon && (
+                          <p className="mt-2 text-xs tracking-wide text-[#A87935]">
+                            {coupon.code} applied — EGP {coupon.discount.toLocaleString()} off.
+                            <button type="button" onClick={() => { setCoupon(null); setCouponInput(""); }} className="ml-2 underline">Remove</button>
+                          </p>
+                        )}
+                        {couponError && <p className="mt-2 text-xs text-red-400/80" role="alert">{couponError}</p>}
+                      </div>
+                      {loyaltyBalance >= 100 && (
+                        <div>
+                          <label className="text-white/30 text-[9px] sm:text-[10px] tracking-[0.22em] uppercase" htmlFor="loyalty-use">
+                            Loyalty points (balance {loyaltyBalance} · 100 pts = EGP 10)
+                          </label>
+                          <input
+                            id="loyalty-use"
+                            type="number"
+                            min={0}
+                            max={loyaltyBalance}
+                            step={100}
+                            value={loyaltyUse || ""}
+                            onChange={(e) => setLoyaltyUse(Math.max(0, Math.floor(Number(e.target.value) || 0)))}
+                            placeholder="Points to redeem"
+                            className="mt-2 max-w-[220px]"
+                          />
+                        </div>
+                      )}
+                      <label className="flex cursor-pointer items-center gap-3">
+                        <input type="checkbox" checked={giftWrap} onChange={(e) => setGiftWrap(e.target.checked)} />
+                        <span className="text-white/30 text-[9px] sm:text-[10px] tracking-[0.22em] uppercase">
+                          Gift wrap · EGP {GIFT_WRAP_FEE}
+                        </span>
+                      </label>
+                      {giftWrap && (
+                        <textarea
+                          value={giftMessage}
+                          onChange={(e) => setGiftMessage(e.target.value.slice(0, 500))}
+                          placeholder="Gift message (optional)"
+                          rows={2}
+                          aria-label="Gift message"
+                        />
+                      )}
+                    </div>
+                  </GlassSection>
+                </motion.div>
+
                 {/* Payment */}
                 <motion.div initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.3, duration:0.7 }}>
                   <GlassSection icon={<CreditCard strokeWidth={1.3} className="w-4 h-4" />} title="Payment Method">
@@ -540,12 +685,16 @@ function CheckoutContent() {
                           title: "Cash on delivery",
                           detail: "Order is created with pending payment status.",
                           icon: Banknote,
+                          disabled: false,
                         },
                         {
                           value: "card" as const,
                           title: "Card payment",
-                          detail: "Redirect to Stripe when payment keys are configured.",
+                          detail: cardAvailable
+                            ? "Secure card checkout."
+                            : "Card payments are not available right now — cash on delivery works.",
                           icon: CreditCard,
+                          disabled: !cardAvailable,
                         },
                       ].map((option) => {
                         const Icon = option.icon;
@@ -555,7 +704,8 @@ function CheckoutContent() {
                             type="button"
                             key={option.value}
                             onClick={() => setPaymentMethod(option.value)}
-                            className="flex min-h-[64px] items-center justify-between gap-4 rounded-xl p-4 text-left transition-colors"
+                            disabled={option.disabled}
+                            className="flex min-h-[64px] items-center justify-between gap-4 rounded-xl p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-45"
                             style={active ? {
                               background:"linear-gradient(135deg, rgba(168,121,53,0.12), rgba(168,121,53,0.04))",
                               border:"1px solid rgba(168,121,53,0.3)",
@@ -667,10 +817,28 @@ function CheckoutContent() {
                       <p className="text-white/30 text-[9px] tracking-[0.3em] uppercase">Subtotal</p>
                       <p className="text-white/50 text-xs">EGP {subtotal.toLocaleString()}</p>
                     </div>
+                    {coupon && (
+                      <div className="flex justify-between">
+                        <p className="text-white/30 text-[9px] tracking-[0.3em] uppercase">Coupon {coupon.code}</p>
+                        <p className="text-xs" style={{ color: "#A87935" }}>− EGP {coupon.discount.toLocaleString()}</p>
+                      </div>
+                    )}
+                    {loyaltyDiscount > 0 && (
+                      <div className="flex justify-between">
+                        <p className="text-white/30 text-[9px] tracking-[0.3em] uppercase">Loyalty</p>
+                        <p className="text-xs" style={{ color: "#A87935" }}>− EGP {loyaltyDiscount.toLocaleString()}</p>
+                      </div>
+                    )}
                     <div className="flex justify-between">
                       <p className="text-white/30 text-[9px] tracking-[0.3em] uppercase">Shipping</p>
                       <p className="text-white/50 text-xs">EGP {shippingCost.toLocaleString()}</p>
                     </div>
+                    {giftWrap && (
+                      <div className="flex justify-between">
+                        <p className="text-white/30 text-[9px] tracking-[0.3em] uppercase">Gift Wrap</p>
+                        <p className="text-white/50 text-xs">EGP {GIFT_WRAP_FEE.toLocaleString()}</p>
+                      </div>
+                    )}
                   </div>
 
                   <div className="rounded-xl px-4 py-3.5 flex justify-between items-center"
@@ -710,7 +878,7 @@ function CheckoutContent() {
               </h2>
               <p className="text-white/25 text-sm font-light tracking-widest mb-8">Add items to your cart first.</p>
               <Link href="/shop"
-                className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full text-[#A87935] text-[10px] tracking-[0.3em] uppercase font-light transition-all duration-500 hover:scale-[1.02] min-h-[44px]"
+                className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full text-[#A87935] text-[10px] tracking-[0.3em] uppercase font-light transition-[transform,background-color] duration-500 hover:scale-[1.02] min-h-[44px]"
                 style={{ background:"linear-gradient(135deg, rgba(168,121,53,0.14), rgba(168,121,53,0.04))", border:"1px solid rgba(168,121,53,0.25)", backdropFilter:"blur(16px)" }}>
                 Continue Shopping
               </Link>

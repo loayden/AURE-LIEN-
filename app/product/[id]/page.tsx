@@ -1,11 +1,15 @@
 "use client";
 
 import ProductCard from "@/components/ProductCard";
+import { BackInStockButton } from "@/components/BackInStockButton";
+import { ProductReviews } from "@/components/ProductReviews";
+import { ProductPageSkeleton } from "@/components/ProductSkeleton";
 import { usePerformanceProfile } from "@/hooks/usePerformanceProfile";
 import { useTimeoutRegistry } from "@/hooks/useTimeoutRegistry";
 import { stockLabel, stockState } from "@/lib/commerce";
 import { getProductColorHex as getColorHex } from "@/lib/productColors";
 import { getProductPageContent, type ProductPageSpecification } from "@/lib/productPageContent";
+import { getSizeGuide } from "@/lib/sizeGuides";
 import products from "@/lib/productsData";
 import type { Product } from "@/lib/types";
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
@@ -145,7 +149,7 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
             whileTap={{ scale: 0.9 }}
             onClick={() => handleScroll("left")}
             disabled={!canScrollLeft}
-            className={`p-3 rounded-full transition-all ${
+            className={`p-3 rounded-full transition-colors ${
               canScrollLeft ? "bg-white/10 hover:bg-white/20" : "bg-white/5 opacity-50"
             }`}
           >
@@ -156,7 +160,7 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
             whileTap={{ scale: 0.9 }}
             onClick={() => handleScroll("right")}
             disabled={!canScrollRight}
-            className={`p-3 rounded-full transition-all ${
+            className={`p-3 rounded-full transition-colors ${
               canScrollRight ? "bg-white/10 hover:bg-white/20" : "bg-white/5 opacity-50"
             }`}
           >
@@ -169,7 +173,7 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
       <div className="relative">
         <div
           ref={scrollContainerRef}
-          className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4"
+          className="flex gap-4 overflow-x-auto snap-x snap-proximity sm:snap-mandatory scrollbar-hide pb-4"
           style={{
             scrollBehavior: "smooth",
             WebkitOverflowScrolling: "touch",
@@ -267,7 +271,7 @@ function HorizontalScrollGallery({ images, productName }: HorizontalGalleryProps
               width: selectedIndex === i ? 32 : 8,
               backgroundColor: selectedIndex === i ? "#A87935" : "rgba(255,248,236,0.2)",
             }}
-            className="h-1 rounded-full transition-all"
+            className="h-1 rounded-full transition-[width]"
           />
         ))}
       </motion.div>
@@ -425,6 +429,8 @@ export default function PremiumProductPage() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
+  const [reviewAverage, setReviewAverage] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
   const { registerTimeout } = useTimeoutRegistry();
   const p = product;
   const allMedia = useMemo(() => {
@@ -503,6 +509,16 @@ export default function PremiumProductPage() {
 
   useEffect(() => {
     if (!p || typeof window === "undefined") return;
+    import("@/lib/analytics").then(({ trackEvent }) => {
+      trackEvent("product_view", { productId: p._id, value: Number(p.price ?? 0) });
+    }).catch(() => undefined);
+    fetch(`/api/reviews?productId=${encodeURIComponent(p._id)}`)
+      .then((r) => r.json())
+      .then((d) => {
+        setReviewAverage(Number(d.average ?? 0));
+        setReviewCount(Number(d.count ?? 0));
+      })
+      .catch(() => undefined);
     const key = "bout:recently-viewed";
     let existing: string[] = [];
     try {
@@ -528,10 +544,10 @@ export default function PremiumProductPage() {
 
   if (loadingProduct) {
     return (
-      <div className="min-h-screen bg-[#F5F1E8] flex items-center justify-center">
-        <p className="text-white/50 font-light tracking-widest" style={{ fontFamily: "'Jost', sans-serif" }}>
-          Loading product...
-        </p>
+      <div className="min-h-screen bg-[#F5F1E8] p-6">
+        <div className="mx-auto max-w-6xl">
+          <ProductPageSkeleton />
+        </div>
       </div>
     );
   }
@@ -587,6 +603,9 @@ export default function PremiumProductPage() {
       if (!res.ok) throw new Error(data.error || "Failed");
       setAdded(true);
       window.dispatchEvent(new Event("cart:changed"));
+      import("@/lib/analytics").then(({ trackEvent }) => {
+        trackEvent("add_to_cart", { productId: product._id, value: Number(product.price ?? 0) });
+      }).catch(() => undefined);
       registerTimeout(() => setAdded(false), 2500);
     } catch {
       showActionError("Failed to add this piece to the cart.");
@@ -783,6 +802,19 @@ export default function PremiumProductPage() {
                 {product.name}
               </motion.h1>
 
+              {product.boutique ? (
+                <p className="mb-6 text-[11px] uppercase tracking-[0.2em] text-white/45">
+                  Sold by{" "}
+                  <a
+                    href={`/boutiques/${encodeURIComponent(product.boutique.slug)}`}
+                    className="text-[#A87935] underline-offset-4 hover:underline"
+                  >
+                    {product.boutique.name}
+                  </a>{" "}
+                  · <span className="text-white/60">✓ verified store</span>
+                </p>
+              ) : null}
+
               {/* Rating */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
@@ -790,16 +822,18 @@ export default function PremiumProductPage() {
                 transition={{ delay: 0.35 }}
                 className="flex items-center gap-3 mb-8"
               >
-                <div className="flex gap-1">
+                <div className="flex gap-1" aria-label={reviewCount > 0 ? `Rated ${reviewAverage} out of 5 from ${reviewCount} reviews` : "No reviews yet"}>
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}
                       size={16}
-                      className={i < 4 ? "fill-amber-400 text-amber-400" : "text-white/20"}
+                      className={i < Math.round(reviewAverage) ? "fill-amber-400 text-amber-400" : "text-white/20"}
                     />
                   ))}
                 </div>
-                <span className="text-white/50 text-[12px] tracking-widest">4.8 / 5</span>
+                <span className="text-white/50 text-[12px] tracking-widest">
+                  {reviewCount > 0 ? `${reviewAverage} / 5 (${reviewCount})` : "New · no reviews yet"}
+                </span>
               </motion.div>
 
               {/* Price - Luxe styling */}
@@ -878,7 +912,7 @@ export default function PremiumProductPage() {
                   transition={{ delay: 0.55 }}
                   className="mb-8"
                 >
-                  <div className="mb-4 flex items-center gap-3">
+                  <div className="mb-4 flex flex-wrap items-center gap-3">
                     <p className="text-white/30 text-[9px] tracking-[0.35em] uppercase font-light">Size</p>
                     <button
                       type="button"
@@ -888,7 +922,20 @@ export default function PremiumProductPage() {
                       <Ruler className="h-3.5 w-3.5" strokeWidth={1.3} />
                       Size Guide
                     </button>
+                    {process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ? (
+                      <a
+                        href={`https://wa.me/${String(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER).replace(/\D+/g, "")}?text=${encodeURIComponent(`Hello BOUT, I need sizing help for ${product.name} (${product._id})`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex min-h-[36px] items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 text-[9px] uppercase tracking-[0.2em] text-white/50 transition-colors hover:text-white/80"
+                      >
+                        Ask on WhatsApp
+                      </a>
+                    ) : null}
                   </div>
+                  <p className="mb-4 text-[10px] uppercase tracking-[0.2em] text-white/35">
+                    Delivery within 2–4 business days inside Egypt · Cairo within 24–48 hours
+                  </p>
                   <div className="flex flex-wrap gap-3">
                     {sizes.map((size) => (
                       <motion.button
@@ -896,7 +943,9 @@ export default function PremiumProductPage() {
                         whileHover={{ scale: 1.08 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setSelectedSize(size)}
-                        className="px-6 py-3 rounded-full text-sm font-light tracking-[0.1em] transition-all duration-300"
+                        aria-pressed={selectedSize === size}
+                        aria-label={`Select size ${size}`}
+                        className="px-6 py-3 rounded-full text-sm font-light tracking-[0.1em] transition-colors duration-300"
                         style={selectedSize === size ? {
                           background: "linear-gradient(135deg, rgba(168,121,53,0.25), rgba(168,121,53,0.1))",
                           border: "1px solid rgba(168,121,53,0.5)",
@@ -954,7 +1003,7 @@ export default function PremiumProductPage() {
                           whileTap={{ scale: 0.98 }}
                           onClick={() => setSelectedColor(color)}
                           title={color}
-                          className="group relative flex min-h-[58px] items-center gap-3 rounded-2xl px-3 text-left transition-all duration-300"
+                          className="group relative flex min-h-[58px] items-center gap-3 rounded-2xl px-3 text-left transition-colors duration-300"
                           style={{
                             background: isSelected
                               ? "linear-gradient(135deg, rgba(255,249,239,0.96), rgba(246,232,208,0.78))"
@@ -1076,6 +1125,8 @@ export default function PremiumProductPage() {
               >
                 <ShareButtons product={product} />
               </motion.div>
+              {soldOut && <BackInStockButton productId={product._id} />}
+              <ProductReviews productId={product._id} />
             </motion.div>
           </div>
         </div>
@@ -1296,16 +1347,22 @@ export default function PremiumProductPage() {
                   </button>
                 </div>
                 <div className="grid gap-3">
-                  {[
-                    ["XS / S", "Slim frame or close fit"],
-                    ["M / L", "Regular frame, standard fit"],
-                    ["XL / XXL", "Broader frame or relaxed fit"],
-                  ].map(([label, detail]) => (
-                    <div key={label} className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                      <span className="text-[11px] uppercase tracking-[0.24em] text-[#A87935]">{label}</span>
-                      <span className="text-right text-sm leading-6 tracking-[0.04em] text-white/48">{detail}</span>
-                    </div>
-                  ))}
+                  {(() => {
+                    const guide = getSizeGuide(product.category);
+                    return (
+                      <>
+                        <p className="text-[11px] uppercase tracking-[0.24em] text-[#A87935]">{guide.title}</p>
+                        {guide.rows.map((row) => (
+                          <div key={row.size} className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                            <span className="text-[11px] uppercase tracking-[0.24em] text-[#A87935]">{row.size}</span>
+                            <span className="text-right text-sm leading-6 tracking-[0.04em] text-white/48">
+                              {[row.chest, row.waist, row.foot, row.length].filter(Boolean).join(" · ")}{" — "}{row.note}
+                            </span>
+                          </div>
+                        ))}
+                      </>
+                    );
+                  })()}
                 </div>
                 <p className="mt-5 text-xs leading-6 tracking-[0.08em] text-white/40">
                   Fit varies by product. Use this as a quick guide, then contact support for precise measurements before checkout when needed.

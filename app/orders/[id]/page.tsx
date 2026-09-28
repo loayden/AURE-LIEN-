@@ -3,6 +3,7 @@
 import { ArrowRight, Calendar, CheckCircle2, Clock3, CreditCard, Hash, Package, ShieldCheck, Truck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -57,7 +58,7 @@ export default function OrderDetailsPage() {
             <p className="eyebrow mb-4">Order Details</p>
             <h1 className="title-display text-[2.4rem]">Order <em className="gold-italic">Unavailable</em></h1>
             <p className="body-copy mx-auto mt-4 text-center">{error || "We could not find this order."}</p>
-            <Link href="/orders" className="btn-gold mt-6 justify-center">Back to Orders</Link>
+            <UnifiedButton href="/orders" variant="primary" size="md" className="justify-center">Back to Orders</UnifiedButton>
           </div>
         </div>
       </main>
@@ -113,6 +114,13 @@ export default function OrderDetailsPage() {
                 <p className="eyebrow mb-2">Support</p>
                 <p className="text-sm uppercase tracking-[0.16em] text-[#3D3025]/78">Available</p>
               </div>
+              {(order as { trackingNumber?: string }).trackingNumber ? (
+                <div className="rounded-2xl border border-[#7B6752]/12 bg-[#FFF9EF]/70 p-4 sm:col-span-2">
+                  <Truck className="mb-3 h-4 w-4 text-[#A87935]" strokeWidth={1.35} />
+                  <p className="eyebrow mb-2">Tracking Number</p>
+                  <p className="break-all text-sm tracking-[0.08em] text-[#3D3025]/78">{(order as { trackingNumber?: string }).trackingNumber}</p>
+                </div>
+              ) : null}
             </div>
 
             <div className="mb-6">
@@ -168,13 +176,13 @@ export default function OrderDetailsPage() {
                 <span className="text-[10px] uppercase tracking-[0.22em]">Support available</span>
               </div>
             </div>
-            <Link href="/orders" className="btn-ghost justify-center">
+            <UnifiedButton href="/orders" variant="ghost" size="md" className="justify-center">
               Back to Orders
-            </Link>
-            <Link href="/shop" className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full border border-[#A87935]/22 bg-[#A87935]/10 px-5 py-3 text-[10px] uppercase tracking-[0.22em] text-[#7A581F]">
+            </UnifiedButton>
+            <UnifiedButton href="/shop" variant="gold" size="sm" className="justify-center">
               Continue shopping
               <ArrowRight className="h-3.5 w-3.5" strokeWidth={1.25} />
-            </Link>
+            </UnifiedButton>
           </aside>
         </div>
       </div>

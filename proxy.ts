@@ -16,7 +16,7 @@ export async function proxy(req: NextRequest) {
       login.searchParams.set("redirect", path);
       return NextResponse.redirect(login);
     }
-    if (payload.role !== "admin") {
+    if (payload.role !== "admin" && payload.role !== "support") {
       return NextResponse.redirect(new URL("/", req.url));
     }
   }

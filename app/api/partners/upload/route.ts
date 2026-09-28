@@ -38,6 +38,13 @@ async function saveLocally(file: File, filename: string) {
 
 export async function POST(request: NextRequest) {
   try {
+    const { RATE_LIMITS, rateLimitResponse } = await import("@/lib/rateLimit");
+    const { isOriginAllowed } = await import("@/lib/csrf");
+    const limited = await rateLimitResponse(request, RATE_LIMITS.upload);
+    if (limited) return limited;
+    if (!isOriginAllowed(request)) {
+      return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+    }
     const auth = await getAuthFromRequest(request);
     if (!auth) {
       return NextResponse.json(

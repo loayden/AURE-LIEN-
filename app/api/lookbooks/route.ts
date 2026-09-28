@@ -6,7 +6,10 @@ import { getAuthFromRequest } from "@/lib/auth";
 
 export async function GET(req: NextRequest) {
   const published = req.nextUrl.searchParams.get("published");
-  const q = published === "true" ? { published: true } : {};
+  // Unpublished drafts stay private: only admins may list everything.
+  const auth = await getAuthFromRequest(req).catch(() => null);
+  const isAdmin = Boolean(auth && (auth.role === "admin" || auth.role === "support"));
+  const q = published === "true" || !isAdmin ? { published: true } : {};
 
   try {
     await connectDB();

@@ -11,8 +11,14 @@ export async function GET(
   const { id } = await params;
   try {
     await connectDB();
-    const lookbook = await Lookbook.findById(id).lean();
+    const lookbook = await Lookbook.findById(id).lean() as unknown as Record<string, unknown> | null;
     if (!lookbook) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (lookbook.published !== true) {
+      const auth = await getAuthFromRequest(req).catch(() => null);
+      if (!auth || (auth.role !== "admin" && auth.role !== "support")) {
+        return NextResponse.json({ error: "Not found" }, { status: 404 });
+      }
+    }
     return NextResponse.json(lookbook);
   } catch {
     const lookbook = getFallbackLookbookById(id);
@@ -36,9 +42,19 @@ export async function PUT(
     await connectDB();
     const { id } = await params;
     const body = await req.json();
+    const allowed: Record<string, unknown> = {};
+    for (const key of ["title", "slug", "sections", "published", "coverImage", "description"]) {
+      if (body[key] !== undefined) allowed[key] = body[key];
+    }
+    if (typeof allowed.title === "string" && !allowed.title.trim()) {
+      return NextResponse.json({ error: "title required" }, { status: 400 });
+    }
+    if (typeof allowed.slug === "string") {
+      allowed.slug = String(allowed.slug).toLowerCase().replace(/\s+/g, "-").slice(0, 120);
+    }
     const lookbook = await Lookbook.findByIdAndUpdate(
       id,
-      { ...body, updatedAt: new Date() },
+      { ...allowed, updatedAt: new Date() },
       { new: true }
     );
     if (!lookbook) return NextResponse.json({ error: "Not found" }, { status: 404 });

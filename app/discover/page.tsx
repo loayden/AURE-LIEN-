@@ -2,6 +2,7 @@ import { withPublicAssetVersion } from "@/lib/publicAsset";
 import { ArrowRight, Check, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 
 const BENEFITS = [
   {
@@ -141,12 +142,12 @@ export default function DiscoverPage() {
               This page now holds the company and platform context that used to sit on the homepage, so the homepage can stay focused on shopping, clarity, and trust.
             </p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <Link href="/shop" className="btn-gold justify-center">
+              <UnifiedButton href="/shop" variant="primary" size="md" className="justify-center">
                 Shop The Store
-              </Link>
-              <Link href="/collection" className="btn-ghost justify-center">
+              </UnifiedButton>
+              <UnifiedButton href="/collection" variant="ghost" size="md" className="justify-center">
                 View Collection
-              </Link>
+              </UnifiedButton>
             </div>
           </div>
         </div>
@@ -339,16 +340,16 @@ export default function DiscoverPage() {
                   The split is deliberate: less resistance for people who came to buy, and a calmer place for anyone who wants to understand the company, the structure, and the platform thinking behind the site.
                 </p>
                 <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                  <Link href="/" className="btn-gold justify-center">
+                  <UnifiedButton href="/" variant="primary" size="md" className="justify-center">
                     Back To Homepage
-                  </Link>
-                  <Link href="/shop" className="btn-ghost justify-center">
+                  </UnifiedButton>
+                  <UnifiedButton href="/shop" variant="ghost" size="md" className="justify-center">
                     Continue Shopping
-                  </Link>
-                  <Link href="/login" className="btn-ghost justify-center">
+                  </UnifiedButton>
+                  <UnifiedButton href="/login" variant="ghost" size="md" className="justify-center">
                     Partner Access
                     <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
+                  </UnifiedButton>
                 </div>
               </div>
             </div>

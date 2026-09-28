@@ -5,6 +5,7 @@ import AdminEmptyState from "@/components/admin/AdminEmptyState";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
 import AdminPanel from "@/components/admin/AdminPanel";
 import { ProductCardSkeleton } from "@/components/Skeleton";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import { formatPrice } from "@/lib/commerce";
 import type { PartnerProductDraft } from "@/lib/partnerProducts";
 import { CheckCircle2, PackageCheck, RefreshCw, Store, XCircle } from "lucide-react";
@@ -139,10 +140,10 @@ export default function AdminPartnerProductsPage() {
             <option value="status">Status A-Z</option>
           </select>
         </div>
-        <button type="button" onClick={loadProducts} className="btn-ghost justify-center">
+        <UnifiedButton type="button" variant="ghost" size="md" className="justify-center" onClick={loadProducts}>
           <RefreshCw className="h-4 w-4" />
           Refresh
-        </button>
+        </UnifiedButton>
       </div>
 
       {error ? <AdminBanner message={error} /> : null}
@@ -211,29 +212,38 @@ export default function AdminPartnerProductsPage() {
                   </div>
 
                   <div className="mt-5 flex flex-col gap-2 sm:mt-6 sm:flex-row sm:gap-3">
-                    <button
+                    <UnifiedButton
                       type="button"
+                      variant="primary"
+                      size="sm"
+                      className="justify-center"
                       onClick={() => review(product._id, "approve")}
                       disabled={busyId === product._id}
-                      className="btn-gold justify-center disabled:opacity-45"
                     >
                       <CheckCircle2 className="h-4 w-4" />
                       {product.status === "approved" ? "Republish" : "Approve"}
-                    </button>
-                    <button
+                    </UnifiedButton>
+                    <UnifiedButton
                       type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="justify-center"
                       onClick={() => review(product._id, "reject")}
                       disabled={busyId === product._id || product.status === "rejected"}
-                      className="btn-ghost justify-center disabled:opacity-45"
                     >
                       <XCircle className="h-4 w-4" />
                       Reject
-                    </button>
+                    </UnifiedButton>
                     {product.status === "approved" ? (
-                      <a href={`/product/${encodeURIComponent(product.productId)}`} className="btn-ghost justify-center">
+                      <UnifiedButton
+                        href={`/product/${encodeURIComponent(product.productId)}`}
+                        variant="ghost"
+                        size="sm"
+                        className="justify-center"
+                      >
                         <Store className="h-4 w-4" />
                         View Live
-                      </a>
+                      </UnifiedButton>
                     ) : null}
                   </div>
                 </div>

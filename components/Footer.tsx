@@ -1,6 +1,7 @@
 "use client";
 
 import NewsletterForm from "@/components/NewsletterForm";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { FaInstagram } from "react-icons/fa";
@@ -152,6 +153,7 @@ export default function LuxuryFooter() {
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5">
+          <ThemeToggle />
           {LEGAL_LINKS.map((item) => (
             <Link
               key={item.label}

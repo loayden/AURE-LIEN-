@@ -97,8 +97,7 @@ export async function POST(req: NextRequest) {
       })
     );
 
-    if (duplicateStarterTrial) {
-      const access = getBoutiquePartnerAccess(duplicateStarterTrial);
+    if (duplicateStarterTrial) {      const access = getBoutiquePartnerAccess(duplicateStarterTrial);
       const productsUrl = `/partners/products?applicationId=${encodeURIComponent(duplicateStarterTrial._id)}`;
       const redirectUrl = access.canManageProducts ? productsUrl : access.subscriptionUrl;
       return NextResponse.json(
@@ -114,9 +113,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const proofPhotos = Array.isArray(body.shopPhotos)
+      ? body.shopPhotos.map((v: unknown) => String(v ?? "").trim()).filter(Boolean).slice(0, 8)
+      : [];
+    if (!noPhysicalShop && proofPhotos.length < 3) {
+      return NextResponse.json(
+        { error: "Upload at least 3 real photos of your shop to submit." },
+        { status: 400, headers: NO_STORE_HEADERS }
+      );
+    }
+    if (!noPhysicalShop && body.declarationAccepted !== true) {
+      return NextResponse.json(
+        { error: "Please accept the photo declaration to submit." },
+        { status: 400, headers: NO_STORE_HEADERS }
+      );
+    }
+
     const application = await submitBoutiqueApplication({
-      _id: currentApplicationId,
-      partnerUserId: auth?.userId,
+      _id: currentApplicationId,      partnerUserId: auth?.userId,
       draftOwnerId,
       boutiqueName: cleanString(body.boutiqueName),
       ownerName: cleanString(body.ownerName),
@@ -142,6 +156,16 @@ export async function POST(req: NextRequest) {
       subscriptionStatus: "trial_submitted",
       sampleProducts: cleanString(body.sampleProducts) || undefined,
       notes: cleanString(body.notes) || undefined,
+      shopPhotos: Array.isArray(body.shopPhotos)
+        ? body.shopPhotos.map((v: unknown) => String(v ?? "").trim()).filter(Boolean).slice(0, 8)
+        : [],
+      mapPin:
+        body.mapPin && typeof body.mapPin === "object"
+          ? {
+              lat: Number((body.mapPin as Record<string, unknown>).lat),
+              lng: Number((body.mapPin as Record<string, unknown>).lng),
+            }
+          : undefined,
     });
     notifyPartnerApplicationReceived(application);
 
@@ -169,5 +193,74 @@ export async function POST(req: NextRequest) {
       { error: "Failed to submit boutique application" },
       { status: 500, headers: NO_STORE_HEADERS }
     );
+  }
+}
+
+/** PUT: owner edits details while still draft/pending/contacted. Plan & billing untouched. */
+export async function PUT(req: NextRequest) {
+  try {
+    const auth = await getAuthFromRequest(req);
+    const body = await req.json().catch(() => ({}));
+    const applicationId = cleanString(body.applicationId ?? body._id);
+    if (!applicationId) {
+      return NextResponse.json({ error: "applicationId is required" }, { status: 400, headers: NO_STORE_HEADERS });
+    }
+    const applications = await getBoutiqueApplications();
+    const application = applications.find((item) => item._id === applicationId);
+    if (!application) {
+      return NextResponse.json({ error: "Application not found" }, { status: 404, headers: NO_STORE_HEADERS });
+    }
+    const isOwner =
+      auth?.role === "admin" ||
+      (auth && application.partnerUserId === auth.userId) ||
+      (auth && !application.partnerUserId && application.email.toLowerCase() === auth.email?.toLowerCase());
+    if (!isOwner) {
+      return NextResponse.json({ error: "Not authorized for this application" }, { status: 403, headers: NO_STORE_HEADERS });
+    }
+    const { updateBoutiqueApplicationDetails } = await import("@/lib/boutiqueApplications");
+    const list = (value: unknown): string[] | undefined => {
+      if (value === undefined) return undefined;
+      const arr = Array.isArray(value) ? value : String(value).split(",");
+      return arr.map((v) => String(v).trim()).filter(Boolean);
+    };
+    const num = (value: unknown): number | undefined => {
+      if (value === undefined || value === "") return undefined;
+      const n = Number(value);
+      return Number.isFinite(n) ? n : undefined;
+    };
+    const updated = await updateBoutiqueApplicationDetails(applicationId, {
+      boutiqueName: body.boutiqueName !== undefined ? cleanString(body.boutiqueName) : undefined,
+      ownerName: body.ownerName !== undefined ? cleanString(body.ownerName) : undefined,
+      phone: body.phone !== undefined ? normalizePhone(body.phone) : undefined,
+      email: body.email !== undefined ? cleanString(body.email).toLowerCase() : undefined,
+      city: body.city !== undefined ? cleanString(body.city) : undefined,
+      area: body.area !== undefined ? cleanString(body.area) : undefined,
+      streetAddress: body.streetAddress !== undefined ? cleanString(body.streetAddress) : undefined,
+      noPhysicalShop: typeof body.noPhysicalShop === "boolean" ? body.noPhysicalShop : undefined,
+      googleMapsUrl: body.googleMapsUrl !== undefined ? normalizeUrl(body.googleMapsUrl) : undefined,
+      instagram: body.instagram !== undefined ? normalizeUrl(body.instagram) : undefined,
+      categories: list(body.categories),
+      productCount: num(body.productCount) !== undefined ? Math.max(0, Math.floor(num(body.productCount) as number)) : undefined,
+      averagePrice: num(body.averagePrice) !== undefined ? Math.max(0, Math.floor(num(body.averagePrice) as number)) : undefined,
+      sampleProducts: body.sampleProducts !== undefined ? cleanString(body.sampleProducts) : undefined,
+      notes: body.notes !== undefined ? cleanString(body.notes) : undefined,
+      shopPhotos: Array.isArray(body.shopPhotos)
+        ? body.shopPhotos.map((v: unknown) => String(v ?? "").trim()).filter(Boolean).slice(0, 8)
+        : undefined,
+      mapPin:
+        body.mapPin && typeof body.mapPin === "object"
+          ? {
+              lat: Number((body.mapPin as Record<string, unknown>).lat),
+              lng: Number((body.mapPin as Record<string, unknown>).lng),
+            }
+          : undefined,
+    });
+    if (!updated) {
+      return NextResponse.json({ error: "Application can no longer be edited" }, { status: 409, headers: NO_STORE_HEADERS });
+    }
+    return NextResponse.json({ success: true, application: updated }, { headers: NO_STORE_HEADERS });
+  } catch (error) {
+    console.error("Boutique application edit error:", error instanceof Error ? error.message : String(error));
+    return NextResponse.json({ error: "Failed to update application" }, { status: 500, headers: NO_STORE_HEADERS });
   }
 }

@@ -3,6 +3,7 @@
 import AdminBanner from "@/components/admin/AdminBanner";
 import AdminEmptyState from "@/components/admin/AdminEmptyState";
 import AdminPageHeader from "@/components/admin/AdminPageHeader";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import { showToast } from "@/components/ToastProvider";
 import { AlertTriangle, Eye, Search, Trash2 } from "lucide-react";
 import Link from "next/link";
@@ -142,15 +143,17 @@ export default function AdminUsersPage() {
         title="Customer Records"
         description="Unified client profiles across registered accounts and guest checkouts."
         action={
-          <button
+          <UnifiedButton
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => setClearModalOpen(true)}
             disabled={loading}
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-[rgba(154,34,34,0.26)] bg-[rgba(154,34,34,0.08)] px-5 text-[10px] uppercase tracking-[0.18em] text-[#9A2222] transition-colors hover:bg-[rgba(154,34,34,0.12)] disabled:cursor-not-allowed disabled:opacity-45"
+            className="border-[rgba(154,34,34,0.26)] bg-[rgba(154,34,34,0.08)] text-[#9A2222] hover:bg-[rgba(154,34,34,0.12)]"
           >
             <Trash2 className="h-4 w-4" strokeWidth={1.5} />
             Clear Customer Data
-          </button>
+          </UnifiedButton>
         }
       />
 
@@ -244,13 +247,15 @@ export default function AdminUsersPage() {
                       {formatDate(u.lastOrderAt || u.createdAt)}
                     </td>
                     <td className="text-center">
-                      <Link
+                      <UnifiedButton
                         href={`/admin/users/${u._id}/orders`}
-                        className="btn-ghost inline-flex justify-center px-4"
+                        variant="ghost"
+                        size="sm"
+                        className="justify-center"
                       >
                         <Eye className="w-4 h-4" />
                         View
-                      </Link>
+                      </UnifiedButton>
                     </td>
                   </tr>
                 ))}

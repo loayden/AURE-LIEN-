@@ -14,6 +14,37 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    const type = String(new URL(req.url).searchParams.get("type") ?? "orders").toLowerCase();
+    if (type === "products") {
+      const { getAllProducts } = await import("@/lib/getAllProducts");
+      const products = await getAllProducts();
+      const json = JSON.stringify({ exportedAt: new Date().toISOString(), count: products.length, products }, null, 2);
+      return new NextResponse(json, {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Disposition": `attachment; filename="products-export-${new Date().toISOString().slice(0, 10)}.json"`,
+        },
+      });
+    }
+    if (type === "customers") {
+      const { getUsersJson } = await import("@/lib/usersJson");
+      const users = (await getUsersJson()).map((u) => ({
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        role: u.role,
+        createdAt: u.createdAt,
+      }));
+      const json = JSON.stringify({ exportedAt: new Date().toISOString(), count: users.length, customers: users }, null, 2);
+      return new NextResponse(json, {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Disposition": `attachment; filename="customers-export-${new Date().toISOString().slice(0, 10)}.json"`,
+        },
+      });
+    }
     const [orders, ordersData] = await Promise.all([getOrdersJson(), getOrdersDataJson()]);
     const payload = {
       exportedAt: new Date().toISOString(),

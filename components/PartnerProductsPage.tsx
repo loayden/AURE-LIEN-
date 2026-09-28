@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { UnifiedButton } from "@/components/ui/UnifiedButton";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from "react";
 
@@ -958,15 +959,18 @@ export default function PartnerProductsPage() {
                   </div>
                 ) : null}
 
-                <button
+                <UnifiedButton
                   type="button"
+                  variant="primary"
+                  size="lg"
+                  fullWidth
                   onClick={continueProductFlow}
                   disabled={applicationsLoading}
-                  className="btn-gold w-full justify-center !rounded-[14px]"
+                  className="!rounded-[14px]"
                 >
                   Continue
                   <ArrowRight className="h-4 w-4 rotate-180" />
-                </button>
+                </UnifiedButton>
               </div>
             ) : null}
 
@@ -1068,15 +1072,17 @@ export default function PartnerProductsPage() {
                           </span>
                         </label>
 
-                        <button
+                        <UnifiedButton
                           type="button"
+                          variant="ghost"
+                          size="lg"
+                          className="justify-center !rounded-[16px] sm:min-h-[8rem] sm:!rounded-[18px]"
                           onClick={uploadImage}
                           disabled={uploading || !files.length || !canUseApplication}
-                          className="btn-ghost min-h-[3rem] justify-center !rounded-[16px] sm:min-h-[8rem] sm:!rounded-[18px]"
                         >
                           <UploadCloud className="h-4 w-4" />
                           {uploading ? "Uploading" : "Upload selected"}
-                        </button>
+                        </UnifiedButton>
                       </div>
 
                       {files.length ? (
@@ -1161,20 +1167,20 @@ export default function PartnerProductsPage() {
                 </AnimatePresence>
 
                 <div className="grid gap-3 pt-1 sm:grid-cols-[auto_1fr]">
-                  <button type="button" onClick={() => goToProductStep(activeProductStep - 1)} className="btn-ghost justify-center">
+                  <UnifiedButton type="button" variant="ghost" size="md" className="justify-center" onClick={() => goToProductStep(activeProductStep - 1)}>
                     <ArrowRight className="h-4 w-4" />
                     Back
-                  </button>
+                  </UnifiedButton>
                   {activeProductStep < PRODUCT_FORM_STEPS.length - 1 ? (
-                    <button type="button" onClick={continueProductFlow} className="btn-gold justify-center">
+                    <UnifiedButton type="button" variant="primary" size="md" className="justify-center" onClick={continueProductFlow}>
                       Continue
                       <ArrowRight className="h-4 w-4 rotate-180" />
-                    </button>
+                    </UnifiedButton>
                   ) : (
-                    <button type="submit" disabled={submitting || !canUseApplication} className="btn-gold justify-center">
+                    <UnifiedButton type="submit" variant="primary" size="md" className="justify-center" disabled={submitting || !canUseApplication}>
                       <PackageCheck className="h-4 w-4" />
                       {submitting ? "Submitting" : "Send Product for Approval"}
-                    </button>
+                    </UnifiedButton>
                   )}
                 </div>
               </form>
@@ -1294,10 +1300,10 @@ export default function PartnerProductsPage() {
                   <span className="eyebrow mb-2 block">Tax ID optional</span>
                   <input value={payoutForm.taxId} onChange={(event) => updatePayout("taxId", event.target.value)} placeholder="Tax or commercial registration" dir="ltr" />
                 </label>
-                <button type="submit" disabled={savingPayout || !canUseApplication} className="btn-gold w-full justify-center">
+                <UnifiedButton type="submit" variant="primary" size="md" fullWidth disabled={savingPayout || !canUseApplication}>
                   <Landmark className="h-4 w-4" />
                   {savingPayout ? "Saving" : "Save Payout Profile"}
-                </button>
+                </UnifiedButton>
               </form>
             </section>
 
@@ -1349,10 +1355,10 @@ export default function PartnerProductsPage() {
               <p className="mt-3 text-xs leading-6 text-[#6F6254]">
                 الدفع يتم من خلال صفحة Paymob المستضافة. لو المفاتيح غير مضافة في الإعدادات، الزر هيعرض رسالة واضحة للأدمن.
               </p>
-              <button type="button" onClick={startPaymobPayment} disabled={paying || !canUseApplication} className="btn-gold mt-4 w-full justify-center sm:mt-5">
+              <UnifiedButton type="button" variant="primary" size="md" fullWidth onClick={startPaymobPayment} disabled={paying || !canUseApplication} className="mt-4 sm:mt-5">
                 <CreditCard className="h-4 w-4" />
                 {paying ? "Opening Paymob" : "Pay With Paymob"}
-              </button>
+              </UnifiedButton>
             </section>
           </aside>
         </div>

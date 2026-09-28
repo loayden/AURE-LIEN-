@@ -4,11 +4,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { sendEmailAsync } from "@/lib/email/sender";
 import { getWelcomeEmailHtml } from "@/lib/email/templates/welcome";
 import { attachDeviceCookie, getOrCreateDeviceId } from "@/lib/deviceIdentity";
+import { RATE_LIMITS, rateLimitResponse } from "@/lib/rateLimit";
+import { isOriginAllowed } from "@/lib/csrf";
 
 export async function POST(req: NextRequest) {
+  const limited = await rateLimitResponse(req, RATE_LIMITS.auth);
+  if (limited) return limited;
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+  }
   try {
     const body = await req.json();
-    const { name, email, password, confirmPassword } = body;
+    const { signupSchema, zodErrorMessage } = await import("@/lib/validate");
+    const parsed = signupSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: zodErrorMessage(parsed.error) }, { status: 400 });
+    }
+    const { name, email, password, confirmPassword } = parsed.data;
 
     if (!name || !email || !password) {
       return NextResponse.json(
@@ -16,7 +28,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    if (password !== confirmPassword) {
+    if (password !== confirmPassword && parsed.data.confirmPassword !== undefined) {
       return NextResponse.json(
         { error: "Passwords do not match" },
         { status: 400 }
@@ -25,6 +37,14 @@ export async function POST(req: NextRequest) {
     if (password.length < 8) {
       return NextResponse.json(
         { error: "Password must be at least 8 characters" },
+        { status: 400 }
+      );
+    }
+    const { default: zxcvbn } = await import("zxcvbn");
+    const strength = zxcvbn(password, [name as string, email as string]);
+    if (strength.score < 2) {
+      return NextResponse.json(
+        { error: "Password is too weak. Use a longer phrase with mixed words.", warning: strength.feedback.warning || undefined },
         { status: 400 }
       );
     }
@@ -66,6 +86,44 @@ export async function POST(req: NextRequest) {
       subject: "Welcome to Luxury Bout",
       html: getWelcomeEmailHtml({ userName: user.name }),
     });
+
+    // Referral attribution (best-effort, never fails signup).
+    try {
+      const refCode = String((body as Record<string, unknown>).ref ?? "").trim().toUpperCase();
+      if (refCode) {
+        const { hasConfiguredMongoUri } = await import("@/lib/mongoEnv");
+        if (hasConfiguredMongoUri()) {
+          const { default: connectDB } = await import("@/lib/connectDB");
+          const { default: Referral } = await import("@/models/Referral");
+          const { grantBonus } = await import("@/lib/loyaltyLedger");
+          const { REFERRAL_BONUS_POINTS } = await import("@/lib/loyalty");
+          await connectDB();
+          const master = await Referral.findOne({ code: refCode, status: "issued", referredEmail: "" }).lean() as unknown as {
+            referrerUserId?: string;
+          } | null;
+          if (master?.referrerUserId && master.referrerUserId !== user.id) {
+            const { findUserById } = await import("@/lib/usersJson");
+            const referrerUser = await findUserById(master.referrerUserId).catch(() => null);
+            if (referrerUser && referrerUser.email.toLowerCase() !== user.email.toLowerCase()) {
+              const dup = await Referral.findOne({ code: refCode, referredEmail: user.email.toLowerCase() }).lean();
+              if (!dup) {
+                await Referral.create({
+                  code: `${refCode}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`,
+                  referrerUserId: master.referrerUserId,
+                  referredEmail: user.email.toLowerCase(),
+                  referredUserId: user.id,
+                  status: "converted",
+                });
+                await grantBonus(master.referrerUserId, REFERRAL_BONUS_POINTS, `Referral of ${user.email}`);
+                await grantBonus(user.id, REFERRAL_BONUS_POINTS, "Welcome referral bonus");
+              }
+            }
+          }
+        }
+      }
+    } catch {
+      // ignore referral errors
+    }
 
     const response = NextResponse.json({
       message: "Account created",

@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { EmptyStateArt } from "@/components/EmptyStateArt";
 import { ArrowRight, Calendar, CheckCircle2, Clock, CreditCard, Hash, PackageCheck, ShieldCheck, ShoppingBag, TrendingUp } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -361,10 +362,7 @@ function OrdersContent() {
           {orders.length === 0 ? (
             <motion.div initial={{ opacity:0, y:30 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.8 }}
               className="flex flex-col items-center justify-center text-center py-28">
-              <div className="w-16 h-16 rounded-3xl flex items-center justify-center mb-6"
-                   style={{ background:"rgba(255,249,239,0.72)", border:"1px solid rgba(123,103,82,0.12)" }}>
-                <ShoppingBag strokeWidth={1} className="w-7 h-7 text-[#A87935]" />
-              </div>
+              <EmptyStateArt letter="B" label="No orders yet illustration" />
               <h2 className="font-light text-[#3D3025] mb-3"
                   style={{ fontFamily:"'Cormorant Garamond', serif", fontSize:"1.8rem", letterSpacing:"0.06em" }}>
                 No orders <em style={{ color:"#A87935" }}>yet</em>

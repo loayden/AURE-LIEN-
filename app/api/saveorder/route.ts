@@ -5,6 +5,8 @@ import { attachUserCookie } from "@/lib/userSession";
 import { appendOrder, getOrdersJson } from "@/lib/orderStorage";
 import { getProductById } from "@/lib/getAllProducts";
 import { notifyOrderPlaced } from "@/lib/notifications";
+import { RATE_LIMITS, rateLimitResponse } from "@/lib/rateLimit";
+import { isOriginAllowed } from "@/lib/csrf";
 
 type OrderItem = {
   productId: string;
@@ -53,6 +55,12 @@ type Order = {
   status: string;
   paymentStatus: string;
   paymentMethod: string;
+  couponCode?: string;
+  couponDiscount?: number;
+  giftWrap?: boolean;
+  giftMessage?: string;
+  loyaltyRedeemed?: number;
+  loyaltyDiscount?: number;
 };
 
 const SHIPPING_OPTIONS: Record<string, number> = {
@@ -71,6 +79,11 @@ async function resolveUserId(req: NextRequest): Promise<{ userId: string; isNew:
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
+    const limited = await rateLimitResponse(req, RATE_LIMITS.saveorder);
+    if (limited) return limited;
+    if (!isOriginAllowed(req)) {
+      return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+    }
     const { userId, isNew } = await resolveUserId(req);
 
     let body;
@@ -84,7 +97,53 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const { items = [], total = 0, customerInfo = {}, paymentMethod = "cod" } = body;
+    const { saveOrderSchema, zodErrorMessage } = await import("@/lib/validate");
+    const zodParsed = saveOrderSchema.safeParse(body);
+    if (!zodParsed.success) {
+      return NextResponse.json({ error: zodErrorMessage(zodParsed.error) }, { status: 400 });
+    }
+
+    // ✅ Idempotency first: retries return the original order before any validation/consumption.
+    const earlyRawKey =
+      (typeof (zodParsed.data as Record<string, unknown>).idempotencyKey === "string" &&
+        String((zodParsed.data as Record<string, unknown>).idempotencyKey).trim()) ||
+      req.headers.get("Idempotency-Key")?.trim() ||
+      "";
+    const earlySanitized = earlyRawKey.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64);
+    if (earlySanitized) {
+      try {
+        const existingOrders = (await getOrdersJson()) as Order[];
+        const existing = existingOrders.find(
+          (o) => String(o._id ?? o.id) === `order-${userId.slice(0, 8)}-${earlySanitized}` && o.userId === userId
+        );
+        if (existing) {
+          const res = NextResponse.json(
+            {
+              success: true,
+              orderId: existing._id,
+              message: "Order already placed",
+              total: existing.totalPrice ?? existing.total,
+              itemsCount: existing.items?.length ?? 0,
+              paymentStatus: existing.paymentStatus,
+              status: existing.status,
+              deduped: true,
+            },
+            { status: 200 }
+          );
+          if (isNew) attachUserCookie(res, userId);
+          return res;
+        }
+      } catch {
+        // fall through to normal creation
+      }
+    }
+
+    const { items, total, customerInfo, paymentMethod } = {
+      items: zodParsed.data.items ?? [],
+      total: zodParsed.data.total ?? 0,
+      customerInfo: zodParsed.data.customerInfo ?? {},
+      paymentMethod: zodParsed.data.paymentMethod ?? "cod",
+    };
 
     console.log("📥 Received order data:", {
       itemsCount: items.length,
@@ -171,7 +230,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     let resolvedItems: OrderItem[];
     try {
       resolvedItems = await Promise.all(
-        items.map(async (item: OrderItem) => {
+        items.map(async (item) => {
           const product = await getProductById(String(item.productId));
           if (!product) {
             throw new Error(`Product not found: ${item.productId}`);
@@ -205,7 +264,55 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const itemsTotal = resolvedItems.reduce((sum: number, item) => {
       return sum + item.price * item.quantity;
     }, 0);
-    const calculatedTotal = itemsTotal + normalizedCustomer.shippingCost;
+
+    // ✅ Coupon (validated server-side, consumed atomically later).
+    const GIFT_WRAP_FEE = 50;
+    const rawCouponCode = String(zodParsed.data.couponCode ?? "").trim();
+    let couponDiscount = 0;
+    let couponCode = "";
+    if (rawCouponCode) {
+      const { quoteCoupon } = await import("@/lib/coupons");
+      const quoted = await quoteCoupon(rawCouponCode, itemsTotal);
+      if ("error" in quoted) {
+        return NextResponse.json({ error: quoted.error }, { status: 400 });
+      }
+      couponCode = quoted.quote.code;
+      couponDiscount = quoted.quote.discount;
+    }
+
+    // ✅ Loyalty redemption (100 pts = EGP 10 steps, capped by balance and subtotal).
+    const requestedPoints = Math.max(0, Math.floor(Number(zodParsed.data.loyaltyPoints ?? 0)));
+    let loyaltyRedeemed = 0;
+    let loyaltyDiscount = 0;
+    if (requestedPoints > 0) {
+      const { hasConfiguredMongoUri } = await import("@/lib/mongoEnv");
+      if (!hasConfiguredMongoUri()) {
+        return NextResponse.json({ error: "Loyalty redemption is unavailable right now" }, { status: 400 });
+      }
+      const { availablePoints } = await import("@/lib/loyaltyLedger");
+      const { LOYALTY_REDEEM_STEP, redeemValueForPoints } = await import("@/lib/loyalty");
+      const balance = await availablePoints(userId);
+      const usable = Math.floor(Math.min(requestedPoints, balance) / LOYALTY_REDEEM_STEP) * LOYALTY_REDEEM_STEP;
+      if (usable <= 0) {
+        return NextResponse.json({ error: `Not enough points (balance ${balance})` }, { status: 400 });
+      }
+      loyaltyRedeemed = usable;
+      loyaltyDiscount = Math.min(redeemValueForPoints(usable), Math.max(0, itemsTotal - couponDiscount));
+      loyaltyRedeemed = Math.floor(loyaltyDiscount / 10) * LOYALTY_REDEEM_STEP;
+      loyaltyDiscount = redeemValueForPoints(loyaltyRedeemed);
+      if (loyaltyRedeemed <= 0) {
+        return NextResponse.json({ error: "Points do not cover any discount on this order" }, { status: 400 });
+      }
+    }
+
+    const giftWrap = Boolean(zodParsed.data.giftWrap);
+    const giftMessage = String(zodParsed.data.giftMessage ?? "").slice(0, 500);
+    const giftFee = giftWrap ? GIFT_WRAP_FEE : 0;
+
+    const calculatedTotal = Math.max(
+      0,
+      itemsTotal - couponDiscount - loyaltyDiscount + normalizedCustomer.shippingCost + giftFee
+    );
 
     console.log(`✅ Total validation: frontend=${total.toFixed(2)}, server=${calculatedTotal.toFixed(2)}`);
 
@@ -214,8 +321,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       console.warn(`⚠️ Total mismatch - using server-calculated total`);
     }
 
-    // ✅ Step 1: Create new order payload
-    const orderId = `order-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+    // ✅ Step 1: Create new order payload (idempotency was already checked up front)
+    const rawIdempotencyKey =
+      (typeof body?.idempotencyKey === "string" && body.idempotencyKey.trim()) ||
+      req.headers.get("Idempotency-Key")?.trim() ||
+      "";
+    const sanitizedKey = rawIdempotencyKey.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 64);
+    const orderId = sanitizedKey
+      ? `order-${userId.slice(0, 8)}-${sanitizedKey}`
+      : `order-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
     const products = resolvedItems.map((item) => ({
       _id: item.productId,
       name: item.name,
@@ -247,9 +361,56 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       status: paymentMethod === "card" ? "pending" : "pending",
       paymentStatus: paymentMethod === "card" ? "unpaid" : "pending",
       paymentMethod: paymentMethod === "card" ? "card" : "cash_on_delivery",
+      couponCode,
+      couponDiscount,
+      giftWrap,
+      giftMessage,
+      loyaltyRedeemed,
+      loyaltyDiscount,
     };
 
     console.log(`✅ Created new order ${newOrder._id} with ${items.length} items`);
+
+    // ✅ Atomic stock reservation (Mongo only; no-op elsewhere). Prevents oversell races.
+    const { tryDecrementStock, restoreStock } = await import("@/lib/inventory");
+    const reservation = await tryDecrementStock(
+      resolvedItems.map((item) => ({ productId: item.productId, quantity: item.quantity, name: item.name }))
+    );
+    if (!reservation.ok) {
+      const first = reservation.issues[0];
+      return NextResponse.json(
+        { error: `Only ${first.available} available for ${first.name}` },
+        { status: 409 }
+      );
+    }
+    const restoreAll = () =>
+      restoreStock(resolvedItems.map((item) => ({ productId: item.productId, quantity: item.quantity })));
+
+    // ✅ Consume coupon atomically (a concurrent checkout may have exhausted it).
+    let couponConsumed = false;
+    if (couponCode) {
+      const { consumeCoupon } = await import("@/lib/coupons");
+      couponConsumed = await consumeCoupon(couponCode);
+      if (!couponConsumed) {
+        await restoreAll();
+        return NextResponse.json({ error: "Coupon is no longer available" }, { status: 409 });
+      }
+    }
+
+    // ✅ Reserve loyalty points before the order exists (unique per order → no double spend).
+    let loyaltyReserved = false;
+    if (loyaltyRedeemed > 0) {
+      const { recordRedemption } = await import("@/lib/loyaltyLedger");
+      loyaltyReserved = await recordRedemption(userId, orderId, loyaltyRedeemed);
+      if (!loyaltyReserved) {
+        await restoreAll();
+        if (couponConsumed) {
+          const { releaseCoupon } = await import("@/lib/coupons");
+          await releaseCoupon(couponCode);
+        }
+        return NextResponse.json({ error: "Could not reserve loyalty points" }, { status: 409 });
+      }
+    }
 
     // ✅ Step 2: Persist the order in the shared store
     try {
@@ -258,6 +419,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       notifyOrderPlaced(newOrder);
     } catch (writeError) {
       console.error("❌ Failed to save order to shared storage:", writeError instanceof Error ? writeError.message : String(writeError));
+      await restoreAll();
+      if (couponConsumed) {
+        const { releaseCoupon } = await import("@/lib/coupons");
+        await releaseCoupon(couponCode);
+      }
+      if (loyaltyReserved) {
+        const { voidRedemption } = await import("@/lib/loyaltyLedger");
+        await voidRedemption(orderId);
+      }
       return NextResponse.json(
         { error: "Failed to save order to database" },
         { status: 500 }
@@ -307,6 +477,14 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     // Filter orders for this user
     const userOrders = orders.filter((o) => o.userId === userId);
     console.log(`✅ Retrieved ${userOrders.length} orders for user ${userId}`);
+
+    const url = new URL(req.url);
+    if (url.searchParams.has("page") || url.searchParams.has("limit")) {
+      const { paginateArray, parsePaginationParams } = await import("@/lib/pagination");
+      const { page, limit } = parsePaginationParams(url);
+      const { data, pagination } = paginateArray(userOrders, page, limit);
+      return NextResponse.json({ orders: data, pagination }, { status: 200 });
+    }
 
     return NextResponse.json({ orders: userOrders }, { status: 200 });
   } catch (error) {
