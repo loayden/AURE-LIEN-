@@ -1,4 +1,3 @@
-/// <reference types="vitest" />
 import { describe, expect, it } from "vitest";
 import { paginateArray, parsePaginationParams } from "@/lib/pagination";
 import { convertPrice, formatConvertedPrice, getSupportedCurrencies } from "@/lib/currency";

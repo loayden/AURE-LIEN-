@@ -21,5 +21,10 @@ export default defineConfig([
     "tsconfig.tsbuildinfo",
     "next-env.d.ts",
     "AURE-LIEN-.git.bfg-report/**",
+    // Node/agent tooling — not app code (CommonJS require() is correct here)
+    "qa/**",
+    "scripts/**",
+    "parse.js",
+    ".opencode/**",
   ]),
 ]);
