@@ -16,11 +16,13 @@ import {
   Heart,
   LogOut,
   Package2,
+  Play,
   ShieldCheck,
   ShoppingBag,
   Sparkles,
   Store,
 } from "lucide-react";import Image from "next/image";
+import { ONBOARDING_REPLAY_EVENT } from "@/components/onboarding/WelcomeOnboarding";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
@@ -1260,6 +1262,23 @@ export default function AccountPage() {
                     {pushMessage ? (
                       <p className="mt-2 text-sm" role="status" style={{ color: "var(--gold-text)" }}>{pushMessage}</p>
                     ) : null}
+                  </Card>
+                  <Card>
+                    <span className="flex items-center gap-2 text-[9px] uppercase tracking-[0.24em]" style={{ color: "var(--gold-text)" }}>
+                      <Play className="h-3.5 w-3.5" strokeWidth={1.4} />
+                      Welcome Tour
+                    </span>
+                    <p className="mt-2 text-sm leading-7" style={{ color: "rgba(61,48,37,0.75)" }}>
+                      Replay the short Arabic intro shown to new members.
+                    </p>
+                    <div className="mt-4">
+                      <Button
+                        variant="secondary"
+                        onClick={() => window.dispatchEvent(new Event(ONBOARDING_REPLAY_EVENT))}
+                      >
+                        Replay Intro
+                      </Button>
+                    </div>
                   </Card>
                 </div>
               )}

@@ -5,6 +5,7 @@ import DeferredAIChatStylist from '@/components/DeferredAIChatStylist'
 import Footer from '@/components/Footer'
 import MobileBottomNav from '@/components/MobileBottomNav'
 import Navbar from '@/components/Navbar'
+import OnboardingHost from '@/components/onboarding/OnboardingHost'
 import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister'
 import ToastProvider from '@/components/ToastProvider'
 import type { Metadata, Viewport } from 'next'
@@ -92,6 +93,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ServiceWorkerRegister />
         </div>
         <ToastProvider />
+        <ClientErrorBoundary fallback={null}>
+          <OnboardingHost />
+        </ClientErrorBoundary>
       </body>
     </html>
   )
