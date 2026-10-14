@@ -278,14 +278,18 @@ export default function PartnerSubscriptionCheckoutPage() {
   }, [selectedPlan.id, sourceApplicationId]);
 
   useEffect(() => {
-    if (!draftLoaded || !edited || paying) return;
+    if (!draftLoaded) return;
+    if (paying) {
+      draftSignatureRef.current = "";
+      return;
+    }
     const signature = getDraftSignature();
     if (signature === draftSignatureRef.current) return;
     const timer = window.setTimeout(() => {
       void saveDraft();
     }, 900);
     return () => window.clearTimeout(timer);
-  }, [draftLoaded, edited, form, getDraftSignature, paying, saveDraft]);
+  }, [draftLoaded, form, getDraftSignature, paying, draftId, saveDraft]);
 
   const loginHref = `/login?redirect=${encodeURIComponent(`/partners/checkout?plan=${selectedPlan.id}${sourceApplicationId ? `&applicationId=${sourceApplicationId}` : ""}`)}`;
   const requiresLogin = /sign in/i.test(error);

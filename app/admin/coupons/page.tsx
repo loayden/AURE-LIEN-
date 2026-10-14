@@ -48,7 +48,7 @@ export default function AdminCouponsPage() {
     setMessage("");
     try {
       const res = await fetch("/api/coupons", {
-        method: "PUT",
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           code: form.code,

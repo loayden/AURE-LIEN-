@@ -46,6 +46,18 @@ interface UserData {
 export default function AdminUserOrdersPage() {
   const params = useParams();
   const userId = params?.userId as string;
+  
+  // If no userId, show error state
+  if (!userId) {
+    return (
+      <div className="min-h-screen bg-[#F5F1E8] p-6 flex flex-col items-center justify-center">
+        <p className="text-white/60 font-light tracking-widest">Client profile not found.</p>
+        <UnifiedButton href="/admin/users" variant="primary">
+          Back to Users
+        </UnifiedButton>
+      </div>
+    );
+  }
   const [user, setUser] = useState<UserData | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);

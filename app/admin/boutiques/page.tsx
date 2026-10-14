@@ -37,9 +37,13 @@ export default function AdminBoutiquesPage() {
   const [actionMessage, setActionMessage] = useState("");
 
   async function verifyShop(applicationId: string, verified: boolean) {
-    const checks = checklist[applicationId] ?? { photosMatchMap: false, signageVisible: false, detailsConfirmed: false };
-    if (verified && (!checks.photosMatchMap || !checks.signageVisible || !checks.detailsConfirmed)) {
+    const checks = checklist[applicationId] ?? null;
+    if (verified && checks && (!checks.photosMatchMap || !checks.signageVisible || !checks.detailsConfirmed)) {
       setActionMessage("Confirm all three checklist items to verify.");
+      return;
+    }
+    if (verified && !checks) {
+      setActionMessage("Check the three verification items above before verifying.");
       return;
     }
     setActingId(applicationId);

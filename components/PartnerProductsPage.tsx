@@ -290,6 +290,7 @@ export default function PartnerProductsPage() {
     const href = application.access?.subscriptionUrl || `/partners/subscription?applicationId=${encodeURIComponent(application._id)}`;
     showToast(application.access?.message || "Subscribe before uploading products.", "error");
     router.replace(href);
+    return;
   }
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
@@ -341,6 +342,10 @@ export default function PartnerProductsPage() {
   function validateImagesStep() {
     if (!hasProductImages) {
       showToast("Add at least one product image before review.", "error");
+      return false;
+    }
+    if (form.imageUrl.trim() && !form.imageUrl.trim().startsWith("/") && !form.imageUrl.trim().match(/^https?:\/\//i)) {
+      showToast("Image URL should start with / or http(s)://", "error");
       return false;
     }
     return true;
