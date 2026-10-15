@@ -98,8 +98,14 @@ function ResetForm() {
       <button
         type="submit"
         disabled={busy}
-        className="mt-4 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-[10px] uppercase tracking-[0.24em] text-[#FFF8EC] transition disabled:opacity-50"
-        style={{ background: "linear-gradient(135deg, #4C3A26, #7D592B)" }}
+        className="mt-4 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-9xl px-4 py-3 text-[11px] uppercase tracking-[0.15em] text-[#FFF8EC] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] disabled:opacity-50"
+        style={{ 
+          background: "linear-gradient(135deg, #4C3A26, #7D592B)",
+          backdropFilter: "blur(20px) saturate(160%)",
+          WebkitBackdropFilter: "blur(20px) saturate(160%)",
+          border: "1px solid rgba(168,121,53,0.34)",
+          boxShadow: "0 10px 30px rgba(168,121,53,0.12), inset 0 1px 0 rgba(255,255,255,0.64)"
+        }}
       >
         {busy ? "Updating…" : "Update Password"}
       </button>

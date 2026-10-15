@@ -100,9 +100,9 @@ export function ProductReviews({ productId }: { productId: string }) {
           className="mt-2 w-full rounded-xl px-4 py-2 text-sm"
           style={{ border: "1px solid rgba(123,103,82,0.22)" }}
         />
-        <Button onClick={submit} disabled={submitting} className="mt-3">
-          {submitting ? "Saving…" : "Submit review"}
-        </Button>
+<Button variant="gold" onClick={submit} disabled={submitting} className="mt-3">
+  {submitting ? "Saving…" : "Submit review"}
+</Button>
         {message && <p className="mt-2 text-sm" role="status">{message}</p>}
       </div>
     </section>

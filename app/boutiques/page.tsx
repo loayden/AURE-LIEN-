@@ -54,7 +54,7 @@ export default async function BoutiquesPage() {
             بنوثّق كل بوتيك بالصور والموقع قبل ما يعرض منتجاته على BOUT، عشان تتسوّق وإنت مطمّن.
           </p>
           <div className="mt-5 flex flex-col sm:flex-row gap-3">
-            <UnifiedButton href="/boutiques/apply" variant="primary" size="md">
+            <UnifiedButton href="/boutiques/apply" variant="gold" size="md">
               وثّق بوتيكك مجانًا
             </UnifiedButton>
             <UnifiedButton href="/shop" variant="outline" size="md">
