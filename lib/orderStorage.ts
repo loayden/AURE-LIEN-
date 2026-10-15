@@ -333,7 +333,7 @@ export async function appendOrder(order: any): Promise<any> {
     await Order.findOneAndUpdate(
       { _id: normalized._id },
       normalized,
-      { upsert: true, new: true, setDefaultsOnInsert: true }
+      { upsert: true, returnDocument: 'after' }
     );
     if (!mongoOnly()) {
       try {

@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
         body: String(parsed.data.body ?? "").slice(0, 2000),
         createdAt: new Date(),
       },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
+      { upsert: true, returnDocument: 'after' }
     );
     return NextResponse.json({ success: true }, { status: 201, headers: NO_STORE });
   } catch (error) {

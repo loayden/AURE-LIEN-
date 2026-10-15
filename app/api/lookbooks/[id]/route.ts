@@ -55,7 +55,7 @@ export async function PUT(
     const lookbook = await Lookbook.findByIdAndUpdate(
       id,
       { ...allowed, updatedAt: new Date() },
-      { new: true }
+      { returnDocument: 'after' }
     );
     if (!lookbook) return NextResponse.json({ error: "Not found" }, { status: 404 });
     return NextResponse.json(lookbook);

@@ -292,7 +292,7 @@ export async function createUser(
       await User.findOneAndUpdate(
         { email: user.email },
         user,
-        { upsert: true, new: true, setDefaultsOnInsert: true }
+        { upsert: true, returnDocument: 'after' }
       );
       if (!mongoOnly()) {
         try {
@@ -365,7 +365,7 @@ export async function upsertGoogleUser(
       await User.findOneAndUpdate(
         { email: nextUser.email },
         nextUser,
-        { upsert: true, new: true, setDefaultsOnInsert: true }
+        { upsert: true, returnDocument: 'after' }
       );
       if (!mongoOnly()) {
         try {

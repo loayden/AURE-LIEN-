@@ -79,7 +79,7 @@ export async function PUT(req: NextRequest) {
       active: parsed.data.active,
       ...(parsed.data.expiresAt ? { expiresAt: new Date(parsed.data.expiresAt) } : {}),
     },
-    { upsert: true, new: true, setDefaultsOnInsert: true }
+    { upsert: true, returnDocument: 'after' }
   );
   await logAdminAction({ action: "admin.coupon.upsert", actorId: auth.userId, actorEmail: auth.email, targetType: "coupon", targetId: code, ip: getClientIpFromHeaders(req.headers) });
   return NextResponse.json({ success: true, coupon }, { headers: NO_STORE });

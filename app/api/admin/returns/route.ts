@@ -58,7 +58,7 @@ export async function PATCH(req: NextRequest) {
     const updated = await ReturnRequest.findOneAndUpdate(
       { _id: parsed.data.id },
       { $set: { status: parsed.data.status, adminNote: parsed.data.adminNote, updatedAt: new Date() } },
-      { new: true }
+      { returnDocument: 'after' }
     ).lean();
     if (!updated) {
       return NextResponse.json({ error: "Return not found" }, { status: 404, headers: NO_STORE });

@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     await PushSubscription.findOneAndUpdate(
       { endpoint: parsed.data.endpoint },
       { userId, endpoint: parsed.data.endpoint, p256dh: parsed.data.keys.p256dh, auth: parsed.data.keys.auth },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
+      { upsert: true, returnDocument: 'after' }
     );
     return NextResponse.json({ success: true }, { headers: NO_STORE });
   } catch {

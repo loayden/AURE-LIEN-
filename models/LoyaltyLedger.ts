@@ -4,7 +4,7 @@ const loyaltyLedgerSchema = new Schema(
   {
     _id: { type: String, required: true },
     userId: { type: String, required: true, index: true },
-    orderId: { type: String, default: "", index: true },
+    orderId: { type: String, default: "" },
     points: { type: Number, required: true },
     kind: { type: String, enum: ["redeem", "bonus"], required: true },
     note: { type: String, default: "" },
