@@ -62,6 +62,7 @@ function normalizeOrder(raw: any): any {
     paymentStatus: raw.paymentStatus ?? (raw.status === "completed" ? "paid" : "pending"),
     paymentMethod: raw.paymentMethod ?? "",
     createdAt: raw.createdAt ?? new Date().toISOString(),
+    customer: raw.customer || undefined,
   };
 }
 
