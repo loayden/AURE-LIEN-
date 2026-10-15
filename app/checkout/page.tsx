@@ -561,16 +561,16 @@ function CheckoutContent() {
                         <option value="Egypt">Egypt</option>
                       </select>
                       <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
-                        <input type="text" name="firstName" aria-label="First name" value={form.firstName} onChange={(e) => update("firstName", e.target.value)} autoComplete="given-name" required />
-                        <input type="text" name="lastName" aria-label="Last name" value={form.lastName} onChange={(e) => update("lastName", e.target.value)} autoComplete="family-name" required />
+                        <input type="text" name="firstName" aria-label="First name" value={form.firstName} onChange={(e) => update("firstName", e.target.value)} autoComplete="given-name" required placeholder="First name" />
+                        <input type="text" name="lastName" aria-label="Last name" value={form.lastName} onChange={(e) => update("lastName", e.target.value)} autoComplete="family-name" required placeholder="Last name" />
                       </div>
-                      <input type="text" name="address" aria-label="Street address" value={form.address} onChange={(e) => update("address", e.target.value)} autoComplete="street-address" required />
-                      <input type="text" name="apartment" aria-label="Apartment (optional)" value={form.apartment} onChange={(e) => update("apartment", e.target.value)} />
+                      <input type="text" name="address" aria-label="Street address" value={form.address} onChange={(e) => update("address", e.target.value)} autoComplete="street-address" required placeholder="Street address" />
+                      <input type="text" name="apartment" aria-label="Apartment (optional)" value={form.apartment} onChange={(e) => update("apartment", e.target.value)} placeholder="Apartment (optional)" />
                       <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2">
-                        <input type="text" name="city" aria-label="City" value={form.city} onChange={(e) => update("city", e.target.value)} autoComplete="address-level2" required />
-                        <input type="text" name="postalCode" aria-label="Postal code (optional)" value={form.postalCode} onChange={(e) => update("postalCode", e.target.value)} />
+                        <input type="text" name="city" aria-label="City" value={form.city} onChange={(e) => update("city", e.target.value)} autoComplete="address-level2" required placeholder="City" />
+                        <input type="text" name="postalCode" aria-label="Postal code (optional)" value={form.postalCode} onChange={(e) => update("postalCode", e.target.value)} placeholder="Postal code (optional)" />
                       </div>
-                      <input type="tel" name="phone" aria-label="Phone number" value={form.phone} onChange={(e) => update("phone", e.target.value)} autoComplete="tel" required />
+                      <input type="tel" name="phone" aria-label="Phone number" value={form.phone} onChange={(e) => update("phone", e.target.value)} autoComplete="tel" required placeholder="Phone number" />
                     </div>
                   </GlassSection>
                 </motion.div>
