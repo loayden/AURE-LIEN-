@@ -34,7 +34,7 @@ export default async function BoutiquesPage() {
     .sort((x, y) => y.pieces - x.pieces)[0];
 
   return (
-    <main dir="rtl" lang="ar" className="min-h-screen bg-[#F5F1E8] text-[#3D3025]" style={{ fontFamily: "Tahoma, Arial, var(--font-jost), sans-serif" }}>
+    <main dir="rtl" lang="ar" className="min-h-screen bg-[#F5F1E8] text-[#3D3025]" style={{ fontFamily: "'IBM Plex Sans Arabic', Tahoma, Arial, var(--font-jost), sans-serif" }}>
       {/* ── Hero ── */}
       <section id="boutiques-hero" className="px-4 pb-8 pt-20 sm:px-6 sm:pt-24 md:px-10">
         <div className="mx-auto max-w-7xl">
@@ -43,18 +43,24 @@ export default async function BoutiquesPage() {
           </p>
           <h1
             className="mt-2 max-w-3xl font-light leading-[1.15]"
-            style={{ fontFamily: "'Cormorant Garamond', Tahoma, serif", fontSize: "clamp(2.2rem,5.5vw,4rem)" }}
+            style={{ fontFamily: "'IBM Plex Sans Arabic', 'Cormorant Garamond', Tahoma, serif", fontSize: "clamp(2.2rem,5.5vw,4rem)" }}
           >
-            محلات حقيقية. <em style={{ color: "var(--gold-text)" }}>قطع موثّقة.</em>
+            بوتيكات موثّقة
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-7 sm:text-base" style={{ color: "rgba(61,48,37,0.75)" }}>
-            كل بوتيك هنا أثبت محله بصور حقيقية وموقع متثبت قبل ما يبيع قطعة واحدة.
-            {verified.length > 0 ? (
-              <> {verified.length} {verified.length === 1 ? "محل موثّق" : "محلات موثّقة"} · {livePieces} قطعة live{areas.length > 0 ? ` · ${areas.join(" · ")}` : ""}.</>
-            ) : (
-              <> كن أول محل موثّق على BOUT.</>
-            )}
+            محلات حقيقية، وقطع مضمونة المصدر.
           </p>
+          <p className="mt-3 max-w-2xl text-sm leading-7 sm:text-base" style={{ color: "rgba(61,48,37,0.75)" }}>
+            بنوثّق كل بوتيك بالصور والموقع قبل ما يعرض منتجاته على BOUT، عشان تتسوّق وإنت مطمّن.
+          </p>
+          <div className="mt-5 flex flex-col sm:flex-row gap-3">
+            <UnifiedButton href="/boutiques/apply" variant="primary" size="md">
+              وثّق بوتيكك مجانًا
+            </UnifiedButton>
+            <UnifiedButton href="/shop" variant="outline" size="md">
+              اكتشف البوتيكات
+            </UnifiedButton>
+          </div>
           <div className="mt-5 flex flex-col gap-3 sm:flex-row">
             <UnifiedButton href="/shop" variant="primary" size="md">
               تسوّق كل القطع
@@ -63,27 +69,7 @@ export default async function BoutiquesPage() {
               بيع معانا — 7 أيام مجانا
             </UnifiedButton>
           </div>
-          <div className="mt-6 grid grid-cols-3 gap-3" role="list" aria-label="إحصائيات السوق">
-            {[
-              { value: String(verified.length), label: "محلات موثّقة" },
-              { value: String(livePieces), label: "قطع live" },
-              { value: "100%", label: "توثيق بالصور" },
-            ].map((s) => (
-              <div
-                key={s.label}
-                role="listitem"
-                className="rounded-2xl p-3 text-center sm:p-4"
-                style={{ border: "1px solid rgba(123,103,82,0.16)", background: "rgba(255,255,255,0.55)" }}
-              >
-                <p className="font-light" style={{ fontFamily: "'Cormorant Garamond', Tahoma, serif", fontSize: "clamp(1.4rem,4vw,2rem)", lineHeight: 1 }}>
-                  {s.value}
-                </p>
-                <p className="mt-1 text-[9px] tracking-[0.2em]" style={{ color: "rgba(61,48,37,0.6)" }}>
-                  {s.label}
-                </p>
-              </div>
-            ))}
-          </div>
+          
         </div>
       </section>
 
@@ -113,7 +99,7 @@ export default async function BoutiquesPage() {
               <span className="text-[9px] tracking-[0.45em]" style={{ color: "#D9BC77" }}>
                 بوتيك مميز
               </span>
-              <span className="mt-3 block font-light leading-[1.1]" style={{ fontFamily: "'Cormorant Garamond', Tahoma, serif", fontSize: "clamp(2rem,5vw,3.4rem)" }}>
+              <span className="mt-3 block font-light leading-[1.1]" style={{ fontFamily: "'IBM Plex Sans Arabic', 'Cormorant Garamond', Tahoma, serif", fontSize: "clamp(2rem,5vw,3.4rem)" }}>
                 {flagship.app.boutiqueName}
               </span>
               <span className="mt-2 block text-[11px] tracking-[0.22em]" style={{ color: "rgba(255,249,239,0.65)" }}>
@@ -145,7 +131,7 @@ export default async function BoutiquesPage() {
               </p>
               <h2
                 className="mt-2 font-light leading-[1.15]"
-                style={{ fontFamily: "'Cormorant Garamond', Tahoma, serif", fontSize: "clamp(1.7rem,4.5vw,2.8rem)" }}
+                style={{ fontFamily: "'IBM Plex Sans Arabic', 'Cormorant Garamond', Tahoma, serif", fontSize: "clamp(1.7rem,4.5vw,2.8rem)" }}
               >
                 محلك يستاهل أكتر من زباين الشارع.
               </h2>
@@ -183,7 +169,7 @@ export default async function BoutiquesPage() {
               <p className="text-[9px] tracking-[0.3em]" style={{ color: "#D9BC77" }}>
                 باقة البداية
               </p>
-              <p className="mt-2 font-light" style={{ fontFamily: "'Cormorant Garamond', Tahoma, serif", fontSize: "2.2rem", lineHeight: 1 }}>
+              <p className="mt-2 font-light" style={{ fontFamily: "'IBM Plex Sans Arabic', 'Cormorant Garamond', Tahoma, serif", fontSize: "2.2rem", lineHeight: 1 }}>
                 7 أيام مجانا
               </p>
               <p className="mt-1 text-sm" style={{ color: "rgba(255,249,239,0.7)" }}>
