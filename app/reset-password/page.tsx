@@ -50,8 +50,14 @@ function ResetForm() {
         </p>
         <Link
           href="/login"
-          className="mt-5 inline-flex min-h-[52px] items-center justify-center gap-2 rounded-full px-8 py-3 text-[10px] uppercase tracking-[0.24em] text-[#FFF8EC]"
-          style={{ background: "linear-gradient(135deg, #4C3A26, #7D592B)" }}
+          className="mt-5 inline-flex min-h-[52px] items-center justify-center gap-2 rounded-full px-8 py-3 text-[11px] font-medium uppercase tracking-[0.15em] text-[#FFF9EF]"
+          style={{
+            background: "linear-gradient(135deg, #4C3A26, #7D592B)",
+            backdropFilter: "blur(18px) saturate(150%)",
+            WebkitBackdropFilter: "blur(18px) saturate(150%)",
+            border: "1px solid rgba(168,121,53,0.42)",
+            boxShadow: "0 14px 30px rgba(61,48,37,0.16), inset 0 1px 0 rgba(255,255,255,0.30)",
+          }}
         >
           Sign In
         </Link>
@@ -98,7 +104,7 @@ function ResetForm() {
       <button
         type="submit"
         disabled={busy}
-        className="mt-4 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-9xl px-4 py-3 text-[11px] uppercase tracking-[0.15em] text-[#FFF8EC] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] disabled:opacity-50"
+        className="mt-4 flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-[11px] font-medium uppercase tracking-[0.15em] text-[#FFF9EF] transition duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] disabled:opacity-50"
         style={{ 
           background: "linear-gradient(135deg, #4C3A26, #7D592B)",
           backdropFilter: "blur(20px) saturate(160%)",

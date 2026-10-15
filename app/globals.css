@@ -588,9 +588,6 @@ select:-webkit-autofill:focus {
 }
 
 /* Primary CTA — matches product page "Add to Cart" (primaryCta) */
-.font-medium {
-  font-weight: 500;
-}
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -647,7 +644,7 @@ select:-webkit-autofill:focus {
   padding: 0.875rem 2rem;
   border-radius: 9999px;
   background: linear-gradient(135deg, rgba(168,121,53,0.16) 0%, rgba(255,249,239,0.58) 100%);
-  color: #FFF9EF;
+  color: #7A581F;
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   border: 1px solid rgba(168,121,53,0.34);
@@ -696,7 +693,7 @@ select:-webkit-autofill:focus {
   border-radius: 9999px;
   background: transparent;
   border: 1px solid rgba(168,121,53,0.42);
-  color: #FFF9EF;
+  color: #4C3A26;
   font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 500;

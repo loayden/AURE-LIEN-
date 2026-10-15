@@ -50,8 +50,14 @@ export async function VerifiedBoutiquesStrip() {
           </div>
           <Link
             href="/boutiques/apply"
-            className="inline-flex min-h-[52px] shrink-0 items-center gap-2 rounded-full px-7 text-[11px] tracking-[0.2em] text-white"
-            style={{ background: "linear-gradient(135deg, #4C3A26, #7D592B)" }}
+            className="inline-flex min-h-[52px] shrink-0 items-center gap-2 rounded-full px-7 text-[11px] font-medium tracking-[0.2em] text-[#FFF9EF]"
+            style={{
+              background: "linear-gradient(135deg, #4C3A26, #7D592B)",
+              backdropFilter: "blur(18px) saturate(150%)",
+              WebkitBackdropFilter: "blur(18px) saturate(150%)",
+              border: "1px solid rgba(168,121,53,0.42)",
+              boxShadow: "0 14px 30px rgba(61,48,37,0.16), inset 0 1px 0 rgba(255,255,255,0.30)",
+            }}
           >
             وثّق بوتيكك — مجانا
           </Link>
