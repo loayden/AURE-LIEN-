@@ -76,7 +76,7 @@ export const CATEGORY_META: CategoryMeta[] = [
     title: "Accessories",
     short: "Finish",
     href: "/accessories",
-    image: withPublicAssetVersion("/uploads/accessories.jpg"),
+    image: withPublicAssetVersion("/uploads/Belts.jpg"),
     heroImage: withPublicAssetVersion("/uploads/accessories.mp4"),
     copy: "Belts, sunglasses, bags, and wallets that complete the outfit without crowding it.",
     seo: "Explore BOUT accessories, including belts, bags, wallets, sunglasses, and finishing pieces.",
