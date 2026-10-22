@@ -3,7 +3,7 @@ const parser = require('@babel/parser');
 const code = fs.readFileSync('app/account/page.tsx', 'utf-8');
 try {
   parser.parse(code, { sourceType: 'module', plugins: ['jsx', 'typescript'] });
-  print("No syntax error found by Babel.");
+  console.log("No syntax error found by Babel.");
 } catch (e) {
   console.log(e.message, e.loc);
   const lines = code.split('\n');

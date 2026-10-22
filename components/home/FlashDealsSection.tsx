@@ -5,6 +5,7 @@ import {
   formatPrice,
   productHref,
   productImage,
+  stockLabel,
 } from "@/lib/commerce";
 import type { Product } from "@/lib/types";
 import { motion } from "framer-motion";
@@ -64,7 +65,11 @@ export default function FlashDealsSection({
   }, []);
 
   const { hours, minutes, seconds, expired, ready } = useCountdown(dealEndMs);
-  const dealProducts = useMemo(() => products.slice(0, 6), [products]);
+  // Real discounted products only — never fabricate discount %, "was" prices, or scarcity.
+  const dealProducts = useMemo(
+    () => products.filter((p) => typeof p.discount === "number" && p.discount > 0 && p.discount < 100).slice(0, 6),
+    [products]
+  );
 
   if (!ready || expired || dealProducts.length === 0) return null;
 
@@ -104,11 +109,9 @@ export default function FlashDealsSection({
         </motion.div>
 
         <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-3 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {dealProducts.map((product, i) => {
-            const seed = (product.name.length * 7 + i * 13) % 26;
-            const discount = 15 + seed;
-            const fakeOriginal = Math.round(product.price / (1 - discount / 100));
-            const claimed = 40 + ((seed * 2) % 51);
+          {dealProducts.map((product) => {
+            const discount = typeof product.discount === "number" && product.discount > 0 && product.discount < 100 ? product.discount : 0;
+            const originalPrice = discount > 0 ? Math.round((product.price ?? 0) / (1 - discount / 100)) : null;
             return (
               <motion.div
                 key={product._id}
@@ -127,9 +130,11 @@ export default function FlashDealsSection({
                       sizes="(max-width: 640px) 44vw, (max-width: 1024px) 33vw, 16vw"
                       className="object-cover transition duration-500 group-hover:scale-[1.05]"
                     />
-                    <span className="absolute left-2 top-2 rounded-md bg-[#DC2626] px-2 py-1 text-[10px] font-bold text-white shadow-sm">
-                      -{discount}%
-                    </span>
+                    {discount > 0 && (
+                      <span className="absolute left-2 top-2 rounded-md bg-[#DC2626] px-2 py-1 text-[10px] font-bold text-white shadow-sm">
+                        -{discount}%
+                      </span>
+                    )}
                   </Link>
                   <div className="p-3 flex flex-col h-full">
                     <p className="text-[10px] uppercase tracking-wider text-[#8A8177] mb-1">{formatCategoryLabel(product.category)}</p>
@@ -137,14 +142,11 @@ export default function FlashDealsSection({
                     <p className="mt-0.5 line-clamp-1 text-[11px] text-[#69645E]">{product.description || "Limited time offer"}</p>
                     <div className="mt-1.5 flex items-baseline gap-2">
                       <span className="text-sm font-bold text-[#DC2626]">EGP {formatPrice(product.price)}</span>
-                      <span className="text-[11px] text-[#8A8177] line-through">EGP {formatPrice(fakeOriginal)}</span>
+                      {originalPrice != null && (
+                        <span className="text-[11px] text-[#8A8177] line-through">EGP {formatPrice(originalPrice)}</span>
+                      )}
                     </div>
-                    <div className="mt-2">
-                      <div className="h-1.5 overflow-hidden rounded-full bg-[#FEE2E2]">
-                        <div className="h-full rounded-full bg-[#DC2626] transition-[width]" style={{ width: `${claimed}%` }} />
-                      </div>
-                      <p className="mt-1 text-[10px] text-[#DC2626]">{claimed}% claimed</p>
-                    </div>
+                    <p className="mt-2 text-[10px] uppercase tracking-wider text-[#8A8177]">{stockLabel(product)}</p>
                   </div>
                 </div>
               </motion.div>
