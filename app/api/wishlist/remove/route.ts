@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthFromRequest } from "@/lib/auth";
 import { removeFromWishlistMongo } from "@/lib/wishlistMongo";
+import { isOriginAllowed } from "@/lib/csrf";
 
 export async function POST(req: NextRequest) {
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+  }
   const auth = await getAuthFromRequest(req);
   if (!auth) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

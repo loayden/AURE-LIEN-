@@ -5,6 +5,7 @@ import { sendEmailAsync } from "@/lib/email/sender";
 import { getWelcomeEmailHtml } from "@/lib/email/templates/welcome";
 import { verifyGoogleCredential } from "@/lib/googleAuth";
 import { findUsersByDeviceId, upsertGoogleUser } from "@/lib/usersJson";
+import { RATE_LIMITS, rateLimitResponse } from "@/lib/rateLimit";
 
 function normalizeAccountIntent(value: unknown): "buyer" | "partner" | "both" {
   const intent = String(value ?? "buyer");
@@ -18,6 +19,8 @@ function isSameOriginRequest(req: NextRequest): boolean {
 
 export async function POST(req: NextRequest) {
   try {
+    const limited = await rateLimitResponse(req, RATE_LIMITS.auth);
+    if (limited) return limited;
     if (!isSameOriginRequest(req)) {
       return NextResponse.json({ error: "Invalid sign-in origin" }, { status: 403 });
     }

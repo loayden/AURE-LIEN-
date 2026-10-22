@@ -4,6 +4,7 @@ import { getOrdersJson } from "@/lib/orderStorage";
 import { getUsersJson } from "@/lib/usersJson";
 import { buildAddress, buildAdminCustomerIndex, getCustomerForOrder } from "@/lib/adminCustomers";
 import productsData from "@/lib/productsData";
+import { isOriginAllowed } from "@/lib/csrf";
 
 const NO_STORE_HEADERS = {
   "Cache-Control": "no-store, max-age=0",
@@ -139,6 +140,9 @@ const PAYMENT_STATUSES = ["pending", "unpaid", "paid", "refunded"] as const;
 
 /** PATCH: update order status / payment status (admin; support allowed). Appends timeline + notifies customer. */
 export async function PATCH(req: NextRequest) {
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403, headers: NO_STORE_HEADERS });
+  }
   const gate = await requireAdminWrite(req, "orders");
   if ("response" in gate) {
     return NextResponse.json({ message: "Not authorized" }, { status: 403, headers: NO_STORE_HEADERS });

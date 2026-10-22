@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthFromRequest } from "@/lib/auth";
 import { findUserById, updateUserProfile } from "@/lib/usersJson";
 import { getEnvAdminUser, isEnvAdminIdentity } from "@/lib/adminAuth";
+import { isOriginAllowed } from "@/lib/csrf";
 
 function publicUser(user: any) {
   return {
@@ -43,6 +44,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+  }
   const auth = await getAuthFromRequest(req);
   if (!auth) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

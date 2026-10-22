@@ -8,6 +8,7 @@ import { CATALOG_PRICE_OFFSET_EGP } from "@/lib/catalogPrice";
 import { appendProductJson, ProductRecord, readProductsJson, removeProductJson, upsertProductJson } from "@/lib/productsJson";
 import { clearProductsCache, getAllProducts, getProductById } from "@/lib/getAllProducts";
 import { ALL_CATEGORY_META } from "@/lib/commerce";
+import { isOriginAllowed } from "@/lib/csrf";
 
 const NO_STORE_HEADERS = {
   "Cache-Control": "no-store, max-age=0",
@@ -198,6 +199,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+  }
   const auth = await getAuthFromRequest(req);
   if (!auth || auth.role !== "admin") {
     return NextResponse.json({ message: "Not authorized" }, { status: 403 });
@@ -290,6 +294,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+  }
   const auth = await getAuthFromRequest(req);
   if (!auth || auth.role !== "admin") {
     return NextResponse.json({ message: "Not authorized" }, { status: 403 });
@@ -413,6 +420,9 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+  }
   const auth = await getAuthFromRequest(req);
   if (!auth || auth.role !== "admin") {
     return NextResponse.json({ message: "Not authorized" }, { status: 403 });

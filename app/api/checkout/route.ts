@@ -95,9 +95,21 @@ export async function POST(req: NextRequest) {
     );
 
     const baseUrl = getPublicBaseUrl(req) || req.nextUrl.origin || (process.env.NODE_ENV === "production" ? "" : "http://localhost:3000");
-    const success = successUrl || `${baseUrl}/checkout/confirmation?paymentStatus=paid`;
+    // Only allow same-origin redirect targets to prevent post-payment open redirects.
+    const safeRedirect = (url: unknown, fallback: string): string => {
+      if (typeof url !== "string" || !url.trim()) return fallback;
+      try {
+        const parsed = new URL(url, baseUrl);
+        const base = new URL(baseUrl);
+        if (parsed.origin === base.origin) return parsed.toString();
+      } catch {
+        /* fall through to default */
+      }
+      return fallback;
+    };
+    const success = safeRedirect(successUrl, `${baseUrl}/checkout/confirmation?paymentStatus=paid`);
     const successWithOrder = `${success}${success.includes("?") ? "&" : "?"}orderId=${encodeURIComponent(orderId)}`;
-    const cancel = cancelUrl || `${baseUrl}/checkout?canceled=1`;
+    const cancel = safeRedirect(cancelUrl, `${baseUrl}/checkout?canceled=1`);
     const cancelWithOrder = appendQueryParam(cancel, "orderId", orderId);
 
     const stripeIdempotencyKey =

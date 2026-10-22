@@ -3,6 +3,7 @@ import { getAuthFromRequest } from "@/lib/auth";
 import { clearOrderCustomerData, getOrdersJson } from "@/lib/orderStorage";
 import { clearCustomerUserRecords, getUsersJson } from "@/lib/usersJson";
 import { buildAdminCustomerIndex } from "@/lib/adminCustomers";
+import { isOriginAllowed } from "@/lib/csrf";
 
 const NO_STORE_HEADERS = {
   "Cache-Control": "no-store, max-age=0",
@@ -76,6 +77,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+  }
   const auth = await getAuthFromRequest(req);
   if (!auth || auth.role !== "admin") {
     return NextResponse.json({ message: "Not authorized" }, { status: 403 });

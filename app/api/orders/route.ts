@@ -6,6 +6,7 @@ import { attachUserCookie, getOrCreateUserId } from "@/lib/userSession";
 import { getAuthFromRequest } from "@/lib/auth";
 import { appendOrder, getOrdersJson, removeOrderById, setOrdersJson } from "@/lib/orderStorage";
 import { paginateArray, parsePaginationParams } from "@/lib/pagination";
+import { isOriginAllowed } from "@/lib/csrf";
 
 const NO_STORE_HEADERS = {
   "Cache-Control": "no-store, max-age=0",
@@ -103,6 +104,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+  }
   const { searchParams } = new URL(req.url);
   const orderId = searchParams.get("orderId");
   if (!orderId) {
@@ -133,10 +137,13 @@ export async function DELETE(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403 });
+  }
   try {
     const body = await req.json();
     const { userId, isNew } = await resolveUserId(req);
-    const { items, totalPrice, status } = body;
+    const { items, totalPrice } = body;
 
     if (
       !items ||
@@ -166,8 +173,9 @@ export async function POST(req: NextRequest) {
       userId,
       items: enrichedItems,
       totalPrice,
-      status: status || "pending",
-      paymentStatus: body.paymentStatus || "pending",
+      // Never trust client-supplied lifecycle state — orders always start unpaid/pending.
+      status: "pending",
+      paymentStatus: "pending",
       paymentMethod: body.paymentMethod || "",
       createdAt: new Date().toISOString(),
     };

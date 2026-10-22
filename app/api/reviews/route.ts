@@ -4,6 +4,7 @@ import connectDB, { hasConfiguredMongoUri } from "@/lib/connectDB";
 import Review from "@/models/Review";
 import { getAuthFromRequest } from "@/lib/auth";
 import { RATE_LIMITS, rateLimitResponse } from "@/lib/rateLimit";
+import { isOriginAllowed } from "@/lib/csrf";
 
 const NO_STORE = { "Cache-Control": "no-store, max-age=0" };
 
@@ -70,6 +71,9 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const limited = await rateLimitResponse(req, RATE_LIMITS.cart);
   if (limited) return limited;
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403, headers: NO_STORE });
+  }
   try {
     const auth = await getAuthFromRequest(req);
     if (!auth) return NextResponse.json({ error: "Sign in to write a review" }, { status: 401, headers: NO_STORE });

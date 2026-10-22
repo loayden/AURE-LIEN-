@@ -8,6 +8,7 @@ import { getOrdersJson, setOrdersJson } from "@/lib/orderStorage";
 import connectDB, { hasConfiguredMongoUri } from "@/lib/connectDB";
 import Payout from "@/models/Payout";
 import { parsePaginationParams } from "@/lib/pagination";
+import { isOriginAllowed } from "@/lib/csrf";
 
 const NO_STORE = { "Cache-Control": "no-store, max-age=0" };
 
@@ -47,6 +48,9 @@ const decideSchema = z.object({
  * as partnerPayoutStatus=paid so the wallet reflects reality.
  */
 export async function PATCH(req: NextRequest) {
+  if (!isOriginAllowed(req)) {
+    return NextResponse.json({ error: "Invalid origin" }, { status: 403, headers: NO_STORE });
+  }
   const auth = await getAuthFromRequest(req);
   if (!auth || auth.role !== "admin") {
     return NextResponse.json({ message: "Not authorized" }, { status: 403, headers: NO_STORE });
