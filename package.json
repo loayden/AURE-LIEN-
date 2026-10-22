@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "vitest run tests/unit.test.ts",
+    "test": "vitest run tests/unit.test.ts && node --import tsx --test tests/checkoutCancellation.test.ts tests/competitiveScorecard.test.ts tests/productConfidence.test.ts tests/productsJson.test.ts tests/wishlistInsights.test.ts",
     "reel:audio": "node scripts/generate-boutique-reel-audio.mjs",
     "reel:studio": "remotion studio remotion/index.ts",
     "reel:render": "npm run reel:audio && remotion render remotion/index.ts BoutiqueReelAd public/videos/boutique-reel-ad.mp4 --codec=h264 --audio-codec=aac --pixel-format=yuv420p",
@@ -61,6 +61,7 @@
     "tailwindcss": "^3.4.3",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.23.15",
     "typescript": "^5.9.3",
     "vitest": "^1.6.1"
   },

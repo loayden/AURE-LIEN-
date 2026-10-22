@@ -190,6 +190,13 @@ export const editorialAssets: EditorialAsset[] = [
     source: "pexels",
     credit: "Pexels / Solliefoto",
   },
+  {
+    title: "Quilted shacket study",
+    alt: "Cream geometric quilted shacket photographed for the BOUT product catalogue.",
+    src: "/uploads/Cream Geometric Quilted Shacket.jpg",
+    source: "local",
+    credit: "BOUT catalogue photography",
+  },
 ];
 
 export const scoreFields = [
